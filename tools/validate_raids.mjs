@@ -19,6 +19,11 @@ const AB = new Set(['pounce', 'chargeLine', 'nova', 'aoeAtPlayer', 'volley', 'be
   'tel', 'touchDot', 'totem', 'resist', 'enrage', 'curse', 'onHit', 'frenzy', 'onDeath', 'spawnOn', 'stream', 'walkTo', 'leash', 'unkillable',
   'flee', 'sprint', 'grow', 'colorCycle', 'mirror', 'static', 'safeSpot', 'taunt', 'cloud', 'onlyWhileCursed', 'shield', 'revive', 'split', 'carry', 'gridMove', 'bomb', 'byIndex', 'heat', 'merge']);
 const BASES = new Set(['SK', 'BT', 'SL', 'SA']);
+// DSL 表里的取值 + raids_data.js 文件头补充的取值
+const CURSE = new Set(['delayed', 'cd', 'heal', 'dmg', 'vuln', 'silence', 'dot', 'bossLeech', 'range', 'healHurts', 'mark']);
+const STACKS = new Set(['vuln', 'heal', 'dmg', 'slow', 'dot']);
+const SHIELD = new Set(['reflect', 'reduce', 'immune']);
+const EFF = new Set(['stun', 'slow', 'freeze', 'dot', 'fear', 'knock', 'silence', 'vuln', 'pull', 'dispel', 'blind', 'mc']);
 const MAXIDX = {mobs: 3, bosses: 2, adds: 11, tiles: 0, props: 11};
 
 let err = 0, warn = 0;
@@ -44,6 +49,10 @@ function skill(w, o) {
   stat.skills++; stat.engines[o.e] = (stat.engines[o.e] || 0) + 1;
   if (o.e === 'special') { if (!o.name) E(w, 'special 缺 name'); stat.special[o.name] = (stat.special[o.name] || 0) + 1; }
   if (o.e === 'builtin' && !BUILTIN.has(o.k)) E(w, `builtin 引用了不存在的 SK.${o.k}`);
+  if (o.e === 'curse' && !CURSE.has(o.kind)) E(w, `未知 curse.kind=${o.kind}`);
+  if (o.e === 'stacks' && !STACKS.has(o.kind)) E(w, `未知 stacks.kind=${o.kind}`);
+  if (o.e === 'bossShield' && !SHIELD.has(o.kind)) E(w, `未知 bossShield.kind=${o.kind}`);
+  if (o.e === 'tel' && o.eff && !EFF.has(o.eff)) E(w, `未知 tel.eff=${o.eff}`);
   if (o.e === 'tel') {
     if (!['circle', 'cone', 'beam', 'rect'].includes(o.t)) E(w, `tel.t=${o.t}`);
     if (o.dmg > 0 && !(o.T >= 0.6)) E(w, `伤害预警 T=${o.T} < 0.6`);

@@ -5,6 +5,10 @@
 // - castBar 可带 heal（治疗比例，无 then 时为读条治疗）；tel 可带 effT（控制时长）；ph 可用 t（秒）代替 at（血量）。
 // - 小怪 ab 额外允许 k:'tel'（同首领 tel 参数，at:'self'）、'touchDot'、'totem'；pack = 成群数量；ext:true = 非原作扩展小怪。
 // - variants：随机变体首领（疯狂之缘、歌剧院），进关时按种子选一个；multi + shared：多首领同场。
+// - curse.kind 额外：dot（持续伤害）、bossLeech（首领命中回血）、range（攻击距离×mul）、healHurts（治疗变伤害）、mark（被小怪锁定）；
+//   tel.eff 额外：dispel（清护盾/增益）、blind（伤害×.25）、mc（控制）；stacks.kind 额外：dot。
+// - 首领字段：start:{hp}（开场血量）、objective:{mode:'destroy'|'activate'|'trap',n,prop,...}、tint、openMsg；auto 项可为 {k,once:true}（常驻光环/脚本）；
+//   阶段可用 every+dur（周期阶段）、toggle（两态切换）、heal（满血复活）、stopEvery、win（特殊胜利条件）。
 window.RAID_DATA={
   version:1,
   raids:[
