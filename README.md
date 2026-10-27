@@ -1,8 +1,12 @@
-# 深渊构筑（暂定名）· 玩法原型 v16
+# 深渊构筑（暂定名）· 玩法原型 v17
 
 竖屏 2D 像素地牢 Roguelite：单手全自动战斗，9 个职业，4 章 × 3 关 × 6 个地牢，团本式首领战，英雄联盟斗魂竞技场风格的海克斯构筑。
 
-**在线试玩：** https://lurenyuanshi.github.io/abyss-build/?v=16
+**在线试玩：** https://lurenyuanshi.github.io/abyss-build/
+
+## 结构
+- `index.html` 只是入口：每次绕过缓存拉取最新的 `game.html`，所以链接永远是最新版
+- `design/`：团本规格（raids.json / raids_spec.md / art_todo.md / audit.md）
 
 ## 流程
 主页 → 深渊地图（选章节与关卡）→ 选职业 → 出发。每章是一局连续冒险：关卡打完自动进入下一关，等级与海克斯保留；所有角色开局都是 1 级；**海克斯只在本关有效**，进入下一关清空重选（等级保留）。

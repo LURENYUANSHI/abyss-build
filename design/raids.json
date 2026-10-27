@@ -1,0 +1,5792 @@
+{
+ "version": "spec-1 · 2026-10-27",
+ "scope": "经典旧世 60 级团本：熔火之心 → 奥妮克希亚的巢穴 → 黑翼之巢 → 祖尔格拉布 → 安其拉废墟 → 安其拉神殿 → 纳克萨玛斯（60 级版）。一个团本 = 一章，一个首领 = 一关。燃烧的远征 / 巫妖王之怒（含冰封王座、80 级纳克萨玛斯）不在本期范围，列为后续资料片。",
+ "conventions": {
+  "units": "伤害一律写成首领 b.skd 的倍数（skd×1.2）；预警时长写成 T 秒并乘以现有节奏系数 f（P2/狂乱时 f=.75）；半径/长度单位为世界像素（普通房间 160×192，首领房 192×256，玩家半径约 5）。",
+  "hpMult": "首领血量 = BIG_HP × hpCurve × 本表 hpMult。多首领（multiBoss）每个单位单独写 hpMult。",
+  "enrageSec": "游戏内秒数，直接写入 b.fury（现有“狂怒”软狂暴：之后每 2 秒全屏 skd×.8）。原作没有硬狂暴的首领也给一个值，保证节奏。",
+  "rooms": "首领房之前的小怪房数量（2~6）。rooms≥3 时倒数第二间小怪房改为精英房，精英取 boss.elite（trash 里的名字，血量 ×4、技能冷却 ×.7）。",
+  "trash": "boss.trash 指定本关小怪房刷哪些小怪（按名字引用 raid.trash）；不写则用全部。每间房至少 30% 远程（SA）。",
+  "skills": "首领常规技能轮换（现有 SK 键名，或 NEW:xxx 新键名）。NEW:xxx 的具体做法见同一首领 mechanics 里 key 相同的条目；[引擎名] 指向顶层 newPrimitives。",
+  "telegraph": "所有会造成伤害的首领/小怪技能都必须有地面预警（tel 或 G.etels），预警出现 ≥ .6 秒；头顶显示技能中文名（b.say）。",
+  "mobAbility": "小怪技能统一由 [mobAbility] 数据驱动：pounce 扑击、chargeLine 预警直线冲锋、nova 自身圆形、aoeAtPlayer 玩家脚下圆、volley n 连发、beam 直线光束、blink 瞬移、deathExplode 死亡自爆、deathSplit 死亡分裂、deathPool 死亡留池、packRevive 群体复活、summon 召唤、buffAllies 鼓舞、heal 读条治疗、fear 恐惧、mc 控制、stacks 叠层减益。"
+ },
+ "newPrimitives": [
+  {
+   "key": "tel",
+   "impl": "数据驱动预警技能：SK.tel(b,{t:'circle'|'cone'|'beam'|'rect',at:'player'|'boss'|'random'|'fixed',r|len,ang|w,T,dmg,eff,n,spread,after})。n 个预警依次 +.1s；after 支持 'pool'(留火/毒池) 'adds:k,n' 'knock'。替代大部分写死的单一技能（slam/multi/hateful/wrath 都可以改成配置）。",
+   "usedBy": [
+    "其拉鞭笞者",
+    "加兹兰卡",
+    "加尔",
+    "勒什雷尔",
+    "古拉巴什狂暴者",
+    "哈卡",
+    "哈霍兰公主",
+    "基赫纳斯",
+    "堕落的瓦拉斯塔兹",
+    "奈法利安",
+    "奥妮克希亚",
+    "奥妮克希亚守卫",
+    "奥妮克希亚雏龙",
+    "奥罗",
+    "妖术师金度",
+    "库林纳克斯",
+    "拉贾克斯将军",
+    "教官拉苏维奥斯",
+    "无疤者奥斯里安",
+    "格罗布鲁斯",
+    "沙尔图拉",
+    "沙斯拉尔",
+    "狂野的拉佐格尔",
+    "玛格曼达",
+    "疯狂之缘",
+    "管理者埃克索图斯",
+    "维希度斯",
+    "缝合傀儡",
+    "肮脏的希尔盖",
+    "莫阿姆",
+    "萨弗隆先驱者",
+    "萨菲隆",
+    "血领主曼多基尔",
+    "费尔默",
+    "迈克斯纳",
+    "阿努布雷坎",
+    "顽强的范克瑞斯",
+    "高阶祭司塞卡尔",
+    "高阶祭司娅尔罗",
+    "高阶祭司温诺希斯",
+    "高阶祭司玛尔里",
+    "高阶祭司耶克里克",
+    "鲁西弗隆",
+    "黑女巫法琳娜",
+    "黑翼军团士兵"
+   ]
+  },
+  {
+   "key": "mobAbility",
+   "impl": "把 update 里的 e.k==='SK'&&ch===N 硬编码改成查表：G.roster[k].ab=[{kind,cd,range,...}]；每种 kind 3~5 行，复用 e.wind/e.dash/G.etels/shots/G.revives/G.pools。",
+   "usedBy": [
+    "其拉洗脑者",
+    "其拉角斗士",
+    "加尔",
+    "古拉巴什掷斧者",
+    "古拉巴什狂暴者",
+    "古拉巴什蝙蝠骑士",
+    "哈卡莱巫医",
+    "奥妮克希亚守卫",
+    "奥妮克希亚雏龙",
+    "感染食尸鬼",
+    "拉扎什寡妇蛛",
+    "札拉蜂巢毒刺者",
+    "死爪龙卫",
+    "火焰之王",
+    "烈焰行者",
+    "熔岩奔腾者",
+    "熔火巨人",
+    "熔火恶犬",
+    "祖利安猛虎",
+    "维克尼斯毒刺者",
+    "缝合傀儡",
+    "腐化的雏龙",
+    "腐肉织网者",
+    "高阶祭司娅尔罗",
+    "高阶祭司耶克里克",
+    "黑曜石抹除者",
+    "黑曜石毁灭者",
+    "黑翼军团士兵",
+    "黑翼技师",
+    "黑翼法师",
+    "黑翼缚法者",
+    "黑龙卫兵",
+    "黑龙法师"
+   ]
+  },
+  {
+   "key": "addPhase",
+   "impl": "首领 b.inv=true（可 b.hidden 或移到房间顶部/平台），按 adds 配置每 N 秒刷一波；结束条件：所有召唤物死亡 或 T 秒 或 击杀计数达标。复用 submerge/p1adds/drakes 的结构，参数化。",
+   "usedBy": [
+    "拉贾克斯将军",
+    "收割者戈提克"
+   ]
+  },
+  {
+   "key": "multiBoss",
+   "impl": "spawnBoss 额外 push 若干 boss:true 单位（各自 sk/hp/画像），G.bosses 数组；全部死亡才算过关。选项：sharedHp（共用血量：每次伤害同步到兄弟）、reviveWindow 秒（一个死后计时，超时其余未死则复活死者满血）、onDeath（死亡时给存活者加狂乱/留毒云/召唤）。顶部血条显示多条。",
+   "usedBy": [
+    "双子皇帝",
+    "塔迪乌斯",
+    "天启四骑士",
+    "安其拉三宝",
+    "高阶祭司塞卡尔"
+   ]
+  },
+  {
+   "key": "frenzy",
+   "impl": "b.frenzyT=8：移速 ×1.5、技能间隔 ×.5、身上红色光环；玩家释放大招命中首领 = 宁神射击，立即解除并显示“已安抚”。可配置 perm:true（阶段性永久狂乱，不可解）。",
+   "usedBy": [
+    "克洛玛古斯",
+    "哈霍兰公主",
+    "弗莱格尔",
+    "格拉斯",
+    "玛格曼达",
+    "萨弗隆先驱者",
+    "高阶祭司塞卡尔",
+    "黑女巫法琳娜"
+   ]
+  },
+  {
+   "key": "followAura",
+   "impl": "跟随首领的圆形持续伤害：开始前 .8s 红圈预警，之后 T 秒内每 .5s 对圈内玩家 skd×k；期间首领移速 ×m（旋风斩可设随机转向）。用于 地狱火/旋风斩/虫群风暴/奥术爆炸脉冲。复用 fxs('whirl')。",
+   "usedBy": [
+    "其拉鞭笞者",
+    "死亡骑士队长",
+    "沙尔图拉",
+    "血领主曼多基尔",
+    "迦顿男爵",
+    "阿努布雷坎",
+    "高阶祭司娅尔罗"
+   ]
+  },
+  {
+   "key": "playerBomb",
+   "impl": "玩家身上挂炸弹 G.bomb={t,r,dmg,after}：玩家脚下画跟随红圈 + 倒计时数字；到时以玩家为圆心 r 爆炸：玩家受 skd×dmg×(1+.5×圈内敌人数)，after 可留池/刷怪/清技能冷却。教学：带着炸弹远离小怪。",
+   "usedBy": [
+    "克尔苏加德",
+    "格罗布鲁斯",
+    "迦顿男爵"
+   ]
+  },
+  {
+   "key": "curse",
+   "impl": "玩家减益 G.curse={kind,t}：'cd' 技能冷却 ×2；'heal' 回复 ×.25；'dmg' 玩家伤害 ×.5；'delayed' 结束时受 skd×k；'vuln' 复用 G.vulnT。在 buff 栏显示图标与倒计时。",
+   "usedBy": [
+    "勒什雷尔",
+    "哈卡莱巫医",
+    "基赫纳斯",
+    "奈法利安",
+    "妖术师金度",
+    "无疤者奥斯里安",
+    "沙斯拉尔",
+    "瘟疫使者诺斯",
+    "肮脏的希尔盖",
+    "萨弗隆先驱者",
+    "萨菲隆",
+    "血领主曼多基尔",
+    "迈克斯纳",
+    "鲁西弗隆"
+   ]
+  },
+  {
+   "key": "mindControl",
+   "impl": "G.mcT=T：输入方向反转、自动普攻停止、玩家被拉向首领（每秒 20px）。头顶紫色眼睛特效。期间受到伤害不减时长。",
+   "usedBy": [
+    "克尔苏加德",
+    "其拉洗脑者",
+    "哈卡",
+    "预言者斯克拉姆",
+    "鲁西弗隆",
+    "黑翼缚法者"
+   ]
+  },
+  {
+   "key": "bossShield",
+   "impl": "b.shield={kind,t}：'reflect' 玩家打出的伤害 15% 反弹给玩家（dmg() 里 hurt）；'reduce' 受伤 ×.3；'immune' 无敌。玩家大招命中 = 驱散。外观：气泡贴图。",
+   "usedBy": [
+    "无疤者奥斯里安",
+    "沙斯拉尔",
+    "管理者埃克索图斯"
+   ]
+  },
+  {
+   "key": "castBar",
+   "impl": "首领/小怪头顶读条 T 秒（b.cast={n,t,T,hits:0,need}）；读条期间被玩家命中 need 次即打断（显示“打断！”），否则结算 effect（治疗/大范围伤害/召唤）。",
+   "usedBy": [
+    "克尔苏加德",
+    "安其拉三宝",
+    "教官拉苏维奥斯",
+    "烈焰行者牧师",
+    "焚化者古雷曼格",
+    "石皮石像鬼",
+    "管理者埃克索图斯",
+    "萨弗隆先驱者",
+    "阿努比萨斯防御者",
+    "预言者斯克拉姆",
+    "高阶祭司塞卡尔",
+    "高阶祭司温诺希斯",
+    "高阶祭司耶克里克"
+   ]
+  },
+  {
+   "key": "totem",
+   "impl": "不动的召唤物（prop 型，spd 0，可被攻击）：每 p 秒执行 effect（给首领回血 X%/s、脉冲伤害、对范围内玩家 mindControl）。在小地图上标红。",
+   "usedBy": [
+    "妖术师金度"
+   ]
+  },
+  {
+   "key": "gaze",
+   "impl": "G.gaze={t:2,x0,y0}：玩家头顶红眼 + 文本“别动！”；2 秒内移动超过 6px → 首领 charge 到玩家并 hurt(skd×3)，首领 +10% 伤害（升级）。自动走位在 gaze 期间暂停。",
+   "usedBy": [
+    "血领主曼多基尔"
+   ]
+  },
+  {
+   "key": "stacks",
+   "impl": "玩家叠层减益 G.stk[k]={n,t}：每次命中 +1 层，6 秒未命中清零；类型：'heal' 回复 −10%/层、'vuln' 受伤 +6%/层、'dmg' 伤害 −8%/层。buff 栏显示层数。",
+   "usedBy": [
+    "克尔苏加德",
+    "双子皇帝",
+    "哈霍兰公主",
+    "基赫纳斯",
+    "库林纳克斯",
+    "感染食尸鬼",
+    "收割者戈提克",
+    "教官拉苏维奥斯",
+    "格拉斯",
+    "烈焰行者",
+    "焚化者古雷曼格",
+    "维克尼斯毒刺者",
+    "血领主曼多基尔",
+    "费尔默",
+    "顽强的范克瑞斯"
+   ]
+  },
+  {
+   "key": "teleportPlayer",
+   "impl": "把玩家移到指定点（角落/坑/首领身边/随机），可选 root 秒数（pl.frozenT），落点放 portal 特效。",
+   "usedBy": [
+    "妖术师金度",
+    "狩猎者阿亚米斯",
+    "管理者埃克索图斯",
+    "顽强的范克瑞斯"
+   ]
+  },
+  {
+   "key": "safeSpots",
+   "impl": "tel 扩展字段 safe:[{x,y,r}|unit]：玩家位于任一安全区内则不受该预警伤害（用于拉苏维奥斯学员、冰块后、毒血池）。",
+   "usedBy": [
+    "教官拉苏维奥斯"
+   ]
+  },
+  {
+   "key": "decimate",
+   "impl": "把玩家生命降为当前值 ×p（不低于 5% 上限，不致死）；同时把场上某类小怪降到 5%（格拉斯的僵尸）。",
+   "usedBy": [
+    "拉贾克斯将军",
+    "格拉斯"
+   ]
+  },
+  {
+   "key": "energyBar",
+   "impl": "首领能量 b.mp 0→100（每秒 +x；玩家施放技能 +5）；满能量释放 effect 并清零。血条下方画蓝条。",
+   "usedBy": [
+    "莫阿姆"
+   ]
+  },
+  {
+   "key": "mirrorImages",
+   "impl": "在血量阈值复制 n 个分身：同贴图、同技能，hp=本体 15%、伤害 ×.4；真身随机交换位置。分身死亡无奖励。",
+   "usedBy": [
+    "疯狂之缘",
+    "预言者斯克拉姆"
+   ]
+  },
+  {
+   "key": "burrow",
+   "impl": "首领 b.hidden+b.inv，地面土堆预警圈缓慢追踪玩家（速度 30）T 秒，结束时在当前位置钻出：circle r36 skd×1.6 + knock。",
+   "usedBy": [
+    "奥罗"
+   ]
+  },
+  {
+   "key": "shatter",
+   "impl": "维希度斯专用：计数玩家命中次数 → 10 次减速、20 次更慢、30 次冻结 12s；冻结期间再命中 15 次碎裂成 n 个粘液团（SL 小怪）向房间中心爬行，被杀死的粘液团才真正扣首领血（每个 = 首领最大血量 /(n×3)）；爬到中心的粘液团合体回血。",
+   "usedBy": [
+    "维希度斯"
+   ]
+  },
+  {
+   "key": "siphon",
+   "impl": "哈卡专用：读条 3s 血液虹吸；结算时若玩家身上有 G.poisonBloodT（站在哈卡之子死亡毒池里获得，持续 10s），首领受到 5% 最大生命伤害；否则玩家损失 25% 当前生命、首领回复 10%。",
+   "usedBy": [
+    "哈卡"
+   ]
+  },
+  {
+   "key": "stomach",
+   "impl": "克苏恩 P2：每 15s 吞下玩家 → teleportPlayer 到房间底部紫色“胃”区（rect 160×48），消化酸液每秒叠 1 层 vuln；胃内刷 2 只血肉触须（SL，不动）；两只都死 → 首领虚弱 15s（取消 inv、受伤 ×2），玩家被吐回中央。",
+   "usedBy": [
+    "克苏恩"
+   ]
+  },
+  {
+   "key": "polarityShift",
+   "impl": "塔迪乌斯专用：每 20s 读条 2s 后给玩家随机 +/−；房间左半区为 +、右半区为 −（地面蓝/红光）；站在与自身同号半区：伤害 +50%；站在异号半区：每秒 skd×.4。取代现有 polarity 的“轮流半场炸”。",
+   "usedBy": [
+    "塔迪乌斯"
+   ]
+  },
+  {
+   "key": "marks",
+   "impl": "四骑士专用：四个首领各占一角（不移动）；每 12s 对 70px 内的玩家施加该骑士印记 +1 层（各自独立），每层印记立即受 skd×.12×层数^1.5 伤害，层数 20s 无新增则清零。逼玩家按角落轮换。",
+   "usedBy": [
+    "天启四骑士"
+   ]
+  },
+  {
+   "key": "losBreath",
+   "impl": "萨菲隆专用：空中阶段 3 次寒冰箭在玩家位置生成冰块（加入 OBS，14×14，可挡视线），之后读条 3s 冰霜吐息：los(首领,玩家) 为真则 hurt(skd×4)，否则安全；吐息后冰块碎裂。",
+   "usedBy": [
+    "萨菲隆"
+   ]
+  },
+  {
+   "key": "webWrap",
+   "impl": "迈克斯纳专用：把玩家传送到随机一面墙边并包裹（pl.frozenT=3、茧贴图覆盖）；受到 3 次自己普攻（自动挣扎）或 3 秒后破茧。",
+   "usedBy": [
+    "迈克斯纳"
+   ]
+  },
+  {
+   "key": "objectiveProps",
+   "impl": "房间放置 n 个目标物件（prop，有血或可激活）：destroy 型全部击毁 → 触发 onDone（拉佐格尔龙蛋、布鲁之卵爆炸伤首领）；activate 型玩家站上 1s → 给首领挂减益（奥斯里安水晶），用后在别处刷新。复用 PROP_ART/propTick。",
+   "usedBy": [
+    "吞咽者布鲁",
+    "无疤者奥斯里安",
+    "狂野的拉佐格尔"
+   ]
+  },
+  {
+   "key": "rangedPunish",
+   "impl": "玩家与首领距离 > D 持续 2s → 首领向玩家发射强力弹 skd×k（拉格纳罗斯岩浆冲击、克苏恩/防御者暗影风暴、斯克拉姆地震术）。提示“回到近战范围”。",
+   "usedBy": [
+    "拉格纳罗斯",
+    "阿努比萨斯防御者",
+    "预言者斯克拉姆"
+   ]
+  },
+  {
+   "key": "bossFacing",
+   "impl": "首领可选 fixedFace（固定朝向，不转身），用来做前方吐息 + 后方尾扫、两侧安全的龙类首领（奥妮克希亚、瓦拉斯塔兹、克洛玛古斯、三小龙）。",
+   "usedBy": [
+    "堕落的瓦拉斯塔兹",
+    "奥妮克希亚",
+    "萨菲隆"
+   ]
+  }
+ ],
+ "fxNeeded": [
+  {
+   "name": "活体炸弹标记",
+   "bg": "black",
+   "prompt": "pulsing orange-red bomb sigil ring with countdown sparks, top-down"
+  },
+  {
+   "name": "诅咒骷髅",
+   "bg": "black",
+   "prompt": "floating purple-green curse skull icon with dripping smoke"
+  },
+  {
+   "name": "心灵控制之眼",
+   "bg": "black",
+   "prompt": "glowing violet eye with tendrils, mind control mark"
+  },
+  {
+   "name": "反射护盾",
+   "bg": "black",
+   "prompt": "translucent golden hexagon bubble shield with reflection glint"
+  },
+  {
+   "name": "伤害护盾",
+   "bg": "black",
+   "prompt": "spiky red fire aura shield bubble"
+  },
+  {
+   "name": "图腾光柱",
+   "bg": "black",
+   "prompt": "green healing light pillar rising from a tribal totem base"
+  },
+  {
+   "name": "威胁凝视",
+   "bg": "black",
+   "prompt": "huge red glaring eye symbol hovering, menacing"
+  },
+  {
+   "name": "极性正",
+   "bg": "black",
+   "prompt": "blue electric plus sign orb crackling"
+  },
+  {
+   "name": "极性负",
+   "bg": "black",
+   "prompt": "red electric minus sign orb crackling"
+  },
+  {
+   "name": "四骑士印记×4",
+   "bg": "black",
+   "prompt": "four glowing sigils: orange meteor rune, purple void rune, golden holy rune, white-blue righteous rune"
+  },
+  {
+   "name": "胃酸气泡",
+   "bg": "black",
+   "prompt": "green digestive acid bubbles and froth"
+  },
+  {
+   "name": "沙尘龙卷",
+   "bg": "black",
+   "prompt": "small swirling sand tornado, tan and gold, top-down 3/4"
+  },
+  {
+   "name": "血液虹吸光束",
+   "bg": "black",
+   "prompt": "thick crimson blood beam with droplets, horizontal"
+  },
+  {
+   "name": "闪电链",
+   "bg": "black",
+   "prompt": "zigzag chain lightning bolt, cyan-white, horizontal"
+  },
+  {
+   "name": "虫群风暴",
+   "bg": "black",
+   "prompt": "swarm cloud of tiny dark green locusts, circular"
+  },
+  {
+   "name": "熔岩炸弹",
+   "bg": "black",
+   "prompt": "falling molten lava bomb with fiery trail"
+  },
+  {
+   "name": "暗影箭",
+   "bg": "black",
+   "prompt": "shadow bolt projectile, purple-black flame, facing right"
+  },
+  {
+   "name": "飞斧",
+   "bg": "green",
+   "prompt": "spinning troll throwing axe, facing right"
+  },
+  {
+   "name": "奥术爆炸",
+   "bg": "black",
+   "prompt": "arcane explosion ring, pink-violet runic shockwave"
+  },
+  {
+   "name": "神圣之怒",
+   "bg": "black",
+   "prompt": "holy wrath golden bouncing orb with sparkles"
+  },
+  {
+   "name": "蛛网",
+   "bg": "black",
+   "prompt": "white spider web splat, circular, slightly glowing"
+  },
+  {
+   "name": "冰块",
+   "bg": "green",
+   "prompt": "chunky blue ice block, cube, top-down 3/4"
+  },
+  {
+   "name": "蛛网茧",
+   "bg": "green",
+   "prompt": "white silk cocoon hanging, human-sized"
+  },
+  {
+   "name": "施法条（UI，可程序绘制）",
+   "bg": "black",
+   "prompt": "thin ornate cast bar frame, dark with gold rim"
+  }
+ ],
+ "existingFx": "fx.png/fx2.png 已有：slash punch xslash holy explosion ice poison lightning meteor heal levelup smoke drain shield sound spark breathFire breathFrost beam lavaPillar firePool poisonPool frostCircle portal rune whirl quake spores doom voidFire rock sigil；proj.png 已有：efire earrow epoison evoid edragon eblood 等敌方弹道。",
+ "raids": [
+  {
+   "id": "mc",
+   "name": "熔火之心",
+   "en": "Molten Core",
+   "levelRange": "60",
+   "bossCount": 10,
+   "env": {
+    "desc": "黑石深渊之下的火山腹地：黑曜石地面被发光的熔岩河切开，岩浆瀑布与喷口不断喷发；入口有熔火之心水晶，走廊上散落烈焰行者的营火与火焰符文。终点是熔岩湖中央的岩石平台，拉格纳罗斯从岩浆中升起。",
+    "tilesPrompt": "4x4 grid of 16px top-down pixel tiles for a volcanic raid dungeon (Molten Core): row0 four cracked black obsidian floor variants with faint orange glow in cracks; row1 four basalt wall-front variants with lava seams and dripping magma; row2 wall-top dark rock, obsidian ore crate, basalt pillar, bubbling lava pool; row3 four decorated floors: scorched bones, glowing ember pebbles, fire rune carved in floor, cooled lava crust",
+    "tilesExisting": "tiles_c1.png（熔岩洞，可直接复用，建议补一块“火焰符文”地砖）",
+    "props": [
+     {
+      "name": "熔岩喷口",
+      "mechanic": "现有 ventTick：每 6~9s 预警 .9s 后喷发 r22，敌我皆伤并留 2.5s 火池。每间小怪房 1~2 个。",
+      "artPrompt": "volcanic lava vent crater, idle and erupting states",
+      "existing": "props.png 第1-2格"
+     },
+     {
+      "name": "熔岩河",
+      "mechanic": "走廊横向 rect 岩浆带（宽 16）：站上去每秒 skd×.15 + 灼烧；首领房四周边缘也是熔岩（墙内 8px）。纯地形，用 pools 的 rect 版。",
+      "artPrompt": "flowing lava river tile strip, glowing orange with dark crust"
+     },
+     {
+      "name": "火焰符文",
+      "mechanic": "7 个首领房（鲁西弗隆~焚化者）各有 1 个符文（可攻击 prop，hp 60）：击碎后本关剩余时间玩家伤害 +10%（致敬“用水之精华熄灭符文召唤管理者”）。",
+      "artPrompt": "glowing fire rune stone circle on the floor, lit and extinguished (steam) states"
+     },
+     {
+      "name": "熔岩之池（拉格纳罗斯）",
+      "mechanic": "拉格纳罗斯房上半部为熔岩湖（不可进入，挡路），首领固定在湖边平台。",
+      "artPrompt": "large lava lake edge with rock platform rim"
+     }
+    ],
+    "music": "低沉战鼓 + 管风琴式持续低音，节奏中速、压迫"
+   },
+   "trash": [
+    {
+     "name": "熔火恶犬",
+     "en": "Core Hound",
+     "base": "BT",
+     "abilities": [
+      {
+       "name": "锯齿撕咬",
+       "impl": "[mobAbility pounce] 蓄力 .35s 闪白后扑击 150px/s、.28s；命中 dmg×1.2 + 2s 流血（G.dotT）。"
+      },
+      {
+       "name": "群体复活",
+       "impl": "[mobAbility packRevive] 3 只一组（同 pack id）；组内第一只死后 10s 内未全灭，则死去的恶犬原地以 50% 血复活一次（复用 G.revives，地面画“灰烬”标记）。"
+      }
+     ],
+     "artPrompt": "Core Hound, two-headed molten lava hound, cracked rock hide with glowing orange veins",
+     "existing": "mobs.png 第2格 熔岩犬（近似，单头）"
+    },
+    {
+     "name": "熔岩奔腾者",
+     "en": "Lava Surger",
+     "base": "BT",
+     "abilities": [
+      {
+       "name": "奔涌",
+       "impl": "[mobAbility chargeLine] 距离<100 时画红色直线预警 len90 w6 .6s，然后 160px/s 冲撞，命中 dmg×1.5 + knock 25。冷却 5s。"
+      }
+     ],
+     "artPrompt": "Lava Surger, hunched lava elemental with surging magma body, leaning forward to charge"
+    },
+    {
+     "name": "烈焰行者",
+     "en": "Flamewaker",
+     "base": "SK",
+     "abilities": [
+      {
+       "name": "破甲",
+       "impl": "[stacks vuln] 每次近身命中 +1 层（受伤 +6%/层，最多 5 层）。"
+      },
+      {
+       "name": "拉格纳罗斯之拳",
+       "impl": "[mobAbility nova] 每 7s：自身 r24 红圈 .7s，命中 dmg×1 + 眩晕 1s（stun）。"
+      }
+     ],
+     "artPrompt": "Flamewaker, tall red-skinned fire giant humanoid, flaming hair, black iron armor, two-handed sword"
+    },
+    {
+     "name": "熔火巨人",
+     "en": "Molten Giant",
+     "base": "SL",
+     "hpx": 3,
+     "abilities": [
+      {
+       "name": "践踏",
+       "impl": "[mobAbility nova] 每 6s：自身 r30 .9s，dmg×1.2 + knock 30。死亡不分裂（覆盖 SL 默认分裂）。"
+      },
+      {
+       "name": "击退",
+       "impl": "近身命中时 knock 20（打断玩家连击节奏）。"
+      }
+     ],
+     "artPrompt": "Molten Giant, huge hulking rock giant with lava cracks, massive fists, slow and heavy"
+    },
+    {
+     "name": "火焰之王",
+     "en": "Firelord",
+     "base": "SA",
+     "abilities": [
+      {
+       "name": "灵魂燃烧",
+       "impl": "[mobAbility aoeAtPlayer] 每 5s：玩家脚下 r16 预警 1.0s，dmg×1.3 + dot（G.dotT 4s）。"
+      },
+      {
+       "name": "召唤熔岩之子",
+       "impl": "[mobAbility summon] 每 9s 召唤 1 只 熔岩之子（BT 小怪 50% 血，死亡分裂为 2 只 30% 血），场上最多 3 只。"
+      },
+      {
+       "name": "火球",
+       "impl": "远程普通射击：fire 弹 70px/s，命中地面留 1.5s 小火池（现有 fire:1）。"
+      }
+     ],
+     "artPrompt": "Firelord, floating fire elemental lord with flame crown, molten core in chest, casting fire"
+    },
+    {
+     "name": "烈焰行者牧师",
+     "en": "Flamewaker Priest",
+     "base": "SA",
+     "abilities": [
+      {
+       "name": "暗影箭",
+       "impl": "紫色弹 80px/s dmg×1.1，射击前头顶“!” .45s。"
+      },
+      {
+       "name": "黑暗治疗",
+       "impl": "[castBar] 读条 2s 治疗血量最低的友军 30%；被命中 3 次打断。冷却 8s。"
+      },
+      {
+       "name": "暗言术：痛",
+       "impl": "每 10s 对玩家 dot 6s（G.dotT），无预警但 buff 栏显示。"
+      }
+     ],
+     "artPrompt": "Flamewaker Priest, red-skinned fire giant priest in dark robes with shadow magic in hands"
+    }
+   ],
+   "bosses": [
+    {
+     "name": "鲁西弗隆",
+     "en": "Lucifron",
+     "order": 1,
+     "rooms": 3,
+     "elite": "熔火恶犬",
+     "trash": [
+      "熔火恶犬",
+      "烈焰行者",
+      "烈焰行者牧师"
+     ],
+     "hpMult": 0.9,
+     "enrageSec": 60,
+     "artPrompt": "Lucifron, towering flamewaker lord, crimson skin, curved black horns, burning mohawk, spiked black plate, flaming polearm",
+     "forms": [],
+     "adds": [
+      {
+       "name": "烈焰行者护卫",
+       "base": "SK",
+       "count": 2,
+       "hpMult": 2.5,
+       "artPrompt": "Flamewaker Protector, fire giant guard with tower shield and burning axe",
+       "abilities": [
+        {
+         "name": "顺劈斩",
+         "impl": "[tel] cone@self 朝玩家 ang.6 len30 T.6 dmg×1.2，每 4s。"
+        },
+        {
+         "name": "支配心灵",
+         "impl": "[mindControl] 每 15s：玩家脚下紫圈 1.0s，命中则被控 3s。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:impendingDoom",
+      "NEW:lucifronCurse",
+      "NEW:shadowShock"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "末日降临",
+       "key": "NEW:impendingDoom",
+       "impl": "[curse:delayed] 每 12s 给玩家挂 6s 倒计时（头顶骷髅），结束 hurt(skd×1.2)。无法躲，提示留血。"
+      },
+      {
+       "name": "鲁西弗隆的诅咒",
+       "key": "NEW:lucifronCurse",
+       "impl": "[curse:cd] 每 15s：10s 内技能冷却 ×2。"
+      },
+      {
+       "name": "暗影震击",
+       "key": "NEW:shadowShock",
+       "impl": "[tel] circle@boss r48 T.8 skd×.8，惩罚贴身。"
+      },
+      {
+       "name": "护卫",
+       "key": "adds",
+       "impl": "开场两名烈焰行者护卫站在首领左右，护卫存活时首领受伤 ×.8。"
+      }
+     ],
+     "tip": "先杀两名护卫防止被支配；末日降临倒数结束必掉血，别在残血时贴脸。"
+    },
+    {
+     "name": "玛格曼达",
+     "en": "Magmadar",
+     "order": 2,
+     "rooms": 2,
+     "trash": [
+      "熔火恶犬",
+      "熔岩奔腾者",
+      "火焰之王"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 60,
+     "artPrompt": "Magmadar, giant lava core hound boss, molten rock body, glowing magma maw and spine, scorpion-like tail",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "roar",
+      "NEW:lavaBomb",
+      "NEW:lavaBomb",
+      "NEW:frenzyMagmadar"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "恐慌",
+       "key": "roar",
+       "impl": "现有 roar：circle@boss r260 T1.0 skd×.3 fear 1.3s。每 15s。"
+      },
+      {
+       "name": "熔岩炸弹",
+       "key": "NEW:lavaBomb",
+       "impl": "[tel] circle@player r18 T.9 skd×1，n=2（第 2 个落在玩家移动方向前方 30px），after:'pool' 火池 6s 每 .5s skd×.2。"
+      },
+      {
+       "name": "狂乱",
+       "key": "NEW:frenzyMagmadar",
+       "impl": "[frenzy] 8s，可被大招安抚；头顶“狂乱！”"
+      },
+      {
+       "name": "熔岩喷吐",
+       "key": "passive",
+       "impl": "贴身接触伤害附带 2s 灼烧 dot。"
+      }
+     ],
+     "tip": "恐慌前远离；狂乱时用大招安抚；熔岩炸弹落地会留火，别站进去。"
+    },
+    {
+     "name": "基赫纳斯",
+     "en": "Gehennas",
+     "order": 3,
+     "rooms": 3,
+     "elite": "烈焰行者",
+     "trash": [
+      "烈焰行者",
+      "烈焰行者牧师",
+      "熔岩奔腾者"
+     ],
+     "hpMult": 0.95,
+     "enrageSec": 60,
+     "artPrompt": "Gehennas, flamewaker lord with dark purple-red skin, shadow fire in palms, horned helm, robe over armor",
+     "forms": [],
+     "adds": [
+      {
+       "name": "烈焰行者",
+       "base": "SK",
+       "count": 2,
+       "hpMult": 2,
+       "artPrompt": "Flamewaker, fire giant warrior (reuse trash sprite)",
+       "abilities": [
+        {
+         "name": "拉格纳罗斯之拳",
+         "impl": "同小怪：自身 r24 .7s 眩晕 1s。"
+        },
+        {
+         "name": "破甲",
+         "impl": "[stacks vuln]。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:rainOfFire",
+      "frostbolt",
+      "NEW:gehennasCurse"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "火焰之雨",
+       "key": "NEW:rainOfFire",
+       "impl": "[tel] circle@player r24 T1.0 n=3 spread30，after:'pool' 火池 4s。"
+      },
+      {
+       "name": "暗影箭",
+       "key": "frostbolt",
+       "impl": "复用 frostbolt（瞄准线 .75s 后快弹 skd×1.5），颜色改紫 #9a5aff。"
+      },
+      {
+       "name": "基赫纳斯的诅咒",
+       "key": "NEW:gehennasCurse",
+       "impl": "[curse:heal] 12s 回复 ×.25，每 20s。"
+      }
+     ],
+     "tip": "诅咒期间回血几乎无效，先清两只烈焰行者，火雨要立刻离开。"
+    },
+    {
+     "name": "加尔",
+     "en": "Garr",
+     "order": 4,
+     "rooms": 3,
+     "elite": "火焰之王",
+     "trash": [
+      "火焰之王",
+      "熔火巨人",
+      "熔岩奔腾者"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 70,
+     "artPrompt": "Garr, massive rock elemental lord made of black basalt boulders with lava cores, stone fists",
+     "forms": [],
+     "adds": [
+      {
+       "name": "火誓者",
+       "base": "SK",
+       "count": 8,
+       "hpMult": 0.8,
+       "artPrompt": "Firesworn, small fiery rock elemental, glowing molten center, flame crest",
+       "abilities": [
+        {
+         "name": "献祭",
+         "impl": "接触伤害附带灼烧 dot 3s。"
+        },
+        {
+         "name": "爆发",
+         "impl": "[mobAbility deathExplode] 死亡时 r30 预警 .5s，skd×.8；连锁：爆炸也伤其他火誓者。"
+        },
+        {
+         "name": "分离焦虑",
+         "impl": "离加尔 >80px 时伤害 ×2、体型 +20%（红光）。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:antimagicPulse",
+      "NEW:magmaShackles",
+      "slam"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "开场 8 只火誓者环绕加尔（summonRing r44）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "反魔法脉冲",
+       "key": "NEW:antimagicPulse",
+       "impl": "[tel] circle@boss r200 harmless 预警 .8s：清除玩家护盾（pl.shield=0）与临时增益（G.rushT/G.songT 等）。每 12s。"
+      },
+      {
+       "name": "熔岩镣铐",
+       "key": "NEW:magmaShackles",
+       "impl": "全屏减速 3s（G.pSlowT=3），预警：屏幕边缘红闪 .6s。"
+      },
+      {
+       "name": "火誓者死亡强化加尔",
+       "key": "onAddDeath",
+       "impl": "每死 1 只火誓者：加尔移速 +5%、伤害 +5%（层数显示在血条旁）。"
+      },
+      {
+       "name": "重击",
+       "key": "slam",
+       "impl": "复用 slam（玩家脚下 r26，召唤改为 0）。"
+      }
+     ],
+     "tip": "火誓者死亡会爆炸：引到加尔身边一只只打，别一次 AOE 一堆贴着你炸。"
+    },
+    {
+     "name": "迦顿男爵",
+     "en": "Baron Geddon",
+     "order": 5,
+     "rooms": 3,
+     "elite": "熔火巨人",
+     "trash": [
+      "熔火巨人",
+      "火焰之王",
+      "熔岩奔腾者"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 70,
+     "artPrompt": "Baron Geddon, floating fire elemental baron, swirling flame torso, stone shackles on wrists, no legs, crown of fire",
+     "forms": [],
+     "adds": [
+      {
+       "name": "熔岩奔腾者（巡逻）",
+       "base": "BT",
+       "count": 1,
+       "hpMult": 1.5,
+       "artPrompt": "reuse Lava Surger",
+       "abilities": [
+        {
+         "name": "奔涌",
+         "impl": "同小怪。每 20s 从门口进来 1 只（场上最多 2 只），用来教学“带炸弹远离小怪”。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:livingBomb",
+      "NEW:inferno",
+      "NEW:igniteMana"
+     ],
+     "phases": [
+      {
+       "atHp": 0.05,
+       "changes": "大灾变：首领无敌，读条 6s，r120 圈 skd×3；玩家必须跑到房间对角。读完后首领自爆死亡（算击杀）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "活体炸弹",
+       "key": "NEW:livingBomb",
+       "impl": "[playerBomb] t=8 r40 dmg 1.0，圈内每多 1 个敌人伤害 +50%，爆炸留火池 4s。每 18s。"
+      },
+      {
+       "name": "地狱火",
+       "key": "NEW:inferno",
+       "impl": "[followAura] r40 6s，每 .5s skd×.35，首领停止移动；递增：后 3s 伤害 ×1.5。"
+      },
+      {
+       "name": "点燃法力",
+       "key": "NEW:igniteMana",
+       "impl": "G.skillT += 3（技能冷却倒退）+ 4s dot；头顶蓝色火焰提示。每 14s。"
+      },
+      {
+       "name": "大灾变",
+       "key": "phase",
+       "impl": "见 phases：castBar 不可打断。"
+      }
+     ],
+     "tip": "成为活体炸弹时远离所有小怪；地狱火开始立刻拉开距离；残血时大灾变，跑到对角。"
+    },
+    {
+     "name": "沙斯拉尔",
+     "en": "Shazzrah",
+     "order": 6,
+     "rooms": 2,
+     "trash": [
+      "熔火巨人",
+      "熔火恶犬"
+     ],
+     "hpMult": 0.9,
+     "enrageSec": 55,
+     "artPrompt": "Shazzrah, flamewaker arcanist, red skin with glowing arcane runes, purple-blue magic orbs in hands, robes",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "NEW:arcaneExplosion",
+      "blink",
+      "NEW:shazzrahCurse",
+      "NEW:counterspell",
+      "NEW:deadenMagic"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "奥术爆炸",
+       "key": "NEW:arcaneExplosion",
+       "impl": "[tel] circle@boss r50 T.6 skd×.9，每 4s 自动穿插（不占轮换）。"
+      },
+      {
+       "name": "闪现",
+       "key": "blink",
+       "impl": "复用 blink：消失→出现在玩家位置，落地后立刻接一次奥术爆炸。"
+      },
+      {
+       "name": "沙斯拉尔的诅咒",
+       "key": "NEW:shazzrahCurse",
+       "impl": "[curse:vuln] 10s 受伤 +30%（G.vulnT）。"
+      },
+      {
+       "name": "法术反制",
+       "key": "NEW:counterspell",
+       "impl": "[tel] circle@boss r70 T.8，命中 G.sealT=3（封技能）。"
+      },
+      {
+       "name": "魔法抑制",
+       "key": "NEW:deadenMagic",
+       "impl": "[bossShield:reduce] 10s 受伤 ×.5，大招命中驱散。"
+      }
+     ],
+     "tip": "他会闪现到你身上再放奥术爆炸：看到“闪现”就准备走开；护盾出现用大招破掉。"
+    },
+    {
+     "name": "萨弗隆先驱者",
+     "en": "Sulfuron Harbinger",
+     "order": 7,
+     "rooms": 3,
+     "elite": "烈焰行者",
+     "trash": [
+      "烈焰行者",
+      "烈焰行者牧师",
+      "熔火恶犬"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 70,
+     "artPrompt": "Sulfuron Harbinger, armored flamewaker herald, golden-black plate, huge flaming mace, banner of Ragnaros",
+     "forms": [],
+     "adds": [
+      {
+       "name": "烈焰行者祭司",
+       "base": "SA",
+       "count": 4,
+       "hpMult": 1.6,
+       "artPrompt": "Flamewaker Priest (reuse trash sprite) with red sash",
+       "abilities": [
+        {
+         "name": "黑暗治疗",
+         "impl": "[castBar] 2s 治疗萨弗隆 15% 或友军 30%，命中 3 次打断。冷却 8s，4 个错开。"
+        },
+        {
+         "name": "暗言术：痛",
+         "impl": "dot 6s。"
+        },
+        {
+         "name": "暗影箭",
+         "impl": "紫弹 dmg×1。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:handOfRagnaros",
+      "NEW:inspire",
+      "NEW:demoShout",
+      "NEW:flameSpear"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "拉格纳罗斯之手",
+       "key": "NEW:handOfRagnaros",
+       "impl": "[tel] circle@boss r40 T.9 skd×1 stun 1s + knock 30。"
+      },
+      {
+       "name": "鼓舞",
+       "key": "NEW:inspire",
+       "impl": "[frenzy] 作用于所有祭司 10s（施法速度 ×2）。"
+      },
+      {
+       "name": "挫志怒吼",
+       "key": "NEW:demoShout",
+       "impl": "[curse:dmg] 8s 玩家伤害 ×.5（原作降攻强）。"
+      },
+      {
+       "name": "烈焰之矛",
+       "key": "NEW:flameSpear",
+       "impl": "[tel] circle@random r22 n=2 + circle@player r22，T1.0 skd×1.2。"
+      }
+     ],
+     "tip": "先打断并击杀 4 名祭司，否则萨弗隆会被不停治疗。"
+    },
+    {
+     "name": "焚化者古雷曼格",
+     "en": "Golemagg the Incinerator",
+     "order": 8,
+     "rooms": 3,
+     "elite": "熔火巨人",
+     "trash": [
+      "熔火巨人",
+      "火焰之王",
+      "熔火恶犬"
+     ],
+     "hpMult": 1.2,
+     "enrageSec": 75,
+     "artPrompt": "Golemagg the Incinerator, colossal molten giant with obsidian armor plates, flaming eyes, magma dripping",
+     "forms": [],
+     "adds": [
+      {
+       "name": "熔火怒犬",
+       "base": "BT",
+       "count": 2,
+       "hpMult": 3,
+       "artPrompt": "Core Rager, large armored core hound with obsidian plates",
+       "abilities": [
+        {
+         "name": "不死",
+         "impl": "血量低于 50% 立即回满（“熔岩之怒”），古雷曼格死亡时一起死亡；只需控制不需击杀。"
+        },
+        {
+         "name": "重伤",
+         "impl": "[stacks heal] 每次命中 +1。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:pyroblast",
+      "NEW:magmaSplash",
+      "erupt"
+     ],
+     "phases": [
+      {
+       "atHp": 0.1,
+       "changes": "地震：每 3s 全屏脉冲 skd×.3（无预警，屏幕震动），直到击杀。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "炎爆术",
+       "key": "NEW:pyroblast",
+       "impl": "[castBar] 1.5s 后向玩家发射大火球 skd×1.6 + dot 6s，命中 4 次可打断。"
+      },
+      {
+       "name": "岩浆飞溅",
+       "key": "NEW:magmaSplash",
+       "impl": "[stacks vuln] 玩家在首领 24px 内每 2s +1 层。"
+      },
+      {
+       "name": "熔岩喷发",
+       "key": "erupt",
+       "impl": "复用 erupt。"
+      },
+      {
+       "name": "地震",
+       "key": "phase",
+       "impl": "10% 以下进入（见 phases）。"
+      }
+     ],
+     "tip": "别管两只熔火怒犬，它们杀不死；岩浆飞溅层数高了就拉开一下。"
+    },
+    {
+     "name": "管理者埃克索图斯",
+     "en": "Majordomo Executus",
+     "order": 9,
+     "rooms": 2,
+     "trash": [
+      "烈焰行者",
+      "烈焰行者牧师"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 80,
+     "artPrompt": "Majordomo Executus, regal flamewaker steward, ornate gold-red robes, fiery beard, staff with flame orb",
+     "forms": [],
+     "adds": [
+      {
+       "name": "烈焰行者精英",
+       "base": "SK",
+       "count": 4,
+       "hpMult": 2.5,
+       "artPrompt": "Flamewaker Elite, armored fire giant with burning greatsword",
+       "abilities": [
+        {
+         "name": "火焰冲击",
+         "impl": "[tel] circle@player r16 T.7 dmg×1.2。"
+        },
+        {
+         "name": "冲击波",
+         "impl": "[tel] circle@self r30 T.8 dmg×1 slow。"
+        }
+       ]
+      },
+      {
+       "name": "烈焰行者医师",
+       "base": "SA",
+       "count": 4,
+       "hpMult": 2,
+       "artPrompt": "Flamewaker Healer, fire giant healer in white-red robes with glowing staff",
+       "abilities": [
+        {
+         "name": "强效治疗",
+         "impl": "[castBar] 2.5s 治疗友军 30%，命中 4 次打断。"
+        },
+        {
+         "name": "暗影箭",
+         "impl": "紫弹。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:shieldSwap",
+      "NEW:teleportPit",
+      "NEW:aegis"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "管理者本人全程无敌（b.inv）；8 名随从全部死亡 → 他投降（台词“不可能！……我将服从你们”）并消失，关卡完成，下一关解锁拉格纳罗斯。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "魔法反射 / 伤害护盾",
+       "key": "NEW:shieldSwap",
+       "impl": "[bossShield] 每 25s 给所有随从 8s 护盾，交替 reflect（远程/技能伤害反弹 15%）与 damage shield（近战命中者每次受 skd×.15）。护盾期间提示“停手/换打法”。"
+      },
+      {
+       "name": "传送",
+       "key": "NEW:teleportPit",
+       "impl": "[teleportPlayer] 把玩家传送到房间一角的火坑（火池 3s 每 .5s skd×.25），每 18s。"
+      },
+      {
+       "name": "拉格纳罗斯之盾",
+       "key": "NEW:aegis",
+       "impl": "管理者自身装饰性护盾，提示“管理者无法被击杀，击败他的随从”。"
+      }
+     ],
+     "tip": "管理者本人打不动：先打断医师的治疗，护盾亮起时停止输出。"
+    },
+    {
+     "name": "拉格纳罗斯",
+     "en": "Ragnaros",
+     "order": 10,
+     "rooms": 2,
+     "trash": [
+      "熔岩奔腾者",
+      "火焰之王"
+     ],
+     "hpMult": 1.6,
+     "enrageSec": 90,
+     "artPrompt": "Ragnaros the Firelord, colossal fire elemental rising waist-up from lava, horned molten head, flaming beard, giant hammer Sulfuras",
+     "existing": "bosses.png 第3格 熔火君主（近似，缺锤子与半身入岩浆造型）",
+     "forms": [
+      {
+       "name": "潜入熔岩",
+       "artPrompt": "Ragnaros submerged, only lava bubbles and the tip of Sulfuras hammer showing",
+       "existing": "forms.png 第5格"
+      }
+     ],
+     "adds": [
+      {
+       "name": "烈焰之子",
+       "base": "SK",
+       "count": 8,
+       "hpMult": 1.5,
+       "artPrompt": "Son of Flame, humanoid fire elemental with burning body and flame trails",
+       "abilities": [
+        {
+         "name": "燃烧",
+         "impl": "接触伤害 + 灼烧；移速 ×1.2。"
+        },
+        {
+         "name": "法力燃烧",
+         "impl": "命中时 G.skillT += 1。"
+        }
+       ],
+       "existing": "forms.png 第6格"
+      }
+     ],
+     "skills": [
+      "wrath",
+      "erupt",
+      "NEW:magmaBlast",
+      "wrath",
+      "erupt"
+     ],
+     "phases": [
+      {
+       "atHp": 0.5,
+       "changes": "潜入熔岩（submerge）：首领无敌消失 20s，房间刷 8 只烈焰之子，全部击杀或 20s 后浮出。"
+      },
+      {
+       "atSec": 60,
+       "changes": "若 60s 时还没到 50%，同样触发一次潜入（原作 3 分钟潜入）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "拉格纳罗斯之怒",
+       "key": "wrath",
+       "impl": "现有 wrath：circle@boss r48 T.9 skd×1.2 knock 45。"
+      },
+      {
+       "name": "熔岩爆裂",
+       "key": "erupt",
+       "impl": "现有 erupt：5（P2 8）个圈，第一个在玩家脚下。"
+      },
+      {
+       "name": "岩浆冲击",
+       "key": "NEW:magmaBlast",
+       "impl": "[rangedPunish] D=70：玩家离开近战范围 2s → 大火球 skd×1.6。"
+      },
+      {
+       "name": "元素之火",
+       "key": "passive",
+       "impl": "首领接触伤害附带 dot 4s。首领 spd=0，固定在熔岩湖边（上半部）。"
+      },
+      {
+       "name": "潜入熔岩 / 烈焰之子",
+       "key": "submerge",
+       "impl": "现有 submerge，改为按 phases 触发而不是轮换技能。"
+      }
+     ],
+     "tip": "别离他太远（会被岩浆冲击点名），也别贴太近被击退进熔岩；潜入后尽快清掉烈焰之子。"
+    }
+   ],
+   "expansion": "classic"
+  },
+  {
+   "id": "ony",
+   "name": "奥妮克希亚的巢穴",
+   "en": "Onyxia's Lair",
+   "levelRange": "60",
+   "bossCount": 1,
+   "env": {
+    "desc": "尘泥沼泽南部的火山洞穴：一条向下盘旋的狭长隧道，两侧有守卫驻守，尽头是巨大的圆形龙巢，地面散落骸骨与金币，两侧有孵满雏龙蛋的侧洞，地面裂缝在 P3 会喷出熔岩。",
+    "tilesPrompt": "4x4 grid of 16px top-down pixel tiles for a black dragon cave lair: row0 four dark volcanic cave floor variants with scattered gold coins and ash; row1 four rough cave wall-front variants with claw marks; row2 wall-top dark rock, treasure pile crate, stalagmite pillar, lava crack pool; row3 four decorated floors: dragon bones, burnt skeleton, glowing floor fissure, scattered eggshells",
+    "tilesExisting": "tiles_c2.png（黑石龙巢，近似可复用；需补金币/裂缝地砖）",
+    "props": [
+     {
+      "name": "雏龙蛋",
+      "mechanic": "首领房两侧侧洞各 4 个（现有 EGG：倒计时孵化 2 只雏龙）；P2 起每 15s 一侧整排孵化。可提前打碎。",
+      "artPrompt": "black dragon egg cluster in nest",
+      "existing": "props.png 第3-4格 龙蛋"
+     },
+     {
+      "name": "熔岩裂缝",
+      "mechanic": "首领房地面 6 条裂缝，P3 低沉咆哮时随机 3 条喷发（rect 预警 .9s，skd×1）。",
+      "artPrompt": "glowing lava floor fissure, dormant and erupting states"
+     }
+    ],
+    "music": "空旷洞穴回响 + 龙翼扇动低频，P2 转为急促鼓点"
+   },
+   "trash": [
+    {
+     "name": "奥妮克希亚守卫",
+     "en": "Onyxian Warder",
+     "base": "SK",
+     "hpx": 2,
+     "abilities": [
+      {
+       "name": "火焰新星",
+       "impl": "[mobAbility nova] 每 6s 自身 r32 .8s dmg×1.1。"
+      },
+      {
+       "name": "顺劈斩",
+       "impl": "[tel] cone@self ang.6 len28 T.5 dmg×1。"
+      },
+      {
+       "name": "拳击",
+       "impl": "近身命中 G.sealT=1.5（打断施法）。"
+      }
+     ],
+     "artPrompt": "Onyxian Warder, black dragonkin guard with dark scales, horned helm, long halberd"
+    },
+    {
+     "name": "奥妮克希亚雏龙",
+     "en": "Onyxian Whelp",
+     "base": "BT",
+     "abilities": [
+      {
+       "name": "扑咬",
+       "impl": "[mobAbility pounce] 蓄力 .3s。成群出现（4~6 只）。"
+      },
+      {
+       "name": "火焰吐息",
+       "impl": "[tel] cone@self 朝玩家 ang.4 len30 T.5 dmg×.8，每 5s（小火苗，教学“锥形预警”）。"
+      }
+     ],
+     "artPrompt": "Onyxian Whelp, small black dragon whelp with orange belly, flapping wings",
+     "existing": "mobs.png 第6格 雏龙（红色，需改黑色）"
+    },
+    {
+     "name": "黑龙卫兵",
+     "en": "Black Dragonspawn (扩展)",
+     "base": "SL",
+     "hpx": 2.5,
+     "faithful": false,
+     "abilities": [
+      {
+       "name": "龙鳞护甲",
+       "impl": "受到远程伤害 ×.7，近战正常。"
+      },
+      {
+       "name": "岩石践踏",
+       "impl": "[mobAbility nova] r26 .9s knock。"
+      }
+     ],
+     "artPrompt": "Black dragonspawn brute, heavy black scaled half-dragon with stone club"
+    },
+    {
+     "name": "黑龙法师",
+     "en": "Black Dragon Cultist (扩展)",
+     "base": "SA",
+     "faithful": false,
+     "abilities": [
+      {
+       "name": "火球术",
+       "impl": "3 连发火球（现有 n=3 扇形）。"
+      },
+      {
+       "name": "烈焰冲击",
+       "impl": "[mobAbility aoeAtPlayer] r16 T1.0 dmg×1.2。"
+      }
+     ],
+     "artPrompt": "Black dragonflight cultist mage in dark red robes with dragon-skull hood, fire in hands",
+     "existing": "mobs.png 第8格 黑龙教徒（可复用）"
+    }
+   ],
+   "trashNote": "原作巢穴只有守卫与雏龙两种小怪；为满足 4 槽位与远程比例，补了 2 种黑龙军团扩展（faithful:false），可删。",
+   "bosses": [
+    {
+     "name": "奥妮克希亚",
+     "en": "Onyxia",
+     "order": 1,
+     "rooms": 3,
+     "elite": "奥妮克希亚守卫",
+     "trash": [
+      "奥妮克希亚守卫",
+      "奥妮克希亚雏龙",
+      "黑龙卫兵",
+      "黑龙法师"
+     ],
+     "hpMult": 1.5,
+     "enrageSec": 100,
+     "artPrompt": "Onyxia, huge black dragon broodmother, sleek black scales, orange-red underbelly, curved horns, wings folded",
+     "existing": "bosses.png 第1格 黑鳞龙后（近似可复用）",
+     "forms": [
+      {
+       "name": "飞行",
+       "artPrompt": "Onyxia flying overhead, wings spread wide, seen from below-top-down, shadow beneath",
+       "existing": "forms.png 第1格"
+      }
+     ],
+     "adds": [
+      {
+       "name": "奥妮克希亚雏龙",
+       "base": "BT",
+       "count": 8,
+       "hpMult": 0.8,
+       "artPrompt": "reuse Onyxian Whelp",
+       "abilities": [
+        {
+         "name": "扑咬",
+         "impl": "同小怪，P2 从两侧侧洞涌出（现有 whelps）。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:onyBreath",
+      "NEW:tailSweep",
+      "NEW:wingBuffet",
+      "NEW:onyCleave"
+     ],
+     "phases": [
+      {
+       "atHp": 0.65,
+       "changes": "P2 起飞（现有 fly）：无敌，悬停上方；火球点名、深呼吸横扫一整条纵带、两侧雏龙涌出；持续到血量阈值改为“14s 或 雏龙全灭”后落地（因为无敌时血量不降，这里用时间）。"
+      },
+      {
+       "atHp": 0.4,
+       "changes": "P3 落地：轮换改为 roar、erupt（来自熔岩裂缝）、onyBreath、tailSweep；雏龙每 20s 仍从侧洞来 3 只。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "火焰吐息",
+       "key": "NEW:onyBreath",
+       "impl": "[bossFacing] P1 固定在房间中央朝下；[tel] cone fixed a=π/2 ang.55 len150 T1.0 skd×1.5。站侧面安全。"
+      },
+      {
+       "name": "尾部横扫",
+       "key": "NEW:tailSweep",
+       "impl": "[tel] cone fixed a=-π/2（身后）ang.7 len80 T.8 skd×1 knock 40。"
+      },
+      {
+       "name": "龙翼打击",
+       "key": "NEW:wingBuffet",
+       "impl": "[tel] circle@boss r40 T.8 skd×.8 knock 50。"
+      },
+      {
+       "name": "顺劈斩",
+       "key": "NEW:onyCleave",
+       "impl": "[tel] cone fixed 正前 ang.4 len40 T.5 skd×1，穿插使用。"
+      },
+      {
+       "name": "深呼吸",
+       "key": "fly",
+       "impl": "现有 fly 内的 rect 纵带 48 宽 1.5s 预警 skd×2；说“深呼吸”。"
+      },
+      {
+       "name": "火球",
+       "key": "fly",
+       "impl": "现有 fly 内每 1.3s 对玩家火球 skd×.8。"
+      },
+      {
+       "name": "低沉咆哮",
+       "key": "roar",
+       "impl": "现有 roar（恐惧 1.3s），同时熔岩裂缝喷发 3 条。"
+      }
+     ],
+     "tip": "站在龙的侧面：前面是吐息、后面是尾扫；她起飞后注意“深呼吸”，落地后恐惧会把你吓进裂缝。"
+    }
+   ],
+   "expansion": "classic"
+  },
+  {
+   "id": "bwl",
+   "name": "黑翼之巢",
+   "en": "Blackwing Lair",
+   "levelRange": "60",
+   "bossCount": 8,
+   "env": {
+    "desc": "黑石塔顶端奈法利安的巢穴：黑色玄武岩大厅与铁质栅门，墙上挂黑龙旗；拉佐格尔的孵化场满地龙蛋；勒什雷尔前是布满压制装置的走廊；之后是三小龙的龙穴、克洛玛古斯的实验室（彩色化学瓶与笼子），最后是奈法利安的王座大厅（龙人尸骨遍地）。",
+    "tilesPrompt": "4x4 grid of 16px top-down pixel tiles for Blackwing Lair: row0 four dark basalt flagstone floor variants with red-black dragon banners motif; row1 four black stone wall-front variants with iron bars and red torches; row2 wall-top black rock, iron-banded crate, obsidian pillar with dragon carving, bubbling chromatic potion vat; row3 four decorated floors: drakonid bones, dragon egg shards, scorched rune circle, spilled purple chemical",
+    "tilesExisting": "tiles_c2.png（黑石龙巢，近似；需补实验室/化学桶）",
+    "props": [
+     {
+      "name": "黑龙蛋",
+      "mechanic": "拉佐格尔关：首领房 6 个（objectiveProps destroy），全部击碎进入 P2；小怪房里也有，现有 EGG 孵化逻辑。",
+      "artPrompt": "large black dragon egg on stone pedestal, intact and cracked",
+      "existing": "props.png 第3-4格（需黑色变体）"
+     },
+     {
+      "name": "压制装置",
+      "mechanic": "勒什雷尔关小怪房每间 2 个（prop，hp 40）：每 5s 预警 .8s 后 r40 脉冲，命中减速 2.5s + 封技能 1s；击毁 12s 后重新激活（原作需盗贼解除）。",
+      "artPrompt": "suppression device, iron dragon-head machine emitting purple-green energy pulse, active and broken states"
+     },
+     {
+      "name": "化学药剂桶",
+      "mechanic": "克洛玛古斯关装饰 + 可打碎（hp 20）：打碎后 4s 内玩家清除龙血痛苦（致敬时光沙漏）。",
+      "artPrompt": "bubbling chromatic potion vat with five colored liquids"
+     }
+    ],
+    "music": "厚重铜管 + 金属敲击，奈法利安关加入合唱"
+   },
+   "trash": [
+    {
+     "name": "黑翼军团士兵",
+     "en": "Blackwing Legionnaire",
+     "base": "SK",
+     "abilities": [
+      {
+       "name": "顺劈斩",
+       "impl": "[tel] cone@self ang.6 len28 T.5 dmg×1.1。"
+      },
+      {
+       "name": "狂怒",
+       "impl": "[mobAbility buffAllies] 附近 60px 内友军死亡时：自身伤害 +30% 移速 +20%（可叠 3 层）。"
+      }
+     ],
+     "artPrompt": "Blackwing Legionnaire, black drakonid soldier in spiked iron armor with axe and round shield",
+     "existing": "mobs.png 第5格 龙人战士（近似）"
+    },
+    {
+     "name": "腐化的雏龙",
+     "en": "Corrupted Whelp",
+     "base": "BT",
+     "abilities": [
+      {
+       "name": "扑咬",
+       "impl": "[mobAbility pounce]。"
+      },
+      {
+       "name": "五色腐化",
+       "impl": "生成时按 红/蓝/绿/青铜 轮流着色；命中附带对应效果：红 dot、蓝 slow、绿 heal-50%、青铜 眩晕 .6s（按顺序，不随机）。"
+      }
+     ],
+     "artPrompt": "Corrupted Whelp, small chromatic dragon whelp with patchy red/blue/green/bronze scales and glowing veins",
+     "existing": "mobs.png 第6格 雏龙（换色）"
+    },
+    {
+     "name": "死爪龙卫",
+     "en": "Death Talon Wyrmguard",
+     "base": "SL",
+     "hpx": 3,
+     "abilities": [
+      {
+       "name": "元素抗性轮换",
+       "impl": "每 8s 切换：抵抗近战（近战伤害 ×.3，身上蓝光）↔ 抵抗远程（远程 ×.3，红光）。"
+      },
+      {
+       "name": "战争践踏",
+       "impl": "[mobAbility nova] r30 .9s stun .8s。死亡不分裂。"
+      }
+     ],
+     "artPrompt": "Death Talon Wyrmguard, large winged dragonkin guard with glowing elemental scales and halberd"
+    },
+    {
+     "name": "黑翼法师",
+     "en": "Blackwing Mage",
+     "base": "SA",
+     "abilities": [
+      {
+       "name": "火球术",
+       "impl": "火球 80px/s dmg×1.1，留小火池。"
+      },
+      {
+       "name": "奥术爆炸",
+       "impl": "[mobAbility nova] 玩家 <30px 时自身 r30 .6s dmg×1。"
+      }
+     ],
+     "artPrompt": "Blackwing Mage, human mage in black-red robes with dragon emblem, fireball in hand"
+    },
+    {
+     "name": "黑翼技师",
+     "en": "Blackwing Technician",
+     "base": "SA",
+     "abilities": [
+      {
+       "name": "投掷炸弹",
+       "impl": "[mobAbility aoeAtPlayer] r18 T1.0 dmg×1.3，炸弹贴图抛物线。"
+      },
+      {
+       "name": "逃跑",
+       "impl": "血量 <30% 向远离玩家方向跑 2s（e.flee）。"
+      }
+     ],
+     "artPrompt": "Blackwing Technician, goblin engineer in black-red apron with goggles and lit bombs"
+    },
+    {
+     "name": "黑翼缚法者",
+     "en": "Blackwing Spellbinder",
+     "base": "SA",
+     "abilities": [
+      {
+       "name": "强效变形术",
+       "impl": "[mobAbility aoeAtPlayer] r14 T1.2 → 眩晕 2s（stun，变羊贴图）。冷却 10s。"
+      },
+      {
+       "name": "暗影指令",
+       "impl": "[mindControl] 2s，冷却 15s。"
+      },
+      {
+       "name": "魔法免疫",
+       "impl": "技能伤害 ×.5（普攻正常）。"
+      }
+     ],
+     "artPrompt": "Blackwing Spellbinder, dark sorcerer with chained grimoire and purple arcane bindings"
+    }
+   ],
+   "bosses": [
+    {
+     "name": "狂野的拉佐格尔",
+     "en": "Razorgore the Untamed",
+     "order": 1,
+     "rooms": 2,
+     "trash": [
+      "黑翼军团士兵",
+      "黑翼法师",
+      "死爪龙卫"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 80,
+     "artPrompt": "Razorgore the Untamed, massive black-red dragon with brutal horns and scarred hide, chained collar",
+     "forms": [],
+     "adds": [
+      {
+       "name": "黑翼军团士兵",
+       "base": "SK",
+       "count": 0,
+       "hpMult": 1,
+       "artPrompt": "reuse trash",
+       "abilities": [
+        {
+         "name": "涌入",
+         "impl": "P1 每 4s 从四角各刷 1 只（随机：士兵/法师/龙卫=6:3:1，按计数轮转）。"
+        }
+       ]
+      },
+      {
+       "name": "黑翼法师",
+       "base": "SA",
+       "count": 0,
+       "hpMult": 1,
+       "artPrompt": "reuse trash",
+       "abilities": [
+        {
+         "name": "涌入",
+         "impl": "同上。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:conflagration",
+      "NEW:warStomp",
+      "volley"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "P1 龙蛋阶段：拉佐格尔无敌待在房顶（原作被控制宝珠控制），房内 6 个黑龙蛋（objectiveProps destroy），四角持续刷军团；蛋全碎 → P2。超时 45s 未碎完则一次刷 6 只精英士兵。"
+      },
+      {
+       "atHp": 0.99,
+       "changes": "P2：拉佐格尔下场，残余小怪保留。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "摧毁龙蛋",
+       "key": "objectiveProps",
+       "impl": "[objectiveProps destroy] 6 个 EGG（hp 30，不孵化），全部击碎触发 P2。"
+      },
+      {
+       "name": "爆燃",
+       "key": "NEW:conflagration",
+       "impl": "[tel] circle@player r20 T.9 skd×1 + dot 6s + fear .8s（迷失）。"
+      },
+      {
+       "name": "战争践踏",
+       "key": "NEW:warStomp",
+       "impl": "[tel] circle@boss r40 T.8 skd×.8 stun .8。"
+      },
+      {
+       "name": "火球齐射",
+       "key": "volley",
+       "impl": "现有 volley。"
+      }
+     ],
+     "tip": "先砸龙蛋！四角会不停来人，边打蛋边处理靠近的法师。"
+    },
+    {
+     "name": "堕落的瓦拉斯塔兹",
+     "en": "Vaelastrasz the Corrupt",
+     "order": 2,
+     "rooms": 2,
+     "trash": [
+      "黑翼军团士兵",
+      "黑翼技师"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 45,
+     "artPrompt": "Vaelastrasz the Corrupt, red dragon corrupted with black veins and dark smoke, chained, pained expression",
+     "existing": "bosses.png 第2格 赤炎巨龙（近似可复用）",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "adrenaline",
+      "fireCone",
+      "NEW:fireNova",
+      "NEW:vaelTail"
+     ],
+     "phases": [
+      {
+       "atHp": 0.3,
+       "changes": "开场即 30% 血（现有 start:.3），开场 2.6s 给玩家“红龙精华”：大招冷却减半、能量无限（现有 essence）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "燃烧刺激",
+       "key": "adrenaline",
+       "impl": "现有：伤害 ×2、持续掉血 8s；改为每 15s 一次并有 1s 头顶预警。"
+      },
+      {
+       "name": "红龙精华",
+       "key": "essence",
+       "impl": "现有 essence。"
+      },
+      {
+       "name": "烈焰吐息",
+       "key": "fireCone",
+       "impl": "[bossFacing] 固定朝下，cone ang.55 len150 T1.0 skd×1.3。"
+      },
+      {
+       "name": "火焰新星",
+       "key": "NEW:fireNova",
+       "impl": "每 3s 全屏脉冲 skd×.12（无法躲，靠精华爆发打穿）。"
+      },
+      {
+       "name": "龙尾横扫",
+       "key": "NEW:vaelTail",
+       "impl": "[tel] cone fixed 身后 ang.7 len80 T.8 skd×1 knock。"
+      }
+     ],
+     "tip": "纯输出检定：他只剩 30% 血，精华让你大招转得飞快，全力输出；站侧面躲吐息和尾扫。"
+    },
+    {
+     "name": "勒什雷尔",
+     "en": "Broodlord Lashlayer",
+     "order": 3,
+     "rooms": 4,
+     "elite": "死爪龙卫",
+     "trash": [
+      "黑翼军团士兵",
+      "死爪龙卫",
+      "黑翼技师",
+      "黑翼缚法者"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 70,
+     "artPrompt": "Broodlord Lashlayer, hulking black dragonkin lord in heavy spiked plate, massive two-handed axe, horned crown",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "NEW:mortalStrike",
+      "NEW:knockAway",
+      "NEW:blastWave",
+      "NEW:lashCleave"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "致死打击",
+       "key": "NEW:mortalStrike",
+       "impl": "[tel] circle@player r16 T.6 skd×1.5 + [curse:heal] 5s。"
+      },
+      {
+       "name": "击退",
+       "key": "NEW:knockAway",
+       "impl": "[tel] cone@boss ang.5 len40 T.6 skd×.8 knock 70（把你打远，随后他冲过来）。"
+      },
+      {
+       "name": "冲击波",
+       "key": "NEW:blastWave",
+       "impl": "[tel] circle@boss r40 T.8 skd×.9 slow。"
+      },
+      {
+       "name": "顺劈斩",
+       "key": "NEW:lashCleave",
+       "impl": "[tel] cone@boss ang.6 len30 T.5 skd×1。"
+      }
+     ],
+     "tip": "关键在路上：压制装置会减速封技能，先拆掉再清怪；首领致死打击会削减回血。"
+    },
+    {
+     "name": "费尔默",
+     "en": "Firemaw",
+     "order": 4,
+     "rooms": 2,
+     "trash": [
+      "黑翼军团士兵",
+      "死爪龙卫"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 65,
+     "artPrompt": "Firemaw, large black dragon with flame-filled maw and glowing orange throat, spiky jaw",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "NEW:wingBuffet",
+      "shadowflame",
+      "NEW:wingBuffet",
+      "shadowflame"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "龙翼打击",
+       "key": "NEW:wingBuffet",
+       "impl": "[tel] circle@boss r48 T.8 skd×.8 knock 50。"
+      },
+      {
+       "name": "暗影烈焰",
+       "key": "shadowflame",
+       "impl": "现有 shadowflame（cone + dot）。"
+      },
+      {
+       "name": "烈焰打击",
+       "key": "NEW:flameBuffet",
+       "impl": "[stacks vuln] 首领对玩家有视线时每 2s +1 层（被动，不占轮换）；躲到房内石柱后（los 为假）3s 清空。首领房必须有 2 根挡视线的石柱。"
+      }
+     ],
+     "tip": "烈焰打击层数会越叠越痛：层数高了躲到石柱后面断视线清层。"
+    },
+    {
+     "name": "埃博诺克",
+     "en": "Ebonroc",
+     "order": 5,
+     "rooms": 2,
+     "trash": [
+      "黑翼技师",
+      "黑翼缚法者"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 65,
+     "artPrompt": "Ebonroc, sleek black dragon wreathed in purple shadow flames, glowing violet eyes",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "NEW:wingBuffet",
+      "shadowflame",
+      "NEW:shadowOfEbonroc"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "龙翼打击",
+       "key": "NEW:wingBuffet",
+       "impl": "同费尔默。"
+      },
+      {
+       "name": "暗影烈焰",
+       "key": "shadowflame",
+       "impl": "现有。"
+      },
+      {
+       "name": "埃博诺克之影",
+       "key": "NEW:shadowOfEbonroc",
+       "impl": "玩家减益 8s（紫色影子贴图）：期间首领每次对玩家造成伤害回复自身 3% 最大生命；提示“拉开距离，别被他打到”。"
+      }
+     ],
+     "tip": "身上有埃博诺克之影时被他打中会给他回血：这 8 秒保持距离。"
+    },
+    {
+     "name": "弗莱格尔",
+     "en": "Flamegor",
+     "order": 6,
+     "rooms": 2,
+     "trash": [
+      "黑翼军团士兵",
+      "黑翼法师"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 65,
+     "artPrompt": "Flamegor, black dragon with orange-red molten scale edges, flames along spine",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "NEW:wingBuffet",
+      "shadowflame",
+      "NEW:frenzyFlamegor"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "龙翼打击",
+       "key": "NEW:wingBuffet",
+       "impl": "同费尔默。"
+      },
+      {
+       "name": "暗影烈焰",
+       "key": "shadowflame",
+       "impl": "现有。"
+      },
+      {
+       "name": "狂乱",
+       "key": "NEW:frenzyFlamegor",
+       "impl": "[frenzy] 8s；狂乱期间每 1s 全屏火焰新星 skd×.25。大招安抚立即停止新星。"
+      }
+     ],
+     "tip": "狂乱时会不停火焰新星：立刻用大招安抚。"
+    },
+    {
+     "name": "克洛玛古斯",
+     "en": "Chromaggus",
+     "order": 7,
+     "rooms": 3,
+     "elite": "死爪龙卫",
+     "trash": [
+      "腐化的雏龙",
+      "死爪龙卫",
+      "黑翼法师"
+     ],
+     "hpMult": 1.3,
+     "enrageSec": 80,
+     "artPrompt": "Chromaggus, two-headed chromatic dragon hound, multicolored scales (red blue green bronze black), massive jaws",
+     "existing": "bosses.png 第4格 色彩龙王（近似，缺双头）",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "NEW:breathA",
+      "affliction",
+      "NEW:breathB",
+      "NEW:frenzyChromaggus"
+     ],
+     "phases": [
+      {
+       "atHp": 0.2,
+       "changes": "永久狂乱（frenzy perm），提示“克洛玛古斯 狂暴！”"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "随机两种吐息",
+       "key": "NEW:breathA",
+       "impl": "开战时从 5 种中抽 2 种作为 breathA/breathB 固定整场（现有 breaths 逻辑，补第 5 种）：焚化（fireCone）/冰霜灼烧（frostCone slow）/时间流逝（timeCone stun）/腐蚀酸液（acidCone dot）/点燃躯体（NEW：cone + dot 8s 伤害递增）。"
+      },
+      {
+       "name": "随机两种吐息（第二种）",
+       "key": "NEW:breathB",
+       "impl": "同上，与 breathA 交替，间隔约 10s。"
+      },
+      {
+       "name": "龙血痛苦",
+       "key": "affliction",
+       "impl": "现有 affliction（红 dot / 蓝 slow / 黑 vuln / 青铜 stun），补 绿：回复 −50%；同时身上 5 色齐全 → mindControl 4s（“克洛玛古斯的血液”）。"
+      },
+      {
+       "name": "狂乱",
+       "key": "NEW:frenzyChromaggus",
+       "impl": "[frenzy] 8s，大招安抚。"
+      }
+     ],
+     "tip": "每场随机两种吐息，开打先看清是哪两种；龙血痛苦集满 5 色会失控，打碎药剂桶能清除。"
+    },
+    {
+     "name": "奈法利安",
+     "en": "Nefarian",
+     "order": 8,
+     "rooms": 3,
+     "elite": "黑翼缚法者",
+     "trash": [
+      "黑翼军团士兵",
+      "黑翼法师",
+      "黑翼缚法者",
+      "死爪龙卫"
+     ],
+     "hpMult": 1.8,
+     "enrageSec": 100,
+     "artPrompt": "Nefarian, enormous black dragon lord, jagged black scales with red underglow, horned crown, menacing",
+     "existing": "bosses.png 第6格 黑翼领主 / forms.png 第2格 巨龙形态",
+     "forms": [
+      {
+       "name": "维克多·奈法里奥斯",
+       "artPrompt": "Lord Victor Nefarius, tall noble in black-red regal robes with high collar, glowing red eyes, shadow magic"
+      }
+     ],
+     "adds": [
+      {
+       "name": "龙人（五色）",
+       "base": "SK",
+       "count": 0,
+       "hpMult": 1.6,
+       "artPrompt": "Drakonid, winged dragon-man warrior; 5 color variants: red, blue, green, bronze, black, plus chromatic",
+       "abilities": [
+        {
+         "name": "颜色吐息",
+         "impl": "按颜色：红 火焰锥 dot、蓝 冰锥 slow、绿 毒锥 heal−、青铜 时间锥 stun、黑 暗影锥；cone len40 T.7。"
+        },
+        {
+         "name": "骨头",
+         "impl": "死亡留下尸骨标记，P3 可复苏。"
+        }
+       ],
+       "existing": "forms.png 第8格（单色，需补 5 色变体）"
+      }
+     ],
+     "skills": [
+      "shadowflame",
+      "roar",
+      "NEW:classCall",
+      "NEW:nefCleave",
+      "NEW:veilOfShadow"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "P1：维克多·奈法里奥斯（人形）无敌站在王座，左右两门每 3.6s 刷龙人（现有 drakes，改为按颜色轮转），他施放暗影箭齐射（volley）、恐惧（roar）、变形术（circle@player stun 1.5s）；击杀 12 只龙人 → 奈法利安降临。"
+      },
+      {
+       "atHp": 0.99,
+       "changes": "P2：奈法利安本体，轮换 skills。"
+      },
+      {
+       "atHp": 0.2,
+       "changes": "P3：骸骨复苏（现有 raise）：在 P1 龙人尸骨处复苏骨构造体（数量 = 击杀龙人数 /2）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "暗影烈焰",
+       "key": "shadowflame",
+       "impl": "现有。"
+      },
+      {
+       "name": "低沉咆哮",
+       "key": "roar",
+       "impl": "现有。"
+      },
+      {
+       "name": "职业召唤",
+       "key": "NEW:classCall",
+       "impl": "取代现有 classcall 的统一封技能。按职业：剑士/斗士→战士（10s 受伤 +30%）；法师→法师（8s 内每 2s 玩家脚下 r14 变形圈，中则 stun 1.5s）；射手/工程师→猎人（8s 攻击距离 ×.5）；刺客/忍者→盗贼（被传送到奈法利安面前并定身 1.5s）；吟游诗人→牧师（8s 治疗变为伤害）；圣骑士→圣骑士（奈法利安获得保护祝福：无敌 4s）。"
+      },
+      {
+       "name": "顺劈 / 尾扫",
+       "key": "NEW:nefCleave",
+       "impl": "[tel] cone@boss ang.6 len40 T.6 skd×1.1。"
+      },
+      {
+       "name": "暗影之幕",
+       "key": "NEW:veilOfShadow",
+       "impl": "[curse:heal] 6s 回复 ×.25。"
+      }
+     ],
+     "tip": "P1 先清龙人（注意颜色对应的吐息）；职业召唤每个职业不同，看清提示再动；20% 后骨头会站起来。"
+    }
+   ],
+   "expansion": "classic"
+  },
+  {
+   "id": "zg",
+   "name": "祖尔格拉布",
+   "en": "Zul'Gurub",
+   "levelRange": "60",
+   "bossCount": 10,
+   "env": {
+    "desc": "荆棘谷北部丛林中的古拉巴什巨魔神庙城：长满藤蔓的阶梯金字塔、石雕神像与血祭祭坛，五座兽神祭坛（蝙蝠、蛇、蜘蛛、虎、豹），中央水潭（加兹兰卡），最深处是哈卡的血神祭坛，地面流淌着血色水渠。",
+    "tilesPrompt": "4x4 grid of 16px top-down pixel tiles for a jungle troll temple (Zul'Gurub): row0 four mossy carved stone floor variants with vines and jungle leaves; row1 four troll ziggurat wall-front variants with tiki carvings and torches; row2 wall-top jungle canopy, wooden offering crate, carved troll idol pillar, blood-red water pool; row3 four decorated floors: blood channel, troll skull pile, fallen leaves with mushrooms, snake-carved mosaic",
+    "tilesExisting": "无（需新做）",
+    "props": [
+     {
+      "name": "蜘蛛卵",
+      "mechanic": "玛尔里关与小怪房：现有 EGG 逻辑换皮，9~13s 孵化 2 只小蜘蛛（BT）。",
+      "artPrompt": "cluster of pale green spider eggs in web, intact and hatching",
+      "existing": "props.png 第3-4格（换色换皮）"
+     },
+     {
+      "name": "豹笼",
+      "mechanic": "娅尔罗关：房间四边各 1 个（prop hp 40），每 8s 放出 1 只祖利安猎豹；击毁后不再放出。",
+      "artPrompt": "bamboo cage with a black panther inside, closed and broken open"
+     },
+     {
+      "name": "血祭祭坛",
+      "mechanic": "哈卡关中心装饰；阿亚米斯式献祭不用。纯视觉 + 哈卡出场时喷血。",
+      "artPrompt": "troll blood altar with carved snake heads and flowing blood"
+     },
+     {
+      "name": "毒血池",
+      "mechanic": "哈卡之子死亡留下（r18，10s）：站进去获得“毒性之血”抵消血液虹吸。",
+      "artPrompt": "bubbling green poison blood pool"
+     }
+    ],
+    "music": "巨魔手鼓 + 丛林虫鸣，节奏轻快但紧张"
+   },
+   "trash": [
+    {
+     "name": "古拉巴什狂暴者",
+     "en": "Gurubashi Berserker",
+     "base": "SK",
+     "hpx": 3,
+     "abilities": [
+      {
+       "name": "威慑怒吼",
+       "impl": "[mobAbility fear] 自身 r60 T.9 → fear 1.2s。冷却 12s。"
+      },
+      {
+       "name": "击飞",
+       "impl": "[tel] cone@self ang.6 len30 T.6 dmg×1.3 knock 50。"
+      },
+      {
+       "name": "狂暴",
+       "impl": "血量 <30% 伤害 +50%、移速 +30%（永久，红光）。"
+      }
+     ],
+     "artPrompt": "Gurubashi Berserker, huge muscular jungle troll with tusks, war paint and spiked club"
+    },
+    {
+     "name": "祖利安猛虎",
+     "en": "Zulian Tiger",
+     "base": "BT",
+     "abilities": [
+      {
+       "name": "猛扑",
+       "impl": "[mobAbility pounce] 蓄力 .35s，命中 dmg×1.2 + 流血 dot。"
+      },
+      {
+       "name": "疾跑",
+       "impl": "每 8s 移速 ×1.8 持续 2s（尾迹）。"
+      }
+     ],
+     "artPrompt": "Zulian Tiger, striped jungle tiger with troll war paint and gold ear rings"
+    },
+    {
+     "name": "拉扎什寡妇蛛",
+     "en": "Razzashi Broodwidow",
+     "base": "SL",
+     "hpx": 2,
+     "abilities": [
+      {
+       "name": "蛛网",
+       "impl": "[mobAbility aoeAtPlayer] r18 T1.0 → root 1.5s（pl.frozenT，无伤）。"
+      },
+      {
+       "name": "产卵",
+       "impl": "[mobAbility deathSplit] 死亡时生出 4 只小蜘蛛（BT 25% 血），取代史莱姆分裂。"
+      }
+     ],
+     "artPrompt": "Razzashi Broodwidow, large purple-black jungle spider with egg sac abdomen"
+    },
+    {
+     "name": "古拉巴什掷斧者",
+     "en": "Gurubashi Axe Thrower",
+     "base": "SA",
+     "abilities": [
+      {
+       "name": "投掷飞斧",
+       "impl": "2 连发旋转飞斧（spread .25）90px/s dmg×1.1，射击前“!” .45s。"
+      },
+      {
+       "name": "斧舞",
+       "impl": "玩家 <26px 时 [mobAbility nova] r26 .6s dmg×1（近身反击）。"
+      }
+     ],
+     "artPrompt": "Gurubashi Axe Thrower, lean jungle troll with mohawk, bandolier of throwing axes, mid-throw"
+    },
+    {
+     "name": "哈卡莱巫医",
+     "en": "Hakkari Witch Doctor",
+     "base": "SA",
+     "abilities": [
+      {
+       "name": "妖术",
+       "impl": "[mobAbility aoeAtPlayer] r14 T1.2 → stun 1.5s（青蛙贴图）。冷却 10s。"
+      },
+      {
+       "name": "收缩",
+       "impl": "[curse:dmg] 6s 玩家伤害 ×.6（角色缩小 20%）。"
+      },
+      {
+       "name": "暗影箭",
+       "impl": "紫色弹 dmg×1。"
+      }
+     ],
+     "artPrompt": "Hakkari Witch Doctor, troll shaman with voodoo mask, feathers, shrunken heads on staff"
+    },
+    {
+     "name": "古拉巴什蝙蝠骑士",
+     "en": "Gurubashi Bat Rider",
+     "base": "SA",
+     "abilities": [
+      {
+       "name": "液态火",
+       "impl": "[mobAbility aoeAtPlayer] r20 T1.0 dmg×1 after:'pool' 火池 4s。"
+      },
+      {
+       "name": "不稳定的混合物",
+       "impl": "血量 <30%：直线预警 len120 w8 .8s 后俯冲，终点 r30 爆炸 dmg×2，自身死亡。"
+      }
+     ],
+     "artPrompt": "Gurubashi Bat Rider, troll riding a giant bloodseeker bat, holding a flask of liquid fire"
+    }
+   ],
+   "bosses": [
+    {
+     "name": "高阶祭司耶克里克",
+     "en": "High Priestess Jeklik",
+     "order": 1,
+     "rooms": 3,
+     "elite": "古拉巴什狂暴者",
+     "trash": [
+      "古拉巴什狂暴者",
+      "古拉巴什蝙蝠骑士",
+      "哈卡莱巫医"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 65,
+     "artPrompt": "High Priestess Jeklik, troll priestess with bat-wing headdress and red-black robes, bat motifs",
+     "forms": [
+      {
+       "name": "蝙蝠形态",
+       "artPrompt": "Jeklik in giant bat form, huge red-black bat with troll jewelry"
+      }
+     ],
+     "adds": [
+      {
+       "name": "血顶蝙蝠",
+       "base": "BT",
+       "count": 6,
+       "hpMult": 0.6,
+       "artPrompt": "Bloodseeker Bat, small red jungle bat",
+       "abilities": [
+        {
+         "name": "扑咬",
+         "impl": "[mobAbility pounce]。P1 每 20s 从两侧涌入 6 只（现有 whelps）。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "charge",
+      "NEW:sonicBurst",
+      "whelps",
+      "NEW:swoop"
+     ],
+     "phases": [
+      {
+       "atHp": 0.5,
+       "changes": "P2 变回人形（formArt）：轮换改为 NEW:mindFlay、NEW:greatHeal、NEW:fireBombs、NEW:swPain。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "冲锋",
+       "key": "charge",
+       "impl": "现有 charge。"
+      },
+      {
+       "name": "刺耳尖啸",
+       "key": "NEW:sonicBurst",
+       "impl": "[tel] circle@boss r60 T.8 skd×.6 → G.sealT=2（沉默）。"
+      },
+      {
+       "name": "俯冲",
+       "key": "NEW:swoop",
+       "impl": "[tel] beam@boss→player w12 T.9 skd×1 knock 30。"
+      },
+      {
+       "name": "精神鞭笞",
+       "key": "NEW:mindFlay",
+       "impl": "引导 3s：首领与玩家间画紫色光束，每 .5s skd×.25 + slow；los 被石柱挡住则中断。"
+      },
+      {
+       "name": "强效治疗",
+       "key": "NEW:greatHeal",
+       "impl": "[castBar] 3s 回复 20%，命中 6 次打断。"
+      },
+      {
+       "name": "火焰炸弹（蝙蝠骑士）",
+       "key": "NEW:fireBombs",
+       "impl": "[tel] circle@random r20 n=5 T1.2 skd×1 after:'pool' 火池 5s（上方飞过的蝙蝠投下）。"
+      },
+      {
+       "name": "暗言术：痛",
+       "key": "NEW:swPain",
+       "impl": "dot 8s。"
+      }
+     ],
+     "tip": "50% 后她会读条强效治疗——一定要打断；精神鞭笞可以躲到柱子后断开。"
+    },
+    {
+     "name": "高阶祭司温诺希斯",
+     "en": "High Priest Venoxis",
+     "order": 2,
+     "rooms": 3,
+     "elite": "拉扎什寡妇蛛",
+     "trash": [
+      "拉扎什寡妇蛛",
+      "祖利安猛虎",
+      "古拉巴什掷斧者"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 65,
+     "artPrompt": "High Priest Venoxis, troll priest with cobra hood headdress, green-gold robes, snake staff",
+     "forms": [
+      {
+       "name": "巨蛇形态",
+       "artPrompt": "Venoxis as a giant cobra, green-gold scales, troll jewelry, hood flared"
+      }
+     ],
+     "adds": [
+      {
+       "name": "拉扎什眼镜蛇",
+       "base": "BT",
+       "count": 4,
+       "hpMult": 1.5,
+       "artPrompt": "Razzashi Cobra, green jungle cobra with hood flared",
+       "abilities": [
+        {
+         "name": "毒牙",
+         "impl": "接触 dot 4s。开场 4 只。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:holyWrath",
+      "NEW:holyFire",
+      "NEW:renew"
+     ],
+     "phases": [
+      {
+       "atHp": 0.5,
+       "changes": "P2 变成巨蛇（formArt，移速 +30%）：轮换改为 NEW:poisonCloud、NEW:venomSpit、NEW:parasites。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "神圣之怒",
+       "key": "NEW:holyWrath",
+       "impl": "金色弹 60px/s 命中玩家后弹回首领再弹向玩家，共 3 次，每次伤害 ×1.3（skd×.5 起）。"
+      },
+      {
+       "name": "神圣之火",
+       "key": "NEW:holyFire",
+       "impl": "[tel] circle@player r16 T1.0 skd×1 + dot 6s。"
+      },
+      {
+       "name": "恢复",
+       "key": "NEW:renew",
+       "impl": "[castBar] 1.5s 后 6s 内回 8%，命中 3 次打断。"
+      },
+      {
+       "name": "毒云",
+       "key": "NEW:poisonCloud",
+       "impl": "沿玩家路径每 .8s 留 1 个毒池（r14，6s，skd×.2/.5s），持续 4s。"
+      },
+      {
+       "name": "毒液喷吐",
+       "key": "NEW:venomSpit",
+       "impl": "acidCone（cone + dot）。"
+      },
+      {
+       "name": "寄生毒蛇",
+       "key": "NEW:parasites",
+       "impl": "每次召唤 2 条小蛇（BT 40% 血）从首领身边钻出。"
+      }
+     ],
+     "tip": "P1 打断恢复、躲开神圣之火；P2 变蛇后会到处留毒云，别回头踩。"
+    },
+    {
+     "name": "高阶祭司玛尔里",
+     "en": "High Priestess Mar'li",
+     "order": 3,
+     "rooms": 3,
+     "elite": "拉扎什寡妇蛛",
+     "trash": [
+      "拉扎什寡妇蛛",
+      "哈卡莱巫医",
+      "古拉巴什狂暴者"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 65,
+     "artPrompt": "High Priestess Mar'li, troll priestess with spider-leg headdress, purple robes, venom vials",
+     "forms": [
+      {
+       "name": "蜘蛛形态",
+       "artPrompt": "Mar'li as a giant spider with troll mask and purple-black carapace"
+      }
+     ],
+     "adds": [
+      {
+       "name": "玛尔里幼蛛",
+       "base": "BT",
+       "count": 4,
+       "hpMult": 0.6,
+       "artPrompt": "Spawn of Mar'li, small purple spider hatchling",
+       "abilities": [
+        {
+         "name": "成长",
+         "impl": "孵出后每 3s 体型 +10%、伤害 +15%（最多 5 次），早杀。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:spawnEggs",
+      "NEW:poisonVolley",
+      "NEW:drainLife"
+     ],
+     "phases": [
+      {
+       "atHp": 0.66,
+       "changes": "切换为蜘蛛形态 25s：轮换 NEW:envelopingWeb、charge、NEW:corrosivePoison；之后变回巨魔形态。"
+      },
+      {
+       "atHp": 0.33,
+       "changes": "再次切蜘蛛形态直到死亡。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "产卵",
+       "key": "NEW:spawnEggs",
+       "impl": "在房间 4 处放蜘蛛卵 prop（8s 孵化 → 玛尔里幼蛛）。"
+      },
+      {
+       "name": "毒箭齐射",
+       "key": "NEW:poisonVolley",
+       "impl": "ring 10 发绿色毒弹 50px/s，命中 dot。"
+      },
+      {
+       "name": "吸取生命",
+       "key": "NEW:drainLife",
+       "impl": "引导 3s 光束，每 .5s 吸 skd×.2 给首领回血；命中 4 次打断或断视线。"
+      },
+      {
+       "name": "包裹之网",
+       "key": "NEW:envelopingWeb",
+       "impl": "[tel] circle@boss r50 T.8 → root 2s（无伤），随后接 charge。"
+      },
+      {
+       "name": "冲锋",
+       "key": "charge",
+       "impl": "现有 charge（冲向玩家）。"
+      },
+      {
+       "name": "腐蚀毒药",
+       "key": "NEW:corrosivePoison",
+       "impl": "接下来 6s 接触伤害附 dot。"
+      }
+     ],
+     "tip": "蜘蛛卵出现马上打掉，幼蛛会越长越大；巨魔形态的吸取生命要打断。"
+    },
+    {
+     "name": "血领主曼多基尔",
+     "en": "Bloodlord Mandokir",
+     "order": 4,
+     "rooms": 3,
+     "elite": "古拉巴什狂暴者",
+     "trash": [
+      "古拉巴什狂暴者",
+      "祖利安猛虎",
+      "古拉巴什掷斧者"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 70,
+     "artPrompt": "Bloodlord Mandokir, armored troll warlord with huge axe, riding the raptor Ohgan, red war paint",
+     "forms": [
+      {
+       "name": "下马",
+       "artPrompt": "Mandokir on foot, troll warlord with giant two-handed axe, no mount"
+      }
+     ],
+     "adds": [
+      {
+       "name": "奥根",
+       "base": "BT",
+       "count": 1,
+       "hpMult": 4,
+       "artPrompt": "Ohgan, large red-scaled war raptor with spiked saddle",
+       "abilities": [
+        {
+         "name": "破甲",
+         "impl": "[stacks vuln]。"
+        },
+        {
+         "name": "主人之怒",
+         "impl": "奥根死亡 → 曼多基尔永久狂乱（frenzy perm）。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:threateningGaze",
+      "NEW:whirlwind",
+      "charge",
+      "NEW:mortalStrikeM"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "开场骑乘奥根，奥根在 3s 后下坐骑与首领分开行动（formArt 切下马）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "威胁凝视",
+       "key": "NEW:threateningGaze",
+       "impl": "[gaze] 2s 别动；违反 → 冲锋 + skd×3 + 曼多基尔“升级”（伤害 +10%，可叠）。"
+      },
+      {
+       "name": "旋风斩",
+       "key": "NEW:whirlwind",
+       "impl": "[followAura] r34 3s 每 .5s skd×.4，首领移速 ×1.2。"
+      },
+      {
+       "name": "冲锋",
+       "key": "charge",
+       "impl": "现有 charge。"
+      },
+      {
+       "name": "致死打击",
+       "key": "NEW:mortalStrikeM",
+       "impl": "[tel] circle@player r16 T.6 skd×1.4 + [curse:heal] 5s。"
+      },
+      {
+       "name": "恐吓怒吼",
+       "key": "roar",
+       "impl": "每 25s 穿插现有 roar。"
+      }
+     ],
+     "tip": "头顶出现红眼时站着别动！先杀奥根会让他狂乱，建议先打曼多基尔。"
+    },
+    {
+     "name": "疯狂之缘",
+     "en": "Edge of Madness",
+     "order": 5,
+     "rooms": 2,
+     "trash": [
+      "哈卡莱巫医",
+      "古拉巴什掷斧者"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 60,
+     "artPrompt": "(variant boss, see variants)",
+     "variants": [
+      {
+       "name": "格里雷克",
+       "en": "Gri'lek",
+       "artPrompt": "Gri'lek, giant troll berserker with iron chains and huge hammer, red skin",
+       "mechanics": [
+        {
+         "name": "化身",
+         "impl": "每 20s：体型 ×1.4、移速 ×1.3、锁定玩家追击 8s（fixate）。"
+        },
+        {
+         "name": "践踏",
+         "impl": "[tel] circle@boss r40 T.8 skd×1 knock。"
+        },
+        {
+         "name": "纠缠根须",
+         "impl": "[tel] circle@player r18 T1.0 root 2s。"
+        }
+       ]
+      },
+      {
+       "name": "哈扎拉尔",
+       "en": "Hazza'rah",
+       "artPrompt": "Hazza'rah, troll dream-shaman with green-purple robes and sleeping mask",
+       "mechanics": [
+        {
+         "name": "法力燃烧",
+         "impl": "G.skillT += 3。"
+        },
+        {
+         "name": "沉睡",
+         "impl": "[tel] circle@player r18 T1.2 → stun 2.5s（受击提前醒）。"
+        },
+        {
+         "name": "梦魇幻象",
+         "impl": "[mirrorImages] 召唤 3 个幻象（BT 型 20% 血），10s 后消失。"
+        }
+       ]
+      },
+      {
+       "name": "雷纳塔基",
+       "en": "Renataki",
+       "artPrompt": "Renataki, lean troll assassin with twin daggers and shadowy cloak",
+       "mechanics": [
+        {
+         "name": "消失",
+         "impl": "b.hidden 3s 后出现在玩家身后：circle@player r16 T.5 skd×1.6（伏击）。"
+        },
+        {
+         "name": "千刃",
+         "impl": "ring 16 发短刀弹 60px/s。"
+        },
+        {
+         "name": "凿击",
+         "impl": "[tel] circle@player r14 T.6 stun 1.5s。"
+        }
+       ]
+      },
+      {
+       "name": "乌苏雷",
+       "en": "Wushoolay",
+       "artPrompt": "Wushoolay, troll storm shaman with lightning totem staff and blue tattoos",
+       "mechanics": [
+        {
+         "name": "闪电链",
+         "impl": "3 发快速闪电弹（eyebeam 样式，蓝色）。"
+        },
+        {
+         "name": "闪电云",
+         "impl": "在玩家位置生成移动雷云 pool（r22，8s，每 .5s skd×.25，缓慢追踪玩家）。"
+        },
+        {
+         "name": "强制闪电",
+         "impl": "[tel] beam@boss w8 T1.0 n=3 旋转 120°。"
+        }
+       ]
+      }
+     ],
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "variant"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "随机降临",
+       "key": "variant",
+       "impl": "进入关卡时按种子从 4 名疯狂之缘首领中选 1（关卡信息里显示本次是谁）；每名用自己的 3 个机制轮换。"
+      }
+     ],
+     "tip": "每次是 4 个巨魔之魂中的随机一个：看清是谁再决定打法。"
+    },
+    {
+     "name": "高阶祭司塞卡尔",
+     "en": "High Priest Thekal",
+     "order": 6,
+     "rooms": 3,
+     "elite": "祖利安猛虎",
+     "trash": [
+      "祖利安猛虎",
+      "古拉巴什狂暴者",
+      "哈卡莱巫医"
+     ],
+     "hpMult": 0.9,
+     "enrageSec": 80,
+     "artPrompt": "High Priest Thekal, troll priest with tiger-skull headdress and orange-black striped robes",
+     "forms": [
+      {
+       "name": "猛虎形态",
+       "artPrompt": "Thekal as a huge troll-tiger beast, orange-black stripes, gold armor"
+      }
+     ],
+     "adds": [
+      {
+       "name": "狂热者洛卡恩",
+       "base": "SA",
+       "count": 1,
+       "hpMult": 0.8,
+       "artPrompt": "Zealot Lor'Khan, troll priestess caster with lightning",
+       "abilities": [
+        {
+         "name": "闪电箭",
+         "impl": "蓝弹 dmg×1.2。"
+        },
+        {
+         "name": "强效治疗",
+         "impl": "[castBar] 2.5s 治疗同伴 25%，命中 4 次打断。"
+        }
+       ]
+      },
+      {
+       "name": "狂热者札斯",
+       "base": "SK",
+       "count": 1,
+       "hpMult": 0.8,
+       "artPrompt": "Zealot Zath, troll rogue with twin daggers",
+       "abilities": [
+        {
+         "name": "致盲",
+         "impl": "[tel] circle@player r14 T.7 stun 1.5s。"
+        },
+        {
+         "name": "暗影步",
+         "impl": "blink 到玩家身后。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:thekalBash",
+      "NEW:silenceT"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "P1 [multiBoss reviveWindow 10]：塞卡尔 + 洛卡恩 + 札斯，三者都要在 10s 内死亡，否则死者满血复活。"
+      },
+      {
+       "atHp": 0,
+       "changes": "P2：三者全灭后塞卡尔以猛虎形态满血复活（hpMult .9），轮换 charge、NEW:forcePunch、NEW:summonTigers、NEW:frenzyThekal。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "重击",
+       "key": "NEW:thekalBash",
+       "impl": "[tel] circle@player r16 T.7 skd×1.2 stun .8。"
+      },
+      {
+       "name": "沉默",
+       "key": "NEW:silenceT",
+       "impl": "[tel] circle@boss r50 T.8 → sealT 2。"
+      },
+      {
+       "name": "冲锋",
+       "key": "charge",
+       "impl": "现有。"
+      },
+      {
+       "name": "力量之拳",
+       "key": "NEW:forcePunch",
+       "impl": "[tel] cone@boss ang.5 len40 T.6 skd×1.3 knock 70。"
+      },
+      {
+       "name": "召唤祖利安猛虎",
+       "key": "NEW:summonTigers",
+       "impl": "每次 2 只猛虎从墙边进入。"
+      },
+      {
+       "name": "狂乱",
+       "key": "NEW:frenzyThekal",
+       "impl": "[frenzy] 8s，大招安抚。"
+      }
+     ],
+     "tip": "三个人血量压到一起再同时击杀，否则会复活；P2 猛虎形态打断不了，注意力量之拳把你打飞。"
+    },
+    {
+     "name": "加兹兰卡",
+     "en": "Gahz'ranka",
+     "order": 7,
+     "rooms": 2,
+     "trash": [
+      "古拉巴什掷斧者",
+      "拉扎什寡妇蛛"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 55,
+     "artPrompt": "Gahz'ranka, giant serpentine sea beast with blue-green scales, fins and long neck, rising from water",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "frostCone",
+      "NEW:geyser",
+      "NEW:gahzSlam"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "冰霜吐息",
+       "key": "frostCone",
+       "impl": "现有 frostCone（slow），额外 G.skillT += 2（法力吸取）。"
+      },
+      {
+       "name": "巨型喷泉",
+       "key": "NEW:geyser",
+       "impl": "[tel] circle@player r24 T1.2 skd×1.2 → 击飞（stun 1s + knock 30），n=2。"
+      },
+      {
+       "name": "猛击",
+       "key": "NEW:gahzSlam",
+       "impl": "[tel] circle@boss r40 T.8 skd×1 knock 50。"
+      },
+      {
+       "name": "水潭",
+       "key": "env",
+       "impl": "首领房中央 rect 水潭：玩家在水中移速 ×.7；首领出生在水中。"
+      }
+     ],
+     "tip": "喷泉会把你喷上天，看到脚下水圈就走开；冰霜吐息会拖慢技能。"
+    },
+    {
+     "name": "高阶祭司娅尔罗",
+     "en": "High Priestess Arlokk",
+     "order": 8,
+     "rooms": 3,
+     "elite": "祖利安猛虎",
+     "trash": [
+      "祖利安猛虎",
+      "古拉巴什掷斧者",
+      "古拉巴什蝙蝠骑士"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 70,
+     "artPrompt": "High Priestess Arlokk, troll priestess with panther headdress and dark purple robes, claws",
+     "forms": [
+      {
+       "name": "黑豹形态",
+       "artPrompt": "Arlokk as a giant black panther with purple troll markings"
+      }
+     ],
+     "adds": [
+      {
+       "name": "祖利安猎豹",
+       "base": "BT",
+       "count": 0,
+       "hpMult": 1,
+       "artPrompt": "Zulian Prowler, black jungle panther with glowing eyes",
+       "abilities": [
+        {
+         "name": "猛扑",
+         "impl": "[mobAbility pounce]；被印记时移速 ×1.5 锁定玩家。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:markOfArlokk",
+      "NEW:vanish",
+      "NEW:whirlwindA",
+      "NEW:gouge"
+     ],
+     "phases": [
+      {
+       "atHp": 0.5,
+       "changes": "黑豹形态（formArt）：移速 +30%，消失间隔缩短。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "召唤猎豹",
+       "key": "env",
+       "impl": "豹笼 prop 每 8s 放出 1 只（见 env.props）。"
+      },
+      {
+       "name": "娅尔罗印记",
+       "key": "NEW:markOfArlokk",
+       "impl": "玩家头顶豹爪印记 10s：所有猎豹锁定玩家并 +50% 移速。"
+      },
+      {
+       "name": "消失",
+       "key": "NEW:vanish",
+       "impl": "b.hidden+b.inv 6s，期间猎豹 ×2 刷新速度；结束时出现在玩家身后接 NEW:gouge。"
+      },
+      {
+       "name": "旋风斩",
+       "key": "NEW:whirlwindA",
+       "impl": "[followAura] r30 2.5s。"
+      },
+      {
+       "name": "凿击",
+       "key": "NEW:gouge",
+       "impl": "[tel] circle@player r14 T.6 skd×1 stun 1.2s。"
+      }
+     ],
+     "tip": "先拆豹笼；被印记时猎豹全冲你，边退边打；她消失后会从背后出现。"
+    },
+    {
+     "name": "妖术师金度",
+     "en": "Jin'do the Hexxer",
+     "order": 9,
+     "rooms": 3,
+     "elite": "哈卡莱巫医",
+     "trash": [
+      "哈卡莱巫医",
+      "古拉巴什狂暴者",
+      "古拉巴什掷斧者"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 75,
+     "artPrompt": "Jin'do the Hexxer, hunched old troll witch doctor with huge voodoo mask, feathers and hex staff",
+     "forms": [],
+     "adds": [
+      {
+       "name": "强力治疗结界",
+       "base": "SL",
+       "count": 0,
+       "hpMult": 1.2,
+       "artPrompt": "Powerful Healing Ward, tribal totem with green glowing gem",
+       "abilities": [
+        {
+         "name": "治疗",
+         "impl": "[totem] 每秒为金度回复 1.5%。"
+        }
+       ]
+      },
+      {
+       "name": "洗脑图腾",
+       "base": "SL",
+       "count": 0,
+       "hpMult": 1,
+       "artPrompt": "Brain Wash Totem, tribal totem with purple eye",
+       "abilities": [
+        {
+         "name": "洗脑",
+         "impl": "[totem] 每 6s 对 80px 内玩家 mindControl 3s。"
+        }
+       ]
+      },
+      {
+       "name": "金度之影",
+       "base": "BT",
+       "count": 0,
+       "hpMult": 0.6,
+       "artPrompt": "Shade of Jin'do, translucent ghostly troll shade",
+       "abilities": [
+        {
+         "name": "幻影",
+         "impl": "只在玩家身负“金度之惑”时出现并攻击；诅咒结束即消失。"
+        }
+       ]
+      },
+      {
+       "name": "献祭骷髅",
+       "base": "SK",
+       "count": 3,
+       "hpMult": 0.6,
+       "artPrompt": "sacrificed skeleton (reuse skeleton sprite)",
+       "abilities": [
+        {
+         "name": "坑中守卫",
+         "impl": "玩家被传送入坑时出现。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:hex",
+      "NEW:healingWard",
+      "NEW:delusions",
+      "NEW:brainWash",
+      "NEW:pitTeleport"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "妖术",
+       "key": "NEW:hex",
+       "impl": "[tel] circle@player r14 T1.0 → stun 2s（青蛙）。"
+      },
+      {
+       "name": "强力治疗结界",
+       "key": "NEW:healingWard",
+       "impl": "[totem] 在首领旁放 1 个，场上最多 1 个。"
+      },
+      {
+       "name": "金度之惑",
+       "key": "NEW:delusions",
+       "impl": "[curse] 10s：同时刷 2 只金度之影追击玩家。"
+      },
+      {
+       "name": "洗脑图腾",
+       "key": "NEW:brainWash",
+       "impl": "[totem] 放在房间随机处。"
+      },
+      {
+       "name": "传送入坑",
+       "key": "NEW:pitTeleport",
+       "impl": "[teleportPlayer] 传到房间左下角 rect 坑（40×40，地面暗红），刷 3 只骷髅；坑边有 1 格出口阶梯，需走出去。"
+      }
+     ],
+     "tip": "图腾优先：治疗结界和洗脑图腾一出来就打掉；被传进坑里先清骷髅再爬出来。"
+    },
+    {
+     "name": "哈卡",
+     "en": "Hakkar",
+     "order": 10,
+     "rooms": 4,
+     "elite": "古拉巴什狂暴者",
+     "trash": [
+      "古拉巴什狂暴者",
+      "哈卡莱巫医",
+      "古拉巴什蝙蝠骑士",
+      "祖利安猛虎"
+     ],
+     "hpMult": 1.8,
+     "enrageSec": 100,
+     "artPrompt": "Hakkar the Soulflayer, giant winged blood serpent god, red feathered wings, gold troll ornaments, glowing crimson eyes",
+     "forms": [],
+     "adds": [
+      {
+       "name": "哈卡之子",
+       "base": "SK",
+       "count": 2,
+       "hpMult": 1.5,
+       "artPrompt": "Son of Hakkar, small winged red serpent",
+       "abilities": [
+        {
+         "name": "毒性之血",
+         "impl": "死亡留下毒血池（r18，10s）；站入获得 G.poisonBloodT=10。每 15s 刷 2 只。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:corruptedBlood",
+      "NEW:causeInsanity",
+      "NEW:aspect",
+      "NEW:corruptedBlood"
+     ],
+     "phases": [
+      {
+       "atSec": 25,
+       "changes": "血液虹吸 每 30s 一次（第一次在 25s）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "血液虹吸",
+       "key": "NEW:bloodSiphon",
+       "impl": "[siphon] 定时触发（不占轮换），读条前 5s 提示“快去吃毒血！”。"
+      },
+      {
+       "name": "堕落之血",
+       "key": "NEW:corruptedBlood",
+       "impl": "[tel] circle@player r20 T.9 skd×.6 + dot 10s；若有小怪在 30px 内，小怪也被感染并在死亡时把 dot 传回给玩家。"
+      },
+      {
+       "name": "致疯",
+       "key": "NEW:causeInsanity",
+       "impl": "[mindControl] 4s。"
+      },
+      {
+       "name": "祭司化身",
+       "key": "NEW:aspect",
+       "impl": "按顺序轮流（不随机）：耶克里克之影（circle@boss r60 沉默 2s）→ 温诺希斯之影（acidCone）→ 玛尔里之影（circle@player stun 1.5s + 拉近）→ 塞卡尔之影（frenzy 8s）→ 娅尔罗之影（vanish 2s 后背刺 circle@player r14 skd×1.5）。"
+      }
+     ],
+     "tip": "血液虹吸前一定要站进哈卡之子留下的毒血池，否则会被吸走大量生命并给他回血。"
+    }
+   ],
+   "expansion": "classic"
+  },
+  {
+   "id": "aq20",
+   "name": "安其拉废墟",
+   "en": "Ruins of Ahn'Qiraj",
+   "levelRange": "60",
+   "bossCount": 6,
+   "env": {
+    "desc": "希利苏斯南端、甲虫之墙后的露天废墟：黄沙覆盖的砂岩柱廊与坍塌的其拉神殿，虫巢土丘与流沙坑，黑曜石方尖碑；终点是奥斯里安所在的水晶广场，场上散布能削弱他的黑曜石水晶，沙尘龙卷来回游荡。",
+    "tilesPrompt": "4x4 grid of 16px top-down pixel tiles for desert insect ruins (Ruins of Ahn'Qiraj): row0 four sand-covered sandstone floor variants with cracks; row1 four crumbling sandstone wall-front variants with Qiraji hieroglyphs; row2 wall-top sand dune, broken sandstone block crate, obsidian obelisk pillar, quicksand pit pool; row3 four decorated floors: insect husks, scattered bones in sand, silithid hive resin, glowing obsidian shard",
+    "tilesExisting": "无（需新做）",
+    "props": [
+     {
+      "name": "流沙陷阱",
+      "mechanic": "小怪房每间 1~2 个（不可破坏）：每 7s 微弱预警 1.2s 后 r20 → 致盲（curse:dmg 4s）。库林纳克斯会主动放置。",
+      "artPrompt": "sand trap, subtle swirling sand circle, idle and erupting"
+     },
+     {
+      "name": "布鲁之卵",
+      "mechanic": "布鲁关首领房 6 个（objectiveProps destroy）：被击碎 → r30 爆炸，布鲁在圈内受 8% 最大生命伤害，并孵出 2 只小虫。",
+      "artPrompt": "giant silithid egg, glossy amber with dark veins, intact and burst"
+     },
+     {
+      "name": "黑曜石水晶",
+      "mechanic": "奥斯里安关 3 个（objectiveProps activate）：站上 1s → 奥斯里安失去“奥斯里安之力”15s；用过熄灭，在其他位置亮起新的。",
+      "artPrompt": "tall obsidian crystal pylon glowing with colored light, active and depleted"
+     },
+     {
+      "name": "沙尘龙卷",
+      "mechanic": "奥斯里安关 2 个移动 hazard（r14，速度 25 随机游走）：接触 skd×.6 + knock 30 + stun .8。",
+      "artPrompt": "sand vortex tornado (see fx)"
+     },
+     {
+      "name": "虫巢土丘",
+      "mechanic": "小怪房装饰 + 每 10s 钻出 1 只札拉蜂巢黄蜂（可破坏，hp 40；复用现有 GRV 生怪逻辑）。",
+      "artPrompt": "silithid hive mound with holes, idle and swarming",
+      "existing": "props.png 第5-6格 墓穴生怪逻辑可复用（需重画）"
+     }
+    ],
+    "music": "中东风格弦乐 + 沙漠风声 + 虫鸣窸窣"
+   },
+   "trash": [
+    {
+     "name": "其拉角斗士",
+     "en": "Qiraji Gladiator",
+     "base": "SK",
+     "hpx": 2,
+     "abilities": [
+      {
+       "name": "践踏",
+       "impl": "[mobAbility nova] r28 .8s dmg×1 knock 30。"
+      },
+      {
+       "name": "复仇",
+       "impl": "成对出现；同伴死亡后 +50% 伤害与攻速（红光）。"
+      }
+     ],
+     "artPrompt": "Qiraji Gladiator, armored insectoid humanoid warrior with gold carapace and bladed arms"
+    },
+    {
+     "name": "札拉蜂巢毒刺者",
+     "en": "Hive'Zara Stinger",
+     "base": "BT",
+     "abilities": [
+      {
+       "name": "冲锋",
+       "impl": "[mobAbility chargeLine] len80 w5 .6s，命中 stun .8。"
+      },
+      {
+       "name": "毒刺",
+       "impl": "命中附带 dot 4s。"
+      }
+     ],
+     "artPrompt": "Hive'Zara Stinger, large wasp-like silithid with long stinger, yellow-black carapace"
+    },
+    {
+     "name": "札拉蜂巢黄蜂",
+     "en": "Hive'Zara Wasp",
+     "base": "BT",
+     "abilities": [
+      {
+       "name": "蜂群",
+       "impl": "成群 5 只，体型小、血低，移速 ×1.3；无扑击，贴身持续 dot。"
+      }
+     ],
+     "artPrompt": "Hive'Zara Wasp, small yellow-black silithid wasp"
+    },
+    {
+     "name": "阿努比萨斯守卫者",
+     "en": "Anubisath Guardian",
+     "base": "SL",
+     "hpx": 4,
+     "abilities": [
+      {
+       "name": "随机两项能力",
+       "impl": "生成时按房间序号从 5 项中固定取 2：陨石（circle@player r26 T1.2 dmg×2）/瘟疫（nova r40 dot）/雷霆一击（nova r30 slow）/法术反射（bossShield reflect 6s）/召唤（2 只黄蜂）。头顶显示两种图标。"
+      },
+      {
+       "name": "狂暴",
+       "impl": "血量 <10% 伤害 ×2。死亡不分裂。"
+      }
+     ],
+     "artPrompt": "Anubisath Guardian, giant stone-gold jackal-headed construct warrior with obsidian runes"
+    },
+    {
+     "name": "黑曜石毁灭者",
+     "en": "Obsidian Destroyer",
+     "base": "SA",
+     "hpx": 2,
+     "abilities": [
+      {
+       "name": "法力吸取",
+       "impl": "[mobAbility beam] 直线光束 len110 w4 .8s 预警，命中 G.skillT += 2（技能冷却倒退）。"
+      },
+      {
+       "name": "满能冲击",
+       "impl": "吸取 3 次后：自身 r40 .9s nova dmg×1.5，层数清零。"
+      }
+     ],
+     "artPrompt": "Obsidian Destroyer, floating black obsidian golem with purple glowing cracks"
+    },
+    {
+     "name": "尖啸甲虫",
+     "en": "Shrieker Scarab",
+     "base": "SA",
+     "abilities": [
+      {
+       "name": "刺耳尖啸",
+       "impl": "声波弹（音波贴图）70px/s dmg×.8，命中 fear .6s。"
+      },
+      {
+       "name": "甲壳",
+       "impl": "受远程伤害 ×.8。"
+      }
+     ],
+     "artPrompt": "Shrieker Scarab, blue-black scarab beetle with open vibrating wing casings"
+    }
+   ],
+   "bosses": [
+    {
+     "name": "库林纳克斯",
+     "en": "Kurinnaxx",
+     "order": 1,
+     "rooms": 3,
+     "elite": "其拉角斗士",
+     "trash": [
+      "札拉蜂巢毒刺者",
+      "札拉蜂巢黄蜂",
+      "尖啸甲虫",
+      "其拉角斗士"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 60,
+     "artPrompt": "Kurinnaxx, giant sand-colored silithid scorpion-bug with huge mandibles and armored tail",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "NEW:sandTrap",
+      "NEW:wideSlash",
+      "NEW:sandTrap",
+      "charge"
+     ],
+     "phases": [
+      {
+       "atHp": 0.3,
+       "changes": "狂怒（frenzy perm）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "致死创伤",
+       "key": "NEW:mortalWound",
+       "impl": "[stacks heal] 被动：每次接触伤害 +1 层。"
+      },
+      {
+       "name": "沙陷阱",
+       "key": "NEW:sandTrap",
+       "impl": "在玩家脚下放置流沙陷阱 prop（1.2s 后触发 r20 → 致盲 curse:dmg 4s）。"
+      },
+      {
+       "name": "宽阔斩击",
+       "key": "NEW:wideSlash",
+       "impl": "[tel] cone@boss ang.8 len40 T.7 skd×1.2 stun .5。"
+      },
+      {
+       "name": "冲锋",
+       "key": "charge",
+       "impl": "现有。"
+      }
+     ],
+     "tip": "致死创伤会让你回不了血：别贴太久；脚下沙子在转就离开。"
+    },
+    {
+     "name": "拉贾克斯将军",
+     "en": "General Rajaxx",
+     "order": 2,
+     "rooms": 2,
+     "trash": [
+      "其拉角斗士",
+      "尖啸甲虫"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 85,
+     "artPrompt": "General Rajaxx, tall Qiraji general with gold-trimmed carapace armor, war banner, scimitar arms",
+     "forms": [],
+     "adds": [
+      {
+       "name": "其拉战士",
+       "base": "SK",
+       "count": 0,
+       "hpMult": 1.2,
+       "artPrompt": "Qiraji Warrior, insectoid foot soldier with spear",
+       "abilities": [
+        {
+         "name": "雷霆一击",
+         "impl": "nova r24 slow。"
+        }
+       ]
+      },
+      {
+       "name": "虫群卫士针刺者",
+       "base": "SA",
+       "count": 0,
+       "hpMult": 1,
+       "artPrompt": "Swarmguard Needler, small insectoid with needle launcher",
+       "abilities": [
+        {
+         "name": "针刺",
+         "impl": "3 连发针。"
+        }
+       ]
+      },
+      {
+       "name": "奎兹上尉",
+       "base": "SK",
+       "count": 1,
+       "hpMult": 3,
+       "artPrompt": "Captain Qeez, Qiraji captain with red banner",
+       "abilities": [
+        {
+         "name": "威慑怒吼",
+         "impl": "fear r60。"
+        }
+       ]
+      },
+      {
+       "name": "图比德上尉",
+       "base": "SK",
+       "count": 1,
+       "hpMult": 3,
+       "artPrompt": "Captain Tuubid, Qiraji captain with horn",
+       "abilities": [
+        {
+         "name": "攻击命令",
+         "impl": "该波所有小怪锁定玩家 +30% 移速。"
+        }
+       ]
+      },
+      {
+       "name": "德雷恩上尉",
+       "base": "SA",
+       "count": 1,
+       "hpMult": 3,
+       "artPrompt": "Captain Drenn, Qiraji captain shaman",
+       "abilities": [
+        {
+         "name": "闪电云",
+         "impl": "移动雷云 pool。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:thundercrash",
+      "NEW:disarm",
+      "NEW:rajaxxCleave"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "[addPhase] 3 波其拉军团（原作 7 波压缩），每波 4 战士 + 2 针刺者 + 1 上尉（奎兹→图比德→德雷恩），清完一波 3s 后下一波；拉贾克斯在房顶喊话（无敌）。"
+      },
+      {
+       "atHp": 0.99,
+       "changes": "三波后拉贾克斯亲自下场。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "雷霆轰击",
+       "key": "NEW:thundercrash",
+       "impl": "[decimate] p=.5 + knock 40，预警：首领举刀 1.2s + 全屏红边。每 18s。"
+      },
+      {
+       "name": "缴械",
+       "key": "NEW:disarm",
+       "impl": "[tel] circle@player r16 T.8 → 3s 自动普攻停止（技能可用）。"
+      },
+      {
+       "name": "顺劈斩",
+       "key": "NEW:rajaxxCleave",
+       "impl": "[tel] cone@boss ang.6 len36 T.6 skd×1.1。"
+      }
+     ],
+     "tip": "先打三波军团（优先上尉）；雷霆轰击会砍掉你一半血，提前留好血量。"
+    },
+    {
+     "name": "莫阿姆",
+     "en": "Moam",
+     "order": 3,
+     "rooms": 3,
+     "elite": "阿努比萨斯守卫者",
+     "trash": [
+      "阿努比萨斯守卫者",
+      "黑曜石毁灭者",
+      "其拉角斗士"
+     ],
+     "hpMult": 1.2,
+     "enrageSec": 75,
+     "artPrompt": "Moam, giant obsidian-stone construct with glowing blue arcane runes and crystal shoulders",
+     "forms": [
+      {
+       "name": "石化",
+       "artPrompt": "Moam petrified, grey stone statue form with dimmed runes"
+      }
+     ],
+     "adds": [
+      {
+       "name": "法力恶魔",
+       "base": "SA",
+       "count": 3,
+       "hpMult": 1.2,
+       "artPrompt": "Mana Fiend, floating blue arcane elemental with crackling energy",
+       "abilities": [
+        {
+         "name": "奥术爆炸",
+         "impl": "nova r28 .6s dmg×1。"
+        },
+        {
+         "name": "法力燃烧",
+         "impl": "G.skillT += 1.5，弹道。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:trample",
+      "NEW:arcaneDrain"
+     ],
+     "phases": [
+      {
+       "atSec": 30,
+       "changes": "石化：每 30s（游戏内）变成石像 10s（inv，formArt），召唤 3 只法力恶魔；石化期间能量快速回满 → 若未打掉恶魔，复原时直接奥术爆发。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "能量",
+       "key": "NEW:moamEnergy",
+       "impl": "[energyBar] 30s 涨满，玩家每放一次技能 +5（他吸你的法力）；满了 → 奥术爆发：全屏 skd×(1.5+能量/50)，立即清零。"
+      },
+      {
+       "name": "践踏",
+       "key": "NEW:trample",
+       "impl": "[tel] circle@boss r36 T.8 skd×1 knock 30。"
+      },
+      {
+       "name": "法力吸取",
+       "key": "NEW:arcaneDrain",
+       "impl": "[tel] beam@boss→player w6 T.8，命中能量 +15、G.skillT += 2。"
+      }
+     ],
+     "tip": "他的蓝条满了会全屏爆发：少放技能、多打本体；石化时立刻清掉法力恶魔。"
+    },
+    {
+     "name": "吞咽者布鲁",
+     "en": "Buru the Gorger",
+     "order": 4,
+     "rooms": 3,
+     "elite": "其拉角斗士",
+     "trash": [
+      "札拉蜂巢毒刺者",
+      "尖啸甲虫",
+      "其拉角斗士"
+     ],
+     "hpMult": 1.2,
+     "enrageSec": 80,
+     "artPrompt": "Buru the Gorger, huge bloated silithid with crystalline armored shell and gaping maw",
+     "forms": [
+      {
+       "name": "破壳",
+       "artPrompt": "Buru transformed, shell cracked off, raw red-purple flesh, faster stance"
+      }
+     ],
+     "adds": [
+      {
+       "name": "布鲁幼虫",
+       "base": "BT",
+       "count": 0,
+       "hpMult": 0.5,
+       "artPrompt": "Hive'Zara Hatchling, tiny white silithid larva",
+       "abilities": [
+        {
+         "name": "扑咬",
+         "impl": "蛋爆炸时孵出 2 只。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:fixateBuru",
+      "NEW:dismember"
+     ],
+     "phases": [
+      {
+       "atHp": 0.2,
+       "changes": "破壳（formArt）：受伤恢复正常、移速 +40%、爬行瘟疫（全屏 dot 每秒 skd×.1，逐渐 +.02）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "盯住",
+       "key": "NEW:fixateBuru",
+       "impl": "首领只追玩家（移速 ×.7，大体型），甲壳：玩家直接伤害 ×.3（P1）。"
+      },
+      {
+       "name": "肢解",
+       "key": "NEW:dismember",
+       "impl": "接触伤害叠 dot（stacks vuln 也可），每次 +1 层。"
+      },
+      {
+       "name": "布鲁之卵",
+       "key": "objectiveProps",
+       "impl": "[objectiveProps destroy] 6 个卵，击碎时 r30 爆炸：布鲁在圈内受 8% 最大生命伤害；技巧：把他引到卵旁再打碎。"
+      }
+     ],
+     "tip": "他追着你走：把他引到卵旁边打碎卵，爆炸才是主要伤害；20% 破壳后全力输出。"
+    },
+    {
+     "name": "狩猎者阿亚米斯",
+     "en": "Ayamiss the Hunter",
+     "order": 5,
+     "rooms": 3,
+     "elite": "札拉蜂巢毒刺者",
+     "trash": [
+      "札拉蜂巢黄蜂",
+      "札拉蜂巢毒刺者",
+      "黑曜石毁灭者"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 75,
+     "artPrompt": "Ayamiss the Hunter, giant winged silithid wasp queen, purple-gold carapace, huge stinger",
+     "forms": [
+      {
+       "name": "飞行",
+       "artPrompt": "Ayamiss hovering high with wings blurred, shadow below"
+      }
+     ],
+     "adds": [
+      {
+       "name": "札拉蜂巢虫群",
+       "base": "BT",
+       "count": 4,
+       "hpMult": 0.5,
+       "artPrompt": "Hive'Zara Swarmer, small wasp",
+       "abilities": [
+        {
+         "name": "蜂群",
+         "impl": "每 12s 4 只。"
+        }
+       ]
+      },
+      {
+       "name": "札拉蜂巢幼虫",
+       "base": "SL",
+       "count": 1,
+       "hpMult": 1,
+       "artPrompt": "Hive'Zara Larva, fat white grub",
+       "abilities": [
+        {
+         "name": "献祭",
+         "impl": "从房间边缘爬向祭坛（玩家被麻痹处），到达 → 玩家受 skd×3。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:stingerSpray",
+      "NEW:paralyze",
+      "NEW:poisonStinger"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "P1 飞行（formArt）：悬停在房顶，近战伤害 ×.3（打不到），远程正常。"
+      },
+      {
+       "atHp": 0.7,
+       "changes": "P2 落地：近战正常，狂乱（frenzy perm 但较弱：移速 ×1.2），轮换加入 charge。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "毒刺喷射",
+       "key": "NEW:stingerSpray",
+       "impl": "acidCone（cone + dot）。"
+      },
+      {
+       "name": "麻痹",
+       "key": "NEW:paralyze",
+       "impl": "[teleportPlayer] 把玩家放到中央祭坛，root 6s；同时刷 1 只幼虫从最远边爬向祭坛（速度 20）；玩家可原地攻击它（远程/技能），杀死则提前解除。"
+      },
+      {
+       "name": "毒刺",
+       "key": "NEW:poisonStinger",
+       "impl": "3 连发毒弹 dmg×.8 dot。"
+      }
+     ],
+     "tip": "P1 她在天上，近战职业多用技能；被麻痹时立刻攻击爬过来的幼虫。"
+    },
+    {
+     "name": "无疤者奥斯里安",
+     "en": "Ossirian the Unscarred",
+     "order": 6,
+     "rooms": 3,
+     "elite": "阿努比萨斯守卫者",
+     "trash": [
+      "阿努比萨斯守卫者",
+      "其拉角斗士",
+      "黑曜石毁灭者",
+      "尖啸甲虫"
+     ],
+     "hpMult": 1.5,
+     "enrageSec": 90,
+     "artPrompt": "Ossirian the Unscarred, towering Qiraji lord with flawless gold-black carapace, four arms, crown of horns",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "NEW:warStompO",
+      "NEW:envelopingWinds",
+      "NEW:curseOfTongues"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "奥斯里安之力",
+       "key": "NEW:strengthOfOssirian",
+       "impl": "[bossShield reduce] 常驻：受伤 ×.15、伤害 +30%；激活水晶后获得“弱点”15s 失去该效果。"
+      },
+      {
+       "name": "黑曜石水晶",
+       "key": "objectiveProps",
+       "impl": "[objectiveProps activate] 3 个，同时只亮 1 个；小地图标黄。"
+      },
+      {
+       "name": "沙尘龙卷",
+       "key": "env",
+       "impl": "2 个游走龙卷（见 env.props）。"
+      },
+      {
+       "name": "战争践踏",
+       "key": "NEW:warStompO",
+       "impl": "[tel] circle@boss r40 T.8 skd×1 stun .8。"
+      },
+      {
+       "name": "包围之风",
+       "key": "NEW:envelopingWinds",
+       "impl": "[tel] circle@player r18 T1.0 stun 2s。"
+      },
+      {
+       "name": "语言诅咒",
+       "key": "NEW:curseOfTongues",
+       "impl": "[curse:cd] 10s。"
+      }
+     ],
+     "tip": "他平时几乎不掉血：先踩亮着的水晶让他虚弱，再在 15 秒内全力输出，循环直到击杀。"
+    }
+   ],
+   "expansion": "classic"
+  },
+  {
+   "id": "aq40",
+   "name": "安其拉神殿",
+   "en": "Temple of Ahn'Qiraj",
+   "levelRange": "60",
+   "bossCount": 9,
+   "env": {
+    "desc": "沉睡的古神克苏恩的地下神殿：入口是金色其拉建筑与巨大雕像，越往深处越是有机的虫巢——紫色与青绿色的血肉墙壁、搏动的脉络、粘液池；双子皇帝的金色王座厅；最底层是克苏恩的巨眼大厅与其胃部。",
+    "tilesPrompt": "4x4 grid of 16px top-down pixel tiles for an old-god insect temple (Temple of Ahn'Qiraj): row0 four floor variants mixing gold Qiraji stone and purple organic flesh with veins; row1 four wall-front variants of golden carved Qiraji wall overgrown with pulsing purple flesh; row2 wall-top dark flesh mass, golden reliquary crate, golden insect-statue pillar, green ichor pool; row3 four decorated floors: tentacle holes, glowing purple vein cluster, scarab shell pile, eye-shaped glyph",
+    "tilesExisting": "tiles_c4.png（虚空神殿，近似；需补金色其拉建筑元素）",
+    "tilesVariants": [
+     {
+      "wing": "克苏恩之胃",
+      "prompt": "4x4 grid of 16px top-down pixel tiles for the inside of a giant stomach: row0 pink-purple fleshy floor with acid puddles; row1 rib-like flesh wall fronts; row2 flesh mass top, bone crate, tentacle pillar, bubbling green acid pool; row3 decorated floors with half-digested bones"
+     }
+    ],
+    "props": [
+     {
+      "name": "虫洞",
+      "mechanic": "范克瑞斯关 3 个（不可破坏）：每 12s 轮流钻出范克瑞斯之子；缠绕时的落点。",
+      "artPrompt": "silithid tunnel hole in the floor with resin rim, idle and emerging"
+     },
+     {
+      "name": "圣甲虫土堆",
+      "mechanic": "奥罗 P2 刷出 4 个（可破坏 hp 50）：每 5s 钻出 2 只圣甲虫（BT 30% 血）。",
+      "artPrompt": "dirt mound with scarab beetles crawling out"
+     },
+     {
+      "name": "眼球触须坑",
+      "mechanic": "克苏恩关地面 8 个固定点：眼球触须从此处冒出（装饰 + 出生点）。",
+      "artPrompt": "wet tentacle hole in flesh floor, purple slime rim"
+     },
+     {
+      "name": "胃部出口",
+      "mechanic": "胃区中央的上升气流圈：站上 1s 被吐回大厅（击杀两只血肉触须后出现）。",
+      "artPrompt": "stomach exit, upward rising pink fleshy vent with air bubbles"
+     }
+    ],
+    "music": "古神低语（反转人声 + 低频心跳），克苏恩 P2 心跳加速"
+   },
+   "trash": [
+    {
+     "name": "阿努比萨斯哨兵",
+     "en": "Anubisath Sentinel",
+     "base": "SK",
+     "hpx": 3,
+     "abilities": [
+      {
+       "name": "哨兵能力",
+       "impl": "3 只一组，每只按顺序拿 1 种：法术反射（自身 reflect）/雷霆一击（nova slow）/冲击波（nova knock）/暗影风暴（rangedPunish D60）。"
+      },
+      {
+       "name": "能力转移",
+       "impl": "一只死亡时，存活哨兵获得它的能力（头顶图标 +1），所以最后一只最强。"
+      }
+     ],
+     "artPrompt": "Anubisath Sentinel, tall jackal-headed gold-black stone construct with glaive"
+    },
+    {
+     "name": "维克尼斯毒刺者",
+     "en": "Vekniss Stinger",
+     "base": "BT",
+     "abilities": [
+      {
+       "name": "冲锋",
+       "impl": "[mobAbility chargeLine] len90 w5 .6s。"
+      },
+      {
+       "name": "维克尼斯催化剂",
+       "impl": "[stacks vuln] 命中 +1 层；≥3 层时下一次冲锋附带 stun 1.5s。"
+      }
+     ],
+     "artPrompt": "Vekniss Stinger, red-purple flying silithid with venomous stinger"
+    },
+    {
+     "name": "其拉鞭笞者",
+     "en": "Qiraji Lasher",
+     "base": "SK",
+     "abilities": [
+      {
+       "name": "旋风斩",
+       "impl": "[followAura] r24 2s 每 .5s dmg×.5，每 8s。"
+      },
+      {
+       "name": "击退",
+       "impl": "[tel] cone@self ang.6 len26 T.5 knock 40。"
+      }
+     ],
+     "artPrompt": "Qiraji Lasher, insectoid warrior with whip-like bladed arms, spinning stance"
+    },
+    {
+     "name": "阿努比萨斯防御者",
+     "en": "Anubisath Defender",
+     "base": "SL",
+     "hpx": 5,
+     "abilities": [
+      {
+       "name": "暗影风暴",
+       "impl": "[rangedPunish] 玩家距离 >60 时每 1s 一发暗影弹 dmg×1.2（逼近身）。"
+      },
+      {
+       "name": "陨石 / 召唤",
+       "impl": "按房间序号固定取一：陨石（circle@player r26 T1.2 dmg×2）或召唤 2 只哨兵小怪（BT）。"
+      },
+      {
+       "name": "自爆",
+       "impl": "血量 <10%：[castBar] 3s 后 nova r60 dmg×3，可打断（6 次命中）。死亡不分裂。"
+      }
+     ],
+     "artPrompt": "Anubisath Defender, massive armored jackal-headed construct with tower shield and obsidian runes"
+    },
+    {
+     "name": "其拉洗脑者",
+     "en": "Qiraji Brainwasher",
+     "base": "SA",
+     "abilities": [
+      {
+       "name": "精神鞭笞",
+       "impl": "[mobAbility beam] 引导 2s 紫色光束，每 .5s dmg×.3 + slow。"
+      },
+      {
+       "name": "心灵控制",
+       "impl": "[mindControl] 2.5s，冷却 14s，预警紫圈 1.0s。"
+      }
+     ],
+     "artPrompt": "Qiraji Brainwasher, slender insectoid psychic with enlarged head and glowing purple antennae"
+    },
+    {
+     "name": "黑曜石抹除者",
+     "en": "Obsidian Eradicator",
+     "base": "SA",
+     "hpx": 2,
+     "abilities": [
+      {
+       "name": "法力吸取",
+       "impl": "[mobAbility beam] len110 .8s，命中 G.skillT += 2，自身充能 +1。"
+      },
+      {
+       "name": "冲击爆炸",
+       "impl": "充能 3 层 → 自身 r40 .9s dmg×1.5 stun 1s。"
+      }
+     ],
+     "artPrompt": "Obsidian Eradicator, floating black obsidian golem with gold Qiraji bands and purple core"
+    }
+   ],
+   "bosses": [
+    {
+     "name": "预言者斯克拉姆",
+     "en": "The Prophet Skeram",
+     "order": 1,
+     "rooms": 3,
+     "elite": "阿努比萨斯哨兵",
+     "trash": [
+      "阿努比萨斯哨兵",
+      "其拉洗脑者",
+      "维克尼斯毒刺者"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 70,
+     "artPrompt": "The Prophet Skeram, slender Qiraji prophet with ornate gold robes, elongated head, glowing staff",
+     "forms": [],
+     "adds": [
+      {
+       "name": "斯克拉姆幻象",
+       "base": "SA",
+       "count": 2,
+       "hpMult": 0.15,
+       "artPrompt": "same as Skeram with slightly translucent shimmer",
+       "abilities": [
+        {
+         "name": "同本体",
+         "impl": "[mirrorImages] 同技能，伤害 ×.4。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:arcaneExplosionS",
+      "NEW:trueFulfillment",
+      "blink",
+      "NEW:earthShock"
+     ],
+     "phases": [
+      {
+       "atHp": 0.75,
+       "changes": "分裂 2 个幻象，真身随机换位。"
+      },
+      {
+       "atHp": 0.5,
+       "changes": "再次分裂。"
+      },
+      {
+       "atHp": 0.25,
+       "changes": "再次分裂。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "奥术爆炸",
+       "key": "NEW:arcaneExplosionS",
+       "impl": "[castBar] 1.2s → circle@boss r50 skd×1.2，命中 4 次打断。"
+      },
+      {
+       "name": "真实之满",
+       "key": "NEW:trueFulfillment",
+       "impl": "[mindControl] 4s，预警紫圈 1.0s。"
+      },
+      {
+       "name": "闪现",
+       "key": "blink",
+       "impl": "现有 blink（随机位置而不是玩家脚下）。"
+      },
+      {
+       "name": "地震术",
+       "key": "NEW:earthShock",
+       "impl": "[rangedPunish] D=50：远离时快弹 skd×1.4。"
+      }
+     ],
+     "tip": "分身血很少，但真身会随机换位：认准头顶读条打断奥术爆炸。"
+    },
+    {
+     "name": "安其拉三宝",
+     "en": "Silithid Royalty (Bug Trio)",
+     "order": 2,
+     "rooms": 3,
+     "elite": "其拉鞭笞者",
+     "trash": [
+      "其拉鞭笞者",
+      "维克尼斯毒刺者",
+      "黑曜石抹除者"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 90,
+     "artPrompt": "(three bosses, see adds)",
+     "forms": [],
+     "adds": [
+      {
+       "name": "克里勋爵",
+       "base": "SK",
+       "count": 1,
+       "hpMult": 0.6,
+       "artPrompt": "Lord Kri, bulky green-brown silithid royal with spiked carapace",
+       "abilities": [
+        {
+         "name": "毒箭齐射",
+         "impl": "ring 8 发毒弹 + dot。"
+        },
+        {
+         "name": "雷霆一击",
+         "impl": "nova r36 slow。"
+        },
+        {
+         "name": "剧毒云雾",
+         "impl": "死亡留下 r40 毒云 20s（房间中央）。"
+        }
+       ]
+      },
+      {
+       "name": "维姆",
+       "base": "SL",
+       "count": 1,
+       "hpMult": 0.6,
+       "artPrompt": "Vem, massive grey-blue armored silithid beetle with battering-ram head",
+       "abilities": [
+        {
+         "name": "冲锋",
+         "impl": "现有 charge。"
+        },
+        {
+         "name": "击退",
+         "impl": "cone knock 60。"
+        },
+        {
+         "name": "复仇",
+         "impl": "维姆死亡 → 另外两只永久狂乱。"
+        }
+       ]
+      },
+      {
+       "name": "亚尔基公主",
+       "base": "SA",
+       "count": 1,
+       "hpMult": 0.5,
+       "artPrompt": "Princess Yauj, slender purple silithid royal with ornate wings and staff",
+       "abilities": [
+        {
+         "name": "恐惧",
+         "impl": "roar。"
+        },
+        {
+         "name": "强效治疗",
+         "impl": "[castBar] 2s 治疗同伴 15%，命中 5 次打断。"
+        },
+        {
+         "name": "后代",
+         "impl": "死亡时生出 4 只亚尔基后代（BT 30% 血）。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "multiBoss"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "[multiBoss] 三只同时出场，各自独立血量与技能轮换；全部死亡过关。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "三宝",
+       "key": "multiBoss",
+       "impl": "[multiBoss onDeath] 维姆死亡 → 其余狂乱；克里死亡 → 毒云；亚尔基死亡 → 后代。推荐顺序：亚尔基 → 克里 → 维姆。"
+      }
+     ],
+     "tip": "三只一起上：先打断并击杀亚尔基公主，最后再杀维姆（他死了另外两只会狂暴）。"
+    },
+    {
+     "name": "沙尔图拉",
+     "en": "Battleguard Sartura",
+     "order": 3,
+     "rooms": 3,
+     "elite": "其拉鞭笞者",
+     "trash": [
+      "其拉鞭笞者",
+      "阿努比萨斯哨兵",
+      "其拉洗脑者"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 75,
+     "artPrompt": "Battleguard Sartura, Qiraji battleguard with twin crescent glaives, gold armor, spinning stance",
+     "forms": [],
+     "adds": [
+      {
+       "name": "沙尔图拉的皇家卫士",
+       "base": "SK",
+       "count": 3,
+       "hpMult": 2,
+       "artPrompt": "Sartura's Royal Guard, Qiraji guard with glaive",
+       "abilities": [
+        {
+         "name": "旋风斩",
+         "impl": "[followAura] r28 3s，每 8s，转向随机。"
+        },
+        {
+         "name": "击退",
+         "impl": "cone knock 40。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:whirlwindS",
+      "NEW:sarturaCleave"
+     ],
+     "phases": [
+      {
+       "atHp": 0.25,
+       "changes": "狂怒（frenzy perm）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "旋风斩",
+       "key": "NEW:whirlwindS",
+       "impl": "[followAura] r36 4s 每 .5s skd×.45；期间每 .7s 随机换方向移动（不追玩家）。"
+      },
+      {
+       "name": "顺劈斩",
+       "key": "NEW:sarturaCleave",
+       "impl": "[tel] cone@boss ang.6 len36 T.6 skd×1.1。"
+      }
+     ],
+     "tip": "四个人都会旋风斩：看清谁在转就离谁远一点，先清掉三名卫士。"
+    },
+    {
+     "name": "顽强的范克瑞斯",
+     "en": "Fankriss the Unyielding",
+     "order": 4,
+     "rooms": 3,
+     "elite": "维克尼斯毒刺者",
+     "trash": [
+      "维克尼斯毒刺者",
+      "其拉鞭笞者",
+      "黑曜石抹除者"
+     ],
+     "hpMult": 1.2,
+     "enrageSec": 75,
+     "artPrompt": "Fankriss the Unyielding, giant green-yellow silithid with massive scything forelimbs",
+     "forms": [],
+     "adds": [
+      {
+       "name": "范克瑞斯之子",
+       "base": "BT",
+       "count": 0,
+       "hpMult": 1.5,
+       "artPrompt": "Spawn of Fankriss, red segmented sand worm",
+       "abilities": [
+        {
+         "name": "激怒",
+         "impl": "出生 15s 后伤害 ×3、体型变红；快杀。"
+        }
+       ]
+      },
+      {
+       "name": "维克尼斯孵化者",
+       "base": "BT",
+       "count": 0,
+       "hpMult": 0.4,
+       "artPrompt": "Vekniss Hatchling, tiny pale silithid",
+       "abilities": [
+        {
+         "name": "围攻",
+         "impl": "缠绕落点刷 3 只。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:summonWorm",
+      "NEW:entangle",
+      "NEW:fankrissCleave"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "致死创伤",
+       "key": "NEW:mortalWoundF",
+       "impl": "[stacks heal] 被动。"
+      },
+      {
+       "name": "召唤虫子",
+       "key": "NEW:summonWorm",
+       "impl": "从 3 个虫洞之一钻出 1 只范克瑞斯之子。"
+      },
+      {
+       "name": "缠绕",
+       "key": "NEW:entangle",
+       "impl": "[teleportPlayer] 传到某个虫洞旁 root 2s，刷 3 只孵化者。"
+      },
+      {
+       "name": "顺劈斩",
+       "key": "NEW:fankrissCleave",
+       "impl": "[tel] cone@boss ang.6 len36 T.6 skd×1.2。"
+      }
+     ],
+     "tip": "虫子出生 15 秒后会狂暴，必须马上击杀；致死创伤叠高时拉开距离。"
+    },
+    {
+     "name": "维希度斯",
+     "en": "Viscidus",
+     "order": 5,
+     "rooms": 3,
+     "elite": "阿努比萨斯防御者",
+     "trash": [
+      "阿努比萨斯防御者",
+      "维克尼斯毒刺者",
+      "其拉洗脑者"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 100,
+     "artPrompt": "Viscidus, enormous green translucent poison slime with bubbles and bones floating inside",
+     "forms": [
+      {
+       "name": "冻结",
+       "artPrompt": "Viscidus frozen solid, icy blue-green slime with frost cracks"
+      }
+     ],
+     "adds": [
+      {
+       "name": "维希度斯之球",
+       "base": "SL",
+       "count": 8,
+       "hpMult": 0.4,
+       "artPrompt": "Glob of Viscidus, small green slime blob",
+       "abilities": [
+        {
+         "name": "回归",
+         "impl": "向房间中心缓慢爬行（速度 15），到达后并入首领。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:poisonVolleyV",
+      "NEW:toxin",
+      "NEW:poisonShock"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "[shatter] 整场循环：命中计数 → 冻结 → 碎裂 → 粘液团；首领真实血量只随击杀粘液团下降。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "冻结与碎裂",
+       "key": "NEW:shatter",
+       "impl": "[shatter] 见引擎说明；计数显示在血条下（“冻结 17/30”）。"
+      },
+      {
+       "name": "毒箭齐射",
+       "key": "NEW:poisonVolleyV",
+       "impl": "ring 12 发毒弹 dot。"
+      },
+      {
+       "name": "毒素",
+       "key": "NEW:toxin",
+       "impl": "[tel] circle@random r20 n=3 T1.0 after:'pool' 毒池 8s。"
+      },
+      {
+       "name": "毒性震击",
+       "key": "NEW:poisonShock",
+       "impl": "[tel] circle@boss r34 T.7 skd×.9 dot。"
+      }
+     ],
+     "tip": "打他不掉血：快速连续攻击把他冻住，再打碎成小球，杀掉的小球才算伤害。"
+    },
+    {
+     "name": "哈霍兰公主",
+     "en": "Princess Huhuran",
+     "order": 6,
+     "rooms": 3,
+     "elite": "维克尼斯毒刺者",
+     "trash": [
+      "维克尼斯毒刺者",
+      "阿努比萨斯哨兵",
+      "黑曜石抹除者"
+     ],
+     "hpMult": 1.2,
+     "enrageSec": 75,
+     "artPrompt": "Princess Huhuran, giant purple-gold silithid wasp princess with jeweled carapace and venom stinger",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "NEW:wyvernSting",
+      "NEW:acidSpit",
+      "NEW:noxiousPoison",
+      "NEW:frenzyHuhuran"
+     ],
+     "phases": [
+      {
+       "atHp": 0.3,
+       "changes": "狂暴：每 2s 一次毒箭齐射（ring 12 dot），伤害 ×1.5，冲刺阶段。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "翼龙钉刺",
+       "key": "NEW:wyvernSting",
+       "impl": "[tel] circle@player r20 T1.0 → stun 3s（受击提前醒，醒时受 skd×1.5）。"
+      },
+      {
+       "name": "酸性喷射",
+       "key": "NEW:acidSpit",
+       "impl": "[stacks vuln] cone@boss len40 T.5，命中 +1 层。"
+      },
+      {
+       "name": "毒性之箭",
+       "key": "NEW:noxiousPoison",
+       "impl": "[tel] circle@boss r40 T.8 → sealT 3 + dot。"
+      },
+      {
+       "name": "狂乱",
+       "key": "NEW:frenzyHuhuran",
+       "impl": "[frenzy] 8s，大招安抚。"
+      }
+     ],
+     "tip": "大招留着安抚狂乱；30% 后是毒箭风暴，把爆发全留到这时。"
+    },
+    {
+     "name": "双子皇帝",
+     "en": "Twin Emperors",
+     "order": 7,
+     "rooms": 3,
+     "elite": "阿努比萨斯防御者",
+     "trash": [
+      "阿努比萨斯防御者",
+      "阿努比萨斯哨兵",
+      "其拉洗脑者"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 100,
+     "artPrompt": "(two bosses, see adds)",
+     "forms": [],
+     "adds": [
+      {
+       "name": "维克洛尔大帝",
+       "base": "SA",
+       "count": 1,
+       "hpMult": 0.9,
+       "artPrompt": "Emperor Vek'lor, Qiraji emperor caster with gold-purple robes and crown, arcane energy",
+       "abilities": [
+        {
+         "name": "暗影箭",
+         "impl": "frostbolt 样式紫弹 skd×1.3。"
+        },
+        {
+         "name": "暴风雪",
+         "impl": "移动冰池 r24 追踪玩家 6s slow。"
+        },
+        {
+         "name": "奥术爆发",
+         "impl": "玩家 <40px：nova r40 knock 50。"
+        },
+        {
+         "name": "物理免疫",
+         "impl": "近战伤害 ×.2。"
+        }
+       ]
+      },
+      {
+       "name": "维克尼拉斯大帝",
+       "base": "SK",
+       "count": 1,
+       "hpMult": 0.9,
+       "artPrompt": "Emperor Vek'nilash, Qiraji emperor warrior with gold armor, crown and huge claws",
+       "abilities": [
+        {
+         "name": "上勾拳",
+         "impl": "cone knock 60 skd×1.2。"
+        },
+        {
+         "name": "失衡打击",
+         "impl": "[stacks vuln]。"
+        },
+        {
+         "name": "变异虫子",
+         "impl": "每 15s 让 1 只场上小虫变为爆炸甲虫（贴身 r24 爆炸）。"
+        },
+        {
+         "name": "魔法免疫",
+         "impl": "远程/技能伤害 ×.2。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "multiBoss"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "[multiBoss sharedHp] 共用一条血；每 20s 双子传送（互换位置，portal 特效，传送后 1s 不动）。两者距离 <40px 时每秒共同回血 2%（“治疗兄弟”）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "双子传送",
+       "key": "NEW:twinTeleport",
+       "impl": "互换坐标；玩家需要跟着换目标（近战打法师皇帝、远程打战士皇帝）。"
+      },
+      {
+       "name": "治疗兄弟",
+       "key": "NEW:healBrother",
+       "impl": "距离检测，回血时两人之间画金色连线。"
+      }
+     ],
+     "tip": "近战职业打维克尼拉斯打不动，要去打维克洛尔；远程反之。别让两人靠在一起，他们会互相治疗。"
+    },
+    {
+     "name": "奥罗",
+     "en": "Ouro",
+     "order": 8,
+     "rooms": 3,
+     "elite": "阿努比萨斯防御者",
+     "trash": [
+      "维克尼斯毒刺者",
+      "其拉鞭笞者",
+      "阿努比萨斯防御者"
+     ],
+     "hpMult": 1.5,
+     "enrageSec": 90,
+     "artPrompt": "Ouro, colossal sandworm with ringed segmented body, huge circular maw with teeth, emerging from sand",
+     "forms": [
+      {
+       "name": "潜地",
+       "artPrompt": "Ouro submerged, moving dirt mound with sand spray"
+      }
+     ],
+     "adds": [
+      {
+       "name": "圣甲虫",
+       "base": "BT",
+       "count": 0,
+       "hpMult": 0.3,
+       "artPrompt": "Ouro Scarab, small black beetle",
+       "abilities": [
+        {
+         "name": "围攻",
+         "impl": "潜地结束与土堆刷出。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:sandBlast",
+      "NEW:sweep",
+      "NEW:burrowOuro"
+     ],
+     "phases": [
+      {
+       "atHp": 0.2,
+       "changes": "狂暴：不再潜地，刷 4 个圣甲虫土堆 prop，伤害 +50%，地面每 3s 随机落石（tel circle@random r20 n=3）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "沙尘爆裂",
+       "key": "NEW:sandBlast",
+       "impl": "[tel] cone@boss ang.7 len150 T1.0 skd×1.6 stun 1s。"
+      },
+      {
+       "name": "横扫",
+       "key": "NEW:sweep",
+       "impl": "[tel] circle@boss r40 T.8 skd×1 knock 60。"
+      },
+      {
+       "name": "潜地",
+       "key": "NEW:burrowOuro",
+       "impl": "[burrow] 每 25s 或玩家离开近战范围 6s 触发；钻出时刷 4 只圣甲虫。"
+      }
+     ],
+     "tip": "别站在他正面（沙尘爆裂）；远离太久他会钻地追你。20% 后打掉土堆。"
+    },
+    {
+     "name": "克苏恩",
+     "en": "C'Thun",
+     "order": 9,
+     "rooms": 4,
+     "elite": "阿努比萨斯防御者",
+     "trash": [
+      "阿努比萨斯哨兵",
+      "阿努比萨斯防御者",
+      "其拉洗脑者",
+      "黑曜石抹除者"
+     ],
+     "hpMult": 2.0,
+     "enrageSec": 120,
+     "artPrompt": "C'Thun eye phase, gigantic single eye stalk rising from flesh floor, purple-pink veined, tentacles around",
+     "existing": "bosses.png 第11格 千眼之神（近似）",
+     "forms": [
+      {
+       "name": "本体",
+       "artPrompt": "C'Thun true form, colossal fleshy old god mass with many eyes and gaping maw, tentacles",
+       "existing": "forms.png 第3格"
+      },
+      {
+       "name": "虚弱",
+       "artPrompt": "C'Thun weakened, deflated purple flesh mass, eyes closed"
+      }
+     ],
+     "adds": [
+      {
+       "name": "眼球触须",
+       "base": "SA",
+       "count": 8,
+       "hpMult": 0.5,
+       "artPrompt": "Eye Tentacle, thin purple tentacle topped with an eye",
+       "abilities": [
+        {
+         "name": "精神鞭笞",
+         "impl": "不动；每 2s 向玩家射紫色光束 line .8s dmg×.5。"
+        }
+       ]
+      },
+      {
+       "name": "巨爪触须",
+       "base": "SL",
+       "count": 1,
+       "hpMult": 2,
+       "artPrompt": "Claw Tentacle, thick tentacle with a claw maw",
+       "abilities": [
+        {
+         "name": "重击",
+         "impl": "不动；nova r26 knock。"
+        }
+       ]
+      },
+      {
+       "name": "巨型眼球触须",
+       "base": "SA",
+       "count": 1,
+       "hpMult": 4,
+       "artPrompt": "Giant Eye Tentacle, huge tentacle with big eye",
+       "abilities": [
+        {
+         "name": "凝视",
+         "impl": "P2：每 1.5s 光束 dmg×1。"
+        }
+       ]
+      },
+      {
+       "name": "巨型巨爪触须",
+       "base": "SL",
+       "count": 1,
+       "hpMult": 5,
+       "artPrompt": "Giant Claw Tentacle, huge clawed tentacle",
+       "abilities": [
+        {
+         "name": "重击",
+         "impl": "P2：nova r36 knock，玩家远离时会钻地换位。"
+        }
+       ]
+      },
+      {
+       "name": "血肉触须",
+       "base": "SL",
+       "count": 2,
+       "hpMult": 1.5,
+       "artPrompt": "Flesh Tentacle, pink fleshy tentacle inside stomach",
+       "abilities": [
+        {
+         "name": "不动",
+         "impl": "只在胃里出现。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "eyebeam",
+      "sweep",
+      "claw",
+      "NEW:eyeTentacles"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "P1 眼球：首领 spd 0 固定房间中央，轮换 eyebeam / sweep（黑暗闪耀，旋转光束） / claw / 眼球触须（8 只环形）。"
+      },
+      {
+       "atHp": 0.01,
+       "changes": "P2 本体：眼球死亡后首领以本体满血复活（formArt），常驻 b.inv；每 30s 交替刷 巨型巨爪触须 / 巨型眼球触须，每 10s 刷眼球触须 4 只；[stomach] 每 15s 吞下玩家。只有在胃里击杀两只血肉触须后的虚弱 15s 内才能伤害本体。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "眼棱",
+       "key": "eyebeam",
+       "impl": "现有 eyebeam（3 连发，绿色），改为命中玩家后弹向最近触须再弹回（视觉）。"
+      },
+      {
+       "name": "黑暗闪耀",
+       "key": "sweep",
+       "impl": "现有 sweep（旋转光束）。"
+      },
+      {
+       "name": "巨爪触须",
+       "key": "claw",
+       "impl": "现有 claw：在玩家脚下钻出巨爪触须。"
+      },
+      {
+       "name": "眼球触须",
+       "key": "NEW:eyeTentacles",
+       "impl": "在 8 个触须坑同时钻出眼球触须（见 adds）。"
+      },
+      {
+       "name": "胃",
+       "key": "NEW:stomach",
+       "impl": "[stomach]（P2）。"
+      }
+     ],
+     "tip": "P1 别和触须站一条线；P2 本体无敌，被吞进胃里后杀掉两只血肉触须，出来后趁虚弱全力输出。"
+    }
+   ],
+   "expansion": "classic"
+  },
+  {
+   "id": "naxx",
+   "name": "纳克萨玛斯",
+   "en": "Naxxramas (Level 60)",
+   "levelRange": "60",
+   "bossCount": 15,
+   "env": {
+    "desc": "悬浮在东瘟疫之地斯坦索姆上空的天灾浮空要塞（60 级原版）。四个区各有风格：蜘蛛区（蛛网、虫茧、腐烂石板）、瘟疫区（绿色瘟疫水渠、喷发裂隙、腐烂花园）、军事区（铁质训练场、死亡骑士武器架、灵魂之门）、构造区（屠宰台、缝合尸块、软泥管道、特斯拉线圈）；最后是寒冷的冰霜巨龙巢穴（萨菲隆）与克尔苏加德的王座间。",
+    "tilesPrompt": "4x4 grid of 16px top-down pixel tiles for a floating undead necropolis (Naxxramas, generic halls): row0 four dark green-grey necropolis stone floor variants with Scourge rune grooves; row1 four gothic necropolis wall-front variants with green glowing windows and spikes; row2 wall-top dark spiked stone, bone-reinforced crate, Scourge obelisk pillar with green crystal, plague slime pool; row3 four decorated floors: skull pile, plague grate, glowing green rune, scattered chains",
+    "tilesExisting": "tiles_c3.png（亡者要塞，近似可复用为通用大厅）",
+    "tilesVariants": [
+     {
+      "wing": "蜘蛛区",
+      "prompt": "4x4 grid of 16px top-down pixel tiles: Naxxramas Arachnid Quarter – row0 webbed dark stone floors; row1 walls covered in thick spider silk; row2 web-mass wall top, silk-wrapped cocoon crate, web-wrapped pillar, green venom pool; row3 floors with spider egg sacs, bones in web, venom drip, crawling spiderlings"
+     },
+     {
+      "wing": "瘟疫区",
+      "prompt": "4x4 grid of 16px top-down pixel tiles: Naxxramas Plague Quarter – row0 rotten stone floors with green slime; row1 walls with plague pipes; row2 wall top, plague cauldron crate, fungus-covered pillar, plague fissure pool; row3 floors with spore mushrooms, eruption cracks, rotten roots, toxic puddle"
+     },
+     {
+      "wing": "军事区",
+      "prompt": "4x4 grid of 16px top-down pixel tiles: Naxxramas Military Quarter – row0 iron-plated training floor; row1 walls with weapon racks and banners; row2 wall top, weapon crate, training dummy pillar, soul portal pool; row3 floors with sword marks, skeleton horse bones, ghostly rune, iron grate"
+     },
+     {
+      "wing": "构造区",
+      "prompt": "4x4 grid of 16px top-down pixel tiles: Naxxramas Construct Quarter – row0 bloody slaughterhouse stone floors; row1 walls with hooks and stitched flesh; row2 wall top, meat crate, tesla coil pillar, slime vat pool; row3 floors with blood drain, stitched corpse parts, sewer grate, green slime trail"
+     },
+     {
+      "wing": "冰霜巨龙巢穴",
+      "prompt": "4x4 grid of 16px top-down pixel tiles: Frostwyrm Lair – row0 frozen dark stone floors with frost; row1 icy walls with frozen bones; row2 snow wall top, ice block crate, frozen bone pillar, frozen pool; row3 floors with frost runes, snowdrift, frozen skeleton, blue glowing crack"
+     }
+    ],
+    "props": [
+     {
+      "name": "蛛网",
+      "mechanic": "蜘蛛区地面 rect 区域：进入移速 ×.5（不伤害）。",
+      "artPrompt": "large white spider web patch on floor"
+     },
+     {
+      "name": "瘟疫裂隙",
+      "mechanic": "希尔盖关：地面四区的喷发口（视觉，伤害走 dance 的 rect 预警）。",
+      "artPrompt": "glowing green plague fissure crack, dormant and erupting"
+     },
+     {
+      "name": "墓碑",
+      "mechanic": "军事区/瘟疫区小怪房（现有 GRV：每 5.5s 爬出骷髅，可破坏）。",
+      "artPrompt": "Scourge tombstone",
+      "existing": "props.png 第5-6格 坟墓"
+     },
+     {
+      "name": "特斯拉线圈",
+      "mechanic": "塔迪乌斯关两侧各 1（不可破坏）：P1 连着斯塔拉格/费尔根；两者之一离线圈太远（>60px）时线圈向玩家放电 skd×.8。",
+      "artPrompt": "tesla coil tower with crackling blue lightning, idle and discharging"
+     },
+     {
+      "name": "冰块",
+      "mechanic": "萨菲隆关：寒冰箭落点生成（见 losBreath），可挡视线。",
+      "artPrompt": "ice block cube (see fx)"
+     },
+     {
+      "name": "灵魂之门",
+      "mechanic": "戈提克关中央分界线：P1 关闭（两半互不相通），P1 后半打开。",
+      "artPrompt": "iron portcullis gate with ghostly green glow, closed and open"
+     }
+    ],
+    "music": "低沉合唱 + 钟声 + 冰冷的弦乐，克尔苏加德关加入管风琴"
+   },
+   "trash": [
+    {
+     "name": "腐肉织网者",
+     "en": "Carrion Spinner",
+     "base": "SA",
+     "wing": "蜘蛛区",
+     "abilities": [
+      {
+       "name": "蛛网喷射",
+       "impl": "[mobAbility aoeAtPlayer] r20 T1.0 → root 1.5s。"
+      },
+      {
+       "name": "毒箭",
+       "impl": "绿色毒弹 dmg×1 dot。"
+      }
+     ],
+     "artPrompt": "Carrion Spinner, bloated undead spider with exposed ribs and green venom"
+    },
+    {
+     "name": "感染食尸鬼",
+     "en": "Infectious Ghoul",
+     "base": "BT",
+     "wing": "瘟疫区",
+     "abilities": [
+      {
+       "name": "腐肉扑击",
+       "impl": "[mobAbility pounce]，命中 [stacks heal] +1。"
+      },
+      {
+       "name": "狂乱",
+       "impl": "血量 <30% 攻速/移速 +50%。"
+      }
+     ],
+     "artPrompt": "Infectious Ghoul, hunched green-skinned ghoul with long claws and exposed spine",
+     "existing": "mobs.png 第10格 食尸鬼（可复用）"
+    },
+    {
+     "name": "死亡骑士队长",
+     "en": "Deathknight Captain",
+     "base": "SK",
+     "hpx": 2,
+     "wing": "军事区",
+     "abilities": [
+      {
+       "name": "旋风斩",
+       "impl": "[followAura] r24 2s，每 8s。"
+      },
+      {
+       "name": "瘟疫打击",
+       "impl": "近身命中 dot 6s。"
+      },
+      {
+       "name": "邪恶光环",
+       "impl": "40px 内友军伤害 +20%（脚下暗绿光环）。"
+      }
+     ],
+     "artPrompt": "Deathknight Captain, undead knight in black saronite-less dark iron plate with runeblade and tattered cape"
+    },
+    {
+     "name": "大墓地侍僧",
+     "en": "Necropolis Acolyte",
+     "base": "SA",
+     "wing": "军事区",
+     "abilities": [
+      {
+       "name": "暗影箭齐射",
+       "impl": "3 发扇形紫弹 dmg×.9。"
+      },
+      {
+       "name": "奥术爆炸",
+       "impl": "玩家 <30px：nova r30 .6s dmg×1。"
+      }
+     ],
+     "artPrompt": "Necropolis Acolyte, gaunt cultist in dark purple robes with skull mask, shadow orb",
+     "existing": "mobs.png 第8/16格 教徒/术士（换色可用）"
+    },
+    {
+     "name": "缝合傀儡",
+     "en": "Patchwork Golem",
+     "base": "SL",
+     "hpx": 3,
+     "wing": "构造区",
+     "abilities": [
+      {
+       "name": "顺劈斩",
+       "impl": "[tel] cone@self ang.6 len30 T.6 dmg×1.2。"
+      },
+      {
+       "name": "战争践踏",
+       "impl": "[mobAbility nova] r30 .9s stun .8。"
+      },
+      {
+       "name": "疾病云雾",
+       "impl": "自身 r20 持续 dot 光环。死亡不分裂。"
+      }
+     ],
+     "artPrompt": "Patchwork Golem, stitched flesh golem with hook hand and cleaver, green skin, metal plates"
+    },
+    {
+     "name": "石皮石像鬼",
+     "en": "Stoneskin Gargoyle",
+     "base": "SA",
+     "wing": "冰霜巨龙巢穴",
+     "abilities": [
+      {
+       "name": "酸液齐射",
+       "impl": "3 发绿色酸弹 dot。"
+      },
+      {
+       "name": "石肤",
+       "impl": "血量 <30%：[castBar] 2s 后石化 4s（inv）并回 20%；命中 3 次打断。"
+      }
+     ],
+     "artPrompt": "Stoneskin Gargoyle, grey stone gargoyle with bat wings and glowing green eyes"
+    }
+   ],
+   "bosses": [
+    {
+     "name": "阿努布雷坎",
+     "en": "Anub'Rekhan",
+     "wing": "蜘蛛区",
+     "order": 1,
+     "rooms": 4,
+     "elite": "腐肉织网者",
+     "trash": [
+      "腐肉织网者",
+      "感染食尸鬼",
+      "缝合傀儡"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 70,
+     "artPrompt": "Anub'Rekhan, giant undead crypt lord nerubian, bone-white and dark purple carapace, scythe forelegs",
+     "forms": [],
+     "adds": [
+      {
+       "name": "地穴卫士",
+       "base": "SK",
+       "count": 2,
+       "hpMult": 3,
+       "artPrompt": "Crypt Guard, armored undead nerubian warrior",
+       "abilities": [
+        {
+         "name": "顺劈",
+         "impl": "cone dmg×1.2。"
+        },
+        {
+         "name": "酸液喷吐",
+         "impl": "circle@player r16 dot。"
+        }
+       ]
+      },
+      {
+       "name": "腐尸甲虫",
+       "base": "BT",
+       "count": 0,
+       "hpMult": 0.3,
+       "artPrompt": "Corpse Scarab, small black undead beetle",
+       "abilities": [
+        {
+         "name": "尸爆",
+         "impl": "任何小怪/卫士死亡时从尸体爬出 3 只。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:impale",
+      "NEW:locustSwarm",
+      "NEW:impale"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "开场 2 名地穴卫士；虫群风暴结束时再来 1 名。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "穿刺",
+       "key": "NEW:impale",
+       "impl": "[tel] beam@boss→player w8 T1.0 skd×1.4，命中 stun .8（被顶上天）。"
+      },
+      {
+       "name": "虫群风暴",
+       "key": "NEW:locustSwarm",
+       "impl": "[followAura] r40 6s 每 .5s skd×.35 + slow，首领移速 ×.5（追着你），玩家需要绕圈风筝。"
+      }
+     ],
+     "tip": "虫群风暴时他会慢慢追你：绕着房间风筝，别被卫士卡住。"
+    },
+    {
+     "name": "黑女巫法琳娜",
+     "en": "Grand Widow Faerlina",
+     "wing": "蜘蛛区",
+     "order": 2,
+     "rooms": 3,
+     "elite": "腐肉织网者",
+     "trash": [
+      "腐肉织网者",
+      "大墓地侍僧",
+      "感染食尸鬼"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 70,
+     "artPrompt": "Grand Widow Faerlina, undead priestess in black-purple spider-themed robes and veil, venomous staff",
+     "forms": [],
+     "adds": [
+      {
+       "name": "纳克萨玛斯崇拜者",
+       "base": "SK",
+       "count": 4,
+       "hpMult": 1,
+       "artPrompt": "Naxxramas Worshipper, robed cultist kneeling",
+       "abilities": [
+        {
+         "name": "火球",
+         "impl": "弱火球。"
+        },
+        {
+         "name": "黑女巫的拥抱",
+         "impl": "在首领 30px 内死亡 → 解除首领狂乱并沉默首领 6s。"
+        }
+       ]
+      },
+      {
+       "name": "纳克萨玛斯追随者",
+       "base": "SK",
+       "count": 2,
+       "hpMult": 2,
+       "artPrompt": "Naxxramas Follower, armored cultist with mace",
+       "abilities": [
+        {
+         "name": "沉默冲锋",
+         "impl": "chargeLine，命中 sealT 2。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:poisonBoltVolley",
+      "NEW:rainOfFireF",
+      "NEW:frenzyFaerlina"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "毒箭齐射",
+       "key": "NEW:poisonBoltVolley",
+       "impl": "volley 改绿色毒弹 + dot。"
+      },
+      {
+       "name": "火焰之雨",
+       "key": "NEW:rainOfFireF",
+       "impl": "[tel] circle@player r24 T1.0 n=3 after:'pool' 火池 4s。"
+      },
+      {
+       "name": "狂乱",
+       "key": "NEW:frenzyFaerlina",
+       "impl": "[frenzy] 每 25s，不可被大招安抚，只能用“崇拜者在她身边死亡”解除。"
+      }
+     ],
+     "tip": "把崇拜者留着：她狂乱时，在她身边杀掉一个崇拜者就能解除狂乱。"
+    },
+    {
+     "name": "迈克斯纳",
+     "en": "Maexxna",
+     "wing": "蜘蛛区",
+     "order": 3,
+     "rooms": 3,
+     "elite": "腐肉织网者",
+     "trash": [
+      "腐肉织网者",
+      "感染食尸鬼"
+     ],
+     "hpMult": 1.2,
+     "enrageSec": 75,
+     "artPrompt": "Maexxna, enormous undead black widow spider with bone-white markings and dripping venom fangs",
+     "forms": [],
+     "adds": [
+      {
+       "name": "迈克斯纳蜘蛛宝宝",
+       "base": "BT",
+       "count": 6,
+       "hpMult": 0.4,
+       "artPrompt": "Maexxna Spiderling, tiny black spider",
+       "abilities": [
+        {
+         "name": "围攻",
+         "impl": "每 30s 从四壁涌出 6 只。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:webWrap",
+      "NEW:poisonShockM",
+      "NEW:necroticPoison",
+      "NEW:webSpray"
+     ],
+     "phases": [
+      {
+       "atHp": 0.3,
+       "changes": "狂乱（frenzy perm）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "蛛网裹体",
+       "key": "NEW:webWrap",
+       "impl": "[webWrap]。"
+      },
+      {
+       "name": "蛛网喷射",
+       "key": "NEW:webSpray",
+       "impl": "全屏 rect 预警 1.5s（白色），命中 stun 2s + skd×.6（无法躲，提示“准备！”）。每 30s。"
+      },
+      {
+       "name": "毒性震击",
+       "key": "NEW:poisonShockM",
+       "impl": "[tel] cone@boss ang.6 len40 T.6 skd×1 dot。"
+      },
+      {
+       "name": "坏死毒药",
+       "key": "NEW:necroticPoison",
+       "impl": "[curse:heal] 回复 ×.1，8s。"
+      }
+     ],
+     "tip": "蛛网喷射前血要满（全屏无法躲）；被裹在墙上不要慌，3 秒后自动挣脱。"
+    },
+    {
+     "name": "瘟疫使者诺斯",
+     "en": "Noth the Plaguebringer",
+     "wing": "瘟疫区",
+     "order": 4,
+     "rooms": 3,
+     "elite": "感染食尸鬼",
+     "trash": [
+      "感染食尸鬼",
+      "大墓地侍僧",
+      "缝合傀儡"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 75,
+     "artPrompt": "Noth the Plaguebringer, undead necromancer in green-black robes with plague skull staff, glowing green eyes",
+     "forms": [],
+     "adds": [
+      {
+       "name": "瘟疫战士",
+       "base": "SK",
+       "count": 3,
+       "hpMult": 1.2,
+       "artPrompt": "Plagued Warrior, undead soldier with rusty sword",
+       "abilities": [
+        {
+         "name": "顺劈",
+         "impl": "cone。"
+        }
+       ]
+      },
+      {
+       "name": "瘟疫守护者",
+       "base": "SA",
+       "count": 2,
+       "hpMult": 1.5,
+       "artPrompt": "Plagued Guardian, undead caster with green flames",
+       "abilities": [
+        {
+         "name": "奥术爆炸",
+         "impl": "nova r30。"
+        },
+        {
+         "name": "闪现",
+         "impl": "blink。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:curseOfPlague",
+      "blink",
+      "NEW:summonSkeletons"
+     ],
+     "phases": [
+      {
+       "atSec": 35,
+       "changes": "每 35s 传送到阳台 15s（addPhase：无敌，刷 2 波瘟疫守护者/战士），之后回来。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "瘟疫使者的诅咒",
+       "key": "NEW:curseOfPlague",
+       "impl": "[curse:delayed] 8s 后 skd×1.5（原作不驱散会爆发伤害）。"
+      },
+      {
+       "name": "闪现",
+       "key": "blink",
+       "impl": "现有 blink（随机位置）。"
+      },
+      {
+       "name": "召唤骷髅",
+       "key": "NEW:summonSkeletons",
+       "impl": "四角各 1 只瘟疫战士。"
+      }
+     ],
+     "tip": "他会定时上阳台召唤一大批亡灵：先清守护者，诅咒倒计时结束前补好血。"
+    },
+    {
+     "name": "肮脏的希尔盖",
+     "en": "Heigan the Unclean",
+     "wing": "瘟疫区",
+     "order": 5,
+     "rooms": 3,
+     "elite": "感染食尸鬼",
+     "trash": [
+      "感染食尸鬼",
+      "腐肉织网者",
+      "缝合傀儡"
+     ],
+     "hpMult": 1.1,
+     "enrageSec": 80,
+     "artPrompt": "Heigan the Unclean, hunched undead plague priest in tattered green robes with plague censer",
+     "existing": "bosses.png 第8格 瘟疫舞者（近似可复用）",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "dance",
+      "NEW:decrepitFever",
+      "NEW:spellDisruption",
+      "dance"
+     ],
+     "phases": [
+      {
+       "atSec": 40,
+       "changes": "每 40s 传送到平台（现有 platform：无敌 11s 快速舞蹈 + 瘟疫云），之后回到地面。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "舞蹈（瘟疫喷发）",
+       "key": "dance",
+       "impl": "现有 dance：房间分 4 区，轮流 3 区喷发、1 区安全，安全区按 1→2→3→4→3→2 顺序移动（原作固定节奏，改掉现在的随机 +1/+3）。"
+      },
+      {
+       "name": "衰弱热病",
+       "key": "NEW:decrepitFever",
+       "impl": "[tel] circle@boss r50 T.8 dot 8s。"
+      },
+      {
+       "name": "法术干扰",
+       "key": "NEW:spellDisruption",
+       "impl": "[curse:cd] 6s。"
+      },
+      {
+       "name": "快速舞蹈",
+       "key": "platform",
+       "impl": "现有 platform。"
+      }
+     ],
+     "tip": "跟着安全区跳舞：安全区固定从一头走到另一头再回来，记住节奏。"
+    },
+    {
+     "name": "洛欧塞布",
+     "en": "Loatheb",
+     "wing": "瘟疫区",
+     "order": 6,
+     "rooms": 3,
+     "elite": "缝合傀儡",
+     "trash": [
+      "缝合傀儡",
+      "感染食尸鬼",
+      "大墓地侍僧"
+     ],
+     "hpMult": 1.3,
+     "enrageSec": 90,
+     "artPrompt": "Loatheb, huge rotting fungal abomination with mushroom caps, gaping maw and spore clouds",
+     "existing": "bosses.png 第10格 孢子君主（可复用）",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "doom",
+      "spores",
+      "aura"
+     ],
+     "phases": [
+      {
+       "atSec": 60,
+       "changes": "必然的厄运间隔从 12s 缩短到 6s（原作 5 分钟后）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "必然的厄运",
+       "key": "doom",
+       "impl": "现有 doom（伤害随次数递增）；10s 预警圈画在玩家身上（目前直接扣血，需补预警）。"
+      },
+      {
+       "name": "坏死光环",
+       "key": "aura",
+       "impl": "现有 aura：每 20s 中有 17s 无法回复（原作只有 3s 治疗窗口）；屏幕边缘显示“治疗窗口”。"
+      },
+      {
+       "name": "孢子",
+       "key": "spores",
+       "impl": "现有 spores：击破获得 8s 暴击 +50%。"
+      }
+     ],
+     "tip": "治疗只在很短的窗口里有效；击破孢子拿暴击，越拖厄运越痛。"
+    },
+    {
+     "name": "教官拉苏维奥斯",
+     "en": "Instructor Razuvious",
+     "wing": "军事区",
+     "order": 7,
+     "rooms": 3,
+     "elite": "死亡骑士队长",
+     "trash": [
+      "死亡骑士队长",
+      "大墓地侍僧",
+      "感染食尸鬼"
+     ],
+     "hpMult": 1.2,
+     "enrageSec": 75,
+     "artPrompt": "Instructor Razuvious, burly undead death knight instructor with spiked pauldrons and massive runeblade",
+     "forms": [],
+     "adds": [
+      {
+       "name": "死亡骑士学员",
+       "base": "SK",
+       "count": 2,
+       "hpMult": 3,
+       "artPrompt": "Deathknight Understudy, young undead knight with shield",
+       "abilities": [
+        {
+         "name": "盾墙",
+         "impl": "[safeSpots] 玩家在学员 22px 内时，干扰怒吼对玩家无效（safeSpots）。"
+        },
+        {
+         "name": "嘲讽",
+         "impl": "玩家在学员 22px 内时首领改追学员（攻击学员）。学员会被打死，需轮换使用两名。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:disruptingShout",
+      "NEW:unbalancingStrike",
+      "NEW:disruptingShout"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "干扰怒吼",
+       "key": "NEW:disruptingShout",
+       "impl": "[castBar] 1.5s（不可打断）→ circle@boss r200 skd×1.6，safe: 存活学员 r22。"
+      },
+      {
+       "name": "失衡打击",
+       "key": "NEW:unbalancingStrike",
+       "impl": "[tel] circle@player r16 T.6 skd×1.8 + [stacks vuln]。"
+      }
+     ],
+     "tip": "站在学员身边才能扛住干扰怒吼；学员会被他打死，两个轮流用。"
+    },
+    {
+     "name": "收割者戈提克",
+     "en": "Gothik the Harvester",
+     "wing": "军事区",
+     "order": 8,
+     "rooms": 3,
+     "elite": "死亡骑士队长",
+     "trash": [
+      "死亡骑士队长",
+      "大墓地侍僧"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 85,
+     "artPrompt": "Gothik the Harvester, gaunt undead necromancer with scythe and dark green-black robes, soul flames",
+     "forms": [],
+     "adds": [
+      {
+       "name": "冷酷的学徒",
+       "base": "SK",
+       "count": 0,
+       "hpMult": 1,
+       "artPrompt": "Unrelenting Trainee, living death knight trainee",
+       "abilities": [
+        {
+         "name": "死后化灵",
+         "impl": "死亡时在另一半场生成幽灵学徒（半透明，同能力）。"
+        }
+       ]
+      },
+      {
+       "name": "冷酷的死亡骑士",
+       "base": "SK",
+       "count": 0,
+       "hpMult": 2,
+       "artPrompt": "Unrelenting Deathknight, mounted-less death knight",
+       "abilities": [
+        {
+         "name": "冲击波",
+         "impl": "nova knock。"
+        },
+        {
+         "name": "死后化灵",
+         "impl": "同上。"
+        }
+       ]
+      },
+      {
+       "name": "冷酷的骑兵",
+       "base": "BT",
+       "count": 0,
+       "hpMult": 3,
+       "artPrompt": "Unrelenting Rider, skeletal horse rider",
+       "abilities": [
+        {
+         "name": "冲锋",
+         "impl": "chargeLine。"
+        },
+        {
+         "name": "死后化灵",
+         "impl": "同上。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:shadowBoltG",
+      "NEW:harvestSoul",
+      "blink"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "P1 [addPhase] 40s：戈提克在阳台无敌；房间被灵魂之门分为左右两半，左半（活人区）按 学徒×3→死亡骑士×2→骑兵×1 波次刷新，死亡后在右半（亡灵区）化为幽灵；20s 后门打开，幽灵会越过来。P1 结束他亲自下场。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "暗影箭",
+       "key": "NEW:shadowBoltG",
+       "impl": "frostbolt 样式紫弹 skd×1.4。"
+      },
+      {
+       "name": "收割灵魂",
+       "key": "NEW:harvestSoul",
+       "impl": "[stacks dmg] 每 15s 永久 +1 层（伤害 −8%/层），逼你速战。"
+      },
+      {
+       "name": "左右传送",
+       "key": "blink",
+       "impl": "每 20s 传送到另一半场。"
+      }
+     ],
+     "tip": "杀死的亡灵会在另一半场变成幽灵再来一次：控制清怪节奏，别让两边同时涌过来。"
+    },
+    {
+     "name": "天启四骑士",
+     "en": "The Four Horsemen",
+     "wing": "军事区",
+     "order": 9,
+     "rooms": 4,
+     "elite": "死亡骑士队长",
+     "trash": [
+      "死亡骑士队长",
+      "大墓地侍僧",
+      "石皮石像鬼"
+     ],
+     "hpMult": 1.0,
+     "enrageSec": 120,
+     "artPrompt": "(four bosses, see adds)",
+     "forms": [],
+     "adds": [
+      {
+       "name": "库尔塔兹领主",
+       "base": "SK",
+       "count": 1,
+       "hpMult": 0.55,
+       "artPrompt": "Thane Korth'azz, armored dwarf death knight on skeletal horse, fiery meteor hammer",
+       "abilities": [
+        {
+         "name": "陨石",
+         "impl": "circle@player r30 T1.2 skd×2（印记：库尔塔兹）。"
+        }
+       ]
+      },
+      {
+       "name": "布劳缪克丝女士",
+       "base": "SA",
+       "count": 1,
+       "hpMult": 0.55,
+       "artPrompt": "Lady Blaumeux, undead female death knight on skeletal horse, purple void magic",
+       "abilities": [
+        {
+         "name": "虚空领域",
+         "impl": "玩家脚下留虚空池 r18 10s。"
+        }
+       ]
+      },
+      {
+       "name": "大领主莫格莱尼",
+       "base": "SK",
+       "count": 1,
+       "hpMult": 0.55,
+       "artPrompt": "Highlord Mograine, death knight lord on skeletal horse with Ashbringer-like corrupted greatsword",
+       "abilities": [
+        {
+         "name": "正义之火",
+         "impl": "接触 dot。"
+        },
+        {
+         "name": "顺劈",
+         "impl": "cone。"
+        }
+       ]
+      },
+      {
+       "name": "瑟里耶克爵士",
+       "base": "SA",
+       "count": 1,
+       "hpMult": 0.55,
+       "artPrompt": "Sir Zeliek, undead paladin knight on skeletal horse, holy light corrupted",
+       "abilities": [
+        {
+         "name": "神圣之怒",
+         "impl": "弹跳金弹 3 次。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "multiBoss"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "[multiBoss] 四人分别固定在房间四角（不移动），各自技能轮换；全部击杀过关。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "印记",
+       "key": "NEW:marks",
+       "impl": "[marks] 每 12s 结算。逼玩家沿四角轮换（像原作坦克换位）。"
+      },
+      {
+       "name": "四骑士",
+       "key": "multiBoss",
+       "impl": "顶部四条血条。"
+      }
+     ],
+     "tip": "印记会越叠越痛：在一个角落打几下就换到下一个角落，别在同一个骑士身边待太久。"
+    },
+    {
+     "name": "帕奇维克",
+     "en": "Patchwerk",
+     "wing": "构造区",
+     "order": 10,
+     "rooms": 4,
+     "elite": "缝合傀儡",
+     "trash": [
+      "缝合傀儡",
+      "感染食尸鬼",
+      "大墓地侍僧"
+     ],
+     "hpMult": 1.4,
+     "enrageSec": 60,
+     "artPrompt": "Patchwerk, enormous stitched abomination with hooks, cleaver and meat-hook arms, bloated green body",
+     "existing": "bosses.png 第7格 缝合憎恶（可复用）",
+     "forms": [],
+     "adds": [],
+     "skills": [
+      "hateful",
+      "hateful",
+      "hateful",
+      "NEW:patchSlime"
+     ],
+     "phases": [
+      {
+       "atHp": 0.05,
+       "changes": "狂怒：攻速 ×1.5（frenzy perm）。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "仇恨打击",
+       "key": "hateful",
+       "impl": "现有 hateful（circle@player r16 skd×2）；节奏固定 1.2s 一次。去掉现在轮换里的 charge/slam（原作没有）。"
+      },
+      {
+       "name": "软泥池",
+       "key": "NEW:patchSlime",
+       "impl": "房间两侧 rect 绿色软泥（站进去移速 ×.6，原作的软泥地），只是地形。"
+      },
+      {
+       "name": "狂暴",
+       "key": "enrage",
+       "impl": "enrageSec 60 硬狂暴（现有 fury）。"
+      }
+     ],
+     "tip": "纯输出检定：仇恨打击很痛但有节奏，60 秒内必须打死。"
+    },
+    {
+     "name": "格罗布鲁斯",
+     "en": "Grobbulus",
+     "wing": "构造区",
+     "order": 11,
+     "rooms": 3,
+     "elite": "缝合傀儡",
+     "trash": [
+      "缝合傀儡",
+      "感染食尸鬼"
+     ],
+     "hpMult": 1.2,
+     "enrageSec": 75,
+     "artPrompt": "Grobbulus, bloated slime-filled abomination with tubes and green ooze leaking, giant arms",
+     "forms": [],
+     "adds": [
+      {
+       "name": "辐射软泥",
+       "base": "SL",
+       "count": 0,
+       "hpMult": 2,
+       "artPrompt": "Fallout Slime, glowing green radioactive ooze",
+       "abilities": [
+        {
+         "name": "辐射",
+         "impl": "自身 r20 dot 光环。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:mutatingInjection",
+      "NEW:slimeSpray",
+      "NEW:poisonCloudG"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "变异注射",
+       "key": "NEW:mutatingInjection",
+       "impl": "[playerBomb] t=8 r30 → after: 毒云池 r30 10s + 1 只辐射软泥。"
+      },
+      {
+       "name": "软泥喷射",
+       "key": "NEW:slimeSpray",
+       "impl": "[tel] cone@boss ang.6 len60 T.8 skd×1，命中区域刷 2 只辐射软泥。"
+      },
+      {
+       "name": "毒云",
+       "key": "NEW:poisonCloudG",
+       "impl": "首领脚下留毒云，半径 10→40 在 10s 内扩大，持续 20s。"
+      }
+     ],
+     "tip": "被注射后跑到房间边缘再爆，别让毒云堵住中间。"
+    },
+    {
+     "name": "格拉斯",
+     "en": "Gluth",
+     "wing": "构造区",
+     "order": 12,
+     "rooms": 3,
+     "elite": "缝合傀儡",
+     "trash": [
+      "缝合傀儡",
+      "感染食尸鬼",
+      "大墓地侍僧"
+     ],
+     "hpMult": 1.3,
+     "enrageSec": 80,
+     "artPrompt": "Gluth, monstrous undead plague hound with exposed ribs, huge jaws and rotting green fur",
+     "forms": [],
+     "adds": [
+      {
+       "name": "僵尸构造体",
+       "base": "SL",
+       "count": 0,
+       "hpMult": 1,
+       "artPrompt": "Zombie Chow, shambling bloated zombie",
+       "abilities": [
+        {
+         "name": "感染之伤",
+         "impl": "接触 [stacks vuln]。每 6s 从 3 个门刷 1 只。"
+        },
+        {
+         "name": "被吞食",
+         "impl": "残杀后直奔格拉斯，碰到即为他回复 5%。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:mortalWoundG",
+      "roar",
+      "NEW:frenzyGluth",
+      "NEW:decimate"
+     ],
+     "phases": [],
+     "mechanics": [
+      {
+       "name": "致死之伤",
+       "key": "NEW:mortalWoundG",
+       "impl": "[stacks heal] 每次接触 +1。"
+      },
+      {
+       "name": "恐惧咆哮",
+       "key": "roar",
+       "impl": "现有 roar。"
+      },
+      {
+       "name": "狂乱",
+       "key": "NEW:frenzyGluth",
+       "impl": "[frenzy] 大招安抚。"
+      },
+      {
+       "name": "残杀",
+       "key": "NEW:decimate",
+       "impl": "[decimate] 每 25s：玩家 → 当前 ×.3（≥5%），所有僵尸 → 5% 血并冲向格拉斯；提示“拦住僵尸！”。"
+      }
+     ],
+     "tip": "残杀后僵尸只剩一丝血并冲向他：在他吃掉之前一个个点掉。"
+    },
+    {
+     "name": "塔迪乌斯",
+     "en": "Thaddius",
+     "wing": "构造区",
+     "order": 13,
+     "rooms": 3,
+     "elite": "缝合傀儡",
+     "trash": [
+      "缝合傀儡",
+      "大墓地侍僧",
+      "石皮石像鬼"
+     ],
+     "hpMult": 1.5,
+     "enrageSec": 90,
+     "artPrompt": "Thaddius, giant stitched flesh golem with tesla coils embedded, blue-red electric arcs, chained",
+     "existing": "bosses.png 第5格 双极雷像（偏机械，需重画为缝合怪）",
+     "forms": [],
+     "adds": [
+      {
+       "name": "斯塔拉格",
+       "base": "SK",
+       "count": 1,
+       "hpMult": 0.8,
+       "artPrompt": "Stalagg, hulking blue-grey flesh golem connected to tesla coil",
+       "abilities": [
+        {
+         "name": "能量激增",
+         "impl": "frenzy 6s。"
+        }
+       ]
+      },
+      {
+       "name": "费尔根",
+       "base": "SK",
+       "count": 1,
+       "hpMult": 0.8,
+       "artPrompt": "Feugen, hulking red-grey flesh golem connected to tesla coil",
+       "abilities": [
+        {
+         "name": "静电场",
+         "impl": "nova r50 knock 70。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "NEW:polarityShift",
+      "NEW:chainLightning",
+      "ball"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "P1 [multiBoss reviveWindow 5]：斯塔拉格（左平台）+ 费尔根（右平台），塔迪乌斯在中间沉睡（不可攻击）。两者需在 5s 内相继死亡，否则复活。"
+      },
+      {
+       "atHp": 0.99,
+       "changes": "P2：塔迪乌斯苏醒（入场动画：线圈放电），轮换 skills。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "极性转换",
+       "key": "NEW:polarityShift",
+       "impl": "[polarityShift]，取代现有半场轮炸版本。"
+      },
+      {
+       "name": "闪电链",
+       "key": "NEW:chainLightning",
+       "impl": "3 发快速蓝弹，命中后在 30px 内弹跳 1 次。"
+      },
+      {
+       "name": "球状闪电",
+       "key": "ball",
+       "impl": "现有 ball（远离时惩罚）。"
+      }
+     ],
+     "tip": "P1 两个缝合怪要一起死；P2 看清自己头顶的 + / −，站到同号的半场能加伤害。"
+    },
+    {
+     "name": "萨菲隆",
+     "en": "Sapphiron",
+     "wing": "冰霜巨龙巢穴",
+     "order": 14,
+     "rooms": 3,
+     "elite": "石皮石像鬼",
+     "trash": [
+      "石皮石像鬼",
+      "死亡骑士队长",
+      "大墓地侍僧"
+     ],
+     "hpMult": 1.5,
+     "enrageSec": 100,
+     "artPrompt": "Sapphiron, huge skeletal frost wyrm, icy blue bones, frost mist from ribcage, glowing blue eyes",
+     "forms": [
+      {
+       "name": "飞行",
+       "artPrompt": "Sapphiron airborne, frost wyrm with wings spread, frost trailing"
+      }
+     ],
+     "adds": [],
+     "skills": [
+      "NEW:lifeDrain",
+      "NEW:blizzard",
+      "NEW:sapphCleave",
+      "NEW:tailSweepS"
+     ],
+     "phases": [
+      {
+       "atSec": 30,
+       "changes": "每 30s 起飞（formArt，inv）：3 次寒冰箭 → 冰块 → 冰霜吐息（losBreath），然后落地。"
+      },
+      {
+       "atHp": 0.1,
+       "changes": "不再起飞，硬拼。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "冰霜光环",
+       "key": "NEW:frostAura",
+       "impl": "整场持续 G.dotT（每秒 skd×.05），无法躲避。"
+      },
+      {
+       "name": "生命吸取",
+       "key": "NEW:lifeDrain",
+       "impl": "[curse:delayed] 6s dot，首领回复等量 50%。"
+      },
+      {
+       "name": "暴风雪",
+       "key": "NEW:blizzard",
+       "impl": "2 个移动冰池 r22 缓慢追踪玩家 10s，slow + skd×.25/.5s。"
+      },
+      {
+       "name": "顺劈",
+       "key": "NEW:sapphCleave",
+       "impl": "[tel] cone@boss ang.6 len40 T.6 skd×1.1。"
+      },
+      {
+       "name": "尾扫",
+       "key": "NEW:tailSweepS",
+       "impl": "[bossFacing] 身后 cone len60 knock。"
+      },
+      {
+       "name": "冰块与冰霜吐息",
+       "key": "NEW:losBreath",
+       "impl": "[losBreath]。"
+      }
+     ],
+     "tip": "他飞起来后会把你冻成冰块的位置记住——吐息时一定要躲在冰块后面。"
+    },
+    {
+     "name": "克尔苏加德",
+     "en": "Kel'Thuzad",
+     "wing": "冰霜巨龙巢穴",
+     "order": 15,
+     "rooms": 2,
+     "trash": [
+      "石皮石像鬼",
+      "死亡骑士队长"
+     ],
+     "hpMult": 2.0,
+     "enrageSec": 120,
+     "artPrompt": "Kel'Thuzad, floating lich in dark blue-purple robes with frost aura, skeletal face, ornate staff (level 60 Naxxramas)",
+     "existing": "bosses.png 第9格 冰霜巫妖；forms.png 第4格 强化形态",
+     "forms": [],
+     "adds": [
+      {
+       "name": "冰冠守护者",
+       "base": "SK",
+       "count": 2,
+       "hpMult": 9,
+       "artPrompt": "Guardian of Icecrown, giant armored undead with ice spikes",
+       "abilities": [
+        {
+         "name": "重击",
+         "impl": "不可击杀式坦克怪：玩家伤害 ×.3。"
+        }
+       ],
+       "existing": "forms.png 第7格"
+      },
+      {
+       "name": "不可阻挡的憎恶",
+       "base": "SL",
+       "count": 0,
+       "hpMult": 2,
+       "artPrompt": "Unstoppable Abomination, stitched undead hulk",
+       "abilities": [
+        {
+         "name": "致死打击",
+         "impl": "[stacks heal]。"
+        }
+       ]
+      },
+      {
+       "name": "灵魂编织者",
+       "base": "SA",
+       "count": 0,
+       "hpMult": 1.5,
+       "artPrompt": "Soul Weaver, ghostly floating wraith",
+       "abilities": [
+        {
+         "name": "哀嚎",
+         "impl": "nova r40 knock。"
+        }
+       ]
+      },
+      {
+       "name": "冰霜荒原士兵",
+       "base": "SK",
+       "count": 0,
+       "hpMult": 0.5,
+       "artPrompt": "Soldier of the Frozen Wastes, small skeleton soldier",
+       "abilities": [
+        {
+         "name": "自爆",
+         "impl": "deathExplode r20。"
+        }
+       ]
+      }
+     ],
+     "skills": [
+      "frostbolt",
+      "NEW:frostboltVolley",
+      "frostblast",
+      "fissure",
+      "NEW:detonateMana",
+      "NEW:chainsKT"
+     ],
+     "phases": [
+      {
+       "atHp": 1.0,
+       "changes": "P1（现有 p1adds，20s）：克尔苏加德在中央无敌，四角涌入冰霜荒原士兵（多）、憎恶、灵魂编织者。"
+      },
+      {
+       "atHp": 0.99,
+       "changes": "P2：亲自出手，轮换 skills。"
+      },
+      {
+       "atHp": 0.4,
+       "changes": "P3（现有 guardians）：召唤 2 名冰冠守护者。"
+      }
+     ],
+     "mechanics": [
+      {
+       "name": "寒冰箭",
+       "key": "frostbolt",
+       "impl": "现有 frostbolt，加 [castBar] 1s，命中 3 次打断（原作需打断）。"
+      },
+      {
+       "name": "寒冰箭齐射",
+       "key": "NEW:frostboltVolley",
+       "impl": "ring 12 发冰弹 slow。"
+      },
+      {
+       "name": "冰霜冲击",
+       "key": "frostblast",
+       "impl": "现有 frostblast（冻结）。"
+      },
+      {
+       "name": "暗影裂隙",
+       "key": "fissure",
+       "impl": "现有 fissure（2.2s 后 skd×2.5）。"
+      },
+      {
+       "name": "法力引爆",
+       "key": "NEW:detonateMana",
+       "impl": "[playerBomb] t=4 r40 dmg .8，after: G.skillT += 5。"
+      },
+      {
+       "name": "克尔苏加德的锁链",
+       "key": "NEW:chainsKT",
+       "impl": "[mindControl] 4s。"
+      }
+     ],
+     "tip": "P1 清杂别贪；寒冰箭要打断，暗影裂隙出现立刻离开；40% 后会叫来两名守护者。"
+    }
+   ],
+   "expansion": "classic"
+  }
+ ]
+}
