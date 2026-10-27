@@ -229,7 +229,7 @@
 
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v11';
+const W=195,H=347,VERSION='v12';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -347,6 +347,7 @@ const CPAL={
 };
 for(const id of ['sword','mage','brawler','eng','archer','assassin','ninja','bard','paladin'])
   loadArt('hero_'+id,im=>{const c=CLS[id];c.art={idle:sliceSheet(im,32,32,0,4),walk:sliceSheet(im,32,32,1,4),atk:sliceSheet(im,32,32,2,4),skill:sliceSheet(im,32,32,3,4)};return 1;});
+for(let ch=1;ch<=4;ch++)loadArt('tiles_c'+ch,im=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(im,0,0,256,256);c.isArt=true;return c;});
 MOB_ART.forEach((m,ci)=>{for(const k in m){const n=`mob_c${ci+1}_${m[k]}`;loadArt(n,im=>sliceSheet(im,24,24,0,4));}});
 const shiftRow=(r,d)=>d>0?'.'+r.slice(0,-1):r.slice(1)+'.';
 for(const id of CLS_IDS){const c=CLS[id],pal=Object.assign({},P,{F:'#f4c89c',f:'#d0946c',h:'#ffe2c4',K:'#1a1420',m:'#a05040'},CPAL[id]),f1=CSPR[id],n=f1.length,f2=f1.map((r,i)=>i===n-2?shiftRow(r,-1):i===n-1?shiftRow(r,1):r);
@@ -389,7 +390,8 @@ function deco(c,kind,x,y,w,h,r){
       case'dark':if(k<.4){R('#141012',px-4,py-2,9,5);}else if(k<.6){R('#3a2a2e',px,py,3,1);}else R('#5a1a20',px,py,1,1);break;
       case'abyss':if(k<.35){let cx=px,cy=py;for(let j=0;j<6;j++){R('#ff3a6a',cx,cy,1,1);cx+=r()*3-1;cy+=r()*3-1;}}else if(k<.5){R('#5a1a4a',px-3,py-3,7,7);R('#ff4a8a',px,py,1,1);R('#ff4a8a',px-2,py,1,1);R('#ff4a8a',px+2,py,1,1);}else R('#3a1a3a',px,py,2,1);break;
     }}}
-const CW=240,CH=300,PAD=40,ROOM={normal:[171,210],mini:[181,226],big:[195,250]};
+// 地图按 16px 瓦片对齐：房间宽高为偶数个瓦片，房间中心落在瓦片边界上
+const CW=256,CH=320,PAD=48,ROOM={normal:[160,192],mini:[160,224],big:[192,256]};
 // 房间内障碍模板（相对坐标）
 const TPL=[
  [['stone',.2,.25,12,10],['stone',.8,.25,12,10],['stone',.2,.75,12,10],['stone',.8,.75,12,10],['crate',.38,.42,10,9],['crate',.62,.62,10,9]],
@@ -404,48 +406,67 @@ function genLevel(L){
     const n=opts[(rand()*opts.length)|0];used.add(n+'');used.add(n[0]+','+n[1]);cells.push(n);}
   const minX=Math.min(...cells.map(c=>c[0])),maxX=Math.max(...cells.map(c=>c[0])),minY=Math.min(...cells.map(c=>c[1])),maxY=Math.max(...cells.map(c=>c[1]));
   const rooms=cells.map(([x,y],i)=>{const type=i===5?'big':i===2?'mini':'normal',[w,h]=ROOM[type],ox=(x-minX)*CW+PAD,oy=(y-minY)*CH+PAD;
-    const r={i,type,cell:[x,y],x:ox+(CW-w)/2|0,y:(oy+(CH-h)/2+12)|0,w,h,doors:[],done:false,seen:i===0};r.cx=r.x+w/2|0;r.cy=r.y+h/2|0;
+    const cx0=ox+CW/2,cy0=oy+CH/2+16,r={i,type,cell:[x,y],x:cx0-w/2,y:cy0-h/2,w,h,cx:cx0,cy:cy0,doors:[],done:false,seen:i===0};
     const tp=type==='normal'?TPL[(rand()*TPL.length)|0]:TPL_BOSS;
     r.obs=tp.map(([kind,fx,fy,ow,oh])=>({kind,x:(r.x+fx*w-ow/2)|0,y:(r.y+fy*h-oh/2)|0,w:ow,h:oh,hp:25,flash:0,dead:false}));
     return r;});
   const cors=[];
   for(let i=0;i<5;i++){const a=rooms[i],b=rooms[i+1],dx=b.cell[0]-a.cell[0];
-    if(dx===0){cors.push({x:a.cx-14,y:b.y+b.h,w:28,h:a.y-(b.y+b.h),v:true});a.doors.push('top');b.doors.push('bottom');
-      a.exit=[[a.cx,a.y+6],[a.cx,a.y-30]];b.entry=[[b.cx,b.y+b.h+10],[b.cx,b.y+b.h-28]];}
-    else if(dx>0){cors.push({x:a.x+a.w,y:a.cy-14,w:b.x-(a.x+a.w),h:28});a.doors.push('right');b.doors.push('left');
-      a.exit=[[a.x+a.w-6,a.cy],[a.x+a.w+10,a.cy]];b.entry=[[b.x-10,b.cy],[b.x+28,b.cy]];}
-    else{cors.push({x:b.x+b.w,y:a.cy-14,w:a.x-(b.x+b.w),h:28});a.doors.push('left');b.doors.push('right');
-      a.exit=[[a.x+6,a.cy],[a.x-10,a.cy]];b.entry=[[b.x+b.w+10,b.cy],[b.x+b.w-28,b.cy]];}}
+    if(dx===0){cors.push({x:a.cx-16,y:b.y+b.h,w:32,h:a.y-(b.y+b.h),v:true});a.doors.push('top');b.doors.push('bottom');
+      a.exit=[[a.cx,a.y+6],[a.cx,a.y-56]];b.entry=[[b.cx,b.y+b.h+20],[b.cx,b.y+b.h-28]];}
+    else if(dx>0){cors.push({x:a.x+a.w,y:a.cy-16,w:b.x-(a.x+a.w),h:32});a.doors.push('right');b.doors.push('left');
+      a.exit=[[a.x+a.w-6,a.cy],[a.x+a.w+24,a.cy]];b.entry=[[b.x-24,b.cy],[b.x+28,b.cy]];}
+    else{cors.push({x:b.x+b.w,y:a.cy-16,w:a.x-(b.x+b.w),h:32});a.doors.push('left');b.doors.push('right');
+      a.exit=[[a.x+6,a.cy],[a.x-24,a.cy]];b.entry=[[b.x+b.w+24,b.cy],[b.x+b.w-28,b.cy]];}}
   const ww=(maxX-minX+1)*CW+PAD*2,wh=(maxY-minY+1)*CH+PAD*2,world=document.createElement('canvas');world.width=ww;world.height=wh;
   drawWorld(world.getContext('2d'),rooms,cors,THEMES[THEME_OF[L-1]]);
-  return{rooms,cors,world,ww,wh};
+  return Object.assign({rooms,cors,world,ww,wh},buildTiles(rooms,cors,ww,wh));
 }
+// 瓦片图：0 空 / 1 地面 / 2 墙面 / 3 墙顶
+function buildTiles(rooms,cors,ww,wh){const tw=Math.ceil(ww/16),th=Math.ceil(wh/16),m=new Uint8Array(tw*th);
+  const fill=(x,y,w,h,v,only)=>{for(let ty=Math.floor(y/16);ty<Math.ceil((y+h)/16);ty++)for(let tx=Math.floor(x/16);tx<Math.ceil((x+w)/16);tx++){
+    if(tx<0||ty<0||tx>=tw||ty>=th)continue;const i=ty*tw+tx;if(only!==undefined&&m[i]!==only)continue;m[i]=v;}};
+  for(const r of rooms){fill(r.x-16,r.y-48,r.w+32,r.h+64,3);fill(r.x,r.y-32,r.w,32,2);fill(r.x,r.y,r.w,r.h,1);}
+  for(const k of cors)fill(k.x,k.y,k.w,k.h,1);
+  for(const k of cors){if(k.v)fill(k.x-16,k.y,k.w+32,k.h,3,0);else{fill(k.x,k.y-48,k.w,16,3,0);fill(k.x,k.y-32,k.w,32,2,0);fill(k.x,k.y+k.h,k.w,16,3,0);}}
+  return{tmap:m,tw,th};}
+// 程序生成的瓦片集（4×4，每格 32px＝2 倍密度）；有 art/tiles_c*.png 时替换
+function genAtlas(th){const c=document.createElement('canvas');c.width=128;c.height=128;const x=c.getContext('2d');let sd=7;const r=()=>(sd=sd*16807%2147483647)/2147483647;
+  const R=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a|0,b|0,w,h);};
+  const sh=(hex,k)=>{const n=parseInt(hex.slice(1),16),f=v=>Math.max(0,Math.min(255,Math.round(v*k)));return`rgb(${f(n>>16)},${f(n>>8&255)},${f(n&255)})`;};
+  for(let i=0;i<4;i++){const ox=i*32;   // 地砖：2×2 石板，带倒角与斑点
+    for(let sy=0;sy<2;sy++)for(let sx=0;sx<2;sx++){const b=th.f[(i+sx+sy*2)%4],X=ox+sx*16,Y=sy*16;
+      R(b,X,Y,16,16);R(sh(b,1.2),X,Y,16,1);R(sh(b,1.2),X,Y,1,16);R(sh(b,.68),X,Y+15,16,1);R(sh(b,.68),X+15,Y,1,16);
+      for(let k=0;k<7;k++)R(sh(b,r()<.5?.82:1.12),X+1+r()*14,Y+1+r()*14,1,1);}
+    if(i===3){let px=ox+5,py=4;for(let k=0;k<20;k++){R('rgba(0,0,0,.45)',px,py,1,1);px+=r()<.55?1:0;py+=r()<.8?1:0;}}}
+  for(let i=0;i<4;i++){const ox=i*32,Y=32;R(th.cap,ox,Y,32,32);   // 墙面：错缝砖
+    for(let by=0;by<4;by++)for(let bx=-1;bx<3;bx++){const X=ox+bx*16+(by%2)*8,YY=Y+by*8,x0=Math.max(ox,X+1),x1=Math.min(ox+32,X+15);if(x1<=x0)continue;
+      const col=sh(th.wall,.88+r()*.24);R(col,x0,YY+1,x1-x0,6);R(sh(th.wall,1.3),x0,YY+1,x1-x0,1);R(sh(th.wall,.62),x0,YY+6,x1-x0,1);
+      if(r()<.3)R(sh(th.wall,.75),x0+2+r()*(x1-x0-4),YY+3,2,1);}
+    R('rgba(0,0,0,.35)',ox,Y+28,32,4);}
+  R(th.cap,0,64,32,32);for(let k=0;k<26;k++)R(sh(th.cap,1.4),r()*32,64+r()*30,1,1);R(th.edge,0,95,32,1);R(sh(th.cap,1.25),0,64,32,1);   // 墙顶
+  for(let i=0;i<4;i++){const ox=i*32,Y=96;x.drawImage(c,ox,0,32,32,ox,Y,32,32);   // 带装饰的地砖
+    const k=['bones','rock','ember','skull'][i];
+    if(k==='bones'){R('#cfcab8',ox+8,Y+14,10,2);R('#cfcab8',ox+8,Y+12,2,2);R('#cfcab8',ox+16,Y+16,2,2);R('#9a957f',ox+8,Y+16,10,1);}
+    if(k==='rock'){R(sh(th.wall,.7),ox+10,Y+12,9,6);R(sh(th.wall,1.2),ox+11,Y+12,6,2);R(sh(th.wall,.5),ox+10,Y+17,9,1);}
+    if(k==='ember'){for(let n=0;n<6;n++)R(n%2?'#ff8a2a':'#ffd34a',ox+6+r()*20,Y+6+r()*20,2,2);}
+    if(k==='skull'){R('#e0dccb',ox+11,Y+10,10,8);R('#e0dccb',ox+13,Y+18,6,3);R('#14121c',ox+13,Y+13,2,2);R('#14121c',ox+17,Y+13,2,2);R('#9a957f',ox+11,Y+17,10,1);}}
+  return c;}
+function drawTiles(c,cx,cy){const A=G.atlas,ts=A.width/4,tw=G.tw,m=G.tmap;
+  const x0=Math.max(0,Math.floor(cx/16)-1),y0=Math.max(0,Math.floor(cy/16)-1),x1=Math.min(tw-1,Math.floor((cx+W)/16)+1),y1=Math.min(G.th-1,Math.floor((cy+H)/16)+1);
+  for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const v=m[ty*tw+tx];if(!v)continue;const h=hsh(tx*31+ty*17+G.L*7);let sx,sy;
+    if(v===1){const h2=hsh(tx*13+ty*71+3);if(h<.05){sx=((h*1000|0)%4)*ts;sy=3*ts;}else{sx=(h2<.08?3:(h2*7919|0)%3)*ts;sy=0;}}else if(v===2){sx=((tx*3+ty)%4)*ts;sy=ts;}else{sx=0;sy=2*ts;}
+    c.drawImage(A,sx,sy,ts,ts,tx*16,ty*16,16,16);
+    if(v===1&&ty>0&&m[(ty-1)*tw+tx]===2){c.fillStyle='rgba(0,0,0,.35)';c.fillRect(tx*16,ty*16,16,4);}}}
+// 装饰层（透明）：火把、旗帜、环境地面细节
 function drawWorld(c,rooms,cors,th){
   const rect=(col,x,y,w,h)=>{c.fillStyle=col;c.fillRect(x|0,y|0,w|0,h|0);};
   let s=11;const r=()=>(s=s*16807%2147483647)/2147483647;
-  c.fillStyle='#07070c';c.fillRect(0,0,c.canvas.width,c.canvas.height);
-  const floor=(x,y,w,h)=>{c.save();c.beginPath();c.rect(x,y,w,h);c.clip();
-    for(let ty=Math.floor(y/15)*15;ty<y+h;ty+=15)for(let tx=Math.floor(x/15)*15;tx<x+w;tx+=15){
-      rect(th.f[(r()*4)|0],tx,ty,15,15);rect('rgba(0,0,0,.22)',tx+14,ty,1,15);rect('rgba(0,0,0,.22)',tx,ty+14,15,1);
-      if(r()<.25)rect('rgba(0,0,0,.18)',tx+3+r()*8,ty+3+r()*8,3,1);if(r()<.1)rect('#3b5a3a',tx+r()*12,ty+r()*12,2,1);}
-    c.restore();};
-  const bricks=(x,y,w,h)=>{rect(th.cap,x,y,w,h);for(let yy=y+1;yy<y+h-1;yy+=5)for(let xx=x;xx<x+w;xx+=12)rect(th.wall,xx+((yy/5|0)%2)*6+1,yy+1,Math.min(10,x+w-xx-1),4);};
-  for(const k of cors){
-    if(k.v){rect(th.cap,k.x-7,k.y,k.w+14,k.h);floor(k.x,k.y,k.w,k.h);rect(th.edge,k.x-1,k.y,1,k.h);rect(th.edge,k.x+k.w,k.y,1,k.h);}
-    else{bricks(k.x,k.y-14,k.w,14);rect(th.cap,k.x,k.y+k.h,k.w,6);floor(k.x,k.y,k.w,k.h);}
-    deco(c,th.deco,k.x,k.y,k.w,k.h,r);}
+  const art=ART['tiles_c'+chOf(G.L)];if(!art)for(const k of cors)deco(c,th.deco,k.x,k.y,k.w,k.h,r);
   for(const m of rooms){
-    rect(th.cap,m.x-8,m.y-34,m.w+16,m.h+42);bricks(m.x,m.y-26,m.w,26);rect(th.edge,m.x,m.y-27,m.w,1);
-    rect('rgba(0,0,0,.3)',m.x,m.y,m.w,3);floor(m.x,m.y+3,m.w,m.h-3);
-    for(const d of m.doors){
-      if(d==='top'){rect('#0c0d14',m.cx-14,m.y-34,28,34);floor(m.cx-14,m.y-34,28,34);}
-      if(d==='bottom')floor(m.cx-14,m.y+m.h,28,8);
-      if(d==='left'){floor(m.x-8,m.cy-14,8,28);rect(th.wall,m.x-8,m.cy-26,8,12);}
-      if(d==='right'){floor(m.x+m.w,m.cy-14,8,28);rect(th.wall,m.x+m.w,m.cy-26,8,12);}}
-    // 火把（颜色随环境）与地面装饰
-    for(const tx of [m.x+22,m.x+m.w-25]){rect('#5a4630',tx,m.y-14,3,6);rect(`rgb(${th.tc})`,tx,m.y-18,3,4);rect('#fff4d0',tx+1,m.y-19,1,3);}
-    if(th.deco==='dark')for(const tx of [m.x+50,m.x+m.w-58]){rect('#5a1018',tx,m.y-24,8,14);rect('#8a1a24',tx+1,m.y-24,6,12);rect('#14121c',tx+3,m.y-19,2,2);}
-    deco(c,th.deco,m.x,m.y+3,m.w,m.h-3,r);
+    for(const tx of [m.x+24,m.x+m.w-27]){rect('#5a4630',tx,m.y-18,3,7);rect(`rgb(${th.tc})`,tx,m.y-23,3,5);rect('#fff4d0',tx+1,m.y-24,1,3);}
+    if(th.deco==='dark')for(const tx of [m.x+52,m.x+m.w-60]){rect('#5a1018',tx,m.y-30,8,16);rect('#8a1a24',tx+1,m.y-30,6,14);rect('#14121c',tx+3,m.y-24,2,2);}
+    if(!art)deco(c,th.deco,m.x,m.y+4,m.w,m.h-4,r);
   }
 }
 
@@ -477,6 +498,9 @@ const solidAt=(x,y)=>OBS.find(o=>!o.dead&&x>o.x&&x<o.x+o.w&&y>o.y&&y<o.y+o.h);
 const inRoom=(x,y,m=0)=>{const R=G.rm;return x>R.x-m&&x<R.x+R.w+m&&y>R.y-m&&y<R.y+R.h+m;};
 const clampRoom=(e,m)=>{const R=G.rm;e.x=clamp(e.x,R.x+m,R.x+R.w-m);e.y=clamp(e.y,R.y+m,R.y+R.h-m);};
 function drawObs(o,lc){const{x,y,w,h}=o;
+  if(G.atlas&&G.atlas.isArt){const A=G.atlas,ts=A.width/4,col=o.kind==='crate'?1:2,top=o.kind==='crate'?4:Math.max(8,h);   // 美术瓦片集里的木箱 / 石柱
+    lc.fillStyle='rgba(0,0,0,.35)';lc.fillRect(x+1,y+h-1,w,3);if(o.flash>0)lc.globalAlpha=.6;
+    lc.drawImage(A,col*ts+ts*.08,2*ts+ts*.05,ts*.84,ts*.9,x-1,y-top,w+2,h+top);lc.globalAlpha=1;return;}
   if(o.kind==='crate'){const fl=o.flash>0;
     lc.fillStyle='rgba(0,0,0,.35)';lc.fillRect(x+1,y+h-1,w,2);
     lc.fillStyle='#0b0a12';lc.fillRect(x-1,y-4,w+2,h+5);
@@ -859,6 +883,7 @@ function reset(){
     for(let k=0;k<skip;k++)G.pickQ.push(1,rand()<.5?1:2,2,2,3);G.pickN=0;toast(`从 ${chOf(selLevel)}-${kOf(selLevel)} 开始：补选 ${skip*5} 个海克斯`);}
 }
 function newLevel(L,ri=0){
+  G.atlas=ART['tiles_c'+chOf(L)]||genAtlas(THEMES[THEME_OF[L-1]]);
   G.lvStart=G.t;
   G.roster=buildRoster(L);
   G.L=L;Object.assign(G,genLevel(L));
@@ -1417,17 +1442,17 @@ function render(){
   const cam=G.cam,lock=G.phase==='fight'||G.phase==='clear',tx=lock?G.rm.cx-W/2:pl.x-W/2,ty=lock?G.rm.y+G.rm.h/2-H*.56:pl.y-H*.55;
   cam.x+=(tx-cam.x)*.08;cam.y+=(ty-cam.y)*.08;if(Math.abs(tx-cam.x)<.3)cam.x=tx;if(Math.abs(ty-cam.y)<.3)cam.y=ty;
   const cx=Math.round(cam.x),cy=Math.round(cam.y);
-  lc.fillStyle='#07070c';lc.fillRect(0,0,W,H);
+  lc.clearRect(0,0,W,H);
   {const sx=Math.max(0,cx),sy=Math.max(0,cy),ex=Math.min(G.ww,cx+W),ey=Math.min(G.wh,cy+H);
     if(ex>sx&&ey>sy)lc.drawImage(G.world,sx,sy,ex-sx,ey-sy,sx-cx,sy-cy,ex-sx,ey-sy);}
   lc.save();lc.translate(-cx,-cy);
   const R=G.rm;
   // 门：战斗中关闭（铁栅），清除后打开
   if(G.phase==='fight'){lc.fillStyle='#9aa0c0';for(const d of R.doors){
-    if(d==='top')for(let i=R.cx-13;i<R.cx+14;i+=4)lc.fillRect(i,R.y-30,1,30);
-    if(d==='bottom')for(let i=R.cx-13;i<R.cx+14;i+=4)lc.fillRect(i,R.y+R.h,1,8);
-    if(d==='left')for(let j=R.cy-13;j<R.cy+14;j+=4)lc.fillRect(R.x-8,j,8,1);
-    if(d==='right')for(let j=R.cy-13;j<R.cy+14;j+=4)lc.fillRect(R.x+R.w,j,8,1);}}
+    if(d==='top')for(let i=R.cx-14;i<R.cx+15;i+=4)lc.fillRect(i,R.y-48,1,48);
+    if(d==='bottom')for(let i=R.cx-14;i<R.cx+15;i+=4)lc.fillRect(i,R.y+R.h,1,16);
+    if(d==='left')for(let j=R.cy-14;j<R.cy+15;j+=4)lc.fillRect(R.x-16,j,16,1);
+    if(d==='right')for(let j=R.cy-14;j<R.cy+15;j+=4)lc.fillRect(R.x+R.w,j,16,1);}}
   else if(R.exit&&G.ri<5){const[ex,ey]=R.exit[1],f=(G.t*4|0)%3;lc.fillStyle='#ffd77a';lc.fillRect(ex-1,ey-2+f,3,5);}
   // 毒池
   for(const p of G.pools){lc.fillStyle=p.fire?'rgba(255,110,40,.4)':p.arm>0?'rgba(120,230,90,.18)':'rgba(120,230,90,.4)';lc.beginPath();lc.arc(p.x,p.y,p.r,0,TAU);lc.fill();
@@ -1441,7 +1466,8 @@ function render(){
 
   const sa=SHAKE&&G.shake>0?Math.min(1,G.shake/.3)*2:0,shx=(rand()-.5)*sa,shy=(rand()-.5)*sa;
   const glow=(x,y,r,col)=>{const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,col);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2);};
-  g.setTransform(K,0,0,K,shx*K,shy*K);g.imageSmoothingEnabled=false;g.drawImage(low,0,0);
+  g.setTransform(K,0,0,K,shx*K,shy*K);g.imageSmoothingEnabled=false;g.fillStyle='#07070c';g.fillRect(-4,-4,W+8,H+8);
+  g.save();g.translate(-cx,-cy);drawTiles(g,cx,cy);g.restore();g.drawImage(low,0,0);
   g.translate(-cx,-cy);
   drawEntities(g);
   for(const t of G.etels){const p=1-t.left/(t.T||(t.T=t.left));g.fillStyle='rgba(255,60,60,.2)';g.strokeStyle=t.col||'#ff6a6a';g.lineWidth=1;
@@ -1470,7 +1496,7 @@ function render(){
   if(G.sigilT>0){g.save();g.translate(pl.x,pl.y);g.rotate(G.t*3);g.strokeStyle=`rgba(255,60,60,${Math.min(1,G.sigilT)})`;g.lineWidth=1;g.beginPath();g.arc(0,0,14,0,TAU);g.stroke();
     for(let i=0;i<6;i++){g.rotate(TAU/6);g.strokeRect(12,-2,4,4);}g.restore();}
   for(const o of shots)if(!o.arrow)glow(o.x,o.y,5,o.col?o.col+'88':'rgba(255,60,140,.5)');
-  {const th=THEMES[THEME_OF[G.L-1]];glow(R.x+23,R.y-16,20,`rgba(${th.tc},.32)`);glow(R.x+R.w-24,R.y-16,20,`rgba(${th.tc},.32)`);
+  {const th=THEMES[THEME_OF[G.L-1]];glow(R.x+25,R.y-21,22,`rgba(${th.tc},.35)`);glow(R.x+R.w-26,R.y-21,22,`rgba(${th.tc},.35)`);
     for(const q of G.amb){g.globalAlpha=Math.min(1,q.t/q.l*2);g.fillStyle=q.c;g.fillRect(q.x,q.y,q.l<1?1.5:1,q.l<1?1.5:1);}g.globalAlpha=1;}
   glow(pl.x,pl.y,22,'rgba(255,220,140,.12)');
   if(G.songT>0)glow(pl.x,pl.y,30,'rgba(255,120,200,.2)');
