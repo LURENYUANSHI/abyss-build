@@ -1,0 +1,119 @@
+// 无界面平衡模拟：node tools/sim.mjs [levels=all|1,5,9|raid:mc] [runs=3] [classes=all]
+// 用桩替代 DOM / 画布 / 音频，载入 game.html 的脚本 + content/raids_data.js + src/raid_engine.js，直接循环 update(dt)。
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+
+function stub(name='stub'){
+  const store={};
+  const f=function(){};
+  return new Proxy(f,{
+    get(t,p){
+      if(p in store)return store[p];
+      if(p===Symbol.toPrimitive)return()=>'';
+      if(p==='classList')return store[p]=new Proxy({},{get:()=>()=>false});
+      if(p==='style'||p==='dataset')return store[p]={};
+      if(p==='getContext')return()=>ctx2d();
+      if(p==='getBoundingClientRect')return()=>({left:0,top:0,width:390,height:693});
+      if(p==='querySelectorAll'||p==='children')return()=>[];
+      if(p==='querySelector'||p==='closest')return()=>null;
+      if(p==='width'||p==='height')return store[p]=1;
+      if(p==='innerHTML'||p==='textContent'||p==='innerText')return store[p]='';
+      if(p==='then')return undefined;
+      return store[p]=stub(p);
+    },
+    set(t,p,v){store[p]=v;return true;},
+    apply(){return undefined;},
+  });
+}
+function ctx2d(){
+  return new Proxy({},{get(t,p){
+    if(p==='getImageData'||p==='createImageData')return(x,y,w,h)=>({data:new Uint8ClampedArray(Math.max(1,(w||x||1)*(h||y||1))*4)});
+    if(p==='createLinearGradient'||p==='createRadialGradient'||p==='createPattern')return()=>({addColorStop(){}});
+    if(p==='measureText')return()=>({width:0});
+    if(p in t)return t[p];
+    return()=>{};
+  },set(t,p,v){t[p]=v;return true;}});
+}
+const els={};
+const document={
+  getElementById:id=>els[id]||(els[id]=stub(id)),
+  createElement:()=>stub('el'),
+  querySelector:()=>null,querySelectorAll:()=>[],
+  addEventListener(){},body:stub('body'),hidden:false,
+};
+const store=new Map();
+const ctx={
+  document,window:null,console,Math,Date,JSON,Set,Map,WeakMap,Array,Object,Number,String,Boolean,Promise,Symbol,Uint8Array,Uint8ClampedArray,Float32Array,Infinity,NaN,isFinite,parseInt,parseFloat,
+  navigator:{},location:{search:'',reload(){}},
+  localStorage:{getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)},
+  performance:{now:()=>Date.now()},
+  setTimeout:()=>0,clearTimeout(){},setInterval:()=>0,clearInterval(){},requestAnimationFrame:()=>0,
+  Image:class{set src(v){}},Audio:class{play(){return Promise.resolve();}setAttribute(){}},
+  addEventListener(){},confirm:()=>false,alert(){},
+  URLSearchParams,devicePixelRatio:1,innerWidth:390,innerHeight:693,
+};
+ctx.window=ctx;ctx.globalThis=ctx;ctx.self=ctx;
+vm.createContext(ctx);
+const html=readFileSync('game.html','utf8'),a=html.lastIndexOf('<script>'),b=html.indexOf('</script>',a);
+vm.runInContext(readFileSync('content/raids_data.js','utf8'),ctx,{filename:'raids_data.js'});
+vm.runInContext(html.slice(a+8,b),ctx,{filename:'game.js'});
+vm.runInContext(readFileSync('src/raid_engine.js','utf8'),ctx,{filename:'raid_engine.js'});
+
+// 测试辅助（在游戏上下文里执行）
+vm.runInContext(`
+var setMeta=ri=>{PROG.acc={lv:Math.min(80,Math.round(1+ri*3.5)),xp:0};PROG.inv=[];PROG.eq={};PROG.party=[];
+  for(const[slot]of SLOTS){const it=makeItem(ri);it.slot=slot;it.rar=3;it.set=ri%GSET.length;
+    it.st=slot==='wpn'?{atk:.06*1.7*(1+.25*ri)}:slot==='trk'?{crit:.04*1.7*(1+.25*ri)}:{hp:.07*1.7*(1+.25*ri)};PROG.inv.push(it);PROG.eq[slot]=it.id;}};
+var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0;
+  while(t<T){
+    if(G.state==='play'){update(dt);if(G.L!==L)return{w:1,t,ri:G.ri};}
+    else if(G.state==='pick')choose((rand()*G.offer.cards.length)|0);
+    else if(G.state==='cutin'){G.cutT-=dt;if(G.cutT<=0){G.state='play';doUlt();}}
+    else return{w:G.state==='win'?1:0,t,ri:G.ri,boss:G.rooms&&G.ri===G.rooms.length-1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode};
+    if(G.state==='play'&&G.pickQ.length)openPick(G.pickQ.shift());t+=dt;}
+  return{w:0,t,ri:G.ri,timeout:1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode,ens:en.filter(e=>!e.dead).length};};
+`,ctx);
+
+const args=process.argv.slice(2);
+const ev=e=>vm.runInContext(e,ctx);
+const NLV=ev('NLV()'),RAIDS=ev('RAIDS'),firstL=ev('firstL'),LV=ev('LV'),CLS_IDS=ev('CLS_IDS'),setMeta=ev('setMeta'),lvSim=ev('lvSim');
+let levels=[];
+const spec=args[0]||'sample';
+if(spec==='all')for(let L=1;L<=NLV;L++)levels.push(L);
+else if(/^every\d+$/.test(spec))for(let L=1;L<=NLV;L+=+spec.slice(5))levels.push(L);
+else if(spec==='sample')RAIDS.forEach((r,i)=>{const f=firstL(i);levels.push(f+Math.min(1,r.bosses.length-1));});
+else if(spec.startsWith('raid:')){const i=RAIDS.findIndex(r=>r.id===spec.slice(5));const f=firstL(i);for(let k=0;k<RAIDS[i].bosses.length;k++)levels.push(f+k);}
+else levels=spec.split(',').map(Number);
+const runs=+(args[1]||3),classes=args[2]&&args[2]!=='all'?args[2].split(','):CLS_IDS,T=+(args[3]||600);
+const tot={};for(const c of classes)tot[c]={w:0,n:0,t:0,bossDeath:0};
+const perLevel=[];
+const t0=Date.now();
+for(const L of levels){
+  const v=LV[L];setMeta(v.ri);const row={L,n:v.b.n,w:0,n2:0};
+  for(const c of classes)for(let i=0;i<runs;i++){
+    let r;try{r=lvSim(c,L,T);}catch(e){console.error(`ERR ${c} L${L} ${v.b.n}: ${e.message}\n${(e.stack||'').split('\n').slice(1,3).join('\n')}`);r={w:0,t:0};}
+    if(args.includes('--debug')&&!r.w)console.log(`  ${c} L${L} ${v.b.n}: ${r.timeout?'超时':'阵亡'} 房${r.ri} 首领血${r.bhp}% inv=${r.binv} mode=${r.bmode} 剩敌${r.ens??''} t=${Math.round(r.t)}`);
+    tot[c].w+=r.w;tot[c].n++;tot[c].t+=r.t;if(!r.w&&r.boss)tot[c].bossDeath++;row.w+=r.w;row.n2++;}
+  perLevel.push(row);
+}
+console.log(`levels=${levels.length} runs=${runs} time=${((Date.now()-t0)/1000).toFixed(1)}s`);
+console.log('职业胜率：'+classes.map(c=>`${c} ${Math.round(tot[c].w/tot[c].n*100)}%`).join(' | '));
+console.log('首领房阵亡：'+classes.map(c=>`${c} ${tot[c].bossDeath}`).join(' | '));
+if(args.includes('--levels'))for(const r of perLevel)console.log(`L${r.L} ${r.n}: ${Math.round(r.w/r.n2*100)}%`);
+
+// --tune N：自动校准。每轮跑全部样本关卡 × 全职业，按偏离均值修正职业系数，按偏离目标胜率修正全局难度
+const ti=args.indexOf('--tune');
+if(ti>=0){
+  const rounds=+args[ti+1]||3,target=+(process.env.TARGET||.65),CLS=ev('CLS'),BAL=ev('BAL');
+  const fac={};for(const c of CLS_IDS)fac[c]=[1,1];
+  for(let k=0;k<rounds;k++){
+    const rate={};let sum=0;
+    for(const c of CLS_IDS){let w=0,n=0;for(const L of levels){setMeta(LV[L].ri);for(let i=0;i<runs;i++){let r;try{r=lvSim(c,L,T);}catch(e){r={w:0};}w+=r.w;n++;}}rate[c]=w/n;sum+=rate[c];}
+    const mean=sum/CLS_IDS.length;
+    console.log(`第 ${k+1} 轮：均值 ${Math.round(mean*100)}% · `+CLS_IDS.map(c=>`${c} ${Math.round(rate[c]*100)}%`).join(' ')+` · BAL ${JSON.stringify(BAL)}`);
+    for(const c of CLS_IDS){const f=Math.min(1.18,Math.max(.85,1+1.1*(mean-rate[c])));CLS[c].dmg*=Math.pow(f,.6);CLS[c].hp=Math.round(CLS[c].hp*Math.pow(f,.4));fac[c][0]*=Math.pow(f,.4);fac[c][1]*=Math.pow(f,.6);}
+    const g=Math.min(1.35,Math.max(.75,1+1.4*(mean-target)));BAL.bossHp*=g;BAL.bossDmg*=Math.sqrt(g);BAL.mobHp*=Math.sqrt(g);BAL.mobDmg*=Math.pow(g,.3);
+  }
+  console.log('建议 TUNE 乘数：'+JSON.stringify(Object.fromEntries(CLS_IDS.map(c=>[c,fac[c].map(x=>+x.toFixed(3))]))));
+  console.log('建议 BAL：'+JSON.stringify(Object.fromEntries(Object.entries(BAL).map(([k,v])=>[k,+v.toFixed(3)]))));
+}

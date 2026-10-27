@@ -268,10 +268,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v20"></script>
+<script src="content/raids_data.js?v=v21"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v20';
+const W=195,H=347,VERSION='v21';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -364,7 +364,7 @@ const CLS={
 };
 const CLS_IDS=Object.keys(CLS);
 // 职业平衡（随机选卡自动模拟校准）：[生命倍率, 伤害倍率]；远程靠风筝天然更安全，伤害相应压低
-const TUNE={sword:[1.35,1.15],mage:[1.4,1.15],brawler:[1.35,1.1],eng:[1.2,1.6],archer:[1,.85],assassin:[2.1,1.5],ninja:[1.2,1.1],bard:[.85,.72],paladin:[.9,1.75]};
+const TUNE={sword:[1.192,0.955],mage:[1.607,1.415],brawler:[1.186,0.906],eng:[1.477,2.187],archer:[1.17,1.076],assassin:[2.471,1.913],ninja:[1.256,1.18],bard:[1.079,1.031],paladin:[0.524,0.813]};   // tools/sim.mjs --tune 校准
 for(const id in TUNE){CLS[id].hp=Math.round(CLS[id].hp*TUNE[id][0]);CLS[id].dmg*=TUNE[id][1];}
 // 外部美术：GPT 生成的合图放在 art/，缺失时回退到下面的程序像素图
 const ART={};
@@ -861,6 +861,7 @@ const MINI=[
  {n:'死亡射手',hpx:.6,b:'SA',pal:{W:'#c4c4c4',S:'#6a6a6a',G:'#ff3a3a'},sk:['volley','spiral']},
 ];
 const BIG_HP=5000,MINI_HP=3400,BOSS_DMG=1.35,LV_STEP=2.5;
+const BAL={bossHp:2.09,bossDmg:1.44,mobHp:1.44,mobDmg:1.25};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
 
 // ---------- 音频：全部用 Web Audio 现场合成（8-bit 风），无外部素材 ----------
 const AU={ctx:null,master:null,mus:null,sfx:null,noise:null,muted:false,song:null,step:0,next:0,last:{}};
@@ -1044,14 +1045,16 @@ function newLevel(L,ri=0){
 function startFight(i){
   const R=G.rm=G.rooms[i];G.ri=i;R.seen=true;OBS=R.obs;
   const L=G.L,p=G.p=raidFrac(L)*LV_STEP*2+i*5/Math.max(1,G.rooms.length-1),type=R.type;   // 海克斯每关重置，难度按关内房间 + 每关固定台阶增长
-  G.hpMul=hpCurve(p)*CH_HP(L)*DIFF.hp;G.dmgMul=(1+p*.04)*CH_DMG(L)*DIFF.dmg;G.xpMul=3+p*.4;
+  G.hpMul=hpCurve(p)*CH_HP(L)*DIFF.hp*BAL.mobHp;G.dmgMul=(1+p*.04)*CH_DMG(L)*DIFF.dmg*BAL.mobDmg;G.xpMul=3+p*.4;
   G.cfg={type,quota:Math.min(60,Math.round((type==='normal'?16+tierOf(L)*1.5+i*2:6+tierOf(L))*DIFF.quota)),rate:(type==='normal'?1.4+tierOf(L)*.1+i*.12:.5)*DIFF.rate,waveT:14,bossDelay:1.2};
   G.spawned=0;G.spawnAcc=-1;G.phase='fight';pl.wp=null;G.boss=null;G.bossDone=false;G.cutinDone=false;G.warm=0;
   if(st.mad){G.mad=rand()<.5?1:2;toast(G.mad===1?'疯狂科学家：变大了！':'疯狂科学家：变小了！');}
   en=[];proj=[];bolts=[];rings=[];rain=[];nums=[];shots=[];G.pools=[];G.booms=[];G.turrets=[];G.arrowRains=[];G.cloneT=0;G.skT=0;G.sched=[];G.hearts=[];G.parts=[];G.judges=[];G.fxs=[];G.etels=[];G.revives=[];G.orbT=6;G.beams=[];G.slashes=[];
   G.roomT=0;G.roomDmg=0;G.vents=[];
   {const ch=chOf(L),n=type==='big'?0:type==='mini'?1:1+(i>=2)+(raidFrac(L)>.4&&i>=4);   // 章节机关：越往后越多
-    for(let k=0;k<n;k++){const q=randInRoom(26);if(ch===1)G.vents.push({x:q.x,y:q.y,t:2+k*2.5+rand()*2,fx:0});else spawnAt(q.x,q.y,['EGG','GRV','RFT'][ch-2]);}}
+    const mk=window.raidMech?raidMech(L):['vent','EGG','GRV','RFT'][ch-1];   // 团本自己的机关；没有就不放
+    if(mk)for(let k=0;k<n;k++){const q=randInRoom(26);if(mk==='vent')G.vents.push({x:q.x,y:q.y,t:2+k*2.5+rand()*2,fx:0});else spawnAt(q.x,q.y,mk);}}
+  G.decor=window.raidDecor?raidDecor(L,type):[];
   $('stageT').textContent=`${rNo(L)}-${kOf(L)}`;
   $('banner').textContent=i===0?`${rNo(L)}-${kOf(L)} ${LV[L].b.lv}`:type==='mini'?'精英首领':type==='big'?'首领战':`${rNo(L)}-${kOf(L)}-${i+1}`;banner();
   if(i>0)sfx('door');
@@ -1165,9 +1168,9 @@ function spawnBoss(big){
   const L=G.L,chief=big&&isChief(L),el=!big&&ELITE[chOf(L)-1][LV[L].k%3],d=big?LV[L].b:{n:el[0],sk:MINI[(L-1)%MINI.length].sk},sc=big?(d.b==='BO'?2:3)*(chief?1:.85):2;
   let img,imgF;if(big){const pal=Object.assign({},P,d.pal),sb=SPR[d.b]||SPR.BO;img=sb.map(r=>mk(r,false,pal));imgF=sb.map(r=>mk(r,true,pal));}else({img,imgF}=G.roster[el[1]]);const ci=chOf(L)-1,ki=LV[L].k%3,ei=ci<3?ci*4+ki:ki*4+3,eart=big?ART.bosses&&ART.bosses[LV[L].b.art]&&[ART.bosses[LV[L].b.art]]:ART.elites?[ART.elites[ei]]:G.roster[el[1]].art,asz=big?(chief?64:54):34,
     eatk=eart&&fitPose(big?ART.bossesAtk&&ART.bossesAtk[LV[L].b.art]:ART.elitesAtk&&ART.elitesAtk[ei],eart[0]);
-  const hp=(big?BIG_HP:MINI_HP)*hpCurve(G.p)*BOSS_CH(L)*(d.hpx||1)*(big?(chief?.8:.85):1),R=G.rm;
+  const hp=(big?BIG_HP:MINI_HP)*hpCurve(G.p)*BOSS_CH(L)*(d.hpx||1)*(big?(chief?.8:.85):1)*BAL.bossHp,R=G.rm;
   const b={boss:true,big,name:d.n,k:d.b,img,imgF,art:eart||null,artAtk:eatk||null,w:eart?asz:Math.round(img[0].width*sc),h:eart?asz:Math.round(img[0].height*sc),r:big?12:8,x:R.cx,y:R.y+40,hp,max:hp,
-    spd:big?13:18,dmg:(big?14:10)*G.dmgMul*BOSS_DMG,skd:(big?16:12)*G.dmgMul*BOSS_DMG,flash:0,poison:0,pt:.5,scd:0,dead:false,burnT:0,burnD:0,bt:.5,slowT:0,frozenT:0,
+    spd:big?13:18,dmg:(big?14:10)*G.dmgMul*BOSS_DMG*BAL.bossDmg,skd:(big?16:12)*G.dmgMul*BOSS_DMG*BAL.bossDmg,flash:0,poison:0,pt:.5,scd:0,dead:false,burnT:0,burnD:0,bt:.5,slowT:0,frozenT:0,
     sk:d.sk,chief,mode:'walk',at:2,cyc:0,ph2:false,age:0,furyT:0,fury:d.enrage||d.fury||(big?52:40),tels:[]};
   const X=big&&BOSS_X[d.n];if(X){b.ph=X.ph||[];b.phi=0;if(X.sk)b.sk=X.sk.slice();
     if(X.breaths){const br=shuffle(['fireCone','frostCone','timeCone','acidCone']).slice(0,2);b.sk=[br[0],'affliction',br[1],'multi'];}
@@ -1178,7 +1181,7 @@ function spawnBoss(big){
 function bossAI(b,dt){
   if(b.ph&&b.phi<b.ph.length&&b.hp<b.max*b.ph[b.phi][0]){const o=b.ph[b.phi++][1];G.shake=.3;
     if(o.msg)toast(o.msg);if(o.sk)b.sk=o.sk;if(o.form!==undefined)b.formArt=window.formOf?formOf(o.form):FORM(o.form);if(o.frenzy){b.ph2=true;b.spd*=1.6;}
-    if(o.inv!==undefined)b.inv=o.inv;if(o.heal)b.hp=b.max;if(o.auto)b.autoSk=o.auto.map(a=>Object.assign({t:a.every||6},a));if(o.adds&&window.raidAdds)raidAdds(b,o.adds);
+    if(o.inv!==undefined)b.inv=o.inv;if(o.heal)b.hp=b.max;if(o.auto)b.autoSk=o.auto.map(a=>Object.assign({t:a.every||6},a));if(window.phaseStart)phaseStart(b,o);
     if(o.go){endSkill(b);b.mode=o.go;b.say={n:skName(b,o.go),t:1.6};skOf(b,o.go).start(b,b.ph2?.75:1);}}
   if(b.chief&&!b.ph&&!b.ph2&&b.hp<b.max*.5){   // 通用 50% 狂暴只给没有团本脚本的首领
     b.ph2=true;toast(`${b.name} 狂暴了！`);G.shake=.3;endSkill(b);b.mode='walk';b.at=.8;summonRing(b,6);}
@@ -1211,7 +1214,7 @@ function spawnAt(x,y,k){let tdef=null;if(!k&&window.pickTrash){tdef=pickTrash();
   const e={k,img:ro&&ro.img,imgF:ro&&ro.imgF,art:ro&&ro.art,artAtk:ro&&ro.artAtk,w:ro?(ro.art?17:ro.img[0].width):t.w,h:ro?(ro.art?17:ro.img[0].height):t.h,x:clamp(x,R.x+4,R.x+R.w-4),y:clamp(y,R.y+4,R.y+R.h-4),r:t.r,hp,max:hp,spd:t.spd*(.85+rand()*.3),dmg:t.dmg*G.dmgMul,
     flash:0,poison:0,pt:.5,scd:0,dead:false,shotT:1+rand()*2,burnT:0,burnD:0,bt:.5,slowT:0,frozenT:0,prop:t.spd===0};
   if(tdef&&window.applyTrash)applyTrash(e,tdef);
-  if(PROP_ART[k]!==undefined){const i=PROP_ART[k],P=ART.props;e.w=t.w;e.h=t.h;e.art=P?[P[i]]:null;e.artAtk=P?fitPose(P[i+1],P[i]):null;e.pt2=k==='EGG'?9+rand()*4:3+rand()*2;}
+  if(PROP_ART[k]!==undefined){const i=PROP_ART[k],P=ART.props,R=window.propArt&&propArt(k);e.w=t.w;e.h=t.h;e.art=R?[R[0]]:P?[P[i]]:null;e.artAtk=R?fitPose(R[1],R[0]):P?fitPose(P[i+1],P[i]):null;e.pt2=k==='EGG'?9+rand()*4:3+rand()*2;}
   pushOut(e,3);en.push(e);return e;}
 // 机关逻辑：倒计时最后 1.5 秒显示裂开 / 张开的贴图并闪白
 function propTick(e,dt){if(e.dead||!PROP_ART.hasOwnProperty(e.k))return;e.pt2-=dt;e.wind=e.pt2<1.5?e.pt2:0;if(e.pt2>0)return;
@@ -1370,7 +1373,7 @@ function castSkill(){
     case'bard':if(!t)return;G.songT=5+st.skDur;fxs('sound',pl.x,pl.y,50,.5,0,0,1.6);fxs('heal',pl.x,pl.y-6,24,.6);pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.2*st.songHeal);rings.push({x:pl.x,y:pl.y,r0:4,r1:40,t:.5,T:.5,col:'#ffa0d8'});break;
     case'paladin':{if(!t)return;const r=60;fxs('holy',pl.x,pl.y-22,64,.5,0,0,1);fxs('quake',pl.x,pl.y,r*2,.4,0,0,1.1);rings.push({x:pl.x,y:pl.y,r0:6,r1:r,t:.4,T:.4,col:'#ffe8a0'});
       for(const e of en)if(!e.dead&&Math.hypot(e.x-pl.x,e.y-pl.y)<r+e.r)dmg(e,A*2.5,{col:'#ffe8a0'});
-      pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.15);pl.shield=Math.max(pl.shield,30+st.faith);
+      pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.08);pl.shield=Math.max(pl.shield,20+st.faith);
       if(st.heaven){const tg=en.filter(e=>!e.dead&&!e.inv);for(let i=0;i<6&&tg.length;i++){const e=tg.splice((rand()*tg.length)|0,1)[0];bolts.push({pts:[[e.x,e.y-70],[e.x,e.y]],t:.3,col:'#ffe8a0'});fxs('holy',e.x,e.y-14,34,.4,0,0,1);dmg(e,A*2,{col:'#ffe8a0'});}}break;}
   }
   G.skillT=st.skillCd;sfx('zap');G.castN=(G.castN||0)+1;if(st.recast&&G.castN%3===0){G.skillT=.3;toast('无限递归：技能刷新');}
@@ -1404,8 +1407,8 @@ function doUlt(){
       fxs('smoke',pl.x,pl.y,220,.7,0,0,1.2);fxs('voidFire',pl.x,pl.y-10,60,.7,0,0,1.3);rings.push({x:pl.x,y:pl.y,r0:6,r1:120,t:.5,T:.5,col:'#8a8aa8'});G.clones=Math.max(G.clones||0,6);G.cloneT=Math.max(G.cloneT,6);G.ccd=[];break; // 百鬼夜行
     case'bard':for(let i=0;i<4;i++)after(i*.4,()=>{fxs('sound',pl.x,pl.y,100,.5,0,0,3);rings.push({x:pl.x,y:pl.y,r0:6,r1:160,t:.5,T:.5,col:'#ffa0d8'});for(const e of live())dmg(e,A*2,{col:'#ffa0d8'});});
       pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.3);G.songT=Math.max(G.songT,6);break;                 // 终焉交响
-    case'paladin':pl.inv=Math.max(pl.inv,3);G.holyT=3;for(const e of live())dmg(e,A*4,{col:'#ffe8a0'});
-      G.beams.push({x:R.x,y:R.y-30,w:R.w,h:R.h+40,t:.5,T:.5,col:'#ffe8a0',spr:'holy'});pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.5);pl.shield=Math.max(pl.shield,80+st.faith);break; // 神恩降临
+    case'paladin':pl.inv=Math.max(pl.inv,1.5);G.holyT=3;for(const e of live())dmg(e,A*4,{col:'#ffe8a0'});
+      G.beams.push({x:R.x,y:R.y-30,w:R.w,h:R.h+40,t:.5,T:.5,col:'#ffe8a0',spr:'holy'});pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.3);pl.shield=Math.max(pl.shield,50+st.faith);break; // 神恩降临
   }
   if(st.ultSwords)G.tempSwT=8;
 }
@@ -1787,7 +1790,8 @@ function render(){
   g.setTransform(K,0,0,K,shx*K,shy*K);g.imageSmoothingEnabled=false;g.fillStyle='#07070c';g.fillRect(-4,-4,W+8,H+8);
   g.save();g.translate(-fx,-fy);drawTiles(g,cx,cy);g.restore();g.drawImage(low,cx-fx,cy-fy);
   g.translate(-fx,-fy);
-  if(G.vents)for(const v of G.vents){const P=ART.props;if(P)g.drawImage(P[v.fx>0?1:0],v.x-13,v.y-20,26,26);else{g.fillStyle='rgba(255,90,30,.5)';g.beginPath();g.arc(v.x,v.y,6,0,TAU);g.fill();}}
+  for(const d of G.decor||[]){const f=d.f();if(f)g.drawImage(f[0],d.x-d.s/2,d.y-d.s*.8,d.s,d.s);}
+  if(G.vents)for(const v of G.vents){const P=(window.propArt&&propArt('vent'))||ART.props;if(P)g.drawImage(P[v.fx>0?1:0],v.x-13,v.y-20,26,26);else{g.fillStyle='rgba(255,90,30,.5)';g.beginPath();g.arc(v.x,v.y,6,0,TAU);g.fill();}}
   if(FX.firePool)for(const p of G.pools){g.globalAlpha=p.arm>0?.35:Math.min(1,p.t*2)*.9;const z=p.r*2.4;g.drawImage(FX[p.fire?'firePool':'poisonPool'],p.x-z/2,p.y-z/2,z,z);}g.globalAlpha=1;
   if(PJ.arrow)for(const a of G.arrowRains){
     for(let i=0;i<5;i++){const x=a.x+(rand()-.5)*a.r*1.6,y=a.y+(rand()-.5)*a.r*1.6;g.save();g.translate(x,y);g.rotate(Math.PI/2);g.drawImage(PJ.arrow,-6,-6,12,12);g.restore();}}
@@ -2207,6 +2211,6 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="src/raid_engine.js?v=v20"></script>
+<script src="src/raid_engine.js?v=v21"></script>
 </body>
 </html>
