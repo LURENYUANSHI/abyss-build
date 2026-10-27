@@ -17,7 +17,7 @@ const AB = new Set(['pounce', 'chargeLine', 'nova', 'aoeAtPlayer', 'volley', 'be
   'summon', 'buffAllies', 'heal', 'fear', 'mc', 'stacks',
   // 补充约定（见 raids_data.js 文件头）
   'tel', 'touchDot', 'totem', 'resist', 'enrage', 'curse', 'onHit', 'frenzy', 'onDeath', 'spawnOn', 'stream', 'walkTo', 'leash', 'unkillable',
-  'flee', 'sprint', 'grow', 'colorCycle', 'mirror', 'static', 'safeSpot', 'taunt', 'cloud', 'onlyWhileCursed']);
+  'flee', 'sprint', 'grow', 'colorCycle', 'mirror', 'static', 'safeSpot', 'taunt', 'cloud', 'onlyWhileCursed', 'shield', 'revive', 'split', 'carry', 'gridMove', 'bomb', 'byIndex', 'heat', 'merge']);
 const BASES = new Set(['SK', 'BT', 'SL', 'SA']);
 const MAXIDX = {mobs: 3, bosses: 2, adds: 11, tiles: 0, props: 11};
 

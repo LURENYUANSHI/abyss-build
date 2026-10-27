@@ -33,6 +33,8 @@ function tilesOf(name){
   im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(im,0,0,256,256);c.isArt=true;ART[name]=c;};
   im.src='art/'+name+'.png?v='+VERSION;
 }
+// fallback:[现有图集名, 帧序号]，新图还没生成时用现有美术
+const fb=ref=>Array.isArray(ref)&&ART[ref[0]]&&ART[ref[0]][ref[1]]||null;
 window.formOf=f=>Array.isArray(f)?((frames(f,1)||[null])[0]):FORM(f);
 
 // ---------- 用数据重建关卡表：一个副本一章，一个首领一关 ----------
@@ -87,6 +89,8 @@ window.applyTrash=(e,t)=>{
   e.hp=e.max=e.hp*(t.hp||1);e.dmg*=(t.dmg||1);
   const f=frames(t.art,3);
   if(f){e.art=[f[0],f[1]];e.artAtk=f[2];e.w=e.h=t.size||18;}
+  else if(fb(t.fallback)){e.art=[fb(t.fallback)];e.w=e.h=t.size||18;}
+  for(const a of t.ab||[]){if(a.k==='resist'||a.k==='shield')e.shield={kind:'reduce',t:1e9,pct:a.pct||.5};if(a.k==='touchDot')e.touchDot=a;}
   e.abx=(t.ab||[]).filter(a=>!/^death|packRevive/.test(a.k)).map(a=>Object.assign({t:(a.cd||5)*(.4+rand()*.6)},a));
 };
 // 精英 = 本关指定的小怪，血量 ×4、技能更频繁
@@ -120,7 +124,13 @@ function mobTick(e,dt){
       case'heal':castOn(e,{n:'治疗',T:a.T||2,need:a.need||3,then:()=>{const t=en.filter(q=>!q.dead&&!q.prop&&Math.hypot(q.x-e.x,q.y-e.y)<80).sort((x,y)=>x.hp/x.max-y.hp/y.max)[0];if(t){t.hp=Math.min(t.max,t.hp+t.max*(a.pct||.3));fxs('heal',t.x,t.y,20,.5);}}});break;
       case'fear':effAt(e.x,e.y,a.r||40,T,'fear');G.etels.push({t:'circle',x:e.x,y:e.y,r:a.r||40,left:T,dmg:0,col:'#b46aff'});break;
       case'mc':G.etels.push({t:'circle',x:pl.x,y:pl.y,r:a.r||14,left:T,dmg:0,col:'#b46aff'});effAt(pl.x,pl.y,a.r||14,T,'mc');break;
-      case'stacks':if(d<(a.r||14))addStack(a.kind||'vuln',a.max||5,a.decay||6);break;
+      case'stacks':case'onHit':if(d<(a.r||14))addStack(a.kind||'vuln',a.max||5,a.decay||6);break;
+      case'tel':{const s=a.at==='self'?{x:e.x,y:e.y}:{x:pl.x,y:pl.y};G.etels.push({t:'circle',x:s.x,y:s.y,r:a.r||18,left:T,dmg:D,col:'#ff6a6a'});if(a.eff)effAt(s.x,s.y,a.r||18,T,a.eff);break;}
+      case'curse':ENG.curse({skd:e.dmg,name:e.name},{kind:a.kind||'dmg',t:a.t||8,dmg:a.dmg||1,say:a.say||'诅咒'});break;
+      case'enrage':if(!e.enraged&&e.hp<e.max*(a.at||.3)){e.enraged=true;e.spd*=1.5;e.dmg*=1.5;num(e.x,e.y-12,'激怒','#ff5a5a',true);}a.t=.5;break;
+      case'sprint':e.spdBoost=1.5;e.spd*=1.8;G.sched.push({t:a.t||2,fn:()=>{e.spd/=1.8;}});break;
+      case'bomb':if(d<(a.range||80))ENG.playerBomb({skd:e.dmg},{t:a.t||6,r:a.r||30,dmg:a.dmg||1});break;
+      case'revive':case'totem':case'resist':case'shield':case'touchDot':break;
     }
   }
 }
@@ -129,7 +139,7 @@ window.trashDeath=e=>{
     if(a.k==='deathExplode')G.etels.push({t:'circle',x:e.x,y:e.y,r:a.r||16,left:a.T||.6,dmg:(a.dmg||1.3)*e.dmg,col:'#ff8a2a'});
     if(a.k==='deathPool'&&G.pools.length<14)G.pools.push({x:e.x,y:e.y,r:a.r||10,arm:.3,t:a.t||3,tick:0,dmg:(a.dmg||.5)*e.dmg,fire:a.fire});
     if(a.k==='deathSplit'&&!e.small)for(let i=0;i<(a.n||2);i++){const s=spawnAt(e.x+(i?5:-5),e.y,e.k);s.small=true;s.hp=s.max*=a.hp||.4;s.w=Math.round(s.w*.7);s.h=Math.round(s.h*.7);}
-    if(a.k==='packRevive'&&!e.revived)G.revives.push({x:e.x,y:e.y,t:a.t||3});
+    if((a.k==='packRevive'||a.k==='revive')&&!e.revived)G.revives.push({x:e.x,y:e.y,t:a.t||3});
   }
 };
 
@@ -266,6 +276,7 @@ const ENG={
   burrow(b,p,f){b.hidden=true;b.inv=true;b.burrow={t:p.t||4,x:pl.x,y:pl.y,r:p.r||36,dmg:(p.dmg||1.6)*b.skd};return (p.t||4)+.4;},
   healTarget(b,p,f){castOn(b,{n:p.say||'治疗',T:(p.T||2.5)*f,need:p.need||4,then:()=>{b.hp=Math.min(b.max,b.hp+b.max*(p.pct||.08));fxs('heal',b.x,b.y,30,.5);}});return (p.T||2.5)*f;},
   special(b,p,f){return (SPECIAL[p.name]||SPECIAL._fallback)(b,p,f);},
+  builtin(b,p,f){const s=SK[p.k];if(s&&s.start){s.start(b,f);return b.at;}return .5;},
 };
 // 少数原作独有机制的简化实现
 const SPECIAL={
@@ -277,6 +288,17 @@ const SPECIAL={
   stomach(b,p){const r=R();pl.x=r.cx;pl.y=r.y+r.h-14;G.stomachT=p.t||10;for(let i=0;i<2;i++){const e=spawnAt(r.cx+(i?-30:30),r.y+r.h-20,'SL');e.spd=0;e.hp=e.max*=2;e.name='血肉触须';}toast('被吞入胃中！击杀触须逃出');return 1;},
   siphon(b,p,f){castOn(b,{n:'血液虹吸',T:3*f,need:0,then:()=>{if(G.poisonBloodT>0){b.hp-=b.max*.05;toast('毒血反噬哈卡！');}else{pl.hp*=.75;b.hp=Math.min(b.max,b.hp+b.max*.1);}}});return 3*f;},
   shatter(b,p){b.shield={kind:'reduce',t:6,pct:.5};return .6;},
+  vanish(b,p){b.hidden=true;b.inv=true;G.sched.push({t:p.t||3,fn:()=>{b.hidden=false;b.inv=false;b.x=pl.x-(pl.face||1)*14;b.y=pl.y;clampRoom(b,6);b.tels.push(tel('circle',{x:b.x,y:b.y,r:20},.6,b.skd*(p.dmg||1.5)));}});return (p.t||3)+.4;},
+  channelBeam(b,p,f){return ENG.tel(b,{t:'beam',at:'boss',w:p.w||8,T:p.T||1,dmg:p.dmg||1.2,n:p.n||3,gap:.5},f);},
+  randomBreath(b,p,f){const k=b._breath||(b._breath=['fireCone','frostCone','timeCone','acidCone'][(rand()*4)|0]);SK[k].start(b,f);return b.at;},
+  classCall(b,p,f){SK.classcall.start(b,f);return b.at;},
+  healBrother(b,p,f){const o=en.find(e=>e.boss&&e!==b&&!e.dead);if(o){o.hp=Math.min(o.max,o.hp+o.max*(p.pct||.05));fxs('heal',o.x,o.y,26,.5);}return .6;},
+  twinTeleport(b,p){const o=en.find(e=>e.boss&&e!==b&&!e.dead);if(o){const x=b.x,y=b.y;b.x=o.x;b.y=o.y;o.x=x;o.y=y;fxs('portal',b.x,b.y,30,.4);fxs('portal',o.x,o.y,30,.4);}return .6;},
+  essenceOfRed(b){b.essence=true;toast('红龙精华：大招冷却减半');return .4;},
+  growingPool(b,p){G.pools.push({x:pl.x,y:pl.y,r:10,arm:.6,t:p.t||12,tick:0,dmg:(p.dmg||.25)*b.skd,grow:p.grow||3});return .6;},
+  fixate(b,p){b.fixT=p.t||8;b.spd*=1.3;G.sched.push({t:p.t||8,fn:()=>{b.spd/=1.3;}});toast(`${b.name} 盯上了你！`);return .5;},
+  enfeeble(b,p){pl.hp=Math.max(1,pl.hp*(p.p||.1));toast('衰弱！');return .6;},
+  demonForm(b,p){b.frenzyT=1e9;b.dmg*=1.3;b.skd*=1.2;fxs('voidFire',b.x,b.y-10,b.w,.8);toast(`${b.name} 化身恶魔！`);return .8;},
   _fallback(b,p,f){return ENG.tel(b,{t:'circle',at:'player',r:p.r||20,T:.9,dmg:p.dmg||1},f);},
 };
 function runSkill(b,p){const fn=ENG[p.e]||ENG.tel;return fn(b,p,b.ph2||b.frenzyT>0?.75:1);}
@@ -286,6 +308,7 @@ function wrapSkills(b,skills){
   for(const k in b.skills){
     const p=b.skills[k];
     if(!p||(SK[k]&&!p.e))continue;
+    if(p.e==='builtin'&&SK[p.k]){b.skx[k]=SK[p.k];continue;}
     b.skx[k]={start(bb,f){const d=(ENG[p.e]||ENG.tel)(bb,p,f);bb.at=Math.max(.4,d||1);},tick(){},end(){}};
   }
 }
@@ -302,19 +325,28 @@ const _spawnBoss=spawnBoss;
 spawnBoss=function(big){
   const v=LV[G.L],d=v&&v.b;
   _spawnBoss(big);
-  const b=G.boss;if(!b||!d)return;
+  let d0=d;const b=G.boss;if(!b||!d)return;
   if(!big){if(d.elite)makeElite(b,v);return;}
+  if(d.variants&&d.variants.length){d0=Object.assign({},d,d.variants[(rand()*d.variants.length)|0]);}
+  return spawnData(b,v,d0);
+};
+function spawnData(b,v,d){
   b.name=d.n;b.hp=b.max=b.max*(d.hp||1);
   b.fury=d.enrage||b.fury;
   if(d.spd!==undefined)b.spd=d.spd;
   if(d.fixed)b.spd=0;
-  const f=frames(d.art,4)||(ART.bosses&&[ART.bosses[d.fallbackArt]]);
+  const f=frames(d.art,4)||(fb(d.fallback)&&[fb(d.fallback)])||(ART.bosses&&[ART.bosses[d.fallbackArt]]);
   if(f){b.art=f.length>=2?[f[0],f[1]]:[f[0]];b.artAtk=f[3]||f[2]||null;b.w=b.h=d.size||(v.last?64:54);}
   wrapSkills(b,d.skills);
   b.sk=(d.sk&&d.sk.length?d.sk:b.sk).filter(k=>b.skx[k]||SK[k]);
   if(!b.sk.length)b.sk=['slam'];
   b.autoSk=(d.auto||[]).map(a=>Object.assign({t:a.every||6},a));
-  b.ph=(d.ph||[]).map(o=>[o.at,o]);b.phi=0;
+  b.ph=(d.ph||[]).filter(o=>o.at!==undefined).map(o=>[o.at,o]);b.phi=0;
+  b.tph=(d.ph||[]).filter(o=>o.at===undefined&&(o.t!==undefined||o.every)).map(o=>Object.assign({k:o.every?o.every:o.t,on:false},o));   // 按时间 / 周期触发的阶段
+  if(d.start&&d.start.hp)b.hp=b.max*d.start.hp;
+  for(const a of d.auto||[])if(a.once){const p=(d.skills||{})[a.k];if(p)runSkill(b,p);}
+  b.autoSk=b.autoSk.filter(a=>!a.once);
+  if(d.objective&&d.objective.mode==='destroy'){const n=d.objective.n||4;b.inv=true;b.objs=[];for(let i=0;i<n;i++){const s=randInRoom(30),e=spawnAt(s.x,s.y,'EGG');e.pt2=1e9;e.hp=e.max=e.max*(d.objective.hp||2);e.name=d.objective.prop||'目标';b.objs.push(e);}toast(d.objective.msg||`先摧毁 ${n} 个${d.objective.prop||'目标'}！`);}
   if(d.passive)b.passive=d.passive;
   if(d.adds)raidAdds(b,d.adds.filter(a=>!a.at||a.at==='start'));
   if(d.multi){
@@ -332,8 +364,13 @@ spawnBoss=function(big){
   if(d.open){const o=d.open;if(o.msg)toast(o.msg);if(o.inv)b.inv=true;if(o.adds)raidAdds(b,o.adds);
     if(o.go&&(b.skx[o.go]||SK[o.go])){b.mode=o.go;b.say={n:skName(b,o.go),t:1.6};skOf(b,o.go).start(b,1);}}
   if(d.tip)setTimeout(()=>toast(d.tip),1500);
-};
+}
 
+function applyPhase(b,o,on){
+  if(on){if(o.msg)toast(o.msg);if(o.sk){o._sk=b.sk;b.sk=o.sk.filter(k=>b.skx[k]||SK[k]);}if(o.form!==undefined)b.formArt=formOf(o.form);if(o.inv)b.inv=true;if(o.heal)b.hp=b.max;
+    if(o.adds)raidAdds(b,o.adds);if(o.go&&(b.skx[o.go]||SK[o.go])){endSkill(b);b.mode=o.go;b.say={n:skName(b,o.go),t:1.6};skOf(b,o.go).start(b,1);}}
+  else{if(o._sk)b.sk=o._sk;if(o.form!==undefined)b.formArt=null;if(o.inv)b.inv=false;}
+}
 // ---------- 每帧：首领附加状态、玩家减益、小怪技能 ----------
 window.raidTick=dt=>{
   if(!G)return;
@@ -348,6 +385,9 @@ window.raidTick=dt=>{
       else G.etels.push({t:'circle',x:e.x,y:e.y,r:T.r||30,left:.8,dmg:(T.dmg||.5)*(T.b?T.b.skd:e.dmg),col:'#ff8a5a'});}}
     if(!e.boss)continue;
     const b=e;
+    for(const o of b.tph||[]){if(o.every){if(!o.on&&(o.k-=dt)<=0){o.on=true;o.left=o.dur||10;applyPhase(b,o,true);}else if(o.on&&(o.left-=dt)<=0){o.on=false;o.k=o.every;applyPhase(b,o,false);}}
+      else if(!o.done&&(b.age||0)>=o.t){o.done=true;applyPhase(b,o,true);}}
+    if(b.objs&&b.objs.every(q=>q.dead)){b.objs=null;b.inv=false;toast(`${b.name} 失去了保护！`);}
     for(const a of b.autoSk||[])if((a.t-=dt)<=0){a.t=a.every||6;const p=(b.skills||{})[a.k];if(p&&p.e)runSkill(b,p);else if(SK[a.k]&&SK[a.k].start){const m=b.mode,at=b.at;SK[a.k].start(b,1);b.mode=m;b.at=Math.max(b.at,at);}b.say={n:skName(b,a.k),t:1.2};}
     if(b.frenzyT>0){b.frenzyT-=dt;b.at-=dt*.5;}
     if(b.aura){const A=b.aura;if(A.warm>0)A.warm-=dt;else{if((A.k-=dt)<=0){A.k=A.tick;if(Math.hypot(pl.x-b.x,pl.y-b.y)<A.r){pl.inv=0;hurt(A.dmg);}}if((A.t-=dt)<=0)b.aura=null;}}
@@ -370,6 +410,7 @@ window.raidTick=dt=>{
   if(G.pol){G.pol.t-=dt;const r=R(),left=pl.x<r.cx;if((G.polK=(G.polK||0)-dt)<=0){G.polK=1;if((left?1:-1)!==G.pol.sign){pl.inv=0;hurt((G.boss?G.boss.skd:10)*.4);}}if(G.pol.t<=0)G.pol=null;}
   if(G.stomachT>0){G.stomachT-=dt;if(!en.some(e=>e.name==='血肉触须'&&!e.dead)||G.stomachT<=0){G.stomachT=0;pl.y=R().y+R().h/2;if(G.boss){G.boss.shield={kind:'reduce',t:15,pct:2};}toast('逃出胃部！首领虚弱');}else addStack('vuln',20,2);}
   G.reflT=(G.reflT||0)-dt;
+  for(const q of G.pools)if(q.grow)q.r=Math.min(60,q.r+q.grow*dt);   // 不断扩大的池子
 };
 // 大招：安抚狂乱、驱散护盾
 const _doUlt=doUlt;
