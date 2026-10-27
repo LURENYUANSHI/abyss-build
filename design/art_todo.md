@@ -1,6 +1,6 @@
 # 美术资源清单（由 raids.json 生成）
 
-共 **146 张 GPT 合图**（每张最多 12 格 = 4 列 × 3 行；瓦片集是唯一例外，保持现有 4×4 / 256×256 格式）。
+共 **204 张 GPT 合图**（每张最多 12 格 = 4 列 × 3 行；瓦片集是唯一例外，保持现有 4×4 / 256×256 格式）。
 
 ## 背景规则
 
@@ -451,6 +451,154 @@
 | 太阳之井高地 | 首领（4 格） | 基尔加丹 | — |
 | 太阳之井高地 | 召唤物（2 格） | 基尔加丹 · 盾球 | — |
 | 太阳之井高地 | 召唤物（2 格） | 基尔加丹 · 邪恶镜像 | — |
+| 黑曜石圣殿 | 瓦片 | 通用 | — |
+| 黑曜石圣殿 | 机关 | 烈焰海啸 | — |
+| 黑曜石圣殿 | 机关 | 暮光传送门 | — |
+| 黑曜石圣殿 | 小怪（3 格） | 黑曜石龙人将军 | — |
+| 黑曜石圣殿 | 小怪（3 格） | 黑曜石唤焰者 | — |
+| 黑曜石圣殿 | 小怪（3 格） | 黑曜石掠夺者 | — |
+| 黑曜石圣殿 | 小怪（3 格） | 暮光雏龙 | mobs.png 第6格 雏龙（换色） |
+| 黑曜石圣殿 | 首领（4 格） | 萨塔里奥 | — |
+| 黑曜石圣殿 | 召唤物（2 格） | 萨塔里奥 · 塔尼布隆 | — |
+| 永恒之眼 | 瓦片 | 通用 | — |
+| 永恒之眼 | 机关 | 能量火花 | — |
+| 永恒之眼 | 小怪（3 格） | 魔枢领主 | — |
+| 永恒之眼 | 小怪（3 格） | 永恒子嗣 | — |
+| 永恒之眼 | 小怪（3 格） | 魔力浮龙 | — |
+| 永恒之眼 | 小怪（3 格） | 魔法元素 | — |
+| 永恒之眼 | 首领（4 格） | 玛里苟斯 | — |
+| 永恒之眼 | 阶段形态（1 格） | 玛里苟斯 · 空中 | — |
+| 阿尔卡冯的宝库 | 瓦片 | 通用 | — |
+| 阿尔卡冯的宝库 | 机关 | 泰坦符文柱 | — |
+| 阿尔卡冯的宝库 | 小怪（3 格） | 阿尔卡冯守卫 | — |
+| 阿尔卡冯的宝库 | 小怪（3 格） | 风暴元素 | — |
+| 阿尔卡冯的宝库 | 小怪（3 格） | 冰霜之球 | — |
+| 阿尔卡冯的宝库 | 小怪（3 格） | 熔岩爆裂者 | — |
+| 阿尔卡冯的宝库 | 首领（4 格） | 岩石看守者阿尔卡冯 | — |
+| 奥杜尔 | 瓦片 | 通用 | — |
+| 奥杜尔 | 瓦片 | 尤格-萨隆的监狱 | — |
+| 奥杜尔 | 瓦片 | 天文台（奥尔加隆） | — |
+| 奥杜尔 | 机关 | 攻城炮塔 | — |
+| 奥杜尔 | 机关 | 鱼叉炮 | — |
+| 奥杜尔 | 机关 | 雪堆 | — |
+| 奥杜尔 | 机关 | 篝火 | — |
+| 奥杜尔 | 机关 | 熔渣池 / 水池 | — |
+| 奥杜尔 | 机关 | 健康孢子 | — |
+| 奥杜尔 | 小怪（3 格） | 铁矮人 | — |
+| 奥杜尔 | 小怪（3 格） | 钢铁构造体 | — |
+| 奥杜尔 | 小怪（3 格） | 符文巨人 | — |
+| 奥杜尔 | 小怪（3 格） | 暮光邪教徒 | — |
+| 奥杜尔 | 小怪（3 格） | 机械蜘蛛 | — |
+| 奥杜尔 | 小怪（3 格） | 生命之光 | — |
+| 奥杜尔 | 首领（4 格） | 烈焰巨兽 | — |
+| 奥杜尔 | 首领（4 格） | 掌炉者伊格尼斯 | — |
+| 奥杜尔 | 召唤物（2 格） | 掌炉者伊格尼斯 · 铁铸构造体 | — |
+| 奥杜尔 | 首领（4 格） | 锋鳞 | — |
+| 奥杜尔 | 阶段形态（1 格） | 锋鳞 · 飞行 | — |
+| 奥杜尔 | 召唤物（2 格） | 锋鳞 · 黑暗符文矮人 | — |
+| 奥杜尔 | 首领（4 格） | XT-002拆解者 | — |
+| 奥杜尔 | 阶段形态（1 格） | XT-002拆解者 · 心脏暴露 | — |
+| 奥杜尔 | 召唤物（2 格） | XT-002拆解者 · 废料机器人 / 炸弹机器人 | — |
+| 奥杜尔 | 首领（4 格） | 断钢者 | — |
+| 奥杜尔 | 首领（4 格） | 符文大师莫尔基姆 | — |
+| 奥杜尔 | 首领（4 格） | 唤雷者布隆迪尔 | — |
+| 奥杜尔 | 首领（4 格） | 科隆加恩 | — |
+| 奥杜尔 | 召唤物（2 格） | 科隆加恩 · 左臂 | — |
+| 奥杜尔 | 召唤物（2 格） | 科隆加恩 · 右臂 | — |
+| 奥杜尔 | 首领（4 格） | 欧尔莉亚 | — |
+| 奥杜尔 | 召唤物（2 格） | 欧尔莉亚 · 圣殿哨兵 | — |
+| 奥杜尔 | 召唤物（2 格） | 欧尔莉亚 · 野性防御者 | — |
+| 奥杜尔 | 首领（4 格） | 霍迪尔 | — |
+| 奥杜尔 | 首领（4 格） | 托里姆 | — |
+| 奥杜尔 | 召唤物（2 格） | 托里姆 · 竞技场挑战者 | — |
+| 奥杜尔 | 首领（4 格） | 弗蕾亚 | — |
+| 奥杜尔 | 召唤物（2 格） | 弗蕾亚 · 引爆鞭笞者 | — |
+| 奥杜尔 | 召唤物（2 格） | 弗蕾亚 · 上古守护者 | — |
+| 奥杜尔 | 召唤物（2 格） | 弗蕾亚 · 元素三人组 | — |
+| 奥杜尔 | 首领（4 格） | 米米尔隆 | — |
+| 奥杜尔 | 阶段形态（1 格） | 米米尔隆 · VX-001 | — |
+| 奥杜尔 | 阶段形态（1 格） | 米米尔隆 · 空中指挥部 | — |
+| 奥杜尔 | 阶段形态（1 格） | 米米尔隆 · V-07-TR-0N | — |
+| 奥杜尔 | 召唤物（2 格） | 米米尔隆 · 小机器人 | — |
+| 奥杜尔 | 首领（4 格） | 维扎克斯将军 | — |
+| 奥杜尔 | 首领（4 格） | 尤格-萨隆 | bosses.png 第11格 千眼之神（风格近似） |
+| 奥杜尔 | 阶段形态（1 格） | 尤格-萨隆 · 萨拉 | — |
+| 奥杜尔 | 召唤物（2 格） | 尤格-萨隆 · 尤格-萨隆的守护者 | — |
+| 奥杜尔 | 召唤物（2 格） | 尤格-萨隆 · 触须（压碎者/腐蚀者/束缚者） | — |
+| 奥杜尔 | 召唤物（2 格） | 尤格-萨隆 · 尤格-萨隆之脑 | — |
+| 奥杜尔 | 首领（4 格） | 观察者奥尔加隆 | — |
+| 奥杜尔 | 召唤物（2 格） | 观察者奥尔加隆 · 坍缩之星 | — |
+| 奥杜尔 | 召唤物（2 格） | 观察者奥尔加隆 · 活体星座 | — |
+| 十字军的试炼 | 瓦片 | 通用 | — |
+| 十字军的试炼 | 瓦片 | 蛛魔地穴 | — |
+| 十字军的试炼 | 机关 | 永冻冰面 | — |
+| 十字军的试炼 | 机关 | 光明 / 黑暗精华球 | — |
+| 十字军的试炼 | 小怪（3 格） | 雪人狗头人 | — |
+| 十字军的试炼 | 小怪（3 格） | 银色十字军见习骑士 (扩展) | — |
+| 十字军的试炼 | 小怪（3 格） | 蛛魔掘地者 | — |
+| 十字军的试炼 | 小怪（3 格） | 虫群甲虫 | — |
+| 十字军的试炼 | 小怪（3 格） | 冰冠法师 (扩展) | — |
+| 十字军的试炼 | 首领（4 格） | 诺森德猛兽 | — |
+| 十字军的试炼 | 召唤物（2 格） | 诺森德猛兽 · 酸喉 / 恐鳞 | — |
+| 十字军的试炼 | 召唤物（2 格） | 诺森德猛兽 · 冰吼 | — |
+| 十字军的试炼 | 首领（4 格） | 加拉克苏斯大王 | — |
+| 十字军的试炼 | 召唤物（2 格） | 加拉克苏斯大王 · 痛苦女王 | — |
+| 十字军的试炼 | 首领（4 格） | 光明邪使菲奥拉 | — |
+| 十字军的试炼 | 首领（4 格） | 阿努巴拉克 | — |
+| 十字军的试炼 | 阶段形态（1 格） | 阿努巴拉克 · 潜地 | — |
+| 冰冠堡垒 | 瓦片 | 通用 | — |
+| 冰冠堡垒 | 瓦片 | 瘟疫工厂 | — |
+| 冰冠堡垒 | 瓦片 | 深红大厅 | — |
+| 冰冠堡垒 | 瓦片 | 冰封王座 | — |
+| 冰冠堡垒 | 机关 | 甲板炮台 | — |
+| 冰冠堡垒 | 机关 | 冰墓 | — |
+| 冰冠堡垒 | 机关 | 平台边缘 | — |
+| 冰冠堡垒 | 机关 | 梦境传送门 | — |
+| 冰冠堡垒 | 小怪（3 格） | 亡灵骑士 | — |
+| 冰冠堡垒 | 小怪（3 格） | 教派狂热者 | — |
+| 冰冠堡垒 | 小怪（3 格） | 教派信徒 | — |
+| 冰冠堡垒 | 小怪（3 格） | 瘟疫软泥 | — |
+| 冰冠堡垒 | 小怪（3 格） | 暗夜狂人 | — |
+| 冰冠堡垒 | 小怪（3 格） | 冰霜巨龙骨架 | — |
+| 冰冠堡垒 | 首领（4 格） | 玛洛加尔领主 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 玛洛加尔领主 · 骨刺 | — |
+| 冰冠堡垒 | 首领（4 格） | 亡语者女士 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 亡语者女士 · 复仇之魂 | — |
+| 冰冠堡垒 | 首领（4 格） | 冰冠冰川炮舰战 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 冰冠冰川炮舰战 · 登船者 / 步枪手 / 迫击炮手 | — |
+| 冰冠堡垒 | 首领（4 格） | 死亡使者萨鲁法尔 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 死亡使者萨鲁法尔 · 鲜血野兽 | — |
+| 冰冠堡垒 | 首领（4 格） | 烂肠 | — |
+| 冰冠堡垒 | 首领（4 格） | 腐面 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 腐面 · 小软泥 / 大软泥 | — |
+| 冰冠堡垒 | 首领（4 格） | 普崔塞德教授 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 普崔塞德教授 · 易爆软泥 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 普崔塞德教授 · 毒气云 | — |
+| 冰冠堡垒 | 首领（4 格） | 瓦拉纳王子 | — |
+| 冰冠堡垒 | 首领（4 格） | 凯雷塞斯王子 | — |
+| 冰冠堡垒 | 首领（4 格） | 塔达拉姆王子 | — |
+| 冰冠堡垒 | 首领（4 格） | 鲜血女王兰娜瑟尔 | — |
+| 冰冠堡垒 | 阶段形态（1 格） | 鲜血女王兰娜瑟尔 · 空中 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 鲜血女王兰娜瑟尔 · 血仆 | — |
+| 冰冠堡垒 | 首领（4 格） | 踏梦者瓦莉瑟瑞娅 | — |
+| 冰冠堡垒 | 阶段形态（1 格） | 踏梦者瓦莉瑟瑞娅 · 痊愈 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 踏梦者瓦莉瑟瑞娅 · 四种入侵者 | — |
+| 冰冠堡垒 | 首领（4 格） | 辛达苟萨 | — |
+| 冰冠堡垒 | 阶段形态（1 格） | 辛达苟萨 · 空中 | — |
+| 冰冠堡垒 | 首领（4 格） | 巫妖王 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 巫妖王 · 食尸鬼 / 蹒跚恐魔 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 巫妖王 · 瓦格里暗影卫士 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 巫妖王 · 邪恶之魂 | — |
+| 冰冠堡垒 | 召唤物（2 格） | 巫妖王 · 冰霜之球 / 狂暴之魂 | — |
+| 红玉圣殿 | 瓦片 | 通用 | — |
+| 红玉圣殿 | 机关 | 暮光传送门 | — |
+| 红玉圣殿 | 机关 | 暮光切割者光球 | — |
+| 红玉圣殿 | 小怪（3 格） | 焦鳞指挥官 | — |
+| 红玉圣殿 | 小怪（3 格） | 焦鳞祈求者 | — |
+| 红玉圣殿 | 小怪（3 格） | 焦鳞突击者 | — |
+| 红玉圣殿 | 小怪（3 格） | 焦鳞精英 | — |
+| 红玉圣殿 | 首领（4 格） | 海里昂 | — |
+| 红玉圣殿 | 阶段形态（1 格） | 海里昂 · 暮光海里昂 | — |
 | 通用 | 特效/道具 | 活体炸弹标记 | — |
 | 通用 | 特效/道具 | 诅咒骷髅 | — |
 | 通用 | 特效/道具 | 心灵控制之眼 | — |
@@ -2548,7 +2696,767 @@ Background: solid pure green #00FF00 everywhere outside the sprites (for chroma 
 Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
 ```
 
-### 143. `fx_raid_black_1.png` — 新增特效（黑底发光）
+### 143. `tiles_os.png` — 黑曜石圣殿 瓦片集 · 通用（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles for a black dragon sanctum over lava (Obsidian Sanctum): row0 four glossy black obsidian floor variants with red reflections; row1 four volcanic obsidian wall-front variants; row2 wall-top dark rock, twilight egg crate, obsidian spire pillar, lava sea pool; row3 floors with twilight cracks, purple runes, lava splatter, dragon scale. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 144. `props_os.png` — 黑曜石圣殿 机关（每个 2 格：待机 / 触发）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 4 cells used, read left-to-right then top-to-bottom:
+1. wall of lava wave, horizontal — idle/dormant state
+2. wall of lava wave, horizontal — active/triggered state
+3. twilight portal (see fx) — idle/dormant state
+4. twilight portal (see fx) — active/triggered state
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 145. `mobs_os.png` — 黑曜石圣殿 小怪（每种 3 格：待机 / 走路 / 攻击）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Onyx Brood General, black dragonkin general in obsidian armor — idle pose facing right
+2. Onyx Brood General, black dragonkin general in obsidian armor — walking stride facing right
+3. Onyx Brood General, black dragonkin general in obsidian armor — attack pose (冲击波)
+4. black dragonkin flamecaller with lava staff — idle pose facing right
+5. black dragonkin flamecaller with lava staff — walking stride facing right
+6. black dragonkin flamecaller with lava staff — attack pose (熔岩爆裂)
+7. female black dragonkin fire caster — idle pose facing right
+8. female black dragonkin fire caster — walking stride facing right
+9. female black dragonkin fire caster — attack pose (烈焰冲击)
+10. Twilight Whelp, purple-black dragon whelp — idle pose facing right
+11. Twilight Whelp, purple-black dragon whelp — walking stride facing right
+12. Twilight Whelp, purple-black dragon whelp — attack pose (扑咬)
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 146. `bosses_os.png` — 黑曜石圣殿 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 4 cells used, read left-to-right then top-to-bottom:
+1. Sartharion the Onyx Guardian, huge black dragon with molten orange cracks and obsidian spikes — idle pose
+2. Sartharion the Onyx Guardian, huge black dragon with molten orange cracks and obsidian spikes — moving/walking pose
+3. Sartharion the Onyx Guardian, huge black dragon with molten orange cracks and obsidian spikes — melee or main attack pose
+4. Sartharion the Onyx Guardian, huge black dragon with molten orange cracks and obsidian spikes — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 147. `adds_os.png` — 黑曜石圣殿 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 2 cells used, read left-to-right then top-to-bottom:
+1. Tenebron, twilight drake, black-purple with glowing eggs on back — idle pose
+2. Tenebron, twilight drake, black-purple with glowing eggs on back — attack pose
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 148. `tiles_eoe.png` — 永恒之眼 瓦片集 · 通用（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles for a cosmic arcane platform (Eye of Eternity): row0 four glowing blue-violet runic platform floor variants with stars beneath; row1 four floating crystal edge variants; row2 wall-top starfield void, arcane disc crate, floating crystal pillar, nebula pool; row3 floors with cracked platform, arcane runes, power spark mark, star dust. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 149. `props_eoe.png` — 永恒之眼 机关（每个 2 格：待机 / 触发）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 2 cells used, read left-to-right then top-to-bottom:
+1. Power Spark, floating crackling arcane orb — idle/dormant state
+2. Power Spark, floating crackling arcane orb — active/triggered state
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 150. `mobs_eoe.png` — 永恒之眼 小怪（每种 3 格：待机 / 走路 / 攻击）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Nexus Lord, blue dragonkin lord on floating arcane disc — idle pose facing right
+2. Nexus Lord, blue dragonkin lord on floating arcane disc — walking stride facing right
+3. Nexus Lord, blue dragonkin lord on floating arcane disc — attack pose (奥术冲击)
+4. Scion of Eternity, blue dragonkin caster on floating disc — idle pose facing right
+5. Scion of Eternity, blue dragonkin caster on floating disc — walking stride facing right
+6. Scion of Eternity, blue dragonkin caster on floating disc — attack pose (奥术弹幕)
+7. small azure blue drake — idle pose facing right
+8. small azure blue drake — walking stride facing right
+9. small azure blue drake — attack pose (奥术吐息)
+10. swirling arcane elemental — idle pose facing right
+11. swirling arcane elemental — walking stride facing right
+12. swirling arcane elemental — attack pose (奥术爆炸)
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 151. `bosses_eoe.png` — 永恒之眼 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 4 cells used, read left-to-right then top-to-bottom:
+1. Malygos the Spell-Weaver, enormous blue dragon aspect with crystal horns and arcane runes on wings — idle pose
+2. Malygos the Spell-Weaver, enormous blue dragon aspect with crystal horns and arcane runes on wings — moving/walking pose
+3. Malygos the Spell-Weaver, enormous blue dragon aspect with crystal horns and arcane runes on wings — melee or main attack pose
+4. Malygos the Spell-Weaver, enormous blue dragon aspect with crystal horns and arcane runes on wings — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 152. `adds_eoe.png` — 永恒之眼 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 1 cells used, read left-to-right then top-to-bottom:
+1. Malygos flying above with arcane storm
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 153. `tiles_voa.png` — 阿尔卡冯的宝库 瓦片集 · 通用（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles for a titan vault (Vault of Archavon): row0 four grey titan stone floor variants with blue rune lines; row1 four massive carved titan wall-front variants; row2 wall-top dark stone, titan relic crate, rune pillar with blue crystal, frozen pool; row3 floors with snow drift, cracked rune, glowing blue glyph, stone rubble. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 154. `props_voa.png` — 阿尔卡冯的宝库 机关（每个 2 格：待机 / 触发）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 2 cells used, read left-to-right then top-to-bottom:
+1. titan rune pillar glowing blue — idle/dormant state
+2. titan rune pillar glowing blue — active/triggered state
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 155. `mobs_voa.png` — 阿尔卡冯的宝库 小怪（每种 3 格：待机 / 走路 / 攻击）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Archavon Warder, stone titan construct guard — idle pose facing right
+2. Archavon Warder, stone titan construct guard — walking stride facing right
+3. Archavon Warder, stone titan construct guard — attack pose (岩石冲击)
+4. Tempest Minion, small storm elemental — idle pose facing right
+5. Tempest Minion, small storm elemental — walking stride facing right
+6. Tempest Minion, small storm elemental — attack pose (闪电箭)
+7. Frozen Orb, floating spiky ice sphere — idle pose facing right
+8. Frozen Orb, floating spiky ice sphere — walking stride facing right
+9. Frozen Orb, floating spiky ice sphere — attack pose (冰霜脉冲)
+10. small fiery stone elemental — idle pose facing right
+11. small fiery stone elemental — walking stride facing right
+12. small fiery stone elemental — attack pose (燃烧)
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 156. `bosses_voa.png` — 阿尔卡冯的宝库 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 4 cells used, read left-to-right then top-to-bottom:
+1. Archavon the Stone Watcher, giant four-armed titan stone guardian with glowing blue eyes — idle pose
+2. Archavon the Stone Watcher, giant four-armed titan stone guardian with glowing blue eyes — moving/walking pose
+3. Archavon the Stone Watcher, giant four-armed titan stone guardian with glowing blue eyes — melee or main attack pose
+4. Archavon the Stone Watcher, giant four-armed titan stone guardian with glowing blue eyes — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 157. `tiles_uld.png` — 奥杜尔 瓦片集 · 通用（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles for a titan city (Ulduar): row0 four polished grey-gold titan stone floor variants with silver rune lines; row1 four colossal titan wall-front variants with gears and statues; row2 wall-top dark stone, titan machinery crate, statue pillar with blue light, molten metal pool; row3 floors with gear plate, frost patch, flower bloom, cracked saronite vein. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 158. `tiles_uld_1.png` — 奥杜尔 瓦片集 · 尤格-萨隆的监狱（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles: Yogg-Saron prison – row0 dark saronite floors with purple veins and eyes; row1 walls of twisted flesh and saronite; row2 wall top, tentacle crate, saronite pillar, black ichor pool; row3 floors with eyes, tentacle holes, madness runes, green mist. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 159. `tiles_uld_2.png` — 奥杜尔 瓦片集 · 天文台（奥尔加隆）（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles: Celestial Planetarium – row0 starry cosmic floors with constellations; row1 transparent star walls; row2 wall top, astral crate, constellation pillar, black hole pool; row3 floors with comet trail, star sigil, nebula, cosmic crack. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 160. `props_uld.png` — 奥杜尔 机关（每个 2 格：待机 / 触发）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Ulduar siege demolisher / chopper vehicle — idle/dormant state
+2. Ulduar siege demolisher / chopper vehicle — active/triggered state
+3. giant harpoon turret, loaded and fired — idle/dormant state
+4. giant harpoon turret, loaded and fired — active/triggered state
+5. snowdrift pile with icicle — idle/dormant state
+6. snowdrift pile with icicle — active/triggered state
+7. small campfire with warm glow — idle/dormant state
+8. small campfire with warm glow — active/triggered state
+9. molten slag pool and cold water pool — idle/dormant state
+10. molten slag pool and cold water pool — active/triggered state
+11. glowing healthy spore mushroom — idle/dormant state
+12. glowing healthy spore mushroom — active/triggered state
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 161. `mobs_uld_1.png` — 奥杜尔 小怪（每种 3 格：待机 / 走路 / 攻击）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Iron Dwarf, dwarf made of iron with rune hammer — idle pose facing right
+2. Iron Dwarf, dwarf made of iron with rune hammer — walking stride facing right
+3. Iron Dwarf, dwarf made of iron with rune hammer — attack pose (冲锋)
+4. titan iron construct golem — idle pose facing right
+5. titan iron construct golem — walking stride facing right
+6. titan iron construct golem — attack pose (重击)
+7. giant titan rune colossus with glowing runes — idle pose facing right
+8. giant titan rune colossus with glowing runes — walking stride facing right
+9. giant titan rune colossus with glowing runes — attack pose (符文冲击)
+10. Twilight Adherent, cultist in purple-black robes — idle pose facing right
+11. Twilight Adherent, cultist in purple-black robes — walking stride facing right
+12. Twilight Adherent, cultist in purple-black robes — attack pose (暗影箭)
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 162. `mobs_uld_2.png` — 奥杜尔 小怪（每种 3 格：待机 / 走路 / 攻击）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 2 rows, each cell 256x256 px, 6 cells used, read left-to-right then top-to-bottom:
+1. mechanical spider robot — idle pose facing right
+2. mechanical spider robot — walking stride facing right
+3. mechanical spider robot — attack pose (冲锋)
+4. corrupted nature spirit servitor — idle pose facing right
+5. corrupted nature spirit servitor — walking stride facing right
+6. corrupted nature spirit servitor — attack pose (自然之怒)
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 163. `bosses_uld_1.png` — 奥杜尔 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Flame Leviathan, giant titan siege vehicle with treads, flame cannons and armored hull — idle pose
+2. Flame Leviathan, giant titan siege vehicle with treads, flame cannons and armored hull — moving/walking pose
+3. Flame Leviathan, giant titan siege vehicle with treads, flame cannons and armored hull — melee or main attack pose
+4. Flame Leviathan, giant titan siege vehicle with treads, flame cannons and armored hull — casting signature spell pose with glow
+5. Ignis the Furnace Master, huge molten iron giant with furnace chest and hammer — idle pose
+6. Ignis the Furnace Master, huge molten iron giant with furnace chest and hammer — moving/walking pose
+7. Ignis the Furnace Master, huge molten iron giant with furnace chest and hammer — melee or main attack pose
+8. Ignis the Furnace Master, huge molten iron giant with furnace chest and hammer — casting signature spell pose with glow
+9. Razorscale, proto-drake of black-blue scales with spiked frill — idle pose
+10. Razorscale, proto-drake of black-blue scales with spiked frill — moving/walking pose
+11. Razorscale, proto-drake of black-blue scales with spiked frill — melee or main attack pose
+12. Razorscale, proto-drake of black-blue scales with spiked frill — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 164. `bosses_uld_2.png` — 奥杜尔 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. XT-002 Deconstructor, cute but deadly giant robot with heart-shaped core and toy-like face — idle pose
+2. XT-002 Deconstructor, cute but deadly giant robot with heart-shaped core and toy-like face — moving/walking pose
+3. XT-002 Deconstructor, cute but deadly giant robot with heart-shaped core and toy-like face — melee or main attack pose
+4. XT-002 Deconstructor, cute but deadly giant robot with heart-shaped core and toy-like face — casting signature spell pose with glow
+5. Steelbreaker, iron vrykul giant warrior — idle pose
+6. Steelbreaker, iron vrykul giant warrior — moving/walking pose
+7. Steelbreaker, iron vrykul giant warrior — melee or main attack pose
+8. Steelbreaker, iron vrykul giant warrior — casting signature spell pose with glow
+9. Runemaster Molgeim, iron dwarf runemaster — idle pose
+10. Runemaster Molgeim, iron dwarf runemaster — moving/walking pose
+11. Runemaster Molgeim, iron dwarf runemaster — melee or main attack pose
+12. Runemaster Molgeim, iron dwarf runemaster — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 165. `bosses_uld_3.png` — 奥杜尔 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Stormcaller Brundir, iron vrykul storm caller — idle pose
+2. Stormcaller Brundir, iron vrykul storm caller — moving/walking pose
+3. Stormcaller Brundir, iron vrykul storm caller — melee or main attack pose
+4. Stormcaller Brundir, iron vrykul storm caller — casting signature spell pose with glow
+5. Kologarn, giant stone titan torso rising from bridge with two huge stone arms — idle pose
+6. Kologarn, giant stone titan torso rising from bridge with two huge stone arms — moving/walking pose
+7. Kologarn, giant stone titan torso rising from bridge with two huge stone arms — melee or main attack pose
+8. Kologarn, giant stone titan torso rising from bridge with two huge stone arms — casting signature spell pose with glow
+9. Auriaya, titan-forged female keeper with cat-like features and blue armor — idle pose
+10. Auriaya, titan-forged female keeper with cat-like features and blue armor — moving/walking pose
+11. Auriaya, titan-forged female keeper with cat-like features and blue armor — melee or main attack pose
+12. Auriaya, titan-forged female keeper with cat-like features and blue armor — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 166. `bosses_uld_4.png` — 奥杜尔 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Hodir, frost giant keeper with ice beard and icy armor — idle pose
+2. Hodir, frost giant keeper with ice beard and icy armor — moving/walking pose
+3. Hodir, frost giant keeper with ice beard and icy armor — melee or main attack pose
+4. Hodir, frost giant keeper with ice beard and icy armor — casting signature spell pose with glow
+5. Thorim, storm giant keeper with lightning hammer and blue-gold armor — idle pose
+6. Thorim, storm giant keeper with lightning hammer and blue-gold armor — moving/walking pose
+7. Thorim, storm giant keeper with lightning hammer and blue-gold armor — melee or main attack pose
+8. Thorim, storm giant keeper with lightning hammer and blue-gold armor — casting signature spell pose with glow
+9. Freya, titan keeper of nature, dryad-like woman with flowers and vines in hair, leafy dress — idle pose
+10. Freya, titan keeper of nature, dryad-like woman with flowers and vines in hair, leafy dress — moving/walking pose
+11. Freya, titan keeper of nature, dryad-like woman with flowers and vines in hair, leafy dress — melee or main attack pose
+12. Freya, titan keeper of nature, dryad-like woman with flowers and vines in hair, leafy dress — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 167. `bosses_uld_5.png` — 奥杜尔 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Mimiron, gnome titan keeper with mechanical goggles and red beard, in robot cockpit — idle pose
+2. Mimiron, gnome titan keeper with mechanical goggles and red beard, in robot cockpit — moving/walking pose
+3. Mimiron, gnome titan keeper with mechanical goggles and red beard, in robot cockpit — melee or main attack pose
+4. Mimiron, gnome titan keeper with mechanical goggles and red beard, in robot cockpit — casting signature spell pose with glow
+5. General Vezax, faceless one of dark saronite with tentacle face — idle pose
+6. General Vezax, faceless one of dark saronite with tentacle face — moving/walking pose
+7. General Vezax, faceless one of dark saronite with tentacle face — melee or main attack pose
+8. General Vezax, faceless one of dark saronite with tentacle face — casting signature spell pose with glow
+9. Yogg-Saron, old god mass of tentacles and many eyes with gaping maw, dark green-purple — idle pose
+10. Yogg-Saron, old god mass of tentacles and many eyes with gaping maw, dark green-purple — moving/walking pose
+11. Yogg-Saron, old god mass of tentacles and many eyes with gaping maw, dark green-purple — melee or main attack pose
+12. Yogg-Saron, old god mass of tentacles and many eyes with gaping maw, dark green-purple — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 168. `bosses_uld_6.png` — 奥杜尔 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 4 cells used, read left-to-right then top-to-bottom:
+1. Algalon the Observer, celestial titan construct made of starry cosmos with glowing constellations — idle pose
+2. Algalon the Observer, celestial titan construct made of starry cosmos with glowing constellations — moving/walking pose
+3. Algalon the Observer, celestial titan construct made of starry cosmos with glowing constellations — melee or main attack pose
+4. Algalon the Observer, celestial titan construct made of starry cosmos with glowing constellations — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 169. `adds_uld_1.png` — 奥杜尔 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Iron Construct (reuse trash) — idle pose
+2. Iron Construct (reuse trash) — attack pose
+3. Razorscale flying, wings spread
+4. Dark Rune Watcher dwarf — idle pose
+5. Dark Rune Watcher dwarf — attack pose
+6. XT-002 kneeling with chest open and glowing heart exposed
+7. Scrapbot and Boombot, tiny robots — idle pose
+8. Scrapbot and Boombot, tiny robots — attack pose
+9. Kologarn's left stone arm — idle pose
+10. Kologarn's left stone arm — attack pose
+11. Kologarn's right stone arm — idle pose
+12. Kologarn's right stone arm — attack pose
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 170. `adds_uld_2.png` — 奥杜尔 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Sanctum Sentry, armored titan cat — idle pose
+2. Sanctum Sentry, armored titan cat — attack pose
+3. Feral Defender, glowing ghost cat — idle pose
+4. Feral Defender, glowing ghost cat — attack pose
+5. Dark Rune champion / acolyte — idle pose
+6. Dark Rune champion / acolyte — attack pose
+7. Detonating Lasher, small explosive plant — idle pose
+8. Detonating Lasher, small explosive plant — attack pose
+9. Ancient Conservator, huge treant — idle pose
+10. Ancient Conservator, huge treant — attack pose
+11. Elemental trio: storm lasher, snaplasher, ancient water spirit — idle pose
+12. Elemental trio: storm lasher, snaplasher, ancient water spirit — attack pose
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 171. `adds_uld_3.png` — 奥杜尔 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. VX-001 laser cannon robot torso
+2. Aerial Command Unit flying robot head
+3. V-07-TR-0N combined giant robot
+4. assault bot / bomb bot / junk bot — idle pose
+5. assault bot / bomb bot / junk bot — attack pose
+6. Sara, valkyr-like woman turning dark with shadowy wings
+7. Guardian of Yogg-Saron, dark tentacle beast — idle pose
+8. Guardian of Yogg-Saron, dark tentacle beast — attack pose
+9. Yogg tentacles: crusher, corruptor, constrictor — idle pose
+10. Yogg tentacles: crusher, corruptor, constrictor — attack pose
+11. Brain of Yogg-Saron, pulsing giant brain — idle pose
+12. Brain of Yogg-Saron, pulsing giant brain — attack pose
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 172. `adds_uld_4.png` — 奥杜尔 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 4 cells used, read left-to-right then top-to-bottom:
+1. Collapsing Star, small dying star — idle pose
+2. Collapsing Star, small dying star — attack pose
+3. Living Constellation, star-figure humanoid — idle pose
+4. Living Constellation, star-figure humanoid — attack pose
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 173. `tiles_toc.png` — 十字军的试炼 瓦片集 · 通用（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles for a tournament coliseum (Trial of the Crusader): row0 four packed sand arena floor variants with crusader emblem; row1 four coliseum wall-front variants with blue and red banners and stands; row2 wall-top stone rim, weapon rack crate, banner pillar, frozen pool; row3 floors with Argent Crusade sigil, footprints, blood splatter, ice crack. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 174. `tiles_toc_1.png` — 十字军的试炼 瓦片集 · 蛛魔地穴（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles: Nerubian underground – row0 frozen cave floor with web; row1 icy nerubian architecture walls; row2 wall top, cocoon crate, nerubian obelisk, permafrost ice patch pool; row3 floors with scarab shells, frost, web, broken arena debris. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 175. `props_toc.png` — 十字军的试炼 机关（每个 2 格：待机 / 触发）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 4 cells used, read left-to-right then top-to-bottom:
+1. permafrost ice patch on floor — idle/dormant state
+2. permafrost ice patch on floor — active/triggered state
+3. light essence and dark essence pedestals — idle/dormant state
+4. light essence and dark essence pedestals — active/triggered state
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 176. `mobs_toc_1.png` — 十字军的试炼 小怪（每种 3 格：待机 / 走路 / 攻击）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Snobold Vassal, small kobold with candle helmet riding — idle pose facing right
+2. Snobold Vassal, small kobold with candle helmet riding — walking stride facing right
+3. Snobold Vassal, small kobold with candle helmet riding — attack pose (骑头)
+4. Argent Crusade squire with lance — idle pose facing right
+5. Argent Crusade squire with lance — walking stride facing right
+6. Argent Crusade squire with lance — attack pose (冲锋)
+7. Nerubian Burrower, armored nerubian spider-man — idle pose facing right
+8. Nerubian Burrower, armored nerubian spider-man — walking stride facing right
+9. Nerubian Burrower, armored nerubian spider-man — attack pose (钻地)
+10. Swarm Scarab, small black-green beetle — idle pose facing right
+11. Swarm Scarab, small black-green beetle — walking stride facing right
+12. Swarm Scarab, small black-green beetle — attack pose (酸性下颚)
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 177. `mobs_toc_2.png` — 十字军的试炼 小怪（每种 3 格：待机 / 走路 / 攻击）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 3 cells used, read left-to-right then top-to-bottom:
+1. Scourge necromancer caster — idle pose facing right
+2. Scourge necromancer caster — walking stride facing right
+3. Scourge necromancer caster — attack pose (寒冰箭)
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 178. `bosses_toc_1.png` — 十字军的试炼 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Gormok the Impaler, giant magnataur with snobolds on back — idle pose
+2. Gormok the Impaler, giant magnataur with snobolds on back — moving/walking pose
+3. Gormok the Impaler, giant magnataur with snobolds on back — melee or main attack pose
+4. Gormok the Impaler, giant magnataur with snobolds on back — casting signature spell pose with glow
+5. Lord Jaraxxus, eredar lord with fel green skin, horned crown and burning whip — idle pose
+6. Lord Jaraxxus, eredar lord with fel green skin, horned crown and burning whip — moving/walking pose
+7. Lord Jaraxxus, eredar lord with fel green skin, horned crown and burning whip — melee or main attack pose
+8. Lord Jaraxxus, eredar lord with fel green skin, horned crown and burning whip — casting signature spell pose with glow
+9. Fjola Lightbane, val'kyr with white-gold wings and light sword — idle pose
+10. Fjola Lightbane, val'kyr with white-gold wings and light sword — moving/walking pose
+11. Fjola Lightbane, val'kyr with white-gold wings and light sword — melee or main attack pose
+12. Fjola Lightbane, val'kyr with white-gold wings and light sword — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 179. `bosses_toc_2.png` — 十字军的试炼 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 4 cells used, read left-to-right then top-to-bottom:
+1. Anub'arak, nerubian lich-king servant crypt lord with huge carapace and scythe legs — idle pose
+2. Anub'arak, nerubian lich-king servant crypt lord with huge carapace and scythe legs — moving/walking pose
+3. Anub'arak, nerubian lich-king servant crypt lord with huge carapace and scythe legs — melee or main attack pose
+4. Anub'arak, nerubian lich-king servant crypt lord with huge carapace and scythe legs — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 180. `adds_toc.png` — 十字军的试炼 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 2 rows, each cell 256x256 px, 7 cells used, read left-to-right then top-to-bottom:
+1. Acidmaw (green) and Dreadscale (orange) giant jormungar worms — idle pose
+2. Acidmaw (green) and Dreadscale (orange) giant jormungar worms — attack pose
+3. Icehowl, giant white-furred yeti beast with tusks — idle pose
+4. Icehowl, giant white-furred yeti beast with tusks — attack pose
+5. Mistress of Pain, succubus with whip — idle pose
+6. Mistress of Pain, succubus with whip — attack pose
+7. Anub'arak burrowed, moving dirt mound with spikes
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 181. `tiles_icc.png` — 冰冠堡垒 瓦片集 · 通用（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles for the Lich King's fortress (Icecrown Citadel): row0 four dark saronite floor variants with frost and blue rune lines; row1 four icy saronite wall-front variants with skull ornaments and blue torches; row2 wall-top icy spikes, saronite crate, frozen bone pillar, frozen pool; row3 floors with frost runes, skulls, blood stains, glowing cracks. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 182. `tiles_icc_1.png` — 冰冠堡垒 瓦片集 · 瘟疫工厂（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles: Plagueworks – row0 green-slimed saronite floors; row1 walls with pipes and vats; row2 wall top, chemical crate, pipe pillar, green ooze pool; row3 floors with slime puddles, grates, broken flasks, gas vents. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 183. `tiles_icc_2.png` — 冰冠堡垒 瓦片集 · 深红大厅（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles: Crimson Hall – row0 dark red carpet and black marble floors; row1 gothic red-black walls with blood banners; row2 wall top, ornate crate, blood crystal pillar, blood pool; row3 floors with blood runes, rose petals, candles, cracked marble. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 184. `tiles_icc_3.png` — 冰冠堡垒 瓦片集 · 冰封王座（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles: Frozen Throne – row0 icy platform floors with frost runes; row1 frozen edge walls; row2 wall top, ice crate, frozen throne pillar, abyss edge; row3 floors with frost cracks, snow, defile scorch, broken ice edge. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 185. `props_icc.png` — 冰冠堡垒 机关（每个 2 格：待机 / 触发）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 2 rows, each cell 256x256 px, 8 cells used, read left-to-right then top-to-bottom:
+1. ship deck cannon, idle and firing — idle/dormant state
+2. ship deck cannon, idle and firing — active/triggered state
+3. ice tomb block with person silhouette inside — idle/dormant state
+4. ice tomb block with person silhouette inside — active/triggered state
+5. broken ice platform edge over abyss — idle/dormant state
+6. broken ice platform edge over abyss — active/triggered state
+7. green emerald dream portal — idle/dormant state
+8. green emerald dream portal — active/triggered state
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 186. `mobs_icc_1.png` — 冰冠堡垒 小怪（每种 3 格：待机 / 走路 / 攻击）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Deathbound Ward, undead armored ward knight — idle pose facing right
+2. Deathbound Ward, undead armored ward knight — walking stride facing right
+3. Deathbound Ward, undead armored ward knight — attack pose (致命一击)
+4. Cult Fanatic, cultist with scythe — idle pose facing right
+5. Cult Fanatic, cultist with scythe — walking stride facing right
+6. Cult Fanatic, cultist with scythe — attack pose (黑暗殉难)
+7. Cult Adherent, cultist caster — idle pose facing right
+8. Cult Adherent, cultist caster — walking stride facing right
+9. Cult Adherent, cultist caster — attack pose (寒冰箭)
+10. green plague ooze — idle pose facing right
+11. green plague ooze — walking stride facing right
+12. green plague ooze — attack pose (分裂)
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 187. `mobs_icc_2.png` — 冰冠堡垒 小怪（每种 3 格：待机 / 走路 / 攻击）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 2 rows, each cell 256x256 px, 6 cells used, read left-to-right then top-to-bottom:
+1. Darkfallen Archmage, vampiric san'layn mage — idle pose facing right
+2. Darkfallen Archmage, vampiric san'layn mage — walking stride facing right
+3. Darkfallen Archmage, vampiric san'layn mage — attack pose (奥术飞弹)
+4. small skeletal frost whelp — idle pose facing right
+5. small skeletal frost whelp — walking stride facing right
+6. small skeletal frost whelp — attack pose (冰霜吐息)
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 188. `bosses_icc_1.png` — 冰冠堡垒 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Lord Marrowgar, colossal bone construct with spikes of bone and glowing blue eyes — idle pose
+2. Lord Marrowgar, colossal bone construct with spikes of bone and glowing blue eyes — moving/walking pose
+3. Lord Marrowgar, colossal bone construct with spikes of bone and glowing blue eyes — melee or main attack pose
+4. Lord Marrowgar, colossal bone construct with spikes of bone and glowing blue eyes — casting signature spell pose with glow
+5. Lady Deathwhisper, cult matriarch in black-purple robes with tall headdress and skull staff — idle pose
+6. Lady Deathwhisper, cult matriarch in black-purple robes with tall headdress and skull staff — moving/walking pose
+7. Lady Deathwhisper, cult matriarch in black-purple robes with tall headdress and skull staff — melee or main attack pose
+8. Lady Deathwhisper, cult matriarch in black-purple robes with tall headdress and skull staff — casting signature spell pose with glow
+9. Skybreaker / Orgrim's Hammer enemy captain (Muradin Bronzebeard dwarf captain or High Overlord Saurfang) — idle pose
+10. Skybreaker / Orgrim's Hammer enemy captain (Muradin Bronzebeard dwarf captain or High Overlord Saurfang) — moving/walking pose
+11. Skybreaker / Orgrim's Hammer enemy captain (Muradin Bronzebeard dwarf captain or High Overlord Saurfang) — melee or main attack pose
+12. Skybreaker / Orgrim's Hammer enemy captain (Muradin Bronzebeard dwarf captain or High Overlord Saurfang) — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 189. `bosses_icc_2.png` — 冰冠堡垒 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Deathbringer Saurfang, undead orc death knight in red-black runeforged plate with huge axe — idle pose
+2. Deathbringer Saurfang, undead orc death knight in red-black runeforged plate with huge axe — moving/walking pose
+3. Deathbringer Saurfang, undead orc death knight in red-black runeforged plate with huge axe — melee or main attack pose
+4. Deathbringer Saurfang, undead orc death knight in red-black runeforged plate with huge axe — casting signature spell pose with glow
+5. Festergut, huge bloated plague abomination with gas bladders — idle pose
+6. Festergut, huge bloated plague abomination with gas bladders — moving/walking pose
+7. Festergut, huge bloated plague abomination with gas bladders — melee or main attack pose
+8. Festergut, huge bloated plague abomination with gas bladders — casting signature spell pose with glow
+9. Rotface, plague abomination with melting face and dripping ooze — idle pose
+10. Rotface, plague abomination with melting face and dripping ooze — moving/walking pose
+11. Rotface, plague abomination with melting face and dripping ooze — melee or main attack pose
+12. Rotface, plague abomination with melting face and dripping ooze — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 190. `bosses_icc_3.png` — 冰冠堡垒 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Professor Putricide, undead mad scientist with goggles, hunched back and chemical vials — idle pose
+2. Professor Putricide, undead mad scientist with goggles, hunched back and chemical vials — moving/walking pose
+3. Professor Putricide, undead mad scientist with goggles, hunched back and chemical vials — melee or main attack pose
+4. Professor Putricide, undead mad scientist with goggles, hunched back and chemical vials — casting signature spell pose with glow
+5. Prince Valanar, san'layn vampire prince in dark red with spear — idle pose
+6. Prince Valanar, san'layn vampire prince in dark red with spear — moving/walking pose
+7. Prince Valanar, san'layn vampire prince in dark red with spear — melee or main attack pose
+8. Prince Valanar, san'layn vampire prince in dark red with spear — casting signature spell pose with glow
+9. Prince Keleseth, san'layn vampire prince in purple with shadow magic — idle pose
+10. Prince Keleseth, san'layn vampire prince in purple with shadow magic — moving/walking pose
+11. Prince Keleseth, san'layn vampire prince in purple with shadow magic — melee or main attack pose
+12. Prince Keleseth, san'layn vampire prince in purple with shadow magic — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 191. `bosses_icc_4.png` — 冰冠堡垒 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Prince Taldaram, san'layn vampire prince in crimson with fire magic — idle pose
+2. Prince Taldaram, san'layn vampire prince in crimson with fire magic — moving/walking pose
+3. Prince Taldaram, san'layn vampire prince in crimson with fire magic — melee or main attack pose
+4. Prince Taldaram, san'layn vampire prince in crimson with fire magic — casting signature spell pose with glow
+5. Blood-Queen Lana'thel, elegant san'layn vampire queen with bat wings and crimson gown — idle pose
+6. Blood-Queen Lana'thel, elegant san'layn vampire queen with bat wings and crimson gown — moving/walking pose
+7. Blood-Queen Lana'thel, elegant san'layn vampire queen with bat wings and crimson gown — melee or main attack pose
+8. Blood-Queen Lana'thel, elegant san'layn vampire queen with bat wings and crimson gown — casting signature spell pose with glow
+9. Valithria Dreamwalker, green dragon in tormented human form lying on dream bed, green glow — idle pose
+10. Valithria Dreamwalker, green dragon in tormented human form lying on dream bed, green glow — moving/walking pose
+11. Valithria Dreamwalker, green dragon in tormented human form lying on dream bed, green glow — melee or main attack pose
+12. Valithria Dreamwalker, green dragon in tormented human form lying on dream bed, green glow — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 192. `bosses_icc_5.png` — 冰冠堡垒 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 2 rows, each cell 256x256 px, 8 cells used, read left-to-right then top-to-bottom:
+1. Sindragosa, Queen of the Frostbrood, enormous skeletal frost wyrm with ice crystals and blue glow — idle pose
+2. Sindragosa, Queen of the Frostbrood, enormous skeletal frost wyrm with ice crystals and blue glow — moving/walking pose
+3. Sindragosa, Queen of the Frostbrood, enormous skeletal frost wyrm with ice crystals and blue glow — melee or main attack pose
+4. Sindragosa, Queen of the Frostbrood, enormous skeletal frost wyrm with ice crystals and blue glow — casting signature spell pose with glow
+5. The Lich King Arthas, armored in saronite runeplate with horned helm, wielding Frostmourne, blue frost aura — idle pose
+6. The Lich King Arthas, armored in saronite runeplate with horned helm, wielding Frostmourne, blue frost aura — moving/walking pose
+7. The Lich King Arthas, armored in saronite runeplate with horned helm, wielding Frostmourne, blue frost aura — melee or main attack pose
+8. The Lich King Arthas, armored in saronite runeplate with horned helm, wielding Frostmourne, blue frost aura — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 193. `adds_icc_1.png` — 冰冠堡垒 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Bone Spike, jagged bone pillar — idle pose
+2. Bone Spike, jagged bone pillar — attack pose
+3. Vengeful Shade, ghostly cultist spirit — idle pose
+4. Vengeful Shade, ghostly cultist spirit — attack pose
+5. enemy boarding marines, riflemen and mortar soldiers — idle pose
+6. enemy boarding marines, riflemen and mortar soldiers — attack pose
+7. Blood Beast, red demonic hound — idle pose
+8. Blood Beast, red demonic hound — attack pose
+9. little ooze and big unstable ooze, green slime — idle pose
+10. little ooze and big unstable ooze, green slime — attack pose
+11. Volatile Ooze, orange ooze — idle pose
+12. Volatile Ooze, orange ooze — attack pose
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 194. `adds_icc_2.png` — 冰冠堡垒 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Gas Cloud, green-orange gas creature — idle pose
+2. Gas Cloud, green-orange gas creature — attack pose
+3. Lana'thel hovering with wings spread, blood bolts
+4. Blood thrall, pale vampiric servant — idle pose
+5. Blood thrall, pale vampiric servant — attack pose
+6. Valithria restored, huge emerald green dragon rising
+7. blazing skeleton, risen archmage, blistering zombie, gluttonous abomination — idle pose
+8. blazing skeleton, risen archmage, blistering zombie, gluttonous abomination — attack pose
+9. Sindragosa flying, frost wyrm wings spread
+10. drudge ghoul and shambling horror — idle pose
+11. drudge ghoul and shambling horror — attack pose
+12. Val'kyr Shadowguard, dark winged val'kyr — idle pose
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 195. `adds_icc_3.png` — 冰冠堡垒 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 2 rows, each cell 256x256 px, 5 cells used, read left-to-right then top-to-bottom:
+1. Val'kyr Shadowguard, dark winged val'kyr — attack pose
+2. Vile Spirit, ghostly wisp — idle pose
+3. Vile Spirit, ghostly wisp — attack pose
+4. ice sphere and raging spirit — idle pose
+5. ice sphere and raging spirit — attack pose
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 196. `tiles_rs.png` — 红玉圣殿 瓦片集 · 通用（4×4 例外：沿用现有 tiles 加载格式 256×256）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, seamless tileset. 4x4 grid of 16px top-down pixel tiles for the red dragon sanctum (Ruby Sanctum): row0 four ruby-red crystal and grass floor variants; row1 four red dragon temple wall-front variants with ruby crystals; row2 wall-top red rock, ruby crate, crystal pillar, twilight pool; row3 floors with burned grass, twilight cracks, ruby shards, fire scorch. 256x256 total, 64x64 per tile, tiles must tile seamlessly.
+```
+
+### 197. `props_rs.png` — 红玉圣殿 机关（每个 2 格：待机 / 触发）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 4 cells used, read left-to-right then top-to-bottom:
+1. twilight portal (see fx) — idle/dormant state
+2. twilight portal (see fx) — active/triggered state
+3. twilight orb pair with dark beam — idle/dormant state
+4. twilight orb pair with dark beam — active/triggered state
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 198. `mobs_rs.png` — 红玉圣殿 小怪（每种 3 格：待机 / 走路 / 攻击）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
+1. Charscale Commander, red-black dragonkin officer — idle pose facing right
+2. Charscale Commander, red-black dragonkin officer — walking stride facing right
+3. Charscale Commander, red-black dragonkin officer — attack pose (鼓舞)
+4. Charscale Invoker, dragonkin fire caster — idle pose facing right
+5. Charscale Invoker, dragonkin fire caster — walking stride facing right
+6. Charscale Invoker, dragonkin fire caster — attack pose (烈焰波)
+7. Charscale Assaulter, fast dragonkin — idle pose facing right
+8. Charscale Assaulter, fast dragonkin — walking stride facing right
+9. Charscale Assaulter, fast dragonkin — attack pose (冲锋)
+10. Charscale Elite, armored dragonkin brute — idle pose facing right
+11. Charscale Elite, armored dragonkin brute — walking stride facing right
+12. Charscale Elite, armored dragonkin brute — attack pose (颅骨打击)
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 199. `bosses_rs.png` — 红玉圣殿 首领（每个 4 格：待机 / 移动 / 攻击 / 施法）
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 4 cells used, read left-to-right then top-to-bottom:
+1. Halion the Twilight Destroyer, giant black-purple-orange twilight dragon with molten fire veins — idle pose
+2. Halion the Twilight Destroyer, giant black-purple-orange twilight dragon with molten fire veins — moving/walking pose
+3. Halion the Twilight Destroyer, giant black-purple-orange twilight dragon with molten fire veins — melee or main attack pose
+4. Halion the Twilight Destroyer, giant black-purple-orange twilight dragon with molten fire veins — casting signature spell pose with glow
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 200. `adds_rs.png` — 红玉圣殿 阶段形态与召唤物
+
+```
+16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 1 cells used, read left-to-right then top-to-bottom:
+1. Twilight Halion, shadowy purple version in twilight realm
+Background: solid pure green #00FF00 everywhere outside the sprites (for chroma key; never use green inside sprites).
+```
+
+### 201. `fx_raid_black_1.png` — 新增特效（黑底发光）
 
 ```
 16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
@@ -2567,7 +3475,7 @@ Background: solid pure green #00FF00 everywhere outside the sprites (for chroma 
 Background: solid pure black #000000 (glowing effect for additive blending; keep effect centered, fading to black at edges).
 ```
 
-### 144. `fx_raid_black_2.png` — 新增特效（黑底发光）
+### 202. `fx_raid_black_2.png` — 新增特效（黑底发光）
 
 ```
 16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 3 rows, each cell 256x256 px, 12 cells used, read left-to-right then top-to-bottom:
@@ -2586,7 +3494,7 @@ Background: solid pure black #000000 (glowing effect for additive blending; keep
 Background: solid pure black #000000 (glowing effect for additive blending; keep effect centered, fading to black at edges).
 ```
 
-### 145. `fx_raid_black_3.png` — 新增特效（黑底发光）
+### 203. `fx_raid_black_3.png` — 新增特效（黑底发光）
 
 ```
 16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 2 rows, each cell 256x256 px, 5 cells used, read left-to-right then top-to-bottom:
@@ -2598,7 +3506,7 @@ Background: solid pure black #000000 (glowing effect for additive blending; keep
 Background: solid pure black #000000 (glowing effect for additive blending; keep effect centered, fading to black at edges).
 ```
 
-### 146. `fx_raid_green.png` — 新增特效（绿底实体）
+### 204. `fx_raid_green.png` — 新增特效（绿底实体）
 
 ```
 16-bit pixel art game sprite sheet, crisp hard pixels, no anti-aliasing, limited palette, 1-pixel dark outline (#0b0a12), light from top-left with 3-tone shading, top-down 3/4 RPG view like Soul Knight, chibi-leaning proportions, strict grid of square cells with no gaps, one subject per cell centered with feet on the cell bottom, identical scale in every cell, no text, no watermark, no ground shadow. Layout: 4 columns x 1 rows, each cell 256x256 px, 3 cells used, read left-to-right then top-to-bottom:
