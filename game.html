@@ -268,10 +268,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v23"></script>
+<script src="content/raids_data.js?v=v24"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v23';
+const W=195,H=347,VERSION='v24';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -1032,7 +1032,7 @@ function reset(){
 function resetBuild(){const C=CLS[G.cls];st=baseStats(C);G.owned=new Set();G.tags={};G.rer=[0,0,0];G.pickN=0;G.pickQ=[];
   G.souls=0;G.tempSwT=0;G.frz=0;G.warm=0;G.sbN=0;pl.maxHp=C.hp+8*(G.lvl-1);pl.shield=0;metaApply();pl.hp=Math.min(pl.hp,pl.maxHp);$('hexN').textContent=0;}
 function newLevel(L,ri=0){
-  G.atlas=ART[RAIDS[LV[L].ri].tiles]||ART['tiles_c'+chOf(L)]||genAtlas(THEMES[LV[L].b.theme]);
+  G.atlas=ART[window.tilesFor?tilesFor(L):RAIDS[LV[L].ri].tiles]||ART['tiles_c'+chOf(L)]||genAtlas(THEMES[LV[L].b.theme]);
   G.lvStart=G.t;
   G.roster=buildRoster(L);
   G.L=L;Object.assign(G,genLevel(L));
@@ -2211,6 +2211,6 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="src/raid_engine.js?v=v23"></script>
+<script src="src/raid_engine.js?v=v24"></script>
 </body>
 </html>

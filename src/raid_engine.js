@@ -68,7 +68,7 @@ if(selLevel>NLV())selLevel=1;
 function preload(L){
   const v=LV[L];if(!v)return;
   const r=RAIDS[v.ri],b=v.b;
-  tilesOf(r.tiles);sheet('props_'+r.id);
+  tilesOf(r.tiles);tilesOf(tilesFor(L));sheet('props_'+r.id);
   if(b.art)sheet(b.art[0]);
   for(const ph of b.ph||[])if(Array.isArray(ph.form))sheet(ph.form[0]);
   for(const a of b.adds||[])if(a.art)sheet(a.art[0]);
@@ -76,6 +76,10 @@ function preload(L){
   for(const t of Object.values(r.trash))if(t.art)sheet(t.art[0]);
 }
 window.raidPreload=preload;
+// 多区副本：首领序号 → 分区瓦片后缀（新瓦片没到时回落到副本通用瓦片）
+const WING={naxx:[1,1,1,2,2,2,3,3,3,4,4,4,4,5,5],aq40:[0,0,0,0,0,0,0,0,1],uld:[0,0,0,0,0,0,0,0,0,0,0,0,1,2],toc:[0,0,0,0,1],icc:[0,0,0,0,1,1,1,2,2,2,0,3]};
+function tilesFor(L){const v=LV[L],r=RAIDS[v.ri],w=(WING[r.id]||[])[v.k];return w?r.tiles+'_'+w:r.tiles;}
+window.tilesFor=L=>{const t=tilesFor(L);return ART[t]?t:RAIDS[LV[L].ri].tiles;};
 // 副本机关贴图：r.props 的第 i 项 = props_<副本> 的第 i 组（待机 / 触发两帧）
 const MECH={vent:'vent',EGG:'egg',GRV:'grave',RFT:'rift'};
 window.propArt=k=>{const r=RAIDS[LV[G.L]?LV[G.L].ri:0];const i=(r.props||[]).findIndex(p=>p.k===MECH[k]);return i<0?null:frames(['props_'+r.id,i],2);};
