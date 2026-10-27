@@ -229,7 +229,7 @@
 
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v9';
+const W=195,H=347,VERSION='v10';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -237,6 +237,7 @@ const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
 // ---------- 像素素材 ----------
 const P={W:'#ece7d2',S:'#a39d88',K:'#14121c',G:'#5fcf5a',L:'#c4f7a6',D:'#2f8a3b',P:'#8a55cc',Q:'#4a2a78',
   B:'#3f74e0',b:'#22408f',l:'#86b4ff',F:'#f2c9a0',f:'#c9926e',Y:'#e8b33a',Z:'#4a3426',R:'#ff5050',r:'#d94a5a',C:'#d6e8ff',E:'#7ff3ff',O:'#cfc6a8',M:'#c0503a',
+  w:'#ffffff',m:'#a0301a',g:'#6a7a5a',d:'#2a2018',p:'#c080e0',q:'#5a3a8a',k:'#0a0610',e:'#ff9a4a',u:'#d0a070',v:'#5a3018',n:'#dde4f0',o:'#5a6278',h:'#ffe2c4',y:'#a87a20',z:'#2a1a12',t:'#6a4a2a',c:'#7a8aa8',j:'#c0c8d8',
   A:'#9aa4b8',a:'#5a6278',H:'#6a3a1a',N:'#1e1e28',U:'#8a5a32',V:'#e8e4f0',X:'#ff7ac0',J:'#ffe08a'};
 // 每个怪/角色 2 帧走路动画；描边、受击白闪在 mk() 里自动生成
 const SPR={
@@ -244,25 +245,25 @@ const SPR={
        "..bBBlBBBbC.",".bBBBlBBBBC.",".FbBYYYYBFYY","..bBBBBBBbZ.","..bBBbbBBb..","...ZZ..ZZ...","...ZZ..ZZ..."],
       ["....bBBb....","...bBlBBb...","..bBlBBBBb..","..bBFFFFBb..","..bFKFFKFb..","..bFFffFFb..","...rrrrrr.C.",
        "..bBBlBBBbC.",".bBBBlBBBBC.",".FbBYYYYBFYY","..bBBBBBBbZ.","..bBBbbBBb..","..ZZ...ZZ...","..ZZ....ZZ.."]],
-  SK:[["...WWWW...","..WWWWWWS.","..WRKWRKS.","..WWWWWWS.","...WKWKS..","....SS....","..SWWWWS.O",".W.WSSW.WO","...WWWW..O","....SS....","...W..W...","..WS..SW.."],
-      ["...WWWW...","..WWWWWWS.","..WRKWRKS.","..WWWWWWS.","...WKWKS..","....SS....","..SWWWWS.O",".W.WSSW.WO","...WWWW..O","....SS....","..W...W...",".WS...SW.."]],
-  SL:[["...GGGG...","..GLLGGG..",".GLGGGGGG.",".GGKGGKGG.","GGGKGGKGGG","GGGGGGGGGG","DGGGGGGGGD",".DDDDDDDD."],
-      ["..........","....GGG...","..GLLGGGG.",".GLGKGGKGG","GGGGKGGKGG","GGGGGGGGGG","DGGGGGGGGD","DDDDDDDDDD"]],
-  BT:[["P.........P","PP.......PP","PPP.QQQ.PPP",".PPQRQRQPP.","..PQQQQQP..","....QWQ....",".....Q....."],
-      ["...........","....QQQ....","...QRQRQ...",".PPQQQQQPP.","PPPPQWQPPPP","PP...Q...PP","P.........P"]],
+  SK:[["....WWWW....","...WwwWWS...","..WwWWWWWS..","..WKKWWKKS..","..WKRWWKRS..","..WWWSSWWS..","...WKWKWS...","....SWWS....","..SWWWWWWS.O",".W.SWSSWS.WO","...SWWWWS..O","....SWWS....","...W.SS.W...","..WS....SW.."],
+      ["....WWWW....","...WwwWWS...","..WwWWWWWS..","..WKKWWKKS..","..WKRWWKRS..","..WWWSSWWS..","...WKWKWS...","....SWWS....","..SWWWWWWS.O",".W.SWSSWS.WO","...SWWWWS..O","....SWWS....","..W..SS..W..",".WS......SW."]],
+  SL:[["....GGGG....","..GGLLGGGG..",".GLLwLGGGGG.",".GLwGGGGGGD.","GGGKKGGKKGGD","GGGKKGGKKGGD","GGGGGGGGGGDD","DGGGGGGGGGDD",".DDGGGGGGDD.","..DDDDDDDD.."],
+      ["............","....GGGG....",".GGLLGGGGGG.","GLLwLGGGGGGD","GLwGKKGGKKGD","GGGGKKGGKKGD","GGGGGGGGGGDD","DGGGGGGGGGDD","DDGGGGGGGGDD",".DDDDDDDDDD."]],
+  BT:[["PQ..........QP","PPQ..QQQQ..QPP","PPPQQPPPPQQPPP",".PPPQRPPRQPPP.","..PPQPPPPQPP..","....QWPPWQ....",".....QPPQ.....","......QQ......"],
+      ["..............",".....QQQQ.....","....QPPPPQ....","..PPQRPPRQPP..",".PPPQPPPPQPPP.","PPP.QWPPWQ.PPP","PP...QPPQ...PP","P.....QQ.....P"]],
   SP:[["..MMMM..",".MMWMMM.","MMMMMWMM","MWMMMMMM","..OOOO..","..OOOO..","..OOOO.."]],
   MI:[["..Y..",".YEY.","YEEEY",".YEY.","..Y.."],[".....","..Y..",".YEY.","..Y..","....."]],
   SW:[[".C.",".C.",".C.",".C.",".C.","YYY",".Z."]],
-  HD:[["........MM..",".......MMMM.","M......MKMMY",".MMMMMMMMMM.",".MMMMMMMMM..","..MM...MM...","..M.....M...","..M.....M..."],
-      ["........MM..",".......MMMM.","M......MKMMY",".MMMMMMMMMM.",".MMMMMMMMM..","..MM...MM...",".M.......M..","M.........M."]],
-  IM:[[".R....R.",".RRRRRR.","RRKRRKRR",".RRYYRR.","..RRRR..",".RRRRRR.","R.RRRR.R","..RRRR..","..R..R..",".RR..RR."],
-      [".R....R.",".RRRRRR.","RRKRRKRR",".RRYYRR.","..RRRR..","RRRRRRRR","..RRRR..","..RRRR..",".R....R.","RR....RR"]],
-  GH:[["...GGGG...","..GKGGKG..","..GGGGGG..","...GRRG...",".DDDDDDDD.","G.DDDDDD.G","G.DDDDDD.G","..DDDDDD..","..DD..DD..","..DD..DD..","..G....G..",".GG....GG."],
-      ["...GGGG...","..GKGGKG..","..GGGGGG..","...GRRG...",".DDDDDDDD.",".GDDDDDDG.",".GDDDDDDG.","..DDDDDD..","..DD..DD..",".DD....DD.",".G......G.","GG......GG"]],
-  EY:[["...PPPP...",".PPWWWWPP.","PPWWWWWWPP","PWWWQQWWWP","PWWQKKQWWP","PWWWQQWWWP","PPWWWWWWPP",".PPWWWWPP.","..P.PP.P..",".P..P..P.."],
-      ["...PPPP...",".PPWWWWPP.","PPWWWWWWPP","PWWWQQWWWP","PWWQKKQWWP","PWWWQQWWWP","PPWWWWWWPP",".PPWWWWPP.",".P..PP..P.","..P.P..P.."]],
-  CU:[["...QQQQ...","..QQQQQQ..","..QKQQKQ..","..QQQQQQ..","...QQQQ.E.","..PPPPPPEE",".PPPPPPPF.",".PPPYYPPP.",".PPPPPPPP.",".PPPPPPPP.","..PP..PP..","..QQ..QQ.."],
-      ["...QQQQ...","..QQQQQQ..","..QKQQKQ..","..QQQQQQ..","...QQQQ...","..PPPPPPE.",".PPPPPPPFE",".PPPYYPPP.",".PPPPPPPP.",".PPPPPPPP.",".PP....PP.",".QQ....QQ."]],
+  HD:[["..........MM..",".........MmMM.","M.......MMKMMY","MM.....MMMMMM.",".MMMMMMMMMmm..",".mMMMMMMMMm...","..MM.....MM...","..Mm.....Mm...","..mm.....mm..."],
+      ["..........MM..",".........MmMM.","M.......MMKMMY","MM.....MMMMMM.",".MMMMMMMMMmm..",".mMMMMMMMMm...",".MM.......MM..","Mm.........Mm.","m...........m."]],
+  IM:[[".R......R.",".Rr....rR.","..RRRRRR..",".RrRRRRRR.",".RYKRRYKR.",".RRRRRRRr.","..RWRRWr..",".RRRRRRRR.","R.RrRRrR.R","..RR..RR..",".rR....Rr."],
+      [".R......R.",".Rr....rR.","..RRRRRR..",".RrRRRRRR.",".RYKRRYKR.",".RRRRRRRr.","..RWRRWr..",".RRRRRRRR.",".RRrRRrRR.",".RR....RR.","rR......Rr"]],
+  GH:[["....GGGG....","...GgGGGG...","..GgGGGGGG..","..GKRGGKRG..","..GGGGGGGg..","...GRWWRg...","...DDDDDD...",".GDdDDDDDDG.","G.DdDDDDDD.G","G.DDDDDDDd.G","..DDDddDDD..","..DD....DD..","..Dd....dD..",".GG......GG."],
+      ["....GGGG....","...GgGGGG...","..GgGGGGGG..","..GKRGGKRG..","..GGGGGGGg..","...GRWWRg...","...DDDDDD...",".GDdDDDDDDG.","G.DdDDDDDD.G","G.DDDDDDDd.G","..DDDddDDD..",".DD......DD.",".Dd......dD.","GG........GG"]],
+  EY:[["....PPPP....","..PPpWWpPP..",".PpWWWWWWpP.",".PWWWWWWWWP.","PWWWQQQQWWWP","PWWQQKKQQWWP","PWWQQKKQQWWP","PWWWQQQQWWWP",".PWWWWWWWWP.",".PpWWWWWWpP.","..PP.PP.PP..",".P...P...P.."],
+      ["....PPPP....","..PPpWWpPP..",".PpWWWWWWpP.",".PWWWWWWWWP.","PWWWQQQQWWWP","PWWQQKKQQWWP","PWWQQKKQQWWP","PWWWQQQQWWWP",".PWWWWWWWWP.",".PpWWWWWWpP.","..P.PPPP.P..","..P..P..P..."]],
+  CU:[["....QQQQ....","...QqQQQQ...","..QqQQQQQQ..","..QQkkkkQQ..","..QkEkkEkQ..","..QQkkkkQQ..","...QQQQQQ.e.","..PPpPPPPPee",".PPpPPPPPPF.",".PPpPYYPPP..",".PPpPPPPPP..",".PPPPPPPPP..","..PP....PP..","..QQ....QQ.."],
+      ["....QQQQ....","...QqQQQQ...","..QqQQQQQQ..","..QQkkkkQQ..","..QkEkkEkQ..","..QQkkkkQQ..","...QQQQQQ.e.","..PPpPPPPPee",".PPpPPPPPPF.",".PPpPYYPPP..",".PPpPPPPPP..",".PPPPPPPPP..",".PP......PP.",".QQ......QQ."]],
   HT:[[".RR.RR.","RWRRRRR","RRRRRRR",".RRRRR.","..RRR..","...R..."]],
   TU:[["..ZZ..",".ZSSZ.","ZSKKSZ","ZSKKSZ",".ZSSZ.","ZZZZZZ"]],
   BO:[["...Y..Y..Y..Y...","...YYYYYYYYYY...","...WWWWWWWWWW...","..WWWWWWWWWWWW..","..WWKKWWWWKKWW..","..WWKRWWWWKRWW..",
@@ -317,18 +318,29 @@ const CLS={
 const CLS_IDS=Object.keys(CLS);
 // 每个职业独立绘制（12×14），第 2 帧由腿部错位生成走路动画
 const CSPR={
- sword:["....HHHH....","...HHHHHH...","...HFFFFH.A.","...FKFFKF.A.","...FFffFF.A.","....rrrr..A.","..aAAAAAa.A.",".raAAWAAaYYY",".rFaAAAAaFU.",".r.aYYYYa...","...aAAAAa...","...aA..Aa...","...ZZ..ZZ...","...ZZ..ZZ..."],
- mage:[".....B......","....BBY.....","...BBBBB....","..BBBBBBB.E.","...FFFFF.EEE","...FKFKF..U.","...FWWWF..U.","..BbWWWbB.U.",".BBBbWbBBFU.",".BBBBBBBB.U.","..BBBBBBB.U.","..BbBBBbB...","..bB...Bb...","..ZZ...ZZ..."],
- brawler:["....RRR.....","...FFFFFF...","...FKFFKF...","...FFffFF...","....FFFF....",".FFFfFFfFFF.","FFFFFFFFFFFF","WWFFFffFFFWW","WW.FFFFFF.WW","...YYYYYY...","...MMMMMM...","...MM..MM...","...ZZ..ZZ...","..ZZZ..ZZZ.."],
- eng:["...YYYYYY...","..YYYYYYYY..","...EEaaEE...","...FFffFF...","....FFFF....","..UBBBBBB...",".UUBYBBYBaaa",".UUBBBBBBFa.",".UUBBBBBB...","...aaaaaa...","...BBBBBB...","...BB..BB...","...aa..aa...","...aa..aa..."],
- archer:["....DDDD....","...DGGGGD.U.","..DGFFFFGDU.","..DFKFFKFD.U","...FFffFF..U","..DGGGGGGD.U",".ZDGGYYGGDCU",".ZDGGGGGGF.U",".Z.DGGGGD..U","...ZZZZZZ.U.","...GGGGGG.U.","...GG..GG...","...ZZ..ZZ...","...ZZ..ZZ..."],
- assassin:["....QQQQ....","...QQQQQQ...","..QQFFFFQQ..","..QQKFFKQQ..","..QQQQQQQQ..","...QQQQQQ...","C.QQPPPPQQ.C","CFQQQPPQQQFC","..QQQQQQQQ..","...PPPPPP...","...QQQQQQ...","...QQ..QQ...","...NN..NN...","..NNN..NNN.."],
- ninja:["...NNNNNN...","..NNNNNNNRR.","..RRRRRRRR.R","..NFKFFKFN..","..NNNNNNNN..","...NNNNNN...","..NNRNNRNN..","WFNNNNNNNNF.","...NNYYNN...","...NNNNNN...","...NNNNNN...","...NN..NN...","...NN..NN...","..NNN..NNN.."],
- bard:["......X.....","...RRRRX....","..RRRRRRR...","...FFFFF....","...FKFKF....","...FFffF....","..XXXXXXX...",".XXVXXXVXUU.",".FXXXXXXUUUU","..XXXXXXXUU.","...YYYYY.U..","...XX.XX....","...ZZ.ZZ....","..ZZZ.ZZZ..."],
- paladin:["...AAAAAA...","..AAAYAAAA..","..AAYYYAAA..","..AaKKKKaA..","..AAAAAAAA..","...AAAAAA.J.","YYAAVVVVAAJJ","YJYAVYYVAFJ.","YYYAVVVVA.U.",".Y.AVVVVA.U.","...AAAAAA...","...AA..AA...","...aa..aa...","..aaa..aaa.."],
+ sword:["....vUUUUv....","...vUuuuUUv...","..vUuUUUUUUv..","..vUUFFFFUUv..","..vUFhFFFFFvW.","..vFFKFFKFFvC.","...FFKFFKFf.C.","....fFmFFf..C.","...RnNNNNoR.C.","..RnnNYYNNoRC.","..RnNNNNNNoFCc","..qRnNNNNoRYYY","..qRyyyyyyyRT.","...qnNN.NNo...","...zZZ..ZZz...","...zZZ..ZZz..."],
+ mage:["........vU....",".......vUuU...","......vUuUU...",".....vUuUUUU..","...vvUUYYYUUv.",".E.vUFhFFFFUv.","EeE.FKFFKFFf..",".E..FFWWWWFf..",".T.nNWWWWWWNo.",".TnnNNWWWWNNo.",".TFnNNNWWNNNo.",".TnNNNYYYNNNo.",".TnNNNNNNNNNo.",".TnNNNNNNNNNo.",".T.oNNo..oNNo.","...zZz....zZz."],
+ brawler:["......RR......",".....RrRR.....","...hFFRRFFF...","..hFFFFFFFFf..","..FFKKFFKKFf..","..FFFFFFFFFf..","...fFFmmFFf...",".FFhFFFFFFFffF","WWFhFFfFFFFfWW","WWFFhFFFFFFfWW",".WFFFfFFfFFfW.","...FFFFFFFFf..","...yYYYYYYYy..","...MMMMmMMMm..","...MMm..MMm...","..zZZ...zZZ..."],
+ eng:["....yYYYYy....","...YYhYYYYy...","..yyyyyyyyyy..","...EEaFFaEE...","...EeaFFaeE...","...FFFFFFFf...","....fFmFFf....","..TnNNNNNNo...",".TTnYNNNNYoaaa",".TTnNNNNNNoF..",".TTnNNNNNNo...","..TyyyyyyyyT..","...nNNNNNNo...","...nNN..NNo...","...zZZ..ZZz...","...zZZ..ZZz..."],
+ archer:["....vUUUv.....","...vUuuuUv....","..vUuUUUUUv.T.","..vUFFFFFUvW.T","..vFhFFFFFvW.T","..vFKFFKFfvW.T","...FKFFKFf.W.T","....fFmFf..W.T","..vnNYNNNoFW.T",".tvnNNNNNNoW.T",".tTnNNNNNNoWT.",".t.nYyyyYNo.T.","...nNNNNNo....","...nNN.NNo....","...zZZ.ZZz....","...zZZ.ZZz...."],
+ assassin:["....vUUUUv....","...vUuuuUUv...","..vUuUUUUUUv..","..vUoooooUUv..","..vUoEooEoUv..","..vUNNNNNNUv..","...vNNNNNNv...","..RRnNNNNNoR..",".C.RnNNNNoR.C.",".CFnNYYNNoNFC.",".cFnNNNNNNoFc.","...nyyyyyyo...","...nNNNNNNo...","...nNN..NNo...","...zZZ..ZZz...","..zZZz..zZZz.."],
+ ninja:["....vUUUUv....","...vUuuuUUv...","..RRRRRRRRRRRr","..vUhFFFFUv.Rr","..vUKFFKFUv..r","..vUUUUUUUv...","...vUUUUUv....","..nNNNNNNNo...",".WnNNRRNNNoF..","WwWnNNNNNNo...",".WFnNNNNNNo...","...nRRRRRRo...","...nNNNNNNo...","...nNN..NNo...","...zZZ..ZZz...","..zZZz..zZZz.."],
+ bard:["........Ww....","...rRRRRRWw...","..rRRRRRRRRR..","..UuFFFFFFUU..","..UFhFFFFFFU..","..UFKFFFKFfU..","...FKFFFKFf...","....fFmmFf....","..nnNNNNNNo...",".nnNNYNNNNNoTT",".FnNNNNNNtTTTt","...nNNNNtTTTTt","...nYYYYYtTTt.","...nNN..NNo...","...zZZ..ZZz...","..zZZz..zZZz.."],
+ paladin:["......YY......","....nNYYNo....","...nNNNNNNo...","..nNNNNNNNNoJJ","..nNKKKKKKNoJJ","..nNNNKKNNNo.T","...oNNKKNNo..T","BBnnNNNNNNoo.T","BYBnWWYWWNo.FT","BYYnWYYYWNo..T","BYBnWWYWWNo..T",".B.nWWWWWNo...","...yYYYYYYy...","...nNN..NNo...","...oNN..NNo...","..ooNo..oNNo.."],
+};
+const CPAL={
+ sword:{u:'#c88a5a',U:'#9a5a32',v:'#5a3018',n:'#eef2fa',N:'#aab4c8',o:'#6a7488',R:'#c43a3a',q:'#7a1a1a',Y:'#ffd34a',y:'#a87a20',Z:'#5a3a2a',z:'#3a2418',W:'#ffffff',C:'#c8d8f0',c:'#7a8aa8',T:'#8a5a32',m:'#a05040'},
+ mage:{v:'#1a2a6a',U:'#2a4ab0',u:'#5a7ae0',Y:'#ffd34a',n:'#5a7ae0',N:'#2a4ab0',o:'#1a2a6a',W:'#f0f0f8',E:'#b48cff',e:'#ffffff',T:'#8a5a32',Z:'#3a2a4a',z:'#20182a'},
+ brawler:{R:'#e03a2a',r:'#ff7a5a',F:'#e8a878',f:'#b0704a',h:'#ffd0a8',W:'#f0f0f0',Y:'#ffd34a',y:'#a87a20',M:'#3a5aa0',m:'#24386a',Z:'#4a3426',z:'#2a1a12'},
+ eng:{Y:'#ffd34a',y:'#c09020',h:'#fff0a0',E:'#7fd8ff',e:'#ffffff',a:'#4a4a5a',n:'#ff9a4a',N:'#e0702a',o:'#a04a1a',T:'#8a6a4a',Z:'#4a3426',z:'#2a1a12',m:'#a05040'},
+ archer:{v:'#1e4a24',U:'#2e7a36',u:'#5aaa5a',n:'#5a9a4a',N:'#3a6a32',o:'#24421e',Y:'#c8a060',y:'#8a6a3a',T:'#a0703a',W:'#e8e0d0',t:'#6a4a2a',Z:'#5a3a2a',z:'#3a2418',m:'#a05040'},
+ assassin:{v:'#1e1030',U:'#3a2258',u:'#5a3a88',o:'#120a1c',E:'#e080ff',N:'#2a1a40',n:'#4a3a6a',R:'#8a1a3a',Y:'#a080d0',y:'#3a2a50',C:'#d6e0f0',c:'#7a8aa8',Z:'#2a1a30',z:'#140a1c'},
+ ninja:{v:'#0e0e16',U:'#1e1e2a',u:'#3a3a50',R:'#e03a3a',r:'#a01a1a',N:'#1e1e2a',n:'#3a3a50',o:'#0e0e16',W:'#e0e8f0',w:'#7a8aa8',Z:'#1e1e2a',z:'#0e0e16'},
+ bard:{R:'#d03a5a',r:'#8a1a3a',W:'#ffffff',w:'#c8c8d8',U:'#b0703a',u:'#d09a5a',n:'#5ad0c0',N:'#2a9a8a',o:'#1a6a5a',Y:'#ffd34a',T:'#c08a4a',t:'#7a5028',Z:'#4a3426',z:'#2a1a12',m:'#a05040'},
+ paladin:{n:'#eef2fa',N:'#b8c0d0',o:'#7a8498',Y:'#ffd34a',y:'#a87a20',K:'#1a1420',W:'#f8f4e8',B:'#3a5aa0',J:'#d0d8e8',T:'#8a6a4a'},
 };
 const shiftRow=(r,d)=>d>0?'.'+r.slice(0,-1):r.slice(1)+'.';
-for(const id of CLS_IDS){const c=CLS[id],pal=Object.assign({},P,c.pal),f1=CSPR[id],f2=f1.map((r,i)=>i===12?shiftRow(r,-1):i===13?shiftRow(r,1):r);
+for(const id of CLS_IDS){const c=CLS[id],pal=Object.assign({},P,{F:'#f4c89c',f:'#d0946c',h:'#ffe2c4',K:'#1a1420',m:'#a05040'},CPAL[id]),f1=CSPR[id],n=f1.length,f2=f1.map((r,i)=>i===n-2?shiftRow(r,-1):i===n-1?shiftRow(r,1):r);
   c.img=[mk(f1,false,pal),mk(f2,false,pal)];c.bust=c.img[0];}
 
 // ---------- 关卡与地图 ----------
@@ -693,10 +705,10 @@ const CHAPTERS=['炽焰山脉','黑石龙巢','亡者要塞','深渊神殿'];
 const chOf=L=>Math.ceil(L/3),kOf=L=>(L-1)%3+1;
 // 各章小怪：近战 / 快速 / 厚血 / 远程（行为沿用 SK / BT / SL / SA）
 const ROSTER=[
- {SK:['熔火骷髅','SK',{W:'#ffb080',S:'#c0603a',R:'#ffd34a',O:'#ff6a2a'}],BT:['熔岩犬','HD',{M:'#e0502a',Y:'#ffd34a'}],SL:['熔岩史莱姆','SL',{G:'#ff8a2a',L:'#ffd34a',D:'#b0401a'}],SA:['火焰小鬼','IM',{R:'#d0402a',Y:'#ffd34a'}],shot:'#ff8a2a'},
- {SK:['龙人战士','SK',{W:'#6a4a54',S:'#3a1a24',R:'#ff3a3a',O:'#a03040'}],BT:['雏龙','BT',{P:'#a02a2a',Q:'#3a1010',R:'#ffd34a'}],SL:['岩石史莱姆','SL',{G:'#6a6a7a',L:'#9a9aaa',D:'#3a3a44',K:'#ff5050'}],SA:['黑龙教徒','CU',{Q:'#3a1018',P:'#7a1a24',E:'#ff6a2a',Y:'#ffd34a'}],shot:'#ff6a2a'},
- {SK:['骷髅','SK',{}],BT:['食尸鬼','GH',{G:'#8aa07a',D:'#4a3a2a',R:'#5a1a1a'}],SL:['瘟疫史莱姆','SL',{G:'#6aa83a',L:'#c4f7a6',D:'#2a4a1e'}],SA:['骷髅弓手','SA',{}],shot:''},
- {SK:['虚空骷髅','SK',{W:'#c4a0ff',S:'#6a4aa0',R:'#ff4a8a'}],BT:['暗影蝠','BT',{P:'#3a2a5a',Q:'#1a1030',R:'#ff4a8a'}],SL:['眼魔','EY',{P:'#7a3aa0',Q:'#ff4a8a'}],SA:['深渊术士','CU',{Q:'#2a1840',P:'#4a2a6a',E:'#ff4a8a',Y:'#c99bff'}],shot:'#ff4a8a'},
+ {SK:['熔火骷髅','SK',{W:'#ffb080',S:'#c0603a',R:'#ffd34a',O:'#ff6a2a'}],BT:['熔岩犬','HD',{M:'#e0502a',m:'#a0301a',Y:'#ffd34a'}],SL:['熔岩史莱姆','SL',{G:'#ff8a2a',L:'#ffd34a',D:'#b0401a'}],SA:['火焰小鬼','IM',{R:'#d0402a',r:'#8a2010',Y:'#ffd34a',W:'#ffffff'}],shot:'#ff8a2a'},
+ {SK:['龙人战士','SK',{W:'#6a4a54',S:'#3a1a24',R:'#ff3a3a',O:'#a03040'}],BT:['雏龙','BT',{P:'#a02a2a',Q:'#3a1010',R:'#ffd34a'}],SL:['岩石史莱姆','SL',{G:'#6a6a7a',L:'#9a9aaa',D:'#3a3a44',K:'#ff5050'}],SA:['黑龙教徒','CU',{Q:'#3a1018',q:'#5a2028',P:'#7a1a24',p:'#a02a34',k:'#0a0406',E:'#ff6a2a',e:'#ffb04a',Y:'#ffd34a'}],shot:'#ff6a2a'},
+ {SK:['骷髅','SK',{}],BT:['食尸鬼','GH',{G:'#8aa07a',g:'#5a6a4a',D:'#4a3a2a',d:'#2a2018',R:'#ff3a3a'}],SL:['瘟疫史莱姆','SL',{G:'#6aa83a',L:'#c4f7a6',D:'#2a4a1e'}],SA:['骷髅弓手','SA',{}],shot:''},
+ {SK:['虚空骷髅','SK',{W:'#c4a0ff',S:'#6a4aa0',R:'#ff4a8a'}],BT:['暗影蝠','BT',{P:'#3a2a5a',Q:'#1a1030',R:'#ff4a8a'}],SL:['眼魔','EY',{P:'#7a3aa0',p:'#c080e0',W:'#f0e8f0',Q:'#ff4a8a'}],SA:['深渊术士','CU',{Q:'#2a1840',q:'#4a2a6a',P:'#4a2a6a',p:'#6a4a9a',k:'#0a0610',E:'#ff4a8a',e:'#ff8ad8',Y:'#c99bff'}],shot:'#ff4a8a'},
 ];
 // 各章精英（第 3 间）：取自本章怪物家族
 const ELITE=[[['熔岩犬王','BT'],['火焰小鬼头目','SA'],['熔火骷髅队长','SK']],[['龙人督军','SK'],['雏龙之母','BT'],['黑龙大祭司','SA']],
@@ -717,7 +729,7 @@ const MINI=[
  {n:'幽影蝠',b:'BT',pal:{P:'#4ac8e8',Q:'#1a6a8a'},sk:['cross','spiral']},
  {n:'死亡射手',hpx:.6,b:'SA',pal:{W:'#c4c4c4',S:'#6a6a6a',G:'#ff3a3a'},sk:['volley','spiral']},
 ];
-const BIG_HP=2100,MINI_HP=1900;
+const BIG_HP=3600,MINI_HP=3000;
 
 // ---------- 音频：全部用 Web Audio 现场合成（8-bit 风），无外部素材 ----------
 const AU={ctx:null,master:null,mus:null,sfx:null,noise:null,muted:false,song:null,step:0,next:0,last:{}};
@@ -794,9 +806,10 @@ const saveProg=()=>{try{localStorage.setItem('abyss-prog',JSON.stringify(PROG));
 // DPS 曲线：怪物血量随进度（关卡×房间）指数增长，玩家伤害随等级 +6%/级 + 海克斯成长
 // 关卡内：随房间推进（玩家同步升级、拿海克斯）怪物每间 +30%；关卡间：基础血量逐关提高
 // 章节内连续成长：p＝章节内第几个地牢（0~17）
-const hpCurve=p=>Math.pow(1.25,Math.min(p,5))*Math.pow(1.13,Math.max(0,p-5));
+const hpCurve=p=>Math.pow(1.25,Math.min(p,5))*Math.pow(1.19,Math.max(0,p-5));
 // 各章倍率（按模拟拟合，让通关率逐章平滑下降）
-const CH_HP=L=>[1,1.6,2.1,2.2][chOf(L)-1],BOSS_CH=L=>[1,1.35,1.6,1.6][chOf(L)-1],CH_DMG=L=>[1,1.35,1.65,1.75][chOf(L)-1];   // 首领血量跨关增长更慢，难度更多来自机制
+const DIFF={hp:1.75,dmg:2.2,rate:1.35,quota:1.2};   // 全局难度旋钮（按模拟调）
+const CH_HP=L=>[1,1.18,1.38,1.42][chOf(L)-1],BOSS_CH=L=>[1,1.1,1.18,1.18][chOf(L)-1],CH_DMG=L=>[1,1.08,1.15,1.2][chOf(L)-1];   // 首领血量跨关增长更慢，难度更多来自机制
 const atkBase=()=>st.atkDmg*st.atkMul;
 function baseStats(c){const a=AT[c.atk];return{
   atkCd:c.cd,atkDmg:c.dmg,atkMul:1,multishot:a.count||1,pierce:a.pierce,bounce:a.bounce||0,homing:1,rangeMul:1,boomMul:1,kb:a.kb||0,
@@ -820,7 +833,7 @@ function reset(){
   G={state:'play',cls:selCls,t:0,kills:0,lvl:1,pm:1,xp:0,need:12,energy:0,ultT:ULT_CD,skillT:1,atkT:0,atkN:0,shake:0,flash:0,hurtT:0,
      sinceHurt:9,thornT:0,tempSwT:0,owned:new Set(),tags:{},revived:false,offer:null,rer:[0,0,0],booms:[],mcd:[],
      boss:null,pickQ:[],pickDown:'',frz:0,frzT:0,critT:0,critBuffT:0,songT:0,skT:0,skTick:0,after:0,cloneT:0,clones:0,
-     turrets:[],arrowRains:[],pools:[],sched:[],beams:[],slashes:[],holyT:0,hearts:[],parts:[],amb:[],doomT:0,sigilT:0,souls:0,warm:0,rushT:0,sbN:0,sbArm:false,mad:0,castN:0,pickN:0,fireT:6,frostT:5,sealT:0,adrT:0,pSlowT:0,dmgAcc:0,dpsHist:[],dpsT:.5,dps:0,cam:{x:0,y:0},log:[]};
+     turrets:[],arrowRains:[],pools:[],sched:[],beams:[],slashes:[],holyT:0,hearts:[],parts:[],amb:[],judges:[],etels:[],revives:[],doomT:0,sigilT:0,souls:0,warm:0,rushT:0,sbN:0,sbArm:false,mad:0,castN:0,pickN:0,fireT:6,frostT:5,sealT:0,adrT:0,pSlowT:0,dmgAcc:0,dpsHist:[],dpsT:.5,dps:0,cam:{x:0,y:0},log:[]};
   newLevel(selLevel,START_R);
   // 从章节中段开局：补齐前面关卡应得的等级与海克斯
   const skip=kOf(selLevel)-1;if(skip){G.xp+=[0,700,2600][skip];while(G.xp>=G.need)levelUp();pl.hp=pl.maxHp;
@@ -839,11 +852,11 @@ function newLevel(L,ri=0){
 function startFight(i){
   const R=G.rm=G.rooms[i];G.ri=i;R.seen=true;OBS=R.obs;
   const L=G.L,p=G.p=(kOf(L)-1)*6+i,type=R.type;
-  G.hpMul=hpCurve(p)*CH_HP(L);G.dmgMul=(1+p*.04)*CH_DMG(L);G.xpMul=3+p*.4;
-  G.cfg={type,quota:type==='normal'?16+L*2+i*2:6+L*2,rate:type==='normal'?1.2+L*.2+i*.15:.5,waveT:14,bossDelay:1.2};
+  G.hpMul=hpCurve(p)*CH_HP(L)*DIFF.hp;G.dmgMul=(1+p*.04)*CH_DMG(L)*DIFF.dmg;G.xpMul=3+p*.4;
+  G.cfg={type,quota:Math.round((type==='normal'?16+L*2+i*2:6+L*2)*DIFF.quota),rate:(type==='normal'?1.2+L*.2+i*.15:.5)*DIFF.rate,waveT:14,bossDelay:1.2};
   G.spawned=0;G.spawnAcc=-1;G.phase='fight';pl.wp=null;G.boss=null;G.bossDone=false;G.cutinDone=false;G.warm=0;
   if(st.mad){G.mad=rand()<.5?1:2;toast(G.mad===1?'疯狂科学家：变大了！':'疯狂科学家：变小了！');}
-  en=[];proj=[];bolts=[];rings=[];rain=[];nums=[];shots=[];G.pools=[];G.booms=[];G.turrets=[];G.arrowRains=[];G.cloneT=0;G.skT=0;G.sched=[];G.hearts=[];G.parts=[];G.orbT=6;G.beams=[];G.slashes=[];
+  en=[];proj=[];bolts=[];rings=[];rain=[];nums=[];shots=[];G.pools=[];G.booms=[];G.turrets=[];G.arrowRains=[];G.cloneT=0;G.skT=0;G.sched=[];G.hearts=[];G.parts=[];G.judges=[];G.etels=[];G.revives=[];G.orbT=6;G.beams=[];G.slashes=[];
   G.roomT=0;G.roomDmg=0;
   $('stageT').textContent=`${chOf(L)}-${kOf(L)}`;
   $('banner').textContent=i===0?`${chOf(L)}-${kOf(L)} ${LEVELS[L-1]}`:type==='mini'?'精英首领':type==='big'?'首领战':`${L}-${i+1}`;banner();
@@ -903,7 +916,7 @@ function spawnBoss(big){
   const hp=(big?BIG_HP:MINI_HP)*hpCurve(G.p)*BOSS_CH(L)*(d.hpx||1)*(big?(chief?.8:.85):1),R=G.rm;
   const b={boss:true,big,name:d.n,k:d.b,img,imgF,w:Math.round(img[0].width*sc),h:Math.round(img[0].height*sc),r:big?12:8,x:R.cx,y:R.y+40,hp,max:hp,
     spd:big?13:18,dmg:(big?14:10)*G.dmgMul,skd:(big?16:12)*G.dmgMul,flash:0,poison:0,pt:.5,scd:0,dead:false,burnT:0,burnD:0,bt:.5,slowT:0,frozenT:0,
-    sk:d.sk,chief,mode:'walk',at:2,cyc:0,ph2:false,age:0,furyT:0,fury:(d.fury||(big?60:45))-(L-1)*(big?1.5:1),tels:[]};
+    sk:d.sk,chief,mode:'walk',at:2,cyc:0,ph2:false,age:0,furyT:0,fury:(d.fury||(big?52:40))-(L-1)*1.2,tels:[]};
   en.push(b);G.boss=b;sfx('boss');music('boss');$('banner').textContent=chief?`章节首领 · ${d.n}`:big?`首领 · ${d.n}`:`精英 · ${d.n}`;banner();if(d.tip)setTimeout(()=>toast(d.tip),1300);
 }
 function bossAI(b,dt){
@@ -961,10 +974,15 @@ function dmg(e,d,o={}){
 }
 function kill(e){
   e.dead=true;G.kills++;sfx('kill');
+  if(!e.boss){const ch=chOf(G.L);
+    if(e.k==='SL'&&ch<4&&!e.small)for(let i=0;i<2;i++){const s2=spawnAt(e.x+(i?5:-5),e.y,'SL');s2.small=true;s2.hp=s2.max*=.4;s2.w=Math.round(s2.w*.7);s2.h=Math.round(s2.h*.7);s2.r=3;}
+    if(e.k==='SL'&&ch===3&&G.pools.length<12)G.pools.push({x:e.x,y:e.y,r:10,arm:.3,t:3,tick:0,dmg:e.dmg*.5});
+    if(e.k==='SK'&&(ch===1||ch===4))G.etels.push({t:'circle',x:e.x,y:e.y,r:16,left:.6,dmg:e.dmg*1.3,col:ch===1?'#ff8a2a':'#c060ff'});
+    if(e.k==='SK'&&ch===3&&!e.revived)G.revives.push({x:e.x,y:e.y,t:2});}
   G.xp+=(e.boss?(e.big?40:18):ET[e.k].xp)*G.xpMul;
   if(st.killHeal)pl.hp=Math.min(pl.maxHp,pl.hp+st.killHeal);
   if(e.boss)for(let i=0;i<(e.big?5:3);i++)G.hearts.push({x:e.x+rand()*30-15,y:e.y+rand()*30-15,b:rand()*6});
-  else if(e.k!=='SP'&&rand()<.06)G.hearts.push({x:e.x,y:e.y,b:rand()*6});
+  else if(e.k!=='SP'&&!e.small&&rand()<.035)G.hearts.push({x:e.x,y:e.y,b:rand()*6});
   if(st.killSword){const t=nearest(e.x,e.y,100,new Set([e]));if(t){const a=angTo(e,t);proj.push({x:e.x,y:e.y,vx:Math.cos(a)*200,vy:Math.sin(a)*200,life:.8,pierce:2,hit:new Set([e]),dmg:st.swordDmg*1.5,src:'sword',kind:'sword',r:4,home:true});}}
   if(st.frenzy){G.frz=Math.min(15,G.frz+1);G.frzT=3;}
   if(st.soul)G.souls++;if(st.rush)G.rushT=3;if(st.killCd)G.skillT-=.3;if(st.killHealPct)pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*st.killHealPct);
@@ -994,10 +1012,10 @@ function boom(x,y,r,d,eff){const col={fire:'#ff9a4a',ice:'#9fe8ff',poison:'#a6ec
     if(eff==='poison')e.poison=Math.min(st.poisonCap,e.poison+2);if(eff==='fire'){e.burnT=3;e.burnD=atkBase()*Math.max(st.burn,.3)*st.burnMul;}if(eff==='ice')e.slowT=2;}}
 function swing(a,whirl){
   const T=AT[CLS[G.cls].atk],reach=T.reach*st.rangeMul*(whirl?1.3:1),half=whirl?Math.PI:Math.min(Math.PI,T.arc*st.arcMul),A=atkBase()*st.basicMul;
-  G.slashes.push({x:pl.x,y:pl.y,a,r:reach,half,t:.14,col:T.col});
+  G.slashes.push({x:pl.x,y:pl.y,a,r:reach,half,t:.18,T:.18,col:T.col,dir:G.atkN%2?1:-1});
   for(const e of en){if(e.dead||e.inv)continue;const dx=e.x-pl.x,dy=e.y-pl.y,d=Math.hypot(dx,dy);if(d>reach+e.r)continue;
     let da=Math.atan2(dy,dx)-a;da=Math.abs(Math.atan2(Math.sin(da),Math.cos(da)));if(d>8&&da>half)continue;
-    dmg(e,A,{src:'atk',poison:st.poisonOnHit});onAtkHit(e);
+    dmg(e,A,{src:'atk',poison:st.poisonOnHit});onAtkHit(e);burst(e.x,e.y,4,T.col,55,.25,1.5);
     if(st.kb&&!e.boss&&!e.dead){e.x+=dx/(d||1)*st.kb;e.y+=dy/(d||1)*st.kb;}}
   if(T.boom){const bx=pl.x+Math.cos(a)*reach*.7,by=pl.y+Math.sin(a)*reach*.7;boom(bx,by,T.boom*st.boomMul,A*.6);}
   for(const o of OBS)if(o.kind==='crate'&&!o.dead&&Math.hypot(o.x+o.w/2-pl.x,o.y+o.h/2-pl.y)<reach+6)hitCrate(o,A);
@@ -1105,6 +1123,8 @@ function doUlt(){
 // ---------- 自动战斗：躲首领预警，近战贴脸、远程保持射程 ----------
 function danger(x,y){
   for(const p of G.pools)if(Math.hypot(x-p.x,y-p.y)<p.r+5)return true;
+  for(const t of G.etels){if(!t.dmg)continue;if(t.t==='circle'){if(Math.hypot(x-t.x,y-t.y)<t.r+5)return true;}
+    else{const ux=Math.cos(t.a),uy=Math.sin(t.a),px=x-t.x,py=y-t.y,al=px*ux+py*uy;if(al>-4&&al<t.len+4&&Math.abs(-px*uy+py*ux)<t.w+5)return true;}}
   const b=G.boss;if(!b)return false;
   for(const t of b.tels)if(!t.done&&!t.harmless&&telHit(t,x,y,5))return true;
   if(b.aim){const ux=Math.cos(b.aim.a),uy=Math.sin(b.aim.a),px=x-b.x,py=y-b.y;if(px*ux+py*uy>-10&&Math.abs(-px*uy+py*ux)<15)return true;}
@@ -1179,7 +1199,7 @@ function update(dt){
         for(let i=0;i<n;i++){const a=rand()*TAU,r=50+rand()*30;const e=spawnAt(pl.x+Math.cos(a)*r,pl.y+Math.sin(a)*r);rings.push({x:e.x,y:e.y,r0:1,r1:8,t:.3,T:.3,col:'#c99bff'});}
         G.spawned+=n;if(n){$('banner').textContent='怪潮来袭';banner();}}}
     if(c.type==='normal'&&G.roomT>150&&G.spawned>=c.quota)for(const e of en)e.dead=true;
-    if(c.type==='normal'?(G.spawned>=c.quota&&!en.filter(e=>!e.dead).length):G.bossDone){
+    if(c.type==='normal'?(G.spawned>=c.quota&&!en.filter(e=>!e.dead).length&&!G.revives.length):G.bossDone){
       for(const e of en)if(!e.dead)kill(e);
       G.rm.done=true;if(st.tank){const a=Math.round(pl.maxHp*.12);pl.maxHp+=a;pl.hp+=a;toast(`坦克引擎：最大生命 +${a}`);}
       if(G.ri<5)G.pickQ.push([1,rand()<.5?1:2,2,2,3][G.ri]);G.log.push({room:`${G.L}-${G.ri+1}`,type:c.type,t:+G.roomT.toFixed(1),dps:Math.round(G.roomDmg/Math.max(1,G.roomT)),lvl:G.lvl,hp:Math.round(pl.hp)});
@@ -1203,9 +1223,21 @@ function update(dt){
     e.flash-=dt;e.scd-=dt;e.slowT-=dt;e.frozenT-=dt;e.igT-=dt;
     if(e.boss)bossAI(e,dt);
     else if(e.k!=='SP'&&e.frozenT<=0){const dx=pl.x-e.x,dy=pl.y-e.y,q=Math.hypot(dx,dy)||1,v=e.spd*(e.slowT>0?1-st.slow:1);
-      const see=e.k==='SA'&&q<95&&los(e,pl);
-      if(!see||q>70||e.wp)chase(e,v,dt);
-      if(see&&(e.shotT-=dt)<=0){e.shotT=2.6;shots.push({x:e.x,y:e.y,vx:dx/q*70,vy:dy/q*70,life:2,dmg:6*G.dmgMul,arrow:!G.roster.shot,col:G.roster.shot});}}
+      const ch=chOf(G.L),see=e.k==='SA'&&q<95&&los(e,pl);
+      if(e.dash>0){e.dash-=dt;e.x+=e.dvx*dt;e.y+=e.dvy*dt;}            // 扑击 / 冲锋中
+      else if(e.wind>0){e.wind-=dt;e.flash=e.wind%.12<.06?.05:0;      // 蓄力（闪白）后扑出
+        if(e.wind<=0){const a=Math.atan2(e.ty-e.y,e.tx-e.x),sp=e.k==='BT'?150:140;e.dvx=Math.cos(a)*sp;e.dvy=Math.sin(a)*sp;e.dash=e.k==='BT'?.28:.4;}}
+      else{
+        if(!see||q>70||e.wp)chase(e,v,dt);
+        e.abT=(e.abT===undefined?1.5+rand()*2:e.abT)-dt;
+        if(e.abT<=0){
+          if(e.k==='BT'&&q<60){e.abT=2.6+rand();e.wind=.35;e.tx=pl.x;e.ty=pl.y;}
+          else if(e.k==='SK'&&ch===2&&q<90){e.abT=4;e.wind=.5;e.tx=pl.x;e.ty=pl.y;G.etels.push({t:'line',x:e.x,y:e.y,a:Math.atan2(dy,dx),len:70,w:5,left:.5,dmg:0,col:'#ff6a6a',vis:1});}
+          else if(e.k==='SL'&&ch===4&&q<100&&los(e,pl)){e.abT=4;G.etels.push({t:'line',x:e.x,y:e.y,a:Math.atan2(dy,dx),len:95,w:4,left:.7,dmg:e.dmg*1.2,col:'#ff4a8a'});}
+          else if(e.k==='SA'&&ch===4&&q<110){e.abT=5;const a=rand()*TAU,r=60+rand()*30;burst(e.x,e.y,8,'#c99bff',40,.3);e.x=clamp(pl.x+Math.cos(a)*r,G.rm.x+8,G.rm.x+G.rm.w-8);e.y=clamp(pl.y+Math.sin(a)*r,G.rm.y+8,G.rm.y+G.rm.h-8);pushOut(e,3);burst(e.x,e.y,8,'#c99bff',40,.3);e.shotT=.4;}
+          else e.abT=1;}
+        if(see&&(e.shotT-=dt)<=0){e.shotT=2.6;const sd=6*G.dmgMul,col=G.roster.shot,n=ch===2?3:1;
+          for(let i=0;i<n;i++){const a=Math.atan2(dy,dx)+(i-(n-1)/2)*.28;shots.push({x:e.x,y:e.y,vx:Math.cos(a)*70,vy:Math.sin(a)*70,life:2,dmg:sd,arrow:!col,col,fire:ch===1});}}}}
     if(!e.hidden&&e.dmg&&Math.hypot(pl.x-e.x,pl.y-e.y)<(e.r||5)+.5)hurt(e.dmg);
   }
   for(let i=0;i<en.length;i++){const a=en[i];for(let j=i+1;j<en.length;j++){const b=en[j];
@@ -1222,7 +1254,7 @@ function update(dt){
       if(T.melee){swing(base,st.whirl&&G.atkN%4===0);for(let i=0;i<st.extraHits;i++)G.sched.push({t:.09*(i+1),fn:()=>swing(base+(i%2?.35:-.35),false)});}
       else for(let i=0;i<n;i++)fireProj(pl.x,pl.y-2,base+(i-(n-1)/2)*.2+(rand()-.5)*sp);
       if(T.sig==='wave'&&G.atkN%st.waveEvery===0)for(let i=0;i<st.waveCount;i++)fireProj(pl.x,pl.y-2,base+(i-(st.waveCount-1)/2)*.3,{kind:'wave',dmg:atkBase()*st.waveMul,pierce:99,bounce:0,boom:0,home:false});
-      if(T.sig==='judge'&&G.atkN%st.judgeEvery===0){G.beams.push({x:t.x-6,y:t.y-70,w:12,h:76,t:.3,T:.3,col:'#ffe8a0'});boom(t.x,t.y,16*st.judgeR,atkBase()*1.5*st.judgeMul);if(st.judgeHeal)pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*st.judgeHeal);}
+      if(T.sig==='judge'&&G.atkN%st.judgeEvery===0){G.judges.push({x:t.x,y:t.y,r:16*st.judgeR,t:.45,T:.45});boom(t.x,t.y,16*st.judgeR,atkBase()*1.5*st.judgeMul);if(st.judgeHeal)pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*st.judgeHeal);}
       for(let i=0;i<st.swordShots;i++){const a=base+(i-(st.swordShots-1)/2)*.3;
         proj.push({x:pl.x,y:pl.y-2,vx:Math.cos(a)*200,vy:Math.sin(a)*200,life:.8,pierce:4,hit:new Set(),dmg:st.swordDmg*1.5,src:'sword',kind:'sword',r:4});}
       if(st.comboNova&&G.atkN%5===0)for(let i=0;i<12;i++)fireProj(pl.x,pl.y-2,i*TAU/12);
@@ -1273,9 +1305,9 @@ function update(dt){
     const rr=r.r||16,mt=r.kind==='meteor';rings.push({x:r.x,y:r.y,r0:2,r1:rr,t:.3,T:.3,col:mt?'#ff9a4a':'#fff2c0'});if(mt)G.shake=.3;
     for(const e of en)if(!e.dead&&Math.hypot(e.x-r.x,e.y-r.y)<rr+e.r){dmg(e,r.d,{col:mt?'#ff9a4a':undefined});if(mt){e.burnT=3;e.burnD=atkBase()*.5*st.burnMul;}}}}
   rain=rain.filter(r=>!r.done);
-  for(const o of shots){o.x+=o.vx*dt;o.y+=o.vy*dt;o.life-=dt;
+  for(const o of shots){o.x+=o.vx*dt;o.y+=o.vy*dt;o.life-=dt;if(o.fire&&o.life<=dt&&G.pools.length<12)G.pools.push({x:o.x,y:o.y,r:9,arm:0,t:2.5,tick:0,dmg:o.dmg*.5,fire:1});
     if(!inRoom(o.x,o.y,4)||solidAt(o.x,o.y))o.life=0;
-    if(Math.hypot(o.x-pl.x,o.y-pl.y)<3.5&&pl.inv<=0){o.life=0;hurt(o.dmg);}}
+    if(Math.hypot(o.x-pl.x,o.y-pl.y)<3.5&&pl.inv<=0){o.life=0;hurt(o.dmg);if(o.fire&&G.pools.length<12)G.pools.push({x:o.x,y:o.y,r:9,arm:0,t:2.5,tick:0,dmg:o.dmg*.5,fire:1});}}
   shots=shots.filter(o=>o.life>0);
   for(const p of G.pools){p.t-=dt;if(p.arm>0){p.arm-=dt;continue;}if(Math.hypot(pl.x-p.x,pl.y-p.y)<p.r&&(p.tick-=dt)<=0){p.tick=.5;pl.inv=0;hurt(p.dmg);}}
   G.pools=G.pools.filter(p=>p.t>0);
@@ -1285,12 +1317,22 @@ function update(dt){
   for(const r of rings)r.t-=dt;rings=rings.filter(r=>r.t>0);
   for(const q of G.sched)if((q.t-=dt)<=0){q.done=1;q.fn();}G.sched=G.sched.filter(q=>!q.done);
   for(const b of G.beams)b.t-=dt;G.beams=G.beams.filter(b=>b.t>0);
-  for(const s of G.slashes)s.t-=dt;G.slashes=G.slashes.filter(s=>s.t>0);G.holyT-=dt;
+  for(const s of G.slashes)s.t-=dt;G.slashes=G.slashes.filter(s=>s.t>0);
+  for(const j of G.judges)j.t-=dt;G.judges=G.judges.filter(j=>j.t>0);
+  // 小怪预警技能（自爆圈、冲锋线、凝视光束）
+  for(const t of G.etels){if((t.left-=dt)>0)continue;t.done=1;
+    if(t.t==='circle'){rings.push({x:t.x,y:t.y,r0:3,r1:t.r,t:.3,T:.3,col:t.col||'#ff6a6a'});burst(t.x,t.y,10,t.col||'#ff8a6a',60,.4,1.5);if(Math.hypot(pl.x-t.x,pl.y-t.y)<t.r){pl.inv=0;hurt(t.dmg);}}
+    else{const ux=Math.cos(t.a),uy=Math.sin(t.a),px=pl.x-t.x,py=pl.y-t.y,al=px*ux+py*uy;bolts.push({pts:[[t.x,t.y],[t.x+ux*t.len,t.y+uy*t.len]],t:.2,col:t.col});
+      if(t.dmg&&al>0&&al<t.len&&Math.abs(-px*uy+py*ux)<t.w){pl.inv=0;hurt(t.dmg);}}}
+  G.etels=G.etels.filter(t=>!t.done);
+  // 亡灵：骷髅倒下 2 秒后重组
+  for(const r of G.revives){if((r.t-=dt)<=0){r.done=1;const e=spawnAt(r.x,r.y,'SK');e.hp=e.max*=.5;e.revived=true;burst(r.x,r.y,10,'#ece7d2',40,.4);}}
+  G.revives=G.revives.filter(r=>!r.done);G.holyT-=dt;
   for(const n of nums){n.t-=dt;n.y-=18*dt;}nums=nums.filter(n=>n.t>0);
   // 爱心：靠近自动吸附，回复 8% 生命；清房后全部自动拾取
   for(const h of G.hearts){const dx=pl.x-h.x,dy=pl.y-h.y,d=Math.hypot(dx,dy)||1;
     if(d<28||G.phase!=='fight'){const v=G.phase==='fight'?160:260;h.x+=dx/d*v*dt;h.y+=dy/d*v*dt;}
-    if(d<5){h.got=1;const a=Math.round(pl.maxHp*.08);pl.hp=Math.min(pl.maxHp,pl.hp+a);num(pl.x,pl.y-12,'+'+a,'#7dff8a',true);burst(pl.x,pl.y,8,'#7dff8a',40,.5);sfx('heal');}}
+    if(d<5){h.got=1;const a=Math.round(pl.maxHp*.07);pl.hp=Math.min(pl.maxHp,pl.hp+a);num(pl.x,pl.y-12,'+'+a,'#7dff8a',true);burst(pl.x,pl.y,8,'#7dff8a',40,.5);sfx('heal');}}
   G.hearts=G.hearts.filter(h=>!h.got);
   for(const q of G.parts){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.92;q.vy=q.vy*.92+(q.g||0)*dt;q.life-=dt;}G.parts=G.parts.filter(q=>q.life>0);
   {const th=THEMES[THEME_OF[G.L-1]],cx=G.cam.x,cy=G.cam.y,A=G.amb;   // 环境粒子：余烬、雪、孢子……
@@ -1329,7 +1371,7 @@ function render(){
     if(d==='right')for(let j=R.cy-13;j<R.cy+14;j+=4)lc.fillRect(R.x+R.w,j,8,1);}}
   else if(R.exit&&G.ri<5){const[ex,ey]=R.exit[1],f=(G.t*4|0)%3;lc.fillStyle='#ffd77a';lc.fillRect(ex-1,ey-2+f,3,5);}
   // 毒池
-  for(const p of G.pools){lc.fillStyle=p.arm>0?'rgba(120,230,90,.18)':'rgba(120,230,90,.4)';lc.beginPath();lc.arc(p.x,p.y,p.r,0,TAU);lc.fill();
+  for(const p of G.pools){lc.fillStyle=p.fire?'rgba(255,110,40,.4)':p.arm>0?'rgba(120,230,90,.18)':'rgba(120,230,90,.4)';lc.beginPath();lc.arc(p.x,p.y,p.r,0,TAU);lc.fill();
     if(p.arm<=0&&((G.t*5+p.x)|0)%3===0){lc.fillStyle='#c4f7a6';lc.fillRect(p.x-4+((G.t*7)|0)%8,p.y-2,1,1);}}
   // 炮台
   for(const u of G.turrets)lc.drawImage(IMG.TU[0],Math.round(u.x-4),Math.round(u.y-4));
@@ -1379,6 +1421,9 @@ function render(){
   const glow=(x,y,r,col)=>{const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,col);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2);};
   g.setTransform(K,0,0,K,shx*K,shy*K);g.imageSmoothingEnabled=false;g.drawImage(low,0,0);
   g.translate(-cx,-cy);
+  for(const t of G.etels){const p=1-t.left/(t.T||(t.T=t.left));g.fillStyle='rgba(255,60,60,.2)';g.strokeStyle=t.col||'#ff6a6a';g.lineWidth=1;
+    if(t.t==='circle'){g.beginPath();g.arc(t.x,t.y,t.r,0,TAU);g.fill();g.stroke();g.beginPath();g.arc(t.x,t.y,t.r*p,0,TAU);g.fill();}
+    else{g.save();g.translate(t.x,t.y);g.rotate(t.a);g.globalAlpha=.8;g.strokeRect(0,-t.w,t.len,t.w*2);g.globalAlpha=.25+.3*p;g.fillStyle=t.col||'#ff6a6a';g.fillRect(0,-t.w,t.len*p,t.w*2);g.restore();g.globalAlpha=1;}}
   // 首领预警
   const b=G.boss;
   if(b){
@@ -1412,8 +1457,18 @@ function render(){
     for(const[w,col]of[[3,bo.col||'rgba(90,220,255,.5)'],[1,'#f0ffff']]){g.lineWidth=w;g.strokeStyle=col;g.beginPath();bo.pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke();}}
   g.globalAlpha=1;
   for(const b of G.beams){g.globalAlpha=b.t/b.T*.7;g.fillStyle=b.col;g.fillRect(b.x,b.y,b.w,b.h);}
-  for(const s of G.slashes){const a=s.t/.14;g.globalAlpha=a*.3;g.fillStyle=s.col;g.beginPath();g.moveTo(s.x,s.y);g.arc(s.x,s.y,s.r,s.a-s.half,s.a+s.half);g.closePath();g.fill();
-    g.globalAlpha=a;g.strokeStyle=s.col;g.lineWidth=2;g.beginPath();g.arc(s.x,s.y,s.r,s.a-s.half,s.a+s.half);g.stroke();}
+  // 月牙刀光：从一侧扫向另一侧，前沿亮、尾迹渐隐
+  for(const s of G.slashes){const pr=1-s.t/s.T,sw=Math.min(1,pr*1.8),fade=pr<.55?1:1-(pr-.55)/.45,a0=s.a-s.half*s.dir,a1=a0+2*s.half*s.dir*sw,
+      lo=Math.min(a0,a1),hi=Math.max(a0,a1),tl=Math.max(lo,hi-.9)*(s.dir>0?1:0)+(s.dir>0?0:lo);
+    for(let k=0;k<6;k++){const f=k/6,aa=s.dir>0?a1-(a1-a0)*f*.8:a1+(a0-a1)*f*.8;g.globalAlpha=fade*(1-f)*.55;g.strokeStyle=s.col;g.lineWidth=3.2-f*2.4;
+      g.beginPath();g.arc(s.x,s.y,s.r*(.72+.28*(1-f)),Math.min(aa,a1),Math.max(aa,a1));g.stroke();}
+    g.globalAlpha=fade;g.strokeStyle='#ffffff';g.lineWidth=1.2;g.beginPath();g.arc(s.x,s.y,s.r,Math.min(a1-.25*s.dir,a1),Math.max(a1-.25*s.dir,a1));g.stroke();}
+  g.globalAlpha=1;
+  // 审判：圣光自天而降、逐渐收窄，落地爆出光环与十字
+  for(const j of G.judges){const pr=1-j.t/j.T;if(pr<.35){const tip=j.y-70+76*(pr/.35),gr=g.createLinearGradient(0,j.y-80,0,tip);gr.addColorStop(0,'rgba(255,240,180,0)');gr.addColorStop(1,'rgba(255,240,180,.9)');
+      g.fillStyle=gr;g.beginPath();g.moveTo(j.x-9,j.y-80);g.lineTo(j.x+9,j.y-80);g.lineTo(j.x+2,tip);g.lineTo(j.x-2,tip);g.fill();}
+    else{const q=(pr-.35)/.65,al=1-q;g.globalAlpha=al;glow(j.x,j.y,18+14*q,'rgba(255,230,150,.6)');g.strokeStyle='#fff4c0';g.lineWidth=1.5;g.beginPath();g.arc(j.x,j.y,6+j.r*q,0,TAU);g.stroke();
+      g.fillStyle='#ffffff';g.fillRect(j.x-.75,j.y-9+q*-4,1.5,12);g.fillRect(j.x-4,j.y-5+q*-4,8,1.5);g.globalAlpha=1;}}
   if(G.holyT>0)glow(pl.x,pl.y,34,'rgba(255,232,160,.35)');
   for(const r of rings){const p=1-r.t/r.T;g.globalAlpha=1-p;g.strokeStyle=r.col;g.lineWidth=2;g.beginPath();g.arc(r.x,r.y,r.r0+(r.r1-r.r0)*p,0,TAU);g.stroke();}
   g.globalAlpha=1;g.globalCompositeOperation='source-over';
@@ -1659,7 +1714,7 @@ $('dead').addEventListener('click',e=>{
   if(e.target.id==='rev')showAd(()=>{G.revived=true;pl.hp=pl.maxHp;music(G.boss?'boss':'normal');pl.inv=2;$('dead').classList.remove('on');G.state='play';nova(80,atkBase()*3);});
 });
 function startGame(){for(const k of SCREENS)$(k).classList.remove('on');reset();
-  const C=CLS[selCls],a=$('ava');a.width=12;a.height=12;const ac=a.getContext('2d');ac.clearRect(0,0,12,12);ac.drawImage(C.img[0],-1,0);
+  const C=CLS[selCls],a=$('ava');a.width=16;a.height=14;const ac=a.getContext('2d');ac.clearRect(0,0,16,14);ac.drawImage(C.img[0],0,0);
   const p=$('por');p.width=18;p.height=18;const pc=p.getContext('2d');pc.clearRect(0,0,18,18);pc.drawImage(C.bust,2,1);
   $('cutSub').textContent=`${C.n} · 终极技能`;$('cutName').textContent=C.ult;$('skill').textContent=C.sk.slice(0,2);
   auInit();music('normal');}
