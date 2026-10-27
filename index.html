@@ -209,10 +209,10 @@
     <div class="logo">深渊构筑<small>像素地牢 · 构筑割草</small></div>
     <div class="mbtns"><button class="b" id="toLevels">开始冒险</button>
       <div class="row"><button class="b ghost sm" id="sndB">音效：开</button><button class="b ghost sm" id="shkB">镜头震动：开</button></div>
-      <p class="tip">单手全自动 · 按住拖动可接管走位</p><p class="ver" id="ver"></p></div></div></div>
+      <p class="ver" id="ver"></p></div></div></div>
 
   <div class="ov" id="levels"><div class="menu">
-    <div class="mtitle">深渊地图<small>4 章 · 12 关 · 点击关卡查看</small></div>
+    <div class="mtitle">深渊地图</div>
     <div id="nodes"></div>
     <div class="lvinfo" id="lvInfo"></div>
     <button class="b ghost sm back" id="lvBack">返回</button></div></div>
@@ -229,7 +229,7 @@
 
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v8';
+const W=195,H=347,VERSION='v9';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -304,15 +304,15 @@ const AT={
  wave:{spd:170,life:.45,pierce:99,r:7,range:70,col:'#e9fdff'},   // 剑士招牌：剑气
 };
 const CLS={
- sword:{role:'melee',specs:['剑气','剑阵','暴击'],n:'剑士',pal:{B:'#c0c8d8',b:'#6a7288',l:'#ffffff'},hp:180,spd:74,dmg:22,cd:.5,atk:'slash',kite:.35,skCd:6,sk:'剑刃风暴',skD:'旋转剑刃，持续切割身边敌人',ult:'万剑归宗'},
- mage:{role:'ranged',specs:['奥术','火焰','冰霜'],n:'法师',pal:{C:'#b48cff',B:'#3f74e0',b:'#22408f',l:'#86b4ff'},hp:130,spd:72,dmg:18,cd:.45,atk:'orb',kite:1,skCd:4,sk:'连锁闪电',skD:'闪电在敌群中弹射并爆炸',ult:'星辰陨落'},
- brawler:{role:'melee',specs:['震地','吸血','连击'],alias:{'吸血':'嗜血','连击':'狂暴'},n:'斗士',pal:{C:'#ffa070',B:'#c4572a',b:'#7a2e14',l:'#ffa070'},hp:220,spd:72,dmg:28,cd:.55,atk:'fist',kite:.25,vamp:.05,skCd:5,sk:'震地猛击',skD:'重击地面，眩晕并击退周围敌人',ult:'崩山拳'},
- eng:{role:'ranged',specs:['炮台','连击','雷电'],alias:{'连击':'弹药','雷电':'电能'},n:'工程师',pal:{C:'#8a8a9a',B:'#d8a030',b:'#8a6018',l:'#ffe08a'},hp:150,spd:72,dmg:11,cd:.22,atk:'bullet',kite:1,skCd:8,sk:'部署炮台',skD:'放置自动炮台扫射敌人',ult:'轨道炮击'},
- archer:{role:'ranged',specs:['射击','召唤','毒伤'],alias:{'召唤':'野兽','毒伤':'毒箭'},n:'射手',pal:{C:'#b07a3a',B:'#3f9a4a',b:'#21562a',l:'#8ae09a',G:'#3f9a4a',D:'#21562a'},hp:140,spd:76,dmg:24,cd:.5,atk:'arrow',kite:1,skCd:5,sk:'箭雨',skD:'向敌群倾泻持续箭雨',ult:'天穹箭幕',crit:.12},
- assassin:{role:'assassin',specs:['暗影','暴击','毒伤'],alias:{'暴击':'致命'},n:'刺客',pal:{C:'#d0b0ff',B:'#5a3a7a',b:'#2a1a40',l:'#a080d0'},hp:150,spd:84,dmg:16,cd:.3,atk:'stab',kite:.3,skCd:5,sk:'影袭',skD:'瞬身连斩多名敌人，必定暴击',ult:'千影杀',crit:.25,critDmg:2},
- ninja:{role:'assassin',specs:['影遁','连击','雷电'],alias:{'连击':'手里剑','雷电':'雷遁'},n:'忍者',pal:{C:'#5a5a7a',B:'#2a2a3a',b:'#14141e',l:'#5a5a7a',r:'#ff4a4a'},hp:140,spd:84,dmg:19,cd:.4,atk:'shuriken',kite:.8,skCd:9,sk:'影分身',skD:'召唤分身一同投掷手里剑',ult:'百鬼夜行'},
- bard:{role:'healer',specs:['战歌','召唤','护盾'],alias:{'召唤':'乐灵','护盾':'守护'},n:'吟游诗人',pal:{C:'#e0b060',B:'#d05aa0',b:'#7a2a5a',l:'#ffa0d8'},hp:150,spd:74,dmg:16,cd:.4,atk:'note',kite:1,skCd:9,sk:'激昂战歌',skD:'攻速、移速大增并回复生命',ult:'终焉交响'},
- paladin:{role:'healer',specs:['惩戒','护盾','吸血'],alias:{'护盾':'防护','吸血':'神圣'},n:'圣骑士',pal:{C:'#ffe8a0',B:'#e8e0c0',b:'#a09060',l:'#ffffff',r:'#e8b33a'},hp:210,spd:68,dmg:26,cd:.6,atk:'hammer',kite:.3,skCd:7,sk:'圣光审判',skD:'圣光爆发造成伤害，治疗并获得护盾',ult:'神恩降临'},
+ sword:{role:'mphys',specs:['剑气','剑阵','暴击'],n:'剑士',pal:{B:'#c0c8d8',b:'#6a7288',l:'#ffffff'},hp:180,spd:74,dmg:22,cd:.5,atk:'slash',kite:.35,skCd:6,sk:'剑刃风暴',skD:'旋转剑刃，持续切割身边敌人',ult:'万剑归宗'},
+ mage:{role:'rmag',specs:['奥术','火焰','冰霜'],n:'法师',pal:{C:'#b48cff',B:'#3f74e0',b:'#22408f',l:'#86b4ff'},hp:130,spd:72,dmg:18,cd:.45,atk:'orb',kite:1,skCd:4,sk:'连锁闪电',skD:'闪电在敌群中弹射并爆炸',ult:'星辰陨落'},
+ brawler:{role:'mphys',specs:['震地','吸血','连击'],alias:{'吸血':'嗜血','连击':'狂暴'},n:'斗士',pal:{C:'#ffa070',B:'#c4572a',b:'#7a2e14',l:'#ffa070'},hp:220,spd:72,dmg:28,cd:.55,atk:'fist',kite:.25,vamp:.05,skCd:5,sk:'震地猛击',skD:'重击地面，眩晕并击退周围敌人',ult:'崩山拳'},
+ eng:{role:'rphys',specs:['炮台','连击','雷电'],alias:{'连击':'弹药','雷电':'电能'},n:'工程师',pal:{C:'#8a8a9a',B:'#d8a030',b:'#8a6018',l:'#ffe08a'},hp:150,spd:72,dmg:11,cd:.22,atk:'bullet',kite:1,skCd:8,sk:'部署炮台',skD:'放置自动炮台扫射敌人',ult:'轨道炮击'},
+ archer:{role:'rphys',specs:['射击','召唤','毒伤'],alias:{'召唤':'野兽','毒伤':'毒箭'},n:'射手',pal:{C:'#b07a3a',B:'#3f9a4a',b:'#21562a',l:'#8ae09a',G:'#3f9a4a',D:'#21562a'},hp:140,spd:76,dmg:24,cd:.5,atk:'arrow',kite:1,skCd:5,sk:'箭雨',skD:'向敌群倾泻持续箭雨',ult:'天穹箭幕',crit:.12},
+ assassin:{role:'mphys',specs:['暗影','暴击','毒伤'],alias:{'暴击':'致命'},n:'刺客',pal:{C:'#d0b0ff',B:'#5a3a7a',b:'#2a1a40',l:'#a080d0'},hp:150,spd:84,dmg:16,cd:.3,atk:'stab',kite:.3,skCd:5,sk:'影袭',skD:'瞬身连斩多名敌人，必定暴击',ult:'千影杀',crit:.25,critDmg:2},
+ ninja:{role:'rphys',specs:['影遁','连击','雷电'],alias:{'连击':'手里剑','雷电':'雷遁'},n:'忍者',pal:{C:'#5a5a7a',B:'#2a2a3a',b:'#14141e',l:'#5a5a7a',r:'#ff4a4a'},hp:140,spd:84,dmg:19,cd:.4,atk:'shuriken',kite:.8,skCd:9,sk:'影分身',skD:'召唤分身一同投掷手里剑',ult:'百鬼夜行'},
+ bard:{role:'rheal',specs:['战歌','召唤','护盾'],alias:{'召唤':'乐灵','护盾':'守护'},n:'吟游诗人',pal:{C:'#e0b060',B:'#d05aa0',b:'#7a2a5a',l:'#ffa0d8'},hp:150,spd:74,dmg:16,cd:.4,atk:'note',kite:1,skCd:9,sk:'激昂战歌',skD:'攻速、移速大增并回复生命',ult:'终焉交响'},
+ paladin:{role:'mheal',specs:['惩戒','护盾','吸血'],alias:{'护盾':'防护','吸血':'神圣'},n:'圣骑士',pal:{C:'#ffe8a0',B:'#e8e0c0',b:'#a09060',l:'#ffffff',r:'#e8b33a'},hp:210,spd:68,dmg:26,cd:.6,atk:'hammer',kite:.3,skCd:7,sk:'圣光审判',skD:'圣光爆发造成伤害，治疗并获得护盾',ult:'神恩降临'},
 };
 const CLS_IDS=Object.keys(CLS);
 // 每个职业独立绘制（12×14），第 2 帧由腿部错位生成走路动画
@@ -563,42 +563,49 @@ const UNQ={
    [3,'天罚','审判时召唤<br><em>6</em> 道圣光柱',()=>st.heaven=true]]],
 };
 // 通用海克斯：所有职业可得，不计流派；部分带副作用，棱彩无副作用
-const ROLE_N={ranged:'射手',melee:'近战',assassin:'刺客',healer:'治疗'};
+// 通用海克斯按 6 类定位归类（职业流派之外的补充）；'all' 为全职业
+const ROLE_N={mphys:'近战物理',rphys:'远程物理',rmag:'远程法术',mmag:'近战法术',mheal:'近战治疗',rheal:'远程治疗'};
 const GEN=[
- // 所有定位
  ['all',1,'巨人杀手','对首领伤害<br><em>+30%</em>',()=>st.bossDmg*=1.3],
  ['all',2,'超凡邪恶','每击杀 1 个敌人<br>伤害永久 <em>+0.3%</em>',()=>st.soul=true],
- ['all',2,'面包和黄油','技能冷却<br><em>-25%</em>',()=>st.skillCd*=.75],
  ['all',2,'玻璃大炮','伤害 <em>+40%</em>'+NEG('最大生命 -25%'),()=>{st.atkMul*=1.4;pl.maxHp=Math.round(pl.maxHp*.75);pl.hp=Math.min(pl.hp,pl.maxHp);}],
  ['all',2,'终极唤醒','大招冷却<br><em>-50%</em>',()=>st.ultCd*=.5],
- ['all',3,'回归基本功','普攻伤害 <em>+40%</em><br>技能伤害 <em>+60%</em>'+NEG('无法使用大招'),()=>{st.basics=true;st.atkMul*=1.4;st.skillMul*=1.6;},true],
  ['all',3,'疯狂科学家','每个地牢随机变大或变小<br>大：伤害 +40% · 小：攻速移速 +40%',()=>st.mad=true],
- ['all',3,'无限递归','每第 <em>3</em> 次施放技能<br>立即刷新冷却',()=>st.recast=true],
- ['all',3,'递归','技能与大招<br>冷却 <em>-35%</em>',()=>{st.skillCd*=.65;st.ultCd*=.65;}],
- // 射手
- ['ranged',1,'热身运动','普攻命中叠加攻速<br>每层 <em>+1.5%</em>，最多 30 层',()=>st.warmup=true],
- ['ranged',1,'狙击镜','射程 <em>+30%</em><br>普攻伤害 <em>+10%</em>',()=>{st.rangeMul*=1.3;st.atkMul*=1.1;}],
- ['ranged',2,'狂热','攻击速度 <em>+30%</em>'+NEG('受到伤害 +15%'),()=>{st.atkCd*=.77;st.dmgTaken*=1.15;}],
- ['ranged',2,'轨道激光','每 6 秒一道激光<br>贯穿最近的敌人',()=>st.orbital=true],
- ['ranged',3,'台风','普攻额外发射 <em>2</em> 枚<br>且伤害不减',()=>st.multishot+=2],
- // 近战
- ['melee',1,'钢铁意志','受到伤害<br><em>-15%</em>',()=>st.dmgTaken*=.85],
- ['melee',1,'重量级打手','普攻额外造成<br><em>3%</em> 最大生命伤害',()=>st.heavyHit=true],
- ['melee',2,'坦克引擎','每清一个地牢<br>最大生命 <em>+12%</em>',()=>st.tank=true],
- ['melee',2,'以牙还牙','受到伤害时<br>震击周围敌人',()=>st.counter=true],
- ['melee',3,'歌利亚巨人','体型变大 · 生命 <em>+50%</em><br>伤害 <em>+25%</em> · 范围 <em>+30%</em>',()=>{st.giant=true;pl.maxHp=Math.round(pl.maxHp*1.5);pl.hp=Math.round(pl.hp*1.5);st.atkMul*=1.25;st.rangeMul*=1.3;}],
- // 刺客
- ['assassin',1,'处决者','对生命低于一半的敌人<br>伤害 <em>+40%</em>',()=>st.execDmg=true],
- ['assassin',1,'踢踏舞者','移动速度 <em>+20%</em><br>普攻伤害 <em>+10%</em>',()=>{st.speed*=1.2;st.atkMul*=1.1;}],
- ['assassin',2,'兴奋起来','击杀后 3 秒内<br>伤害 <em>+40%</em>',()=>st.rush=true],
- ['assassin',2,'连招大师','每次击杀<br>技能冷却 <em>-0.3</em> 秒',()=>st.killCd=true],
- ['assassin',3,'饮血者','每次击杀回复 <em>1%</em> 生命<br>伤害 <em>+20%</em>',()=>{st.killHealPct+=.01;st.atkMul*=1.2;}],
- // 治疗
- ['healer',1,'海洋龙魂','每秒回复<br><em>1%</em> 最大生命',()=>st.regen+=.01],
- ['healer',1,'山脉龙魂','获得 <em>40</em> 点<br>可再生护盾',()=>{st.shieldMax+=40;pl.shield=Math.max(pl.shield,40);}],
- ['healer',2,'急救用具','施放技能时<br>回复 <em>10%</em> 生命',()=>st.skillHeal=true],
- ['healer',2,'圣光加护','生命高于 80% 时<br>伤害 <em>+30%</em>',()=>st.highHp=true],
- ['healer',3,'坚韧不拔','每秒回复<br><em>2%</em> 最大生命',()=>st.regen+=.02],
+ // 近战物理
+ [['mphys'],1,'钢铁意志','受到伤害<br><em>-15%</em>',()=>st.dmgTaken*=.85],
+ [['mphys'],1,'重量级打手','普攻额外造成<br><em>3%</em> 最大生命伤害',()=>st.heavyHit=true],
+ [['mphys','mheal'],2,'坦克引擎','每清一个地牢<br>最大生命 <em>+12%</em>',()=>st.tank=true],
+ [['mphys'],2,'处决者','对生命低于一半的敌人<br>伤害 <em>+40%</em>',()=>st.execDmg=true],
+ [['mphys'],2,'兴奋起来','击杀后 3 秒内<br>伤害 <em>+40%</em>',()=>st.rush=true],
+ [['mphys'],3,'歌利亚巨人','体型变大 · 生命 <em>+50%</em><br>伤害 <em>+25%</em> · 范围 <em>+30%</em>',()=>{st.giant=true;pl.maxHp=Math.round(pl.maxHp*1.5);pl.hp=Math.round(pl.hp*1.5);st.atkMul*=1.25;st.rangeMul*=1.3;}],
+ // 远程物理
+ [['rphys'],1,'热身运动','普攻命中叠加攻速<br>每层 <em>+1.5%</em>，最多 30 层',()=>st.warmup=true],
+ [['rphys'],1,'狙击镜','射程 <em>+30%</em><br>普攻伤害 <em>+10%</em>',()=>{st.rangeMul*=1.3;st.atkMul*=1.1;}],
+ [['rphys'],1,'踢踏舞者','移动速度 <em>+20%</em><br>普攻伤害 <em>+10%</em>',()=>{st.speed*=1.2;st.atkMul*=1.1;}],
+ [['rphys'],2,'狂热','攻击速度 <em>+30%</em>'+NEG('受到伤害 +15%'),()=>{st.atkCd*=.77;st.dmgTaken*=1.15;}],
+ [['rphys'],2,'轨道激光','每 6 秒一道激光<br>贯穿最近的敌人',()=>st.orbital=true],
+ [['rphys'],3,'台风','普攻额外发射 <em>2</em> 枚<br>且伤害不减',()=>st.multishot+=2],
+ // 远程法术
+ [['rmag','mmag'],1,'面包和黄油','技能冷却<br><em>-25%</em>',()=>st.skillCd*=.75],
+ [['rmag'],1,'法术专精','技能伤害<br><em>+30%</em>',()=>st.skillMul*=1.3],
+ [['rmag'],2,'魔法飞弹','施放技能时额外射出<br><em>5</em> 枚追踪飞弹',()=>st.missiles=true],
+ [['rmag','mmag'],2,'连招大师','每次击杀<br>技能冷却 <em>-0.3</em> 秒',()=>st.killCd=true],
+ [['rmag','mmag'],3,'回归基本功','普攻伤害 <em>+40%</em><br>技能伤害 <em>+60%</em>'+NEG('无法使用大招'),()=>{st.basics=true;st.atkMul*=1.4;st.skillMul*=1.6;}],
+ [['rmag','mmag'],3,'无限递归','每第 <em>3</em> 次施放技能<br>立即刷新冷却',()=>st.recast=true],
+ [['rmag'],3,'递归','技能与大招<br>冷却 <em>-35%</em>',()=>{st.skillCd*=.65;st.ultCd*=.65;}],
+ // 近战法术（预留：目前还没有近战法术职业）
+ [['mmag'],1,'咒刃','施放技能后<br>下 3 次普攻伤害 <em>+60%</em>',()=>st.spellblade=true],
+ [['mmag'],2,'法力护盾','施放技能时<br>获得 <em>25</em> 点护盾',()=>st.manaShield=true],
+ // 近战治疗
+ [['mheal'],1,'山脉龙魂','获得 <em>40</em> 点<br>可再生护盾',()=>{st.shieldMax+=40;pl.shield=Math.max(pl.shield,40);}],
+ [['mheal'],1,'以牙还牙','受到伤害时<br>震击周围敌人',()=>st.counter=true],
+ [['mheal','rheal'],2,'急救用具','施放技能时<br>回复 <em>10%</em> 生命',()=>st.skillHeal=true],
+ [['mheal','rheal'],2,'圣光加护','生命高于 80% 时<br>伤害 <em>+30%</em>',()=>st.highHp=true],
+ [['mheal','rheal'],3,'坚韧不拔','每秒回复<br><em>2%</em> 最大生命',()=>st.regen+=.02],
+ // 远程治疗
+ [['rheal'],1,'海洋龙魂','每秒回复<br><em>1%</em> 最大生命',()=>st.regen+=.01],
+ [['rheal'],1,'复苏之风','每 8 秒<br>回复 <em>8%</em> 生命',()=>st.windHeal=true],
+ [['rheal'],3,'饮血者','每次击杀回复 <em>1%</em> 生命<br>伤害 <em>+20%</em>',()=>{st.killHealPct+=.01;st.atkMul*=1.2;}],
 ];
 const HEX=SHARED.map(([tag,tier,n,d,a,only],i)=>({id:'s'+i,tag,tier,n,d,a,only}));
 for(const c of CLS_IDS){const[tag,list]=UNQ[c];list.forEach(([tier,n,d,a],i)=>HEX.push({id:c+i,tag,tier,n,d,a,cls:c}));}
@@ -638,7 +645,7 @@ Object.assign(SETS,{
  '通用':{},
 });
 const isMelee=()=>!!AT[CLS[G.cls].atk].melee;
-const fits=h=>(!h.cls||h.cls===G.cls)&&(h.tag==='通用'?(h.role==='all'||h.role===CLS[G.cls].role):CLS[G.cls].specs.includes(h.tag))&&(!h.only||h.only===(isMelee()?'melee':'ranged'));
+const fits=h=>(!h.cls||h.cls===G.cls)&&(h.tag==='通用'?(h.role==='all'||h.role.includes(CLS[G.cls].role)):CLS[G.cls].specs.includes(h.tag))&&(!h.only||h.only===(isMelee()?'melee':'ranged'));
 const tn=t=>(CLS[G.cls].alias||{})[t]||t;
 const tagTotal=t=>HEX.filter(h=>h.tag===t&&fits(h)).length;
 const ICON={
@@ -804,7 +811,7 @@ function baseStats(c){const a=AT[c.atk];return{
   slow:0,slowBonus:1,frostNova:false,shatter:false,
   turretMax:2,turretMul:1,turretBoom:false,aftershock:false,rhythm:false,cloneMul:.7,epicSong:false,faith:0,heaven:false,
   extraHits:a.hits?a.hits-1:0,arcMul:1,whirl:false,killSword:false,waveEvery:3,waveMul:1,waveCount:1,judgeEvery:4,judgeMul:1,judgeR:1,judgeHeal:0,
-  basicMul:1,dmgTaken:1,boltEvery:0,ignite:false,freezeEvery:0,warmup:false,heavyHit:false,soul:false,basics:false,mad:false,recast:false,orbital:false,
+  basicMul:1,dmgTaken:1,missiles:false,spellblade:false,manaShield:false,windHeal:false,boltEvery:0,ignite:false,freezeEvery:0,warmup:false,heavyHit:false,soul:false,basics:false,mad:false,recast:false,orbital:false,
   tank:false,counter:false,giant:false,execDmg:false,rush:false,killCd:false,killHealPct:0,skillHeal:false,highHp:false,adren:false,ultCd:5,regen:0,turretRate:1,smoke:false,songCrit:0,songHeal:1,songAtk:.625,
   speed:c.spd,ultMul:1};}
 function reset(){
@@ -813,7 +820,7 @@ function reset(){
   G={state:'play',cls:selCls,t:0,kills:0,lvl:1,pm:1,xp:0,need:12,energy:0,ultT:ULT_CD,skillT:1,atkT:0,atkN:0,shake:0,flash:0,hurtT:0,
      sinceHurt:9,thornT:0,tempSwT:0,owned:new Set(),tags:{},revived:false,offer:null,rer:[0,0,0],booms:[],mcd:[],
      boss:null,pickQ:[],pickDown:'',frz:0,frzT:0,critT:0,critBuffT:0,songT:0,skT:0,skTick:0,after:0,cloneT:0,clones:0,
-     turrets:[],arrowRains:[],pools:[],sched:[],beams:[],slashes:[],holyT:0,hearts:[],parts:[],amb:[],doomT:0,sigilT:0,souls:0,warm:0,rushT:0,mad:0,castN:0,pickN:0,fireT:6,frostT:5,sealT:0,adrT:0,pSlowT:0,dmgAcc:0,dpsHist:[],dpsT:.5,dps:0,cam:{x:0,y:0},log:[]};
+     turrets:[],arrowRains:[],pools:[],sched:[],beams:[],slashes:[],holyT:0,hearts:[],parts:[],amb:[],doomT:0,sigilT:0,souls:0,warm:0,rushT:0,sbN:0,sbArm:false,mad:0,castN:0,pickN:0,fireT:6,frostT:5,sealT:0,adrT:0,pSlowT:0,dmgAcc:0,dpsHist:[],dpsT:.5,dps:0,cam:{x:0,y:0},log:[]};
   newLevel(selLevel,START_R);
   // 从章节中段开局：补齐前面关卡应得的等级与海克斯
   const skip=kOf(selLevel)-1;if(skip){G.xp+=[0,700,2600][skip];while(G.xp>=G.need)levelUp();pl.hp=pl.maxHp;
@@ -943,6 +950,7 @@ function dmg(e,d,o={}){
   if(o.src==='atk'){if(st.rage&&pl.hp<pl.maxHp*.5)d*=1.6;if(st.shieldBash&&pl.shield>0)d*=1.4;}
   if(G.songT>0&&st.epicSong)d*=1.5;
   if(G.adrT>0)d*=2;
+  if(o.src==='atk'&&G.sbN>0&&!o.splash)d*=1.6;
   if(st.soul)d*=1+.003*G.souls;if(st.execDmg&&e.hp<e.max*.5)d*=1.4;if(st.rush&&G.rushT>0)d*=1.4;if(st.highHp&&pl.hp>pl.maxHp*.8)d*=1.3;if(G.mad===1)d*=1.4;
   e.hp-=d;e.flash=.08;G.dmgAcc+=d;G.roomDmg+=d;num(e.x,e.y-6,Math.round(d),crit?'#ffd34a':o.col||'#fff',crit);
   if(o.poison)e.poison=Math.min(st.poisonCap,e.poison+o.poison);
@@ -1059,6 +1067,8 @@ function castSkill(){
   }
   G.skillT=st.skillCd;sfx('zap');G.castN=(G.castN||0)+1;if(st.recast&&G.castN%3===0){G.skillT=.3;toast('无限递归：技能刷新');}
   if(st.skillHeal)pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.1);
+  if(st.spellblade)G.sbN=3;if(st.manaShield)pl.shield=Math.max(pl.shield,25);
+  if(st.missiles)for(let i=0;i<5;i++)fireProj(pl.x,pl.y-2,i*TAU/5,{kind:'orb',dmg:atkBase()*st.skillMul,home:true,boom:0,bounce:0,pierce:0});
 }
 function castUlt(){
   if(!G||G.state!=='play'||G.ultT>0||G.phase!=='fight'||G.sealT>0||st.basics)return;
@@ -1206,7 +1216,7 @@ function update(dt){
 
   // 普攻
   if(G.phase==='fight'&&(G.atkT-=dt)<=0){const T=AT[C.atk],t=T.melee?nearest(pl.x,pl.y,T.reach*st.rangeMul+10):nearestLos(pl,T.range*st.rangeMul*1.6);
-    if(t){G.atkT=st.atkCd*(st.rage&&pl.hp<pl.maxHp*.5?.7:1)/(1+.02*G.frz)/(1+.015*G.warm)/(st.adren&&pl.hp<pl.maxHp*.5?1.4:1)/(G.mad===2?1.4:1)*(G.songT>0?st.songAtk:1);G.atkN++;sfx(T.melee?'slash':'shoot');
+    if(t){G.atkT=st.atkCd*(st.rage&&pl.hp<pl.maxHp*.5?.7:1)/(1+.02*G.frz)/(1+.015*G.warm)/(st.adren&&pl.hp<pl.maxHp*.5?1.4:1)/(G.mad===2?1.4:1)*(G.songT>0?st.songAtk:1);G.atkN++;sfx(T.melee?'slash':'shoot');if(G.sbArm)G.sbN=Math.max(0,G.sbN-1);G.sbArm=G.sbN>0;
       if(st.boltEvery&&G.atkN%st.boltEvery===0)G.boltNext=true;if(st.freezeEvery&&G.atkN%st.freezeEvery===0)G.freezeNext=true;
       const base=angTo(pl,t),n=st.multishot,sp=T.spread||0;
       if(T.melee){swing(base,st.whirl&&G.atkN%4===0);for(let i=0;i<st.extraHits;i++)G.sched.push({t:.09*(i+1),fn:()=>swing(base+(i%2?.35:-.35),false)});}
@@ -1242,6 +1252,7 @@ function update(dt){
 
   // 技能持续效果
   G.rushT-=dt;
+  if(st.windHeal&&G.phase==='fight'&&(G.windT=(G.windT||8)-dt)<=0){G.windT=8;const a=Math.round(pl.maxHp*.08);pl.hp=Math.min(pl.maxHp,pl.hp+a);num(pl.x,pl.y-12,'+'+a,'#7dff8a',true);burst(pl.x,pl.y,10,'#9fffd0',40,.5);}
   if(st.orbital&&G.phase==='fight'&&(G.orbT-=dt)<=0){G.orbT=6;const t=nearest(pl.x,pl.y,400);if(t){const R=G.rm;G.beams.push({x:t.x-7,y:R.y-30,w:14,h:R.h+40,t:.35,T:.35,col:'#ff6a6a'});
     for(const e of en)if(!e.dead&&Math.abs(e.x-t.x)<7+e.r)dmg(e,atkBase()*3,{col:'#ff8a8a'});}}
   G.skillT-=dt;G.ultT-=dt;G.energy=clamp((1-G.ultT/st.ultCd)*100,0,100);
@@ -1441,7 +1452,7 @@ function hud(){
     $('bossN').textContent=G.boss.age<G.boss.fury?`${G.boss.name} · ${Math.ceil(G.boss.fury-G.boss.age)}s 后狂怒`:`${G.boss.name} · 狂怒中`;}
   $('ult').style.setProperty('--en',G.energy);$('ult').classList.toggle('ready',G.ultT<=0&&!st.basics);$('ult').style.opacity=st.basics?.3:1;$('ult').firstChild.textContent=G.ultT<=0?'释放':'大招';
   $('hint').style.opacity=G.state==='play'?1:0;
-  $('hint').textContent=G.phase==='fight'?'自动战斗中 · 按住拖动可走位':'清除！前往下一个房间…';
+  $('hint').textContent=G.phase==='fight'?'':'前往下一个房间…';
   drawMinimap();
 }
 let last=performance.now();
@@ -1476,7 +1487,7 @@ function openPick(bonus){G.pickN++;
 }
 function synHTML(tag,h0={}){
   const s=SETS[tag]||{},ks=Object.keys(s).map(Number);
-  if(!ks.length)return `<div class="syn"><span>${h0.role&&h0.role!=='all'?ROLE_N[h0.role]+'通用':'通用'}</span></div><div class="si">不计入流派</div>`;
+  if(!ks.length)return `<div class="syn"><span>${h0.role&&h0.role!=='all'?ROLE_N[CLS[G.cls].role]+'通用':'全职业通用'}</span></div>`;
   const c=G.tags[tag]||0,n=c+1,tot=tagTotal(tag);let h='';
   for(let i=0;i<tot;i++)h+=`<i class="${i<c?'on':i===c?'nx':''}"></i>`;
   const next=ks.find(k=>k>=n);
@@ -1488,12 +1499,12 @@ function chipsHTML(){return Object.keys(SETS).filter(t=>G.tags[t]&&Object.keys(S
 function renderPick(){
   const [tnm,tc]=TIER[G.offer.tier];
   $('pick').innerHTML=`<div class="head"><div class="lv">海克斯 · 第 ${G.pickN} 次</div><h1>选择海克斯</h1>
-    <p><b class="tag ${tc}" style="padding:1px 8px">${tnm}</b>　点击卡牌直接获得</p></div>
+    <p><b class="tag ${tc}" style="padding:1px 8px">${tnm}</b></p></div>
     <div class="cards">${G.offer.cards.map((h,i)=>`<div class="col"><div class="cw t${G.offer.tier}" data-i="${i}"><div class="card cut"><div class="inner cut">
-      <div class="icon">${iconOf(h.tag)}</div><div class="t">${h.n}</div><div class="tag ${tc}">${tnm}</div>${h.cls?'<div class="excl">职业流派</div>':''}<div class="div"></div>
+      <div class="icon">${iconOf(h.tag)}</div><div class="t">${h.n}</div><div class="tag ${tc}">${tnm}</div><div class="div"></div>
       <div class="d">${h.d}</div>${synHTML(h.tag,h)}</div></div></div>
       <div class="reroll${G.rer[i]?' used':''}" data-r="${i}"><svg viewBox="0 0 12 12"><rect x=".5" y="2" width="11" height="8" rx="1" fill="none" stroke="currentColor"/><path d="M5 4.2v3.6L8 6z" fill="currentColor"/></svg>${G.rer[i]?'已刷新':'刷新'}</div></div>`).join('')}</div>
-    <div class="build"><p>当前流派</p><div class="chips">${chipsHTML()||'<span class="chip" style="padding-left:7px">暂无</span>'}</div></div>`;
+    <div class="build"><div class="chips">${chipsHTML()}</div></div>`;
 }
 function choose(i){
   if(G.state!=='pick')return;
@@ -1531,7 +1542,7 @@ function renderClasses(){
   $('classes').innerHTML=CLS_IDS.map(id=>`<div class="cls${id===selCls?' on':''}" data-c="${id}"><canvas data-p="${id}"></canvas>${CLS[id].n}</div>`).join('');
   for(const cv of document.querySelectorAll('[data-p]')){const c=CLS[cv.dataset.p];cv.width=c.img[0].width;cv.height=c.img[0].height;cv.getContext('2d').drawImage(c.img[0],0,0);}
   const c=CLS[selCls],al=c.alias||{},ex=c.specs.map(t=>al[t]||t).join(' · ');
-  $('cinfo').innerHTML=`<b>${c.n}</b>　生命 ${c.hp} · 移速 ${c.spd} · ${AT[c.atk].melee?'近战':'远程'} · ${{slash:'挥剑 + 剑气',orb:'法球',fist:'范围挥拳 + 吸血',bullet:'速射子弹',arrow:'长弓',stab:'双刺',shuriken:'弹射手里剑',note:'追踪音符',hammer:'圣锤 + 审判'}[c.atk]}<br>技能 <em>${c.sk}</em>：${c.skD}<br>大招 <em>${c.ult}</em>　流派：<em>${ex}</em>`;
+  $('cinfo').innerHTML=`<b>${c.n}</b> · ${ROLE_N[c.role]}　生命 ${c.hp} · 移速 ${c.spd} · ${AT[c.atk].melee?'近战':'远程'} · ${{slash:'挥剑 + 剑气',orb:'法球',fist:'范围挥拳 + 吸血',bullet:'速射子弹',arrow:'长弓',stab:'双刺',shuriken:'弹射手里剑',note:'追踪音符',hammer:'圣锤 + 审判'}[c.atk]}<br>技能 <em>${c.sk}</em>：${c.skD}<br>大招 <em>${c.ult}</em>　流派：<em>${ex}</em>`;
 }
 $('classes').addEventListener('click',e=>{const d=e.target.closest('[data-c]');if(d){selCls=d.dataset.c;renderClasses();}});
 $('ver').textContent=VERSION;
@@ -1665,6 +1676,7 @@ const fit=()=>phone.style.transform=`scale(${Math.min(innerWidth/390,innerHeight
 for(const t of ['暴击','雷电','毒伤','召唤','护盾','连击','吸血','剑阵','火焰','冰霜'])for(const ty of ['melee','ranged'])console.assert([2,2,1].every((n,i)=>HEX.filter(h=>h.tag===t&&!h.cls&&(!h.only||h.only===ty)&&h.tier===i+1).length===n),'tag tiers',t,ty);
 for(const c of CLS_IDS){console.assert(HEX.filter(h=>h.cls===c).length===5,'class cards',c);const ty=AT[CLS[c].atk].melee?'melee':'ranged';
   for(const t of CLS[c].specs)console.assert([2,2,1].every((n,i)=>HEX.filter(h=>h.tag===t&&(!h.cls||h.cls===c)&&(!h.only||h.only===ty)&&h.tier===i+1).length===n),'spec tiers',c,t);}
+for(const c of CLS_IDS)console.assert([1,2,3].every(t=>GEN.some(g=>g[1]===t&&(g[0]==='all'||g[0].includes(CLS[c].role)))),'gen pool',c);
 for(const c of CLS_IDS)if(c!=='sword')console.assert(!CLS[c].specs.includes('剑阵'),'sword cards leak',c);
 for(const d of BIG.concat(MINI))console.assert(d.sk.every(s=>SK[s]),'boss skill',d.n);
 console.assert(new Set(BIG.concat(MINI).map(d=>d.sk.slice().sort().join())).size===24,'unique boss kits');
