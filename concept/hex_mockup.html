@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>海克斯选择概念</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#000; }
+  html,body{margin:0;height:100%;background:var(--bg);}
+  body{display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:"Noto Sans SC",sans-serif;}
+  .phone{position:relative;width:390px;height:693px;overflow:hidden;background:#111;transform-origin:center;flex:none;}
+  canvas{position:absolute;left:0;top:0;width:390px;height:693px;}
+  #px{image-rendering:pixelated;}
+
+  /* 战斗操作（暂停中，被压暗） */
+  .ctrl{position:absolute;border-radius:50%;}
+  .joy{left:34px;bottom:44px;width:104px;height:104px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);}
+  .joy::after{content:"";position:absolute;left:32px;top:32px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.28);}
+  .skill{right:112px;bottom:52px;width:58px;height:58px;border:2px solid #6fdcff;background:rgba(20,40,70,.8);display:grid;place-items:center;color:#9ff1ff;font-size:24px;}
+  .ult{right:26px;bottom:74px;width:76px;height:76px;background:conic-gradient(#c58bff 0 80%,rgba(255,255,255,.12) 0);display:grid;place-items:center;}
+  .ult span{width:66px;height:66px;border-radius:50%;background:#2a1748;display:grid;place-items:center;color:#f3dcff;font-weight:900;font-size:15px;}
+
+  .dim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,4,12,.5) 0,rgba(4,4,12,.7) 22%,rgba(4,4,12,.86) 32%,rgba(4,4,12,.86) 72%,rgba(4,4,12,.45) 82%,rgba(4,4,12,.5) 100%);}
+
+  /* HUD */
+  .hud{position:absolute;left:12px;right:12px;top:12px;display:flex;gap:8px;align-items:flex-start;color:#fff;}
+  .ava{width:38px;height:38px;border:1px solid rgba(170,140,255,.6);background:#141631;image-rendering:pixelated;}
+  .bars{flex:1;display:flex;flex-direction:column;gap:4px;padding-top:2px}
+  .bar{height:8px;background:rgba(255,255,255,.12);position:relative}
+  .bar i{position:absolute;inset:0;}
+  .hp i{background:#e5484d;right:0}
+  .en i{background:#b47cff;right:22%}
+  .bars small{font:7px "Press Start 2P",monospace;color:#cfd2e6;letter-spacing:0}
+  .right{text-align:right;font-size:11px;color:#c9cce0;line-height:1.5}
+  .right b{font:9px "Press Start 2P";color:#fff}
+  .kill{font:8px "Press Start 2P";color:#ffcf6a}
+
+  .xp{position:absolute;left:0;right:0;top:66px;height:5px;background:#5ad1ff;box-shadow:0 0 10px #5ad1ff,0 0 20px #5ad1ff;}
+
+  .head{position:absolute;left:0;right:0;top:118px;text-align:center;color:#fff;}
+  .lv{display:inline-block;font:8px "Press Start 2P";color:#5ad1ff;letter-spacing:1px;margin-bottom:10px}
+  .head h1{margin:0;font-size:23px;font-weight:900;letter-spacing:6px;display:flex;align-items:center;justify-content:center;gap:12px}
+  .head h1::before,.head h1::after{content:"";width:40px;height:1px;background:linear-gradient(90deg,transparent,#a07cff)}
+  .head h1::after{transform:scaleX(-1)}
+  .head p{margin:8px 0 0;font-size:11px;color:#8d90ad;letter-spacing:2px}
+
+  /* 海克斯卡：近黑平底 + 细紫切角边 + 大量留白 */
+  .cards{position:absolute;left:0;right:0;top:206px;display:flex;justify-content:center;gap:9px;}
+  .col{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .cw{filter:drop-shadow(0 0 5px rgba(150,105,255,.45));transition:transform .15s}
+  .cw:hover{transform:translateY(-6px)}
+  .cut{--k:9px;clip-path:polygon(var(--k) 0,calc(100% - var(--k)) 0,100% var(--k),100% calc(100% - var(--k)),calc(100% - var(--k)) 100%,var(--k) 100%,0 calc(100% - var(--k)),0 var(--k));}
+  .card{width:116px;height:304px;padding:1px;box-sizing:border-box;background:linear-gradient(180deg,#b18cff,#6a4fd0 50%,#9b7bff);cursor:pointer}
+  .inner{height:100%;background:linear-gradient(180deg,#0d0e1d,#08090f);display:flex;flex-direction:column;align-items:center;--k:8px}
+  .icon{margin-top:30px;width:66px;height:66px;border-radius:50%;background:radial-gradient(circle,#1c1d3c,#0f1024);box-shadow:inset 0 0 0 1px rgba(170,140,255,.28);display:grid;place-items:center}
+  .icon svg{width:40px;height:40px}
+  .t{margin-top:22px;color:#fff;font-size:15px;font-weight:700;letter-spacing:2px}
+  .tag{margin-top:8px;font-size:9px;padding:1px 8px;border-radius:2px;letter-spacing:1px}
+  .r1{color:#7fd8ff;background:rgba(80,180,255,.12);border:1px solid rgba(80,180,255,.35)}
+  .r2{color:#d0a8ff;background:rgba(170,110,255,.12);border:1px solid rgba(170,110,255,.4)}
+  .r3{color:#ffd77a;background:rgba(255,200,90,.1);border:1px solid rgba(255,200,90,.4)}
+  .div{margin:16px 0 14px;width:70%;height:1px;background:linear-gradient(90deg,transparent,rgba(170,140,255,.45),transparent);position:relative}
+  .div::after{content:"";position:absolute;left:50%;top:-2px;width:4px;height:4px;background:#a98bff;transform:translateX(-50%) rotate(45deg)}
+  .d{font-size:11px;line-height:1.75;color:#b5b8d2;text-align:center;padding:0 6px}
+  .d em{font-style:normal;color:#fff}
+  .syn{margin-top:auto;margin-bottom:16px;font-size:9.5px;color:#7e819d;letter-spacing:1px;display:flex;align-items:center;gap:4px}
+  .syn i{width:5px;height:5px;transform:rotate(45deg);background:#3a3c58;display:inline-block}
+  .syn i.on{background:#a98bff}
+  .syn.full{color:#ffd77a}.syn.full i.on{background:#ffd77a}
+
+  .reroll{font-size:10px;color:#9a9dbb;border:1px solid rgba(160,140,255,.28);background:rgba(15,16,32,.7);padding:4px 10px;display:flex;align-items:center;gap:5px;cursor:pointer;letter-spacing:1px}
+  .reroll svg{width:12px;height:12px}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <canvas id="px"></canvas>
+  <canvas id="fx"></canvas>
+
+  <div class="ctrl joy"></div>
+  <div class="ctrl skill">⚡</div>
+  <div class="ctrl ult"><span>大招</span></div>
+
+  <div class="dim"></div>
+
+  <div class="hud">
+    <canvas class="ava" id="ava" style="position:static;width:38px;height:38px"></canvas>
+    <div class="bars">
+      <div class="bar hp"><i></i></div><small>120/120</small>
+      <div class="bar en"><i></i></div>
+    </div>
+    <div class="right"><b>1-3</b> 地下墓穴<br><span class="kill">☠ 486</span></div>
+  </div>
+  <div class="xp"></div>
+
+  <div class="head">
+    <div class="lv">LV 7 → 8</div>
+    <h1>选择海克斯</h1>
+    <p>点击卡牌直接获得</p>
+  </div>
+
+  <div class="cards">
+    <div class="col">
+      <div class="cw"><div class="card cut"><div class="inner cut">
+        <div class="icon"><svg viewBox="0 0 48 48" fill="none" stroke="#8ff3ff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+          <circle cx="9" cy="12" r="3" fill="#8ff3ff"/><circle cx="24" cy="30" r="3" fill="#8ff3ff"/><circle cx="40" cy="14" r="3" fill="#8ff3ff"/>
+          <path d="M11 15l5 4-3 2 9 7"/><path d="M26 27l4-6 2 3 6-8"/><path d="M24 34v4l-3 2 3 4" opacity=".6"/></svg></div>
+        <div class="t">雷霆回响</div><div class="tag r1">稀有</div>
+        <div class="div"></div>
+        <div class="d">闪电链额外<br>弹射 <em>2</em> 次</div>
+        <div class="syn"><span>雷电</span><i class="on"></i><i class="on"></i><i></i></div>
+      </div></div></div>
+      <div class="reroll"><svg viewBox="0 0 12 12"><rect x=".5" y="2" width="11" height="8" rx="1" fill="none" stroke="currentColor"/><path d="M5 4.2v3.6L8 6z" fill="currentColor"/></svg>刷新</div>
+    </div>
+
+    <div class="col">
+      <div class="cw"><div class="card cut"><div class="inner cut">
+        <div class="icon"><svg viewBox="0 0 48 48" fill="none" stroke="#a6ec6c" stroke-width="2.2" stroke-linecap="round">
+          <path d="M24 10c5 8 9 12 9 18a9 9 0 0 1-18 0c0-6 4-10 9-18z" fill="rgba(166,236,108,.15)"/>
+          <path d="M24 3v3M41 12l-2 2M7 12l2 2M45 28h-3M3 28h3M38 42l-2-2M10 42l2-2" stroke="#c99bff"/>
+          <circle cx="21" cy="28" r="2" fill="#a6ec6c"/><circle cx="27" cy="33" r="1.5" fill="#a6ec6c"/></svg></div>
+        <div class="t">剧毒扩散</div><div class="tag r2">史诗</div>
+        <div class="div"></div>
+        <div class="d">中毒敌人死亡时<br>爆炸并传染毒层</div>
+        <div class="syn"><span>毒伤</span><i class="on"></i><i></i><i></i></div>
+      </div></div></div>
+      <div class="reroll"><svg viewBox="0 0 12 12"><rect x=".5" y="2" width="11" height="8" rx="1" fill="none" stroke="currentColor"/><path d="M5 4.2v3.6L8 6z" fill="currentColor"/></svg>刷新</div>
+    </div>
+
+    <div class="col">
+      <div class="cw"><div class="card cut"><div class="inner cut">
+        <div class="icon"><svg viewBox="0 0 48 48" fill="none" stroke="#ffd98a" stroke-width="2" stroke-linecap="round">
+          <ellipse cx="24" cy="34" rx="17" ry="5" stroke-opacity=".55"/>
+          <path d="M24 6v28M20 12h8"/><path d="M13 12l3 20M10 17l6-1"/><path d="M35 12l-3 20M38 17l-6-1"/></svg></div>
+        <div class="t">剑阵共鸣</div><div class="tag r3">传说</div>
+        <div class="div"></div>
+        <div class="d">释放大招时<br>额外召唤<em>剑阵</em></div>
+        <div class="syn full"><span>剑阵</span><i class="on"></i><i class="on"></i><i class="on"></i><span>激活</span></div>
+      </div></div></div>
+      <div class="reroll"><svg viewBox="0 0 12 12"><rect x=".5" y="2" width="11" height="8" rx="1" fill="none" stroke="currentColor"/><path d="M5 4.2v3.6L8 6z" fill="currentColor"/></svg>刷新</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 像素战斗背景：195x347 逻辑分辨率，2 倍放大
+const W=195,H=347,S=2;
+const cv=document.getElementById('px');cv.width=W;cv.height=H;
+const c=cv.getContext('2d');
+let seed=11;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
+
+const P={W:'#e9e5d4',S:'#9d9886',K:'#14121c',G:'#5fcf5a',L:'#b6f59a',D:'#2f8a3b',P:'#8a55cc',Q:'#5a3290',
+  B:'#3f74e0',b:'#22408f',F:'#f2c9a0',Y:'#e8b33a',Z:'#4a3426',R:'#ff5050',C:'#d6e8ff',O:'#8a5a32',o:'#5e3c22'};
+const SK=["..WWW..",".WWWWW.",".WKWKW.",".WWWWW.","..WSW..",".SWWWS.","W.WWW.W","..S.S..","..W.W.."];
+const SL=["..GGGG..",".GLGGGG.","GGKGGKGG","GGGGGGGG","DGGGGGGD",".DDDDDD."];
+const BT=["P.......P","PP.QPQ.PP","PPPRPRPPP",".P.PPP.P.","....P...."];
+const HE=["..BBBB..",".BBBBBB.","BBFFFFBB","BFKFFKFB",".BFFFFB.",".bBBBBb.","bBBYYBBb",".BBBBBB.","..b..b..","..Z..Z.."];
+const SW=[".C.",".C.",".C.",".C.",".C.","YYY",".Z."];
+function spr(rows,x,y,flash){x|=0;y|=0;rows.forEach((r,j)=>{for(let i=0;i<r.length;i++){const ch=r[i];if(ch==='.')continue;c.fillStyle=flash?'#fff':P[ch];c.fillRect(x+i,y+j,1,1);}});}
+const rect=(col,x,y,w,h)=>{c.fillStyle=col;c.fillRect(x|0,y|0,w,h);};
+
+// 地板
+const T=15;
+for(let y=0;y<H;y+=T)for(let x=0;x<W;x+=T){
+  rect(['#2b2e40','#2e3144','#292c3d','#30334a'][(rnd()*4)|0],x,y,T,T);
+  rect('#23253a',x+T-1,y,1,T);rect('#23253a',x,y+T-1,T,1);
+  if(rnd()<.25){rect('#24263a',x+3+rnd()*8,y+3+rnd()*8,3,1);}
+  if(rnd()<.12){rect('#3b5a3a',x+rnd()*12,y+rnd()*12,2,1);}
+}
+// 墙：上墙（顶盖+砖面）、左右、下
+rect('#15172a',0,0,W,16);rect('#4a4f6c',0,15,W,1);
+for(let y=16;y<46;y+=5){rect('#2a2d42',0,y,W,1);for(let x=((y/5)%2)*6;x<W;x+=12)rect('#2a2d42',x,y,1,5);}
+c.fillStyle='rgba(58,62,88,1)';
+for(let y=17;y<46;y+=5)for(let x=0;x<W;x+=12){rect('#3a3e58',x+((y/5|0)%2)*6+1,y,10,4);}
+rect('#14151f',0,46,W,2);rect('rgba(0,0,0,.25)',0,48,W,3);
+rect('#15172a',0,0,9,H);rect('#4a4f6c',8,16,1,H-30);
+rect('#15172a',W-9,0,9,H);rect('#4a4f6c',W-9,16,1,H-30);
+rect('#15172a',0,H-14,W,14);rect('#4a4f6c',8,H-14,W-16,1);
+// 门（战斗中关闭，铁栅）
+function door(x,y,w,h,vert){rect('#0c0d14',x,y,w,h);c.fillStyle='#9aa0c0';
+  if(vert)for(let j=y+2;j<y+h;j+=4)c.fillRect(x,j,w,1);else for(let i=x+2;i<x+w;i+=4)c.fillRect(i,y,1,h);
+  rect('#c94a4a',vert?x:x,vert?y:y+h-2,vert?w:w,2);}
+door(84,20,27,26,false);door(0,160,9,28,true);door(W-9,160,9,28,true);door(84,H-14,27,14,false);
+// 火把+旗帜
+const torches=[[40,22],[150,22],[70,22],[120,22]];
+torches.forEach(([x,y],i)=>{ if(i<2){rect('#5a4630',x,y+8,3,6);rect('#ff8a2a',x,y+4,3,4);rect('#ffd34a',x+1,y+3,1,3);}
+  else{rect('#7b2230',x,y+2,9,14);rect('#a8323f',x+1,y+2,7,12);rect('#e8b33a',x+3,y+6,3,3);rect('#7b2230',x+1,y+16,2,2);rect('#7b2230',x+6,y+16,2,2);}});
+// 道具
+function barrel(x,y){rect('#5e3c22',x,y,9,11);rect('#8a5a32',x+1,y,7,11);rect('#3b2616',x,y+3,9,1);rect('#3b2616',x,y+7,9,1);}
+function crate(x,y){rect('#5e3c22',x,y,11,11);rect('#8a5a32',x+1,y+1,9,9);rect('#5e3c22',x+1,y+5,9,1);rect('#5e3c22',x+5,y+1,1,9);}
+barrel(12,52);barrel(22,55);crate(172,52);crate(12,312);barrel(174,314);crate(162,312);
+for(let i=0;i<10;i++){const x=12+rnd()*170,y=60+rnd()*250;rect('#cfcab8',x,y,4,1);rect('#cfcab8',x,y-1,1,1);rect('#cfcab8',x+3,y+1,1,1);}
+
+// 经验宝石（满地 = 刚清完一大波）
+for(let i=0;i<70;i++){const x=12+rnd()*170,y=52+rnd()*262;const col=rnd()<.7?'#5ad1ff':'#7dffb0';
+  rect(col,x+1,y,1,1);rect(col,x,y+1,3,1);rect(col,x+1,y+2,1,1);}
+
+// 怪潮
+const hx=94,hy=196,en=[];
+for(let n=0;en.length<190&&n<6000;n++){
+  const a=rnd()*Math.PI*2,r=18+Math.pow(rnd(),.7)*170;
+  const x=hx+Math.cos(a)*r,y=hy+Math.sin(a)*r*1.05;
+  if(x<11||x>W-20||y<50||y>H-26)continue;
+  if(en.some(e=>Math.abs(e.x-x)<7&&Math.abs(e.y-y)<7))continue;
+  const t=rnd();en.push({x,y,s:t<.45?SK:t<.8?SL:BT,hit:false,poison:false});
+}
+// 闪电链：从英雄跳到最近敌人
+const fxCanvasPts=[];
+function chain(sx,sy,hops,dir){const used=new Set();let cx=sx,cy=sy;const pts=[[sx,sy]];
+  for(let k=0;k<hops;k++){let best=null,bd=1e9;
+    en.forEach((e,i)=>{if(used.has(i))return;const dx=e.x-cx,dy=e.y-cy;if(dir&&Math.sign(dx)!==dir&&k===0)return;const d=dx*dx+dy*dy;if(d<bd&&d>60){bd=d;best=i;}});
+    if(best==null)break;used.add(best);const e=en[best];e.hit=true;cx=e.x+3;cy=e.y+4;pts.push([cx,cy]);}
+  fxCanvasPts.push(pts);}
+chain(hx+4,hy+4,6,1);chain(hx+4,hy+4,5,-1);
+// 毒爆区域（左下）
+const px0=52,py0=262;en.forEach(e=>{if(Math.hypot(e.x-px0,e.y-py0)<20)e.poison=true;});
+for(let y=-22;y<=22;y++)for(let x=-22;x<=22;x++){const d=Math.hypot(x,y);if(d<20&&(x+y)%2===0&&rnd()<.55)rect(d<9?'#7ee05a':'#3f9a3a',px0+x,py0+y,1,1);}
+
+en.sort((a,b)=>a.y-b.y);
+en.forEach(e=>{rect('rgba(0,0,0,.35)',e.x+1,e.y+e.s.length-1,e.s[0].length-2,2);spr(e.s,e.x,e.y,e.hit&&rnd()<.6);
+  if(e.poison){rect('#b6f59a',e.x+2,e.y-3,1,1);rect('#7ee05a',e.x+5,e.y-2,1,1);}});
+// 毒爆环
+for(let a=0;a<Math.PI*2;a+=.12){rect('#d6ffb0',px0+Math.cos(a)*14,py0+Math.sin(a)*14,1,1);}
+
+// 英雄 + 环绕飞剑 + 血条
+rect('rgba(0,0,0,.4)',hx+1,hy+9,6,2);spr(HE,hx,hy);
+[[hx-12,hy-4],[hx+16,hy-2],[hx+2,hy-16],[hx+3,hy+14]].forEach(([x,y])=>spr(SW,x,y));
+rect('#14121c',hx-2,hy-5,12,3);rect('#5fcf5a',hx-1,hy-4,10,1);
+
+// 闪电（像素核心）
+function pxLine(x0,y0,x1,y1,col){x0|=0;y0|=0;x1|=0;y1|=0;const dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1;let e=dx+dy;
+  for(;;){rect(col,x0,y0,1,1);if(x0===x1&&y0===y1)break;const e2=2*e;if(e2>=dy){e+=dy;x0+=sx;}if(e2<=dx){e+=dx;y0+=sy;}}}
+const jag=[];
+fxCanvasPts.forEach(pts=>{for(let i=0;i<pts.length-1;i++){const [a,b]=[pts[i],pts[i+1]];const seg=[[a[0],a[1]]];
+  for(let k=1;k<5;k++){const t=k/5;seg.push([a[0]+(b[0]-a[0])*t+(rnd()-.5)*6,a[1]+(b[1]-a[1])*t+(rnd()-.5)*6]);}seg.push([b[0],b[1]]);
+  for(let k=0;k<seg.length-1;k++)pxLine(seg[k][0],seg[k][1],seg[k+1][0],seg[k+1][1],'#e9fdff');jag.push(seg);}});
+
+// 高分辨率特效层：闪电光晕、毒雾光、伤害数字
+const fx=document.getElementById('fx'),dpr=window.devicePixelRatio||1,K=S*dpr;
+fx.width=W*K;fx.height=H*K;const f=fx.getContext('2d');f.scale(K,K);
+f.globalCompositeOperation='lighter';
+jag.forEach(seg=>{f.strokeStyle='rgba(90,220,255,.55)';f.lineWidth=2.5;f.shadowColor='#5ad1ff';f.shadowBlur=8;f.beginPath();seg.forEach(([x,y],i)=>i?f.lineTo(x+.5,y+.5):f.moveTo(x+.5,y+.5));f.stroke();});
+f.shadowBlur=0;
+const glow=(x,y,r,col)=>{const g=f.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');f.fillStyle=g;f.fillRect(x-r,y-r,r*2,r*2);};
+torches.slice(0,2).forEach(([x,y])=>glow(x+1,y+5,18,'rgba(255,150,60,.35)'));
+glow(px0,py0,26,'rgba(120,230,90,.25)');glow(hx+4,hy+4,22,'rgba(255,220,140,.18)');
+f.globalCompositeOperation='source-over';
+document.fonts.ready.then(()=>{
+  const nums=[];en.filter(e=>e.hit).forEach(e=>nums.push([e.x,e.y-4,String(80+((rnd()*180)|0)),false]));
+  en.filter(e=>e.poison).slice(0,4).forEach(e=>nums.push([e.x,e.y-6,String(40+((rnd()*60)|0)),'p']));
+  nums.push([hx+20,hy-26,'1024!',true],[hx-40,hy+30,'768!',true]);
+  nums.forEach(([x,y,t,k])=>{f.font=(k===true?'7px':'5px')+' "Press Start 2P"';f.lineWidth=1.5;f.strokeStyle='#000';f.strokeText(t,x,y);
+    f.fillStyle=k===true?'#ffd34a':k==='p'?'#a6ec6c':'#fff';f.fillText(t,x,y);});
+});
+
+// 头像
+const av=document.getElementById('ava');av.width=12;av.height=12;const ac=av.getContext('2d');
+HE.slice(0,7).forEach((r,j)=>{for(let i=0;i<r.length;i++)if(r[i]!=='.'){ac.fillStyle=P[r[i]];ac.fillRect(i+2,j+3,1,1);}});
+
+// 缩放适配窗口
+const ph=document.getElementById('phone');
+const fit=()=>{ph.style.transform='scale('+Math.min(innerWidth/390,innerHeight/693)+')';};fit();addEventListener('resize',fit);
+</script>
+</body>
+</html>
