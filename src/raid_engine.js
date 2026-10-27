@@ -14,13 +14,23 @@ function sheet(name){
   SHEET[name]={f:null};
   const im=new Image();
   im.onload=()=>{const f=strip(im,Math.max(1,Math.round(im.width/im.height)));
-    for(const c of f){const x=c.getContext('2d'),w=c.width;x.clearRect(0,0,w,Math.ceil(w*.025));x.clearRect(0,0,2,w);x.clearRect(w-2,0,2,w);}   // 去掉 GPT 合图残留的格线
+    for(const c of f){const x=c.getContext('2d'),w=c.width;x.clearRect(0,0,w,Math.ceil(w*.025));x.clearRect(0,0,2,w);x.clearRect(w-2,0,2,w);trimBleed(c);}   // 去掉 GPT 合图残留的格线和相邻格渗进来的碎片
     SHEET[name].f=f;};
   im.onerror=()=>{SHEET[name].bad=true;};
   im.src='art/'+name+'.png?v='+VERSION;
   return null;
 }
 // ref=[表名, 主体序号]；per=每个主体几帧（首领 4：待机/移动/攻击/施法；小怪 3：待机/走路/攻击）
+// 相邻格的精灵渗进本格底部：脚下隔着空行的一小撮像素清掉，再把主体落回底边
+function trimBleed(c){
+  const w=c.width,h=c.height,x=c.getContext('2d',{willReadFrequently:true}),d=x.getImageData(0,0,w,h),a=d.data,r=new Array(h).fill(0);let tot=0;
+  for(let y=0;y<h;y++)for(let i=0;i<w;i++)if(a[(y*w+i)*4+3]>40){r[y]++;tot++;}
+  if(!tot)return;
+  let y=h-1,low=0;while(y>0&&r[y]>0)low+=r[y--];
+  let gap=0;while(y>0&&r[y]===0){gap++;y--;}
+  if(!low||gap<2||low>tot*.15||y<h*.3)return;
+  x.clearRect(0,y+gap+1,w,h);const sh=h-2-y;if(sh<=0)return;
+  const t=document.createElement('canvas');t.width=w;t.height=h;t.getContext('2d').drawImage(c,0,0);x.clearRect(0,0,w,h);x.drawImage(t,0,sh);}
 function frames(ref,per){
   if(!Array.isArray(ref))return null;
   const f=sheet(ref[0]);
