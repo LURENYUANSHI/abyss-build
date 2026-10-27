@@ -180,7 +180,7 @@ function addStack(kind,max,decay){
 function effAt(x,y,r,T,eff){G.sched.push({t:T,fn:()=>{if(Math.hypot(pl.x-x,pl.y-y)<r+4)applyEff(eff);}});}
 function applyEff(eff,b){
   switch(eff){
-    case'stun':case'freeze':pl.frozenT=Math.max(pl.frozenT,1.1);break;
+    case'stun':case'freeze':pl.frozenT=Math.max(pl.frozenT,1.1);if(eff==='freeze')G.wrapK=1;break;
     case'slow':G.pSlowT=Math.max(G.pSlowT||0,2.5);break;
     case'dot':G.dotT=6;G.dotD=pl.maxHp*.025;break;
     case'fear':G.fearT=1.3;G.fearA=b?angTo(b,pl):rand()*TAU;toast('恐惧！');break;
@@ -317,7 +317,7 @@ const SPECIAL={
   polarityShift(b,p,f){G.pol={sign:rand()<.5?1:-1,t:p.t||18};toast(`极性转换：你是${G.pol.sign>0?'正极（站左半场）':'负极（站右半场）'}`);return 1;},
   losBreath(b,p,f){const r=R();for(let i=0;i<3;i++){const s=randInRoom(30);OBS.push({kind:'pillar',x:s.x-7,y:s.y-7,w:14,h:14,hp:999,flash:0,dead:false,ice:true});}
     castOn(b,{n:'冰霜吐息',T:3*f,need:0,then:()=>{if(los(b,pl)){pl.inv=0;hurt(b.skd*4);}else toast('躲在冰块后，安全！');for(const o of OBS)if(o.ice)o.dead=true;}});toast('躲到冰块后面！');return 3*f+.3;},
-  webWrap(b,p){const r=R(),side=(rand()*4)|0;pl.x=side===0?r.x+8:side===1?r.x+r.w-8:r.cx;pl.y=side===2?r.y+8:side===3?r.y+r.h-8:r.y+r.h/2;pl.frozenT=3;toast('被蛛网包裹！');return .8;},
+  webWrap(b,p){const r=R(),side=(rand()*4)|0;pl.x=side===0?r.x+8:side===1?r.x+r.w-8:r.cx;pl.y=side===2?r.y+8:side===3?r.y+r.h-8:r.y+r.h/2;pl.frozenT=3;G.wrapK=2;toast('被蛛网包裹！');return .8;},
   marks(b,p){G.markN=(G.markN||0)+1;pl.inv=0;hurt(b.skd*.12*Math.pow(G.markN,1.5));return .6;},
   stomach(b,p){const r=R();pl.x=r.cx;pl.y=r.y+r.h-14;G.stomachT=p.t||10;for(let i=0;i<2;i++){const e=spawnAt(r.cx+(i?-30:30),r.y+r.h-20,'SL');e.spd=0;e.hp=e.max*=2;e.name='血肉触须';}toast('被吞入胃中！击杀触须逃出');return 1;},
   siphon(b,p,f){castOn(b,{n:'血液虹吸',T:3*f,need:0,then:()=>{if(G.poisonBloodT>0){b.hp-=b.max*.05;toast('毒血反噬哈卡！');}else{pl.hp*=.75;b.hp=Math.min(b.max,b.hp+b.max*.1);}}});return 3*f;},
@@ -539,6 +539,7 @@ window.raidDraw=g=>{
   if(G.pol){const r=R();g.globalAlpha=.12;g.fillStyle='#ff4a4a';g.fillRect(r.x,r.y,r.w/2,r.h);g.fillStyle='#4a9cff';g.fillRect(r.cx,r.y,r.w/2,r.h);g.globalAlpha=1;
     if(!fxAt(g,RF('black_1',G.pol.sign>0?7:8),pl.x,pl.y-22,14)){g.font='bold 8px sans-serif';g.fillStyle=G.pol.sign>0?'#ff6a6a':'#6ab4ff';g.fillText(G.pol.sign>0?'＋':'－',pl.x,pl.y-20);}}
   if(G.stomachT>0)fxAt(g,RF('black_1',10),pl.x,pl.y,30,.6);
+  if(pl.frozenT>0&&G.wrapK)fxAt(g,RF('green',G.wrapK),pl.x,pl.y-4,20,.85);else G.wrapK=0;   // 冰冻 = 冰块，蛛网包裹 = 茧
   if(G.realm){g.globalAlpha=.18;g.fillStyle=G.realm.tint;const r=R();g.fillRect(r.x,r.y,r.w,r.h);g.globalAlpha=1;}
   if(G.beams3)for(const c of G.beams3.cols){g.strokeStyle=c.c;g.globalAlpha=.7;g.lineWidth=3;g.beginPath();g.moveTo(c.x,c.y);g.lineTo(G.beams3.b.x,G.beams3.b.y);g.stroke();g.globalAlpha=1;if(FX.portal)g.drawImage(FX.portal,c.x-10,c.y-10,20,20);}
   if(G.orbs)for(const o of G.orbs){if(PJ.orb)g.drawImage(PJ.orb,o.x-o.r*.6,o.y-o.r*.6,o.r*1.2,o.r*1.2);}
