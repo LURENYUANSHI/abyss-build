@@ -75,6 +75,11 @@ PROG.un=Math.min(PROG.un,NLV());
 if(selLevel>NLV())selLevel=1;
 
 // 进入一关前预载这一关要用的图
+// 换副本时释放上一个副本的图集与瓦片（共享的特效表保留），防止一路打下来内存越积越多
+let curRaid=null;
+function evictOthers(r){const keep=new RegExp('_'+r.id+'(_|x|z|$)');
+  for(const k in SHEET){const n=k.startsWith('t:')?k.slice(2):k;if(/^(fx_raid|bosses_fx)/.test(n)||keep.test(n))continue;delete SHEET[k];if(k.startsWith('t:'))delete ART[n];}
+  for(const k in ART)if(/^tiles_/.test(k)&&!keep.test(k)&&!/^tiles_c\d$/.test(k))delete ART[k];}
 function preload(L){
   const v=LV[L];if(!v)return;
   const r=RAIDS[v.ri],b=v.b;
@@ -99,7 +104,7 @@ window.raidDecor=(L,type)=>{const r=RAIDS[LV[L].ri],ids=[];(r.props||[]).forEach
   for(let k=0,n=type==='big'?2:1+(rand()<.5);k<n;k++){const i=ids[(rand()*ids.length)|0],q=randInRoom(30);out.push({x:q.x,y:q.y,s:type==='big'?34:28,f:()=>frames(['props_'+r.id,i],2)});}
   return out;};
 const _newLevel=newLevel;
-newLevel=function(L,ri){preload(L);if(LV[L+1])preload(L+1);return _newLevel(L,ri);};
+newLevel=function(L,ri){const rr=LV[L]&&RAIDS[LV[L].ri];if(rr&&curRaid!==rr.id){curRaid=rr.id;evictOthers(rr);}preload(L);if(LV[L+1])preload(L+1);return _newLevel(L,ri);};
 const _renderLevels=renderLevels;
 renderLevels=function(){preload(selLevel);return _renderLevels();};
 
