@@ -90,9 +90,10 @@ var runSim=(cls,ri)=>{const L0=firstL(ri);selCls=cls;selLevel=L0;startGame();con
 const args=process.argv.slice(2);
 if(args.includes('--run')){const ev0=e=>vm.runInContext(e,ctx),RA=ev0('RAIDS'),CL=ev0('CLS_IDS'),runSim=ev0('runSim'),setMeta0=ev0('setMeta');const runs=+(args[1]||2);const t0=Date.now();const cw={};
   const J=[];for(let ri=0;ri<RA.length;ri++){setMeta0(ri);let w=0,n=0,bt=[],deaths={};const per=RA[ri].bosses.map(b=>({n:b.n,t:[],reach:0,die:0}));for(const c of CL)for(let i=0;i<runs;i++){let r;try{r=runSim(c,ri);}catch(e){console.error('ERR',c,ri,e.message);r={w:0,k:-1,bts:[]};}
-      w+=r.w;n++;bt.push(...r.bts.filter(x=>x>0));r.bts.forEach((x,k)=>{if(per[k]&&x>0)per[k].t.push(x);});for(let k=0;k<=Math.min(r.k,per.length-1);k++)per[k].reach++;if(!r.w&&per[r.k]){per[r.k].die++;(per[r.k].where=per[r.k].where||[]).push(r.boss?'首领'+r.bhp+'%':'房'+r.room);}if(!r.w)deaths[r.k+1]=(deaths[r.k+1]||0)+1;(cw[c]=cw[c]||[0,0]);cw[c][0]+=r.w;cw[c][1]++;}
+      w+=r.w;n++;bt.push(...r.bts.filter(x=>x>0));r.bts.forEach((x,k)=>{if(per[k]&&x>0)per[k].t.push(x);});for(let k=0;k<=Math.min(r.k,per.length-1);k++)per[k].reach++;if(!r.w&&per[r.k]){per[r.k].die++;(per[r.k].where=per[r.k].where||[]).push(r.boss?'首领'+r.bhp+'%':'房'+r.room);}if(!r.w)deaths[r.k+1]=(deaths[r.k+1]||0)+1;(cw[c]=cw[c]||[0,0,[]]);cw[c][0]+=r.w;cw[c][1]++;cw[c][2].push(...r.bts.filter(x=>x>0));}
     J.push({ri,clear:w/n,per});    bt.sort((a,b)=>a-b);console.log(`${RA[ri].name}: 整章通关 ${Math.round(w/n*100)}%  首领用时 中位 ${Math.round(bt[bt.length>>1]||0)}s 最慢 ${Math.round(bt[bt.length-1]||0)}s  死在第几关 ${JSON.stringify(deaths)}`);}
   if(args.includes('--json'))writeFileSync(process.env.RUN_JSON||'run_stats.json',JSON.stringify(J));
+  const md=a=>{a.sort((x,y)=>x-y);return Math.round(a[a.length>>1]||0);};console.log('职业首领用时中位：'+CL.map(c=>`${c} ${md(cw[c][2])}s`).join(' | '));
   console.log('职业整章通关：'+CL.map(c=>`${c} ${Math.round(cw[c][0]/cw[c][1]*100)}%`).join(' | ')+`  (${((Date.now()-t0)/1000).toFixed(0)}s)`);process.exit(0);}
 
 const ev=e=>vm.runInContext(e,ctx);

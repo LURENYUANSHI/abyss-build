@@ -690,7 +690,7 @@ function spawnData(b,v,d){
   }
   if(d.open){const o=d.open;if(o.msg)toast(o.msg);if(o.inv)b.inv=true;phaseStart(b,o);
     if(o.go&&(b.skx[o.go]||SK[o.go])){b.mode=o.go;b.say={n:skName(b,o.go),t:1.6};skOf(b,o.go).start(b,1);}}
-  if(d.tip)setTimeout(()=>toast(d.tip),1500);
+
 }
 
 function applyPhase(b,o,on){
