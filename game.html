@@ -268,10 +268,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v33"></script>
+<script src="content/raids_data.js?v=v34"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v33';
+const W=195,H=347,VERSION='v34';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -1771,6 +1771,10 @@ const PJ_SZ={wave:18,orb:12,fireball:14,frost:13,bullet:10,arrow:13,shuriken:10,
 function pjName(p){if(p.src==='turret')return'bullet';if(p.min)return G.cls==='bard'?'note':G.cls==='archer'?'arrow':'orb';
   if(p.kind==='orb'&&G.cls==='mage')return st.burn>0?'fireball':st.slow>0?'frost':'orb';return p.kind==='fist'?'orb':p.kind;}
 function shotName(o){return o.arrow?'earrow':o.fire?'efire':['efire','edragon','epoison','evoid'][chOf(G.L)-1];}
+const GLOW={};
+function glowKey(col){let m=/^rgba\((\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*),\s*([\d.]+)\s*\)$/.exec(col);if(m)return['rgb('+m[1]+')',+m[2]];
+  m=/^(#[0-9a-f]{6})([0-9a-f]{2})$/i.exec(col);if(m)return[m[1],parseInt(m[2],16)/255];return[col,1];}
+function glowSpr(c){let s=GLOW[c];if(s)return s;s=document.createElement('canvas');s.width=s.height=64;const q=s.getContext('2d'),gr=q.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,c);gr.addColorStop(1,'rgba(0,0,0,0)');q.fillStyle=gr;q.fillRect(0,0,64,64);return GLOW[c]=s;}
 function render(){
   const cam=G.cam,lock=G.phase==='fight'||G.phase==='clear',tx=lock?G.rm.cx-W/2:pl.x-W/2,ty=lock?G.rm.y+G.rm.h/2-H*.56:pl.y-H*.55;
   cam.x+=(tx-cam.x)*.08;cam.y+=(ty-cam.y)*.08;if(Math.abs(tx-cam.x)<.3)cam.x=tx;if(Math.abs(ty-cam.y)<.3)cam.y=ty;
@@ -1799,7 +1803,7 @@ function render(){
 
   const sa=SHAKE&&G.shake>0?Math.min(1,G.shake/.3)*2:0,shx=(rand()-.5)*sa,shy=(rand()-.5)*sa;
   const runeWarn=(x,y,r,p,a)=>{g.save();g.translate(x,y);g.rotate(G.t*1.5);g.globalAlpha=a*.6;g.drawImage(FX.rune,-r,-r,r*2,r*2);g.globalAlpha=a;g.drawImage(FX.rune,-r*p,-r*p,r*p*2,r*p*2);g.restore();g.globalAlpha=1;};   // 预警：旋转符文，内圈随蓄力扩大
-  const glow=(x,y,r,col)=>{const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,col);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2);};
+  const glow=(x,y,r,col)=>{const[base,a]=glowKey(col),s=glowSpr(base);if(a<=0)return;const ga=g.globalAlpha;g.globalAlpha=ga*a;g.drawImage(s,x-r,y-r,r*2,r*2);g.globalAlpha=ga;};
   g.setTransform(K,0,0,K,shx*K,shy*K);g.imageSmoothingEnabled=false;g.fillStyle='#07070c';g.fillRect(-4,-4,W+8,H+8);
   g.save();g.translate(-fx,-fy);drawTiles(g,cx,cy);g.restore();g.drawImage(low,cx-fx,cy-fy);
   g.translate(-fx,-fy);
@@ -1893,22 +1897,25 @@ function drawMinimap(){
     mm.fillRect(ox+r.x*s,oy+r.y*s,r.w*s,r.h*s);}
   mm.fillStyle='#ffd77a';mm.fillRect(ox+pl.x*s-1,oy+pl.y*s-1,2,2);
 }
+const HC={};
+const hS=(id,k,v)=>{const key=id+k;if(HC[key]===v)return;HC[key]=v;$(id).style[k]=v;},hT=(id,v)=>{if(HC[id]===v)return;HC[id]=v;$(id).textContent=v;},hC=(id,c,on)=>{const key=id+'.'+c;if(HC[key]===on)return;HC[key]=on;$(id).classList.toggle(c,on);},hP=(id,k,v)=>{const key=id+k;if(HC[key]===v)return;HC[key]=v;$(id).style.setProperty(k,v);};
+const pc=v=>Math.round(v*10)/10+'%';
 function hud(){
-  $('hpI').style.width=(pl.hp/pl.maxHp*100)+'%';
-  $('shB').classList.toggle('on',st.shieldMax>0||pl.shield>0);$('shI').style.width=Math.min(100,pl.shield/Math.max(1,st.shieldMax,pl.shield)*100)+'%';
-  $('hpT').textContent=Math.ceil(pl.hp)+'/'+pl.maxHp+(pl.shield>0?' +'+Math.floor(pl.shield):'');
-  $('enI').style.width=G.energy+'%';$('xpI').style.width=Math.min(100,G.xp/G.need*100)+'%';
-  $('lvT').textContent=`LV ${G.lvl}  DPS ${Math.round(G.dps)}`;
-  const c=G.cfg;$('killT').textContent=`地牢 ${G.ri+1}/${G.rooms.length} · `+(c.type==='normal'?`剩余 ${c.quota-G.spawned+en.length}`:c.type==='mini'?'精英':(isChief(G.L)?'尾王':'首领'));
+  hS('hpI','width',pc((pl.hp/pl.maxHp*100)));
+  hC('shB','on',st.shieldMax>0||pl.shield>0);hS('shI','width',pc(Math.min(100,pl.shield/Math.max(1,st.shieldMax,pl.shield)*100)));
+  hT('hpT',Math.ceil(pl.hp)+'/'+pl.maxHp+(pl.shield>0?' +'+Math.floor(pl.shield):''));
+  hS('enI','width',pc(G.energy));hS('xpI','width',pc(Math.min(100,G.xp/G.need*100)));
+  hT('lvT',`LV ${G.lvl}  DPS ${Math.round(G.dps)}`);
+  const c=G.cfg;hT('killT',`地牢 ${G.ri+1}/${G.rooms.length} · `+(c.type==='normal'?`剩余 ${c.quota-G.spawned+en.length}`:c.type==='mini'?'精英':(isChief(G.L)?'尾王':'首领')));
   const bf=[];if(st.soul)bf.push(`超凡邪恶 ${G.souls}`);if(st.warmup&&G.warm)bf.push(`热身 ${G.warm}`);if(G.rushT>0&&st.rush)bf.push('兴奋起来');if(st.basics)bf.push('回归基本功');if(G.sealT>0)bf.push(`封印 ${Math.ceil(G.sealT)}s`);if(G.adrT>0)bf.push(`燃烧刺激 ${Math.ceil(G.adrT)}s`);if(G.critBuffT>0)bf.push(`孢子之力 ${Math.ceil(G.critBuffT)}s`);
-  if(G.songT>0)bf.push(`战歌 ${Math.ceil(G.songT)}s`);if(pl.frozenT>0)bf.push('冻结');if(G.pSlowT>0)bf.push('减速');$('buffT').textContent=bf.join(' · ');
-  $('skill').style.setProperty('--cd',Math.max(0,G.skillT/st.skillCd*100));$('skill').classList.toggle('seal',G.sealT>0);
-  $('bossBar').classList.toggle('on',!!G.boss&&G.state!=='pick');
-  if(G.boss){$('bossI').style.width=Math.max(0,G.boss.hp/G.boss.max*100)+'%';
-    $('bossN').textContent=G.boss.age<G.boss.fury?`${G.boss.name} · ${Math.ceil(G.boss.fury-G.boss.age)}s 后狂怒`:`${G.boss.name} · 狂怒中`;}
-  $('ult').style.setProperty('--en',G.energy);$('ult').classList.toggle('ready',G.ultT<=0&&!st.basics);$('ult').style.opacity=st.basics?.3:1;$('ulTx').textContent=G.ultT<=0?'释放':'大招';
-  $('hint').style.opacity=G.state==='play'?1:0;
-  $('hint').textContent=G.phase==='fight'?'':'前往下一个房间…';
+  if(G.songT>0)bf.push(`战歌 ${Math.ceil(G.songT)}s`);if(pl.frozenT>0)bf.push('冻结');if(G.pSlowT>0)bf.push('减速');hT('buffT',bf.join(' · '));
+  hP('skill','--cd',String(Math.max(0,G.skillT/st.skillCd*100)));hC('skill','seal',G.sealT>0);
+  hC('bossBar','on',!!G.boss&&G.state!=='pick');
+  if(G.boss){hS('bossI','width',pc(Math.max(0,G.boss.hp/G.boss.max*100)));
+    hT('bossN',G.boss.age<G.boss.fury?`${G.boss.name} · ${Math.ceil(G.boss.fury-G.boss.age)}s 后狂怒`:`${G.boss.name} · 狂怒中`);}
+  hP('ult','--en',String(G.energy));hC('ult','ready',G.ultT<=0&&!st.basics);hS('ult','opacity',String(st.basics?.3:1));hT('ulTx',G.ultT<=0?'释放':'大招');
+  hS('hint','opacity',String(G.state==='play'?1:0));
+  hT('hint',G.phase==='fight'?'':'前往下一个房间…');
   drawMinimap();
 }
 let last=performance.now();
@@ -2223,7 +2230,7 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v33"></script>
-<script src="src/raid_engine.js?v=v33"></script>
+<script src="content/skill_fx.js?v=v34"></script>
+<script src="src/raid_engine.js?v=v34"></script>
 </body>
 </html>
