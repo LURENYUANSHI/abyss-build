@@ -67,7 +67,8 @@ vm.runInContext(readFileSync('src/rig.js','utf8'),ctx,{filename:'rig.js'});
 vm.runInContext(`
 // 到达第 ri 章时的账号等级：按正常首通一路打过来的经验估算
 var setMeta=ri=>{PROG.acc={lv:[1,14,16,25,34][ri]??Math.min(80,Math.round(1+ri*8)),xp:0};PROG.inv=[];PROG.eq={};PROG.party=[];
-  for(const[slot]of SLOTS){const it=makeItem(ri);it.slot=slot;it.rar=3;it.set=[0,1,1,3,3][ri]??3;
+  if(ri===0)return;
+  for(const[slot]of SLOTS){const it=makeItem(ri-1);it.slot=slot;it.rar=ri>=3?3:2;it.set=it.rar>=3?[0,1,1,3,3][ri-1]??3:null;
     it.st=slot==='wpn'?{atk:.06*1.7*(1+.25*ri)}:slot==='trk'?{crit:.04*1.7*(1+.25*ri)}:{hp:.07*1.7*(1+.25*ri)};PROG.inv.push(it);PROG.eq[slot]=it.id;}};
 var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0,bt0=-1;
   while(t<T){
@@ -89,8 +90,8 @@ var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);PROG.best={};selCls=cls;se
 `,ctx);
 
 const args=process.argv.slice(2);
-if(args.includes('--run')){const ev0=e=>vm.runInContext(e,ctx),RA=ev0('RAIDS'),CL=ev0('CLS_IDS'),runSim=ev0('runSim'),setMeta0=ev0('setMeta');const runs=+(args[1]||2);const t0=Date.now();const cw={};
-  const J=[];for(let ri=0;ri<RA.length;ri++){setMeta0(ri);let w=0,n=0,bt=[],deaths={};const per=RA[ri].bosses.map(b=>({n:b.n,t:[],reach:0,die:0}));for(const c of CL)for(let i=0;i<runs;i++){let r;try{r=runSim(c,ri);}catch(e){console.error('ERR',c,ri,e.message);r={w:0,k:-1,bts:[]};}
+if(args.includes('--run')){const ev0=e=>vm.runInContext(e,ctx),RA=ev0('RAIDS'),CL0=ev0('CLS_IDS'),ai=args.indexOf('--cls'),CL=ai>0?args[ai+1].split(','):CL0,ci=args.indexOf('--ch'),CH=ci>0?args[ci+1].split(',').map(Number):null,runSim=ev0('runSim'),setMeta0=ev0('setMeta');const runs=+(args[1]||2);const t0=Date.now();const cw={};
+  const J=[];for(let ri=0;ri<RA.length;ri++){if(CH&&!CH.includes(ri))continue;setMeta0(ri);let w=0,n=0,bt=[],deaths={};const per=RA[ri].bosses.map(b=>({n:b.n,t:[],reach:0,die:0}));for(const c of CL)for(let i=0;i<runs;i++){let r;try{r=runSim(c,ri);}catch(e){console.error('ERR',c,ri,e.message);r={w:0,k:-1,bts:[]};}
       w+=r.w;n++;bt.push(...r.bts.filter(x=>x>0));r.bts.forEach((x,k)=>{if(per[k]&&x>0)per[k].t.push(x);});for(let k=0;k<=Math.min(r.k,per.length-1);k++)per[k].reach++;if(!r.w&&per[r.k]){per[r.k].die++;(per[r.k].where=per[r.k].where||[]).push(r.boss?'首领'+r.bhp+'%':'房'+r.room);}if(!r.w)deaths[r.k+1]=(deaths[r.k+1]||0)+1;(cw[c]=cw[c]||[0,0,[]]);cw[c][0]+=r.w;cw[c][1]++;cw[c][2].push(...r.bts.filter(x=>x>0));}
     J.push({ri,clear:w/n,per});    bt.sort((a,b)=>a-b);console.log(`${RA[ri].name}: 整章通关 ${Math.round(w/n*100)}%  首领用时 中位 ${Math.round(bt[bt.length>>1]||0)}s 最慢 ${Math.round(bt[bt.length-1]||0)}s  死在第几关 ${JSON.stringify(deaths)}`);}
   if(args.includes('--json'))writeFileSync(process.env.RUN_JSON||'run_stats.json',JSON.stringify(J));
