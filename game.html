@@ -268,10 +268,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v29"></script>
+<script src="content/raids_data.js?v=v30"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v29';
+const W=195,H=347,VERSION='v30';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -1246,7 +1246,7 @@ function dmg(e,d,o={}){if(!e.dead&&!e.inv)sfx('hit');if(window.dmgMulX&&!e.dead)
   if(o.src==='atk'&&G.sbN>0&&!o.splash)d*=1.6;
   if(st.soul&&o.src!=='atk')d*=1+.003*G.souls;   // 超凡邪恶只加技能伤害
   if(st.execDmg&&e.hp<e.max*.5)d*=1.4;if(st.rush&&G.rushT>0)d*=1.4;if(st.highHp&&pl.hp>pl.maxHp*.8)d*=1.3;if(G.mad===1)d*=1.4;
-  e.hp-=d;e.flash=.08;G.dmgAcc+=d;G.roomDmg+=d;num(e.x,e.y-6,Math.round(d),crit?'#ffd34a':o.col||'#fff',crit);
+  e.hp-=d;e.flash=.08;if(G.t-(e.hurtAt||-9)>.7)e.hurtAt=G.t;G.dmgAcc+=d;G.roomDmg+=d;num(e.x,e.y-6,Math.round(d),crit?'#ffd34a':o.col||'#fff',crit);
   if(o.poison)e.poison=Math.min(st.poisonCap,e.poison+o.poison);
   if(o.src==='atk'&&st.vamp)pl.hp=Math.min(pl.maxHp,pl.hp+d*st.vamp);
   if(crit&&st.critSplash&&!o.splash)for(const x of en)if(x!==e&&!x.dead&&Math.hypot(x.x-e.x,x.y-e.y)<14)dmg(x,d*.5/G.pm,{nocrit:true,splash:true,col:'#ffd34a'});
@@ -1719,7 +1719,9 @@ function drawEntities(c){
       if(e.hidden)c.globalAlpha=.25;
       c.fillStyle='rgba(0,0,0,.35)';c.fillRect(x+2,y+t.h-2-(e.boss?2:0),t.w-4,e.boss?4:2);if(e.art){   // 贴图怪物的程序动画：呼吸、走路摇摆、施法蓄力、受击压扁；有第二姿势时切换帧
         const T=G.t+e.x*.013,cast=e.boss&&e.mode&&e.mode!=='walk',walk=!cast,big=e.boss;
-        let im2=e.formArt?e.formArt:(cast||e.wind>0||e.dash>0||(e.k==='SA'&&e.shotT<.45)||e.atkPose>0)&&e.artAtk?e.artAtk:walk&&e.art.length>1?e.art[((T*(big?4:6))|0)%2]:e.art[0];
+        const A=!e.formArt&&window.animOf&&animOf(e),hit=e.dash>0||(e.k==='SA'&&e.shotT<.45)||e.atkPose>0;
+        let im2=e.formArt?e.formArt:A?(G.t-(e.hurtAt||-9)<.2&&A.hurt?A.hurt:cast?A.cast[((T*5)|0)%2]:e.wind>0?A.wind:hit?A.atk:walk?[A.walk[0],A.idle,A.walk[1],A.idle][((T*(big?6:9))|0)%4]:A.idle)
+          :(cast||e.wind>0||hit)&&e.artAtk?e.artAtk:walk&&e.art.length>1?e.art[((T*(big?4:6))|0)%2]:e.art[0];
         let rot=0,sx=1,sy=1+Math.sin(T*3)*(big?.035:.02),dy=0;
         if(e.k==='SL'&&!big){const q=Math.sin(T*8)*.07;sx+=q;sy-=q;}
         else if(walk&&!e.prop){rot=Math.sin(T*(big?5:8))*(big?.05:.08);dy=-Math.abs(Math.sin(T*(big?5:8)))*(big?1.6:1.2);}
@@ -1792,7 +1794,7 @@ function render(){
   g.translate(-fx,-fy);
   for(const d of G.decor||[]){const f=d.f();if(f)g.drawImage(f[0],d.x-d.s/2,d.y-d.s*.8,d.s,d.s);}
   if(G.vents)for(const v of G.vents){const P=(window.propArt&&propArt('vent'))||ART.props;if(P)g.drawImage(P[v.fx>0?1:0],v.x-13,v.y-20,26,26);else{g.fillStyle='rgba(255,90,30,.5)';g.beginPath();g.arc(v.x,v.y,6,0,TAU);g.fill();}}
-  if(FX.firePool)for(const p of G.pools){g.globalAlpha=p.arm>0?.35:Math.min(1,p.t*2)*.9;const z=p.r*2.4;g.drawImage(FX[p.fire?'firePool':'poisonPool'],p.x-z/2,p.y-z/2,z,z);}g.globalAlpha=1;
+  if(FX.firePool)for(const p of G.pools){g.globalAlpha=p.arm>0?.35:Math.min(1,p.t*2)*.9;const z=p.r*2.4;g.drawImage(p.im||FX[p.fire?'firePool':'poisonPool'],p.x-z/2,p.y-z/2,z,z);}g.globalAlpha=1;
   if(PJ.arrow)for(const a of G.arrowRains){
     for(let i=0;i<5;i++){const x=a.x+(rand()-.5)*a.r*1.6,y=a.y+(rand()-.5)*a.r*1.6;g.save();g.translate(x,y);g.rotate(Math.PI/2);g.drawImage(PJ.arrow,-6,-6,12,12);g.restore();}}
   if(IT.turret)for(const u of G.turrets)g.drawImage(IT.turret,u.x-8,u.y-11,16,16);
@@ -1858,7 +1860,7 @@ function render(){
   for(const r of rings){const p=1-r.t/r.T,rr=r.r0+(r.r1-r.r0)*p,im=FX[RING_FX[r.col]||'quake'];g.globalAlpha=1-p;
     if(im)g.drawImage(im,r.x-rr,r.y-rr,rr*2,rr*2);else{g.strokeStyle=r.col;g.lineWidth=2;g.beginPath();g.arc(r.x,r.y,rr,0,TAU);g.stroke();}}
   g.globalAlpha=1;g.globalCompositeOperation='source-over';
-  for(const o of shots){const im=PJ[shotName(o)];if(im){g.save();g.translate(o.x,o.y);g.rotate(Math.atan2(o.vy,o.vx));g.drawImage(im,-6,-6,12,12);g.restore();continue;}
+  for(const o of shots){const im=o.im||PJ[shotName(o)];if(im){const z=o.im?14:12;g.save();g.translate(o.x,o.y);g.rotate(o.spin?G.t*14:Math.atan2(o.vy,o.vx));g.drawImage(im,-z/2,-z/2,z,z);g.restore();continue;}
     if(o.arrow){const l=Math.hypot(o.vx,o.vy);g.strokeStyle='#e9d6a0';g.lineWidth=1;g.beginPath();g.moveTo(o.x,o.y);g.lineTo(o.x-o.vx/l*5,o.y-o.vy/l*5);g.stroke();continue;}
     g.fillStyle=o.col||'#ff4d8a';g.fillRect(o.x-1.5,o.y-1.5,3,3);g.fillStyle='#fff';g.fillRect(o.x-.5,o.y-.5,1,1);}
   for(const r of rain)if(r.delay<=0){const T=r.kind==='meteor'?.35:.22,p=1-r.fall/T;
@@ -2211,6 +2213,6 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="src/raid_engine.js?v=v29"></script>
+<script src="src/raid_engine.js?v=v30"></script>
 </body>
 </html>

@@ -47,6 +47,11 @@ function tilesOf(name){
 }
 // fallback:[现有图集名, 帧序号]，新图还没生成时用现有美术
 const fb=ref=>Array.isArray(ref)&&ART[ref[0]]&&ART[ref[0]][ref[1]]||null;
+// 动作集：新表 <表名>x（首领 8 帧：待机/走A/走B/蓄力/出手/施法A/施法B/受击；小怪 6 帧：待机/走A/走B/蓄力/出手/受击），没有就用旧表的 4/3 帧凑
+window.animOf=e=>{const r=e.animRef;if(!r)return null;if(e._an&&e._an.full)return e._an;const B=e.animPer===4,n=frames([r[0]+'x',r[1]],B?8:6);
+  if(n&&n.length===(B?8:6))return e._an={full:true,idle:n[0],walk:[n[1],n[2]],wind:n[3],atk:n[4],cast:B?[n[5],n[6]]:[n[3],n[4]],hurt:B?n[7]:n[5]};
+  if(e._an)return e._an;const o=frames(r,e.animPer);if(!o)return null;
+  return e._an=B?{idle:o[0],walk:[o[1],o[1]],wind:o[2],atk:o[2],cast:[o[3]||o[2],o[3]||o[2]],hurt:null}:{idle:o[0],walk:[o[1],o[1]],wind:o[2],atk:o[2],cast:[o[2],o[2]],hurt:null};};
 window.formOf=f=>Array.isArray(f)?((frames(f,1)||[null])[0]):FORM(f);
 
 // ---------- 用数据重建关卡表：一个副本一章，一个首领一关 ----------
@@ -69,11 +74,11 @@ function preload(L){
   const v=LV[L];if(!v)return;
   const r=RAIDS[v.ri],b=v.b;
   tilesOf(r.tiles);tilesOf(tilesFor(L));sheet('props_'+r.id);for(const n of ['black_1','black_2','black_3','green'])sheet('fx_raid_'+n);
-  if(b.art)sheet(b.art[0]);
+  if(b.art){sheet(b.art[0]);sheet(b.art[0]+'x');}
   for(const ph of b.ph||[])if(Array.isArray(ph.form))sheet(ph.form[0]);
   for(const a of b.adds||[])if(a.art)sheet(a.art[0]);
-  for(const m of b.multi||[])if(m.art)sheet(m.art[0]);
-  for(const t of Object.values(r.trash))if(t.art)sheet(t.art[0]);
+  for(const m of b.multi||[])if(m.art){sheet(m.art[0]);sheet(m.art[0]+'x');}
+  for(const t of Object.values(r.trash))if(t.art){sheet(t.art[0]);sheet(t.art[0]+'x');}
 }
 window.raidPreload=preload;
 // 多区副本：首领序号 → 分区瓦片后缀（新瓦片没到时回落到副本通用瓦片）
@@ -113,7 +118,7 @@ window.applyTrash=(e,t)=>{
   e.def=t;e.name=t.n||t.id;
   e.hp=e.max=e.hp*(t.hp||1);e.dmg*=(t.dmg||1);
   const f=frames(t.art,3);
-  if(f){e.art=[f[0],f[1]];e.artAtk=f[2];e.w=e.h=t.size||18;}
+  if(f){e.art=[f[0],f[1]];e.artAtk=f[2];e.w=e.h=t.size||18;e.animRef=t.art;e.animPer=3;}
   else if(fb(t.fallback)){e.art=[fb(t.fallback)];e.w=e.h=t.size||18;}
   for(const a of t.ab||[]){if(a.k==='resist'||a.k==='shield')e.shield={kind:'reduce',t:1e9,pct:a.pct||.5};if(a.k==='touchDot')e.touchDot=a;}
   e.abx=(t.ab||[]).filter(a=>!/^death|packRevive/.test(a.k)).map(a=>Object.assign({t:(a.cd||5)*(.4+rand()*.6)},a));
@@ -123,7 +128,7 @@ function makeElite(b,v){
   const r=RAIDS[v.ri],t=r.trash[v.b.elite];if(!t)return;
   b.name=t.n||v.b.elite;b.def=t;
   const f=frames(t.art,3);
-  if(f){b.art=[f[0],f[1]];b.artAtk=f[2];}
+  if(f){b.art=[f[0],f[1]];b.artAtk=f[2];b.animRef=t.art;b.animPer=3;}
   b.abx=(t.ab||[]).map(a=>Object.assign({t:1},a,{cd:(a.cd||5)*.7}));
 }
 
@@ -142,7 +147,7 @@ function mobTick(e,dt){
       case'nova':G.etels.push({t:'circle',x:e.x,y:e.y,r:a.r||24,left:T,dmg:D,col:'#ff8a5a'});if(a.eff)effAt(e.x,e.y,a.r||24,T,a.eff);break;
       case'aoeAtPlayer':G.etels.push({t:'circle',x:pl.x,y:pl.y,r:a.r||16,left:T,dmg:D,col:'#ff6a6a'});if(a.eff)effAt(pl.x,pl.y,a.r||16,T,a.eff);break;
       case'beam':G.etels.push({t:'line',x:e.x,y:e.y,a:angTo(e,pl),len:a.len||95,w:a.w||4,left:T,dmg:D,col:'#ff4a8a'});break;
-      case'volley':{const n=a.n||3;for(let i=0;i<n;i++){const ang=angTo(e,pl)+(i-(n-1)/2)*.25;shots.push({x:e.x,y:e.y,vx:Math.cos(ang)*(a.spd||75),vy:Math.sin(ang)*(a.spd||75),life:2.5,dmg:D*.6,col:a.col||'#ff7a4a',fire:a.fire});}break;}
+      case'volley':{const n=a.n||3;for(let i=0;i<n;i++){const ang=angTo(e,pl)+(i-(n-1)/2)*.25;shots.push({x:e.x,y:e.y,vx:Math.cos(ang)*(a.spd||75),vy:Math.sin(ang)*(a.spd||75),life:2.5,dmg:D*.6,col:a.col||'#ff7a4a',fire:a.fire,im:projIm(e.name),spin:/斧/.test(e.name||'')});}break;}
       case'blink':{const ang=rand()*TAU,r=50+rand()*30;fxs('smoke',e.x,e.y,18,.3);e.x=clamp(pl.x+Math.cos(ang)*r,G.rm.x+8,G.rm.x+G.rm.w-8);e.y=clamp(pl.y+Math.sin(ang)*r,G.rm.y+8,G.rm.y+G.rm.h-8);pushOut(e,3);fxs('portal',e.x,e.y,18,.3);break;}
       case'summon':{const n=a.n||1;if(en.filter(q=>!q.dead).length>24)break;for(let i=0;i<n;i++){const s=spawnAt(e.x+rand()*16-8,e.y+rand()*16-8,a.base||'BT');s.hp=s.max*=a.hp||.5;}break;}
       case'buffAllies':for(const q of en)if(!q.dead&&!q.boss&&Math.hypot(q.x-e.x,q.y-e.y)<(a.r||50)){q.spd*=1.25;q.dmg*=1.15;}fxs('levelup',e.x,e.y,30,.5);break;
@@ -238,8 +243,12 @@ function afterOf(p,b){
   };
 }
 // 技能名关键词 → 团本特效帧（落地时播放）
-const HITFX=[[/闪电|雷|电/,'black_2',1],[/熔岩|火雨|流星|陨|烈焰|炸弹/,'black_2',3],[/暗影|黑暗/,'black_2',4],[/奥术|魔爆|法力/,'black_2',5],[/神圣|圣光|审判/,'black_2',6],[/蛛网|网/,'black_2',7],
+const HITFX=[[/动能/,'black_3',2],[/精华|之触/,'black_3',0],[/闪电|雷|电/,'black_2',1],[/熔岩|火雨|流星|陨|烈焰|炸弹/,'black_2',3],[/暗影|黑暗/,'black_2',4],[/奥术|魔爆|法力/,'black_2',5],[/神圣|圣光|审判/,'black_2',6],[/蛛网|网/,'black_2',7],
   [/漩涡|旋风|风暴/,'black_2',9],[/虫群|蝗|甲虫/,'black_2',2],[/黑洞|虚空|坍缩/,'black_2',10],[/暮光|传送/,'black_2',11],[/鲜血|血/,'black_2',0],[/枯萎|凋零|亵渎|瘟疫/,'black_3',1]];
+const PROJ=[[/飞斧|斧/,'green',0],[/暗影|黑暗|死灵|术士|亡灵/,'black_2',4],[/熔岩|火|炎|烈焰|炸弹/,'black_2',3],[/神圣|圣光|牧师|审判/,'black_2',6],[/奥术|法力|魔爆/,'black_2',9],[/血/,'black_3',2]];
+function projIm(name){for(const[re,sh,i]of PROJ)if(re.test(name||'')){const f=sheet('fx_raid_'+sh);return f&&f[i]||null;}return null;}
+const BEAMFX=[[/血/,'black_2',0],[/闪电|雷|电/,'black_2',1],[/凝视|眼|光束|射线|吐息/,'black_3',3]];
+function beamIm(name){for(const[re,sh,i]of BEAMFX)if(re.test(name||'')){const f=sheet('fx_raid_'+sh);return f&&f[i]||null;}const f=sheet('fx_raid_black_3');return f&&f[3]||null;}
 function hitFx(name){for(const[re,sh,i]of HITFX)if(re.test(name)){const f=sheet('fx_raid_'+sh);if(!f||!f[i])return null;const k='rf_'+sh+i;FX[k]=f[i];return k;}return null;}
 const ENG={
   tel(b,p,f){
@@ -255,7 +264,8 @@ const ENG={
       if(!p.dmg)g.harmless=true;
       const t=tel(shape,g,T+i*gap,(p.dmg||0)*b.skd,p.eff);
       const af=afterOf(p,b),hk=shape==='circle'&&hitFx(p.say||'');
-      if(af||hk)t.after=()=>{if(af)af(t);if(hk)fxs(hk,t.x,t.y,(t.r||20)*2.2,.5,0,1,1.2);};
+      const bm=shape==='beam'&&beamIm(p.say||'');if(bm){FX.rf_beam_cur=bm;}
+      if(af||hk||bm)t.after=()=>{if(af)af(t);if(hk)fxs(hk,t.x,t.y,(t.r||20)*2.2,.5,0,1,1.2);if(bm){FX['rfb_'+(p.say||'')]=bm;fxs('rfb_'+(p.say||''),t.x,t.y,0,.35,t.a||0,0,1,320,(t.w||8)*2.6,0);}};
       b.tels.push(t);
     }
     return T+(n-1)*gap+.3;
@@ -292,9 +302,11 @@ const ENG={
     fxs('portal',b.x,b.y,30,.5);return .9;
   },
   shots(b,p){
+    const im=projIm(p.say||b.name),k0=shots.length;
     if(p.p==='ring')ringShots(b,p.n||12,rand()*TAU,p.spd||55,(p.dmg||.6)*b.skd);
     else if(p.p==='spiral'){b.spiral={t:p.dur||2,n:0};}
     else{const n=p.n||5;for(let i=0;i<n;i++){const a=angTo(b,pl)+(i-(n-1)/2)*(p.p==='aimed'?.05:.18);shots.push({x:b.x,y:b.y,vx:Math.cos(a)*(p.spd||80),vy:Math.sin(a)*(p.spd||80),life:3,dmg:(p.dmg||.6)*b.skd});}}
+    if(im)for(let i=k0;i<shots.length;i++)shots[i].im=im;
     return p.dur||1;
   },
   charge(b,p,f){SK.charge.start(b,f);return b.at;},
@@ -329,7 +341,7 @@ const SPECIAL={
   healBrother(b,p,f){const o=en.find(e=>e.boss&&e!==b&&!e.dead);if(o){o.hp=Math.min(o.max,o.hp+o.max*(p.pct||.05));fxs('heal',o.x,o.y,26,.5);}return .6;},
   twinTeleport(b,p){const o=en.find(e=>e.boss&&e!==b&&!e.dead);if(o){const x=b.x,y=b.y;b.x=o.x;b.y=o.y;o.x=x;o.y=y;fxs('portal',b.x,b.y,30,.4);fxs('portal',o.x,o.y,30,.4);}return .6;},
   essenceOfRed(b){b.essence=true;toast('红龙精华：大招冷却减半');return .4;},
-  growingPool(b,p){G.pools.push({x:pl.x,y:pl.y,r:10,arm:.6,t:p.t||12,tick:0,dmg:(p.dmg||.25)*b.skd,grow:p.grow||3});return .6;},
+  growingPool(b,p){G.pools.push({x:pl.x,y:pl.y,r:10,arm:.6,t:p.t||12,tick:0,dmg:(p.dmg||.25)*b.skd,grow:p.grow||3,im:RF('black_3',1)});return .6;},
   fixate(b,p){b.fixT=p.t||8;b.spd*=1.3;G.sched.push({t:p.t||8,fn:()=>{b.spd/=1.3;}});toast(`${b.name} 盯上了你！`);return .5;},
   enfeeble(b,p){pl.hp=Math.max(1,pl.hp*(p.p||.1));toast('衰弱！');return .6;},
   demonForm(b,p){b.frenzyT=1e9;b.dmg*=1.3;b.skd*=1.2;fxs('voidFire',b.x,b.y-10,b.w,.8);toast(`${b.name} 化身恶魔！`);return .8;},
@@ -412,6 +424,7 @@ function spawnData(b,v,d){
   if(d.fixed)b.spd=0;
   const f=frames(d.art,4)||(fb(d.fallback)&&[fb(d.fallback)])||(ART.bosses&&[ART.bosses[d.fallbackArt]]);
   if(f){b.art=f.length>=2?[f[0],f[1]]:[f[0]];b.artAtk=f[3]||f[2]||null;b.w=b.h=d.size||(v.last?64:54);}
+  b.animRef=Array.isArray(d.art)?d.art:null;b.animPer=4;b._an=null;
   wrapSkills(b,d.skills);
   b.sk=(d.sk&&d.sk.length?d.sk:b.sk).filter(k=>b.skx[k]||SK[k]);
   if(!b.sk.length)b.sk=['slam'];
@@ -429,7 +442,7 @@ function spawnData(b,v,d){
     for(const m of d.multi){
       const e={...b,tels:b.tels,sec:true,name:m.n,x:b.x+(rand()<.5?-50:50),y:b.y+20,flash:0,poison:0,dead:false,frozenT:0,slowT:0,burnT:0,cyc:0,at:2+rand(),mode:'walk',say:null};
       e.hp=e.max=b.max*(m.hp||1);
-      const mf=frames(m.art,4);if(mf){e.art=[mf[0],mf[1]];e.artAtk=mf[3];}
+      const mf=frames(m.art,4);if(mf){e.art=[mf[0],mf[1]];e.artAtk=mf[3];}e.animRef=Array.isArray(m.art)?m.art:null;e.animPer=4;e._an=null;
       wrapSkills(e,Object.assign({},d.skills,m.skills));
       e.sk=(m.sk||b.sk).filter(k=>e.skx[k]||SK[k]);if(!e.sk.length)e.sk=['slam'];
       e.ph=(m.ph||[]).map(o=>[o.at,o]);e.phi=0;e.autoSk=(m.auto||[]).map(a=>Object.assign({t:a.every||6},a));
@@ -540,10 +553,11 @@ window.raidDraw=g=>{
     if(!fxAt(g,RF('black_1',G.pol.sign>0?7:8),pl.x,pl.y-22,14)){g.font='bold 8px sans-serif';g.fillStyle=G.pol.sign>0?'#ff6a6a':'#6ab4ff';g.fillText(G.pol.sign>0?'＋':'－',pl.x,pl.y-20);}}
   if(G.stomachT>0)fxAt(g,RF('black_1',10),pl.x,pl.y,30,.6);
   if(pl.frozenT>0&&G.wrapK)fxAt(g,RF('green',G.wrapK),pl.x,pl.y-4,20,.85);else G.wrapK=0;   // 冰冻 = 冰块，蛛网包裹 = 茧
-  if(G.realm){g.globalAlpha=.18;g.fillStyle=G.realm.tint;const r=R();g.fillRect(r.x,r.y,r.w,r.h);g.globalAlpha=1;}
-  if(G.beams3)for(const c of G.beams3.cols){g.strokeStyle=c.c;g.globalAlpha=.7;g.lineWidth=3;g.beginPath();g.moveTo(c.x,c.y);g.lineTo(G.beams3.b.x,G.beams3.b.y);g.stroke();g.globalAlpha=1;if(FX.portal)g.drawImage(FX.portal,c.x-10,c.y-10,20,20);}
-  if(G.orbs)for(const o of G.orbs){if(PJ.orb)g.drawImage(PJ.orb,o.x-o.r*.6,o.y-o.r*.6,o.r*1.2,o.r*1.2);}
-  if(G.cutter){const C=G.cutter,r=R(),c={x:r.cx,y:r.y+r.h/2};g.save();g.translate(c.x,c.y);g.rotate(C.a);if(FX.beam)g.drawImage(FX.beam,-300,-C.w*1.5,600,C.w*3);g.restore();}
+  if(G.markN)fxAt(g,RF('black_1',9),pl.x+10,pl.y-18,10+Math.min(6,G.markN));
+  if(G.realm){const rr=R();fxAt(g,RF('black_2',11),rr.cx,rr.y+rr.h/2,70,.25);g.globalAlpha=.18;g.fillStyle=G.realm.tint;const r=R();g.fillRect(r.x,r.y,r.w,r.h);g.globalAlpha=1;}
+  if(G.beams3)for(const c of G.beams3.cols){const bt=RF('black_3',4);if(bt){const a=Math.atan2(G.beams3.b.y-c.y,G.beams3.b.x-c.x),l=Math.hypot(G.beams3.b.x-c.x,G.beams3.b.y-c.y);g.save();g.translate(c.x,c.y);g.rotate(a);g.globalAlpha=.8;g.drawImage(bt,0,-8,l,16);g.restore();g.globalAlpha=1;fxAt(g,RF('black_2',11),c.x,c.y,22);continue;}g.strokeStyle=c.c;g.globalAlpha=.7;g.lineWidth=3;g.beginPath();g.moveTo(c.x,c.y);g.lineTo(G.beams3.b.x,G.beams3.b.y);g.stroke();g.globalAlpha=1;if(FX.portal)g.drawImage(FX.portal,c.x-10,c.y-10,20,20);}
+  if(G.orbs)for(const o of G.orbs){if(fxAt(g,RF('black_2',9),o.x,o.y,o.r*1.4,.9))continue;if(PJ.orb)g.drawImage(PJ.orb,o.x-o.r*.6,o.y-o.r*.6,o.r*1.2,o.r*1.2);}
+  if(G.cutter){const C=G.cutter,r=R(),c={x:r.cx,y:r.y+r.h/2};g.save();g.translate(c.x,c.y);g.rotate(C.a);const ct=RF('black_3',3)||FX.beam;if(ct)g.drawImage(ct,-300,-C.w*1.5,600,C.w*3);g.restore();}
   for(const e of en)if(e.cannons&&!e.dead)for(const c of e.cannons){if(IT.turret)g.drawImage(IT.turret,c.x-9,c.y-12,18,18);g.strokeStyle='rgba(255,215,90,.6)';g.beginPath();g.arc(c.x,c.y,12,0,TAU);g.stroke();}
   if(G.absorb){g.font='bold 7px sans-serif';g.fillStyle='#ffb84a';g.fillText(`吸收盾 ${Math.min(100,Math.round(G.absorb.got/G.absorb.need*100))}% · ${Math.ceil(G.absorb.t)}s`,pl.x,pl.y-26);}
   if(G.mcT>0&&fxAt(g,RF('black_1',2),pl.x,pl.y-22,18*pulse)){}
