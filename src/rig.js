@@ -10,7 +10,8 @@ MAP.boss=MAP.boss||{};if(!MAP.boss['鲁西弗隆'])MAP.boss['鲁西弗隆']={pla
 // 质量不过关的实体停用分件、回到原逐帧图（第 2 轮试玩：散架、丢坐骑 / 翅膀 / 盾、四足和虫类压扁、造型对不上）
 const RIG_OFF=new Set(['玛格曼达','库林纳克斯','狩猎者阿亚米斯','哈卡','加兹兰卡','加尔','焚化者古雷曼格','拉格纳罗斯','血领主曼多基尔','克洛玛古斯','吞咽者布鲁',
   'obsidian_destroyer','gurubashi_bat_rider','hivezara_wasp','hivezara_stinger','shrieker_scarab','razzashi_broodwidow','molten_giant','blackwing_mage','blackwing_legionnaire','qiraji_gladiator']);
-window.rigOf=(kind,key)=>{if(RIG_OFF.has(key))return null;const m=MAP[kind]&&MAP[kind][key];return m||null;};
+// 四足 / 龙 / 虫 / 蛇的分件拼出来容易压扁成一团（第 3 轮试玩），只保留人形和漂浮体型
+window.rigOf=(kind,key)=>{if(RIG_OFF.has(key))return null;const m=MAP[kind]&&MAP[kind][key];return m&&(m.plan==='humanoid'||m.plan==='floater')?m:null;};
 
 function box(c){const w=c.width,h=c.height,d=c.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h).data;let x0=w,y0=h,x1=-1,y1=-1;
   for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>60){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
@@ -194,15 +195,15 @@ window.rigTick=(e,dt)=>{const L=e.rig&&build(e.rig);if(!L)return;const P=(PLAN[e
   e.rk=k;e.rw=(e.rw||0)+(e._wk?dt*7.5:0);};   // 腿跟着移动走，不管上半身在出手还是施法
 // 绘制：(x,y) 脚底中心，h 目标身高，fl 朝左翻转；返回 false 时调用方用旧逐帧图
 window.drawRig=(g,e,x,y,h,fl)=>{if(e._rigBad)return false;let L=e.rig&&build(e.rig);if(!L)return false;let pl=PLAN[e.rig.plan]||PLAN.humanoid,r=e.rp||pl.pose.idle,fr=0;
-  // 侧面比原图瘦太多（要拉 1.35 倍以上）就整套不用分件（正面 / 背面也不用），保持同一种画法
-  {const os=e.oldSide?bandOf(e.oldSide):oldAspect(e);if(os&&os/rigAspect(L,pl,pl.pose.idle)>1.35){e._rigBad=1;return false;}}
+  // 侧面比原图瘦（要拉 1.12 倍以上）就整套不用分件（正面 / 背面也不用），保持同一种画法
+  {const os=e.oldSide?bandOf(e.oldSide):oldAspect(e);if(os&&os/rigAspect(L,pl,pl.pose.idle)>1.12){e._rigBad=1;return false;}}
   // 侧面按正面躯干宽度的 0.75 倍补宽（同身高下比），转身时不会一下变瘦
   if(L.wideF===undefined&&e.rig.front){const F0=build({plan:e.rig.plan==='floater'?'ffront':'front',sheet:e.rig.front,grip:e.rig.grip});
     if(F0){const sw0=(L.b.torso||{}).w,fw0=(F0.b.torso||{}).w;L.wideF=sw0&&fw0?Math.max(L.wide,Math.min(1.5,(fw0/F0.H)*.75/(sw0/L.H))):L.wide;}}
   const vs=e.rf?e.rig.front:e.rb?e.rig.back:null;   // 正面 / 背面共用一套对称姿势
   if(vs){const fp=e.rig.plan==='floater'?'ffront':'front',F=build({plan:fp,sheet:vs,grip:e.rig.grip});if(F){L=F;pl=PLAN[fp];r=e.rpf||FP.idle;fr=1;}}
   // 有原逐帧图的实体：宽高比对齐原图（新旧美术统一，不会越换越瘦）；没有的（英雄）按躯干补宽
-  const oa=oldAspect(e),need=oa?oa/rigAspect(L,pl,pl.pose.idle):1;if(need>1.35){e._rigBad=1;return false;}
+  const oa=oldAspect(e),need=oa?oa/rigAspect(L,pl,pl.pose.idle):1;if(need>1.12){e._rigBad=1;return false;}
   const wd=oa?Math.max(1,need):fr?L.wide:(L.wideF||L.wide);
   const s=h/L.H,w=e.rw||0,walk=!!e._wk;
   const sw=walk?Math.sin(w):0,bob=(walk?-Math.abs(Math.cos(w))*1.4:Math.sin(G.t*2.2)*.5)/s;

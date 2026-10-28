@@ -781,7 +781,8 @@ window.raidFx=(n,i)=>RF(n,i);
 // 全屏技能特效（bosses_fxfull：火 / 冰 / 暗影 / 神圣 / 奥术 / 瘟疫 / 闪电 / 鲜血），按技能名选
 // 全屏技能：按元素颜色从技能中心泛开一层光 + 一圈波纹（程序绘制，不再拉伸低分辨率图片）
 window.fullFx=(name,x,y)=>{G.ffx={col:elemCol(name),t:.7,T:.7,x,y};G.shake=Math.max(G.shake||0,.35);};
-const fxAt=(g,f,x,y,s,a=1)=>{if(!f)return false;g.globalAlpha=a;g.drawImage(f,x-s/2,y-s/2,s,s);g.globalAlpha=1;return true;};
+// 贴图最多放大到原图 2.2 倍（再大就成马赛克）；超出时返回 false，调用方改用程序绘制
+const fxAt=(g,f,x,y,s,a=1)=>{if(!f||s>f.width*2.2)return false;g.globalAlpha=a;g.drawImage(f,x-s/2,y-s/2,s,s);g.globalAlpha=1;return true;};
 window.raidDraw=g=>{
   if(!G)return;
   vfxDraw(g);
@@ -791,7 +792,7 @@ window.raidDraw=g=>{
     if(e.totem)fxAt(g,RF('black_1',5),e.x,e.y-8,26,.7);
     if(e.cast){const w=30,p=1-e.cast.t/e.cast.T,y=e.y-e.h/2-14;fxAt(g,RF('black_2',8),e.x,y+2,40,.9);g.fillStyle='rgba(0,0,0,.7)';g.fillRect(e.x-w/2,y,w,4);g.fillStyle=e.cast.need?'#9fe8ff':'#ffb84a';g.fillRect(e.x-w/2,y,w*p,4);
       g.font='bold 6px sans-serif';g.fillStyle='#fff';g.fillText(e.cast.n+(e.cast.need?` 打断 ${e.cast.hits}/${e.cast.need}`:''),e.x,y-2);}
-    if(e.aura&&e.aura.warm<=0&&FX.whirl){g.globalAlpha=.6;g.drawImage(FX.whirl,e.x-e.aura.r,e.y-e.aura.r,e.aura.r*2,e.aura.r*2);g.globalAlpha=1;}
+    if(e.aura&&e.aura.warm<=0){const r=e.aura.r;if(FX.whirl&&r*2<=FX.whirl.width*2.2){g.globalAlpha=.6;g.drawImage(FX.whirl,e.x-r,e.y-r,r*2,r*2);g.globalAlpha=1;}else{g.save();g.globalAlpha=.18;g.fillStyle='#ff7a3a';g.beginPath();g.arc(e.x,e.y,r,0,TAU);g.fill();g.globalAlpha=.6;g.strokeStyle='#ffb070';g.lineWidth=2;g.setLineDash([6,5]);g.lineDashOffset=-G.t*20;g.stroke();g.restore();}}
     else if(e.aura){g.strokeStyle='rgba(255,60,60,.8)';g.beginPath();g.arc(e.x,e.y,e.aura.r,0,TAU);g.stroke();}
     if(e.shield&&fxAt(g,RF('black_1',e.shield.kind==='reflect'?4:3),e.x,e.y-e.h*.2,e.w*1.4,.55)){}
     else if(e.shield&&FX.shield){g.globalAlpha=.45;g.drawImage(FX.shield,e.x-e.w*.6,e.y-e.h*.7,e.w*1.2,e.w*1.2);g.globalAlpha=1;}
@@ -814,7 +815,7 @@ window.raidDraw=g=>{
     if(G.ffx&&G.ffx.t>0){const F=G.ffx,p=1-F.t/F.T,cx=F.x??rr.x+rr.w/2,cy=F.y??rr.y+rr.h/2,R0=Math.hypot(rr.w,rr.h)*(.25+.85*p);g.save();g.globalCompositeOperation='lighter';
       const gr=g.createRadialGradient(cx,cy,0,cx,cy,R0);gr.addColorStop(0,F.col);gr.addColorStop(.7,F.col);gr.addColorStop(1,'rgba(0,0,0,0)');g.globalAlpha=Math.sin(Math.PI*p)*.35;g.fillStyle=gr;g.fillRect(rr.x,rr.y,rr.w,rr.h);
       g.globalAlpha=(1-p)*.8;g.strokeStyle=F.col;g.lineWidth=3;g.beginPath();g.arc(cx,cy,R0*.8,0,TAU);g.stroke();g.restore();}
-    if(G.realm){fxAt(g,RF('black_2',11),rr.cx,rr.y+rr.h/2,70,.25);if(FF&&FF[2]){g.globalAlpha=.22+.05*Math.sin(G.t*2);g.drawImage(FF[2],rr.x-20,rr.y-20,rr.w+40,rr.h+40);g.globalAlpha=1;}else{g.globalAlpha=.18;g.fillStyle=G.realm.tint;g.fillRect(rr.x,rr.y,rr.w,rr.h);g.globalAlpha=1;}}
+    if(G.realm){fxAt(g,RF('black_2',11),rr.cx,rr.y+rr.h/2,70,.25);g.globalAlpha=.18;g.fillStyle=G.realm.tint;g.fillRect(rr.x,rr.y,rr.w,rr.h);g.globalAlpha=1;}
     g.restore();}
   if(G.beams3)for(const c of G.beams3.cols){const a=Math.atan2(G.beams3.b.y-c.y,G.beams3.b.x-c.x),l=Math.hypot(G.beams3.b.x-c.x,G.beams3.b.y-c.y);drawBeam(g,c.x,c.y,a,l,5,c.c,.9,G.t+c.x);fxAt(g,RF('black_2',11),c.x,c.y,22);}
   if(G.orbs)for(const o of G.orbs){if(fxAt(g,RF('black_2',9),o.x,o.y,o.r*1.4,.9))continue;if(PJ.orb)g.drawImage(PJ.orb,o.x-o.r*.6,o.y-o.r*.6,o.r*1.2,o.r*1.2);}
