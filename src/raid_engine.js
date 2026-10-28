@@ -15,8 +15,8 @@ function sheet(name){
   const im=new Image();
   im.onload=()=>{const f=strip(im,Math.max(1,Math.round(im.width/im.height)));
     // 图集已由 tools/artprep.swift 离线清理、对齐（去残渣/串格碎片/绿边、同组统一缩放与脚底锚点），运行时只切帧
-    SHEET[name].f=f;};
-  im.onerror=()=>{SHEET[name].bad=true;};
+    if(SHEET[name])SHEET[name].f=f;};   // 加载途中换副本会被 evictOthers 清掉
+  im.onerror=()=>{if(SHEET[name])SHEET[name].bad=true;};
   im.src='art/'+name+'.png?v='+VERSION;
   return null;
 }
