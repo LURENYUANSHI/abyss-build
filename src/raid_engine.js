@@ -268,14 +268,17 @@ function afterOf(p,b){
     if(A.adds){const n=A.adds.n||1;for(let i=0;i<n;i++){const e=spawnAt(t.x+rand()*16-8,t.y+rand()*16-8,A.adds.k||'SK');if(A.adds.hp)e.hp=e.max*=A.adds.hp;}}
   };
 }
-// 技能名关键词 → 团本特效帧（落地时播放）
-const HITFX=[[/动能/,'black_3',2],[/精华|之触/,'black_3',0],[/闪电|雷|电/,'black_2',1],[/熔岩|火雨|流星|陨|烈焰|炸弹/,'black_2',3],[/暗影|黑暗/,'black_2',4],[/奥术|魔爆|法力/,'black_2',5],[/神圣|圣光|审判/,'black_2',6],[/蛛网|网/,'black_2',7],
-  [/漩涡|旋风|风暴/,'black_2',9],[/虫群|蝗|甲虫/,'black_2',2],[/黑洞|虚空|坍缩/,'black_2',10],[/暮光|传送/,'black_2',11],[/鲜血|血/,'black_2',0],[/枯萎|凋零|亵渎|瘟疫/,'black_3',1]];
+// 小怪弹道：按怪名选（飞斧手扔斧子、术士扔暗影箭……）
 const PROJ=[[/飞斧|斧/,'green',0],[/暗影|黑暗|死灵|术士|亡灵/,'black_2',4],[/熔岩|火|炎|烈焰|炸弹/,'black_2',3],[/神圣|圣光|牧师|审判/,'black_2',6],[/奥术|法力|魔爆/,'black_2',9],[/血/,'black_3',2]];
 function projIm(name){for(const[re,sh,i]of PROJ)if(re.test(name||'')){const f=sheet('fx_raid_'+sh);return f&&f[i]||null;}return null;}
-const BEAMFX=[[/血/,'black_2',0],[/闪电|雷|电/,'black_2',1],[/凝视|眼|光束|射线|吐息/,'black_3',3]];
-function beamIm(name){for(const[re,sh,i]of BEAMFX)if(re.test(name||'')){const f=sheet('fx_raid_'+sh);return f&&f[i]||null;}const f=sheet('fx_raid_black_3');return f&&f[3]||null;}
-function hitFx(name){for(const[re,sh,i]of HITFX)if(re.test(name)){const f=sheet('fx_raid_'+sh);if(!f||!f[i])return null;const k='rf_'+sh+i;FX[k]=f[i];return k;}return null;}
+// 首领技能特效：content/skill_fx.js 按技能名给出 c/h/e/k/b/p/f，招牌规则覆盖元素兜底
+const SFX=window.SKILL_FX||{sig:[],elem:[]},SPEC={};
+function fxSpec(name){name=name||'';if(SPEC[name])return SPEC[name];const el=SFX.elem.find(([re])=>re.test(name)),sg=SFX.sig.find(([re])=>re.test(name));return SPEC[name]=Object.assign({},el&&el[1],sg&&sg[1]);}
+function fxImg(key){if(!key)return null;const[t,a,b]=key.split(':');
+  if(t==='fx')return FX[a]||null;if(t==='rf')return RF(a,+b);
+  const f=sheet(t==='sig'?'bosses_fx_sig_'+a:'bosses_fxfull');return f&&f[t==='sig'?+b:+a]||null;}
+function fxKey(key){const im=fxImg(key);if(!im)return null;FX['sk_'+key]=im;return 'sk_'+key;}
+window.skillCastFx=(b,name,dur)=>{const k=fxKey(fxSpec(name).c);if(k)fxs(k,b.x,b.y+(b.h||40)*.3,(b.w||50)*1.3,Math.min(1.5,Math.max(.5,dur||1)),0,1.2,1.1);};
 const ENG={
   tel(b,p,f){
     const n=p.n||1,T=(p.T||.8)*f,gap=p.gap||.12,shape=p.t||'circle';
@@ -289,9 +292,12 @@ const ENG={
       if(p.col)g.col=p.col;
       if(!p.dmg)g.harmless=true;
       const t=tel(shape,g,T+i*gap,(p.dmg||0)*b.skd,p.eff);
-      const af=afterOf(p,b),hk=shape==='circle'&&hitFx(p.say||'');
-      const bm=shape==='beam'&&beamIm(p.say||'');if(bm){FX.rf_beam_cur=bm;}
-      if(af||hk||bm)t.after=()=>{if(af)af(t);if(hk)fxs(hk,t.x,t.y,(t.r||20)*2.2,.5,0,1,1.2);if(bm){FX['rfb_'+(p.say||'')]=bm;fxs('rfb_'+(p.say||''),t.x,t.y,0,.35,t.a||0,0,1,320,(t.w||8)*2.6,0);}};
+      const af=afterOf(p,b),sp=fxSpec(p._n||p.say);
+      t.after=()=>{if(af)af(t);let k;
+        if(shape==='circle'&&(k=fxKey(t.r>30&&sp.e?sp.e:sp.h)))fxs(k,t.x,t.y,t.r*2.3,.55,0,.6,1.15);
+        else if(shape==='cone'&&(k=fxKey(sp.k)))fxs(k,t.x,t.y,0,.5,t.a,0,1,t.len,Math.min(t.len,2*t.len*Math.tan(t.ang)),0);
+        else if(shape==='beam'&&(k=fxKey(sp.b)))fxs(k,t.x,t.y,0,.4,t.a||0,0,1,320,(t.w||8)*2.6,0);
+        else if(shape==='rect'&&(k=fxKey(sp.e||sp.h)))for(let j=0;j<3;j++)fxs(k,t.x+t.w*(.2+.3*j),t.y+t.h/2,Math.min(t.w,t.h)*.9,.5,0,0,1.1);};
       b.tels.push(t);
     }
     return T+(n-1)*gap+.3;
@@ -328,7 +334,7 @@ const ENG={
     fxs('portal',b.x,b.y,30,.5);return .9;
   },
   shots(b,p){
-    const im=projIm(p.say||b.name),k0=shots.length;
+    const im=fxImg(fxSpec(p._n||p.say).p)||projIm(p.say||b.name),k0=shots.length;
     if(p.p==='ring')ringShots(b,p.n||12,rand()*TAU,p.spd||55,(p.dmg||.6)*b.skd);
     else if(p.p==='spiral'){b.spiral={t:p.dur||2,n:0};}
     else{const n=p.n||5;for(let i=0;i<n;i++){const a=angTo(b,pl)+(i-(n-1)/2)*(p.p==='aimed'?.05:.18);shots.push({x:b.x,y:b.y,vx:Math.cos(a)*(p.spd||80),vy:Math.sin(a)*(p.spd||80),life:3,dmg:(p.dmg||.6)*b.skd});}}
@@ -407,7 +413,8 @@ function wrapSkills(b,skills){
     const p=b.skills[k];
     if(!p||(SK[k]&&!p.e))continue;
     if(p.e==='builtin'&&SK[p.k]){b.skx[k]=SK[p.k];continue;}
-    b.skx[k]={start(bb,f){const d=(ENG[p.e]||ENG.tel)(bb,p,f);bb.at=Math.max(.4,d||1);},tick(){},end(){}};
+    p._n=p.say||k;
+    b.skx[k]={start(bb,f){const d=(ENG[p.e]||ENG.tel)(bb,p,f);bb.at=Math.max(.4,d||1);skillCastFx(bb,p._n,bb.at);},tick(){},end(){}};
   }
 }
 window.raidAdds=(b,list)=>{const out=[];for(const a of [].concat(list)){if(!a||typeof a!=='object')continue;const n=a.count||3;
@@ -561,8 +568,7 @@ doUlt=function(){_doUlt();for(const e of en)if(e.boss&&!e.dead){if(e.frenzyT>0&&
 const RF=(n,i)=>{const f=sheet('fx_raid_'+n);return f&&f[i]||null;};
 window.raidFx=(n,i)=>RF(n,i);
 // 全屏技能特效（bosses_fxfull：火 / 冰 / 暗影 / 神圣 / 奥术 / 瘟疫 / 闪电 / 鲜血），按技能名选
-const FULL=[[/血/,7],[/火|炎|熔岩|烈焰|地狱|陨|燃/,0],[/冰|霜|雪|寒/,1],[/神圣|圣光|光明|审判/,3],[/奥术|法力|魔爆|星|虚空之/,4],[/毒|瘟疫|疾病|腐|孢子|凋零|酸/,5],[/闪电|雷|电|风暴/,6],[/暗影|黑暗|虚空|暮光|死亡|末日|恐惧/,2]];
-window.fullFx=(name)=>{const f=sheet('bosses_fxfull');if(!f)return;let i=2;for(const[re,k]of FULL)if(re.test(name||'')){i=k;break;}G.ffx={im:f[i],t:.9,T:.9};G.shake=Math.max(G.shake||0,.35);};
+window.fullFx=(name)=>{const im=fxImg(fxSpec(name).f||'full:2');if(!im)return;G.ffx={im,t:.9,T:.9};G.shake=Math.max(G.shake||0,.35);};
 const fxAt=(g,f,x,y,s,a=1)=>{if(!f)return false;g.globalAlpha=a;g.drawImage(f,x-s/2,y-s/2,s,s);g.globalAlpha=1;return true;};
 window.raidDraw=g=>{
   if(!G)return;
