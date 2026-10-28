@@ -65,12 +65,12 @@ vm.runInContext(`
 var setMeta=ri=>{PROG.acc={lv:Math.min(80,Math.round(1+ri*3.5)),xp:0};PROG.inv=[];PROG.eq={};PROG.party=[];
   for(const[slot]of SLOTS){const it=makeItem(ri);it.slot=slot;it.rar=3;it.set=ri%GSET.length;
     it.st=slot==='wpn'?{atk:.06*1.7*(1+.25*ri)}:slot==='trk'?{crit:.04*1.7*(1+.25*ri)}:{hp:.07*1.7*(1+.25*ri)};PROG.inv.push(it);PROG.eq[slot]=it.id;}};
-var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0;
+var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0,bt0=-1;
   while(t<T){
-    if(G.state==='play'){update(dt);if(G.L!==L)return{w:1,t,ri:G.ri};}
+    if(G.state==='play'){update(dt);if(bt0<0&&G.boss&&G.cfg&&G.cfg.type==='big')bt0=t;if(G.L!==L)return{w:1,t,ri:G.ri,bossT:bt0<0?0:t-bt0};}
     else if(G.state==='pick')choose((rand()*G.offer.cards.length)|0);
     else if(G.state==='cutin'){G.cutT-=dt;if(G.cutT<=0){G.state='play';doUlt();}}
-    else return{w:G.state==='win'?1:0,t,ri:G.ri,boss:G.rooms&&G.ri===G.rooms.length-1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode};
+    else return{w:G.state==='win'?1:0,bossT:G.state==='win'&&bt0>=0?t-bt0:0,t,ri:G.ri,boss:G.rooms&&G.ri===G.rooms.length-1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode};
     if(G.state==='play'&&G.pickQ.length)openPick(G.pickQ.shift());t+=dt;}
   return{w:0,t,ri:G.ri,timeout:1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode,ens:en.filter(e=>!e.dead).length};};
 `,ctx);
@@ -86,7 +86,7 @@ else if(spec==='sample')RAIDS.forEach((r,i)=>{const f=firstL(i);levels.push(f+Ma
 else if(spec.startsWith('raid:')){const i=RAIDS.findIndex(r=>r.id===spec.slice(5));const f=firstL(i);for(let k=0;k<RAIDS[i].bosses.length;k++)levels.push(f+k);}
 else levels=spec.split(',').map(Number);
 const runs=+(args[1]||3),classes=args[2]&&args[2]!=='all'?args[2].split(','):CLS_IDS,T=+(args[3]||600);
-const tot={};for(const c of classes)tot[c]={w:0,n:0,t:0,bossDeath:0};
+const tot={};for(const c of classes)tot[c]={w:0,n:0,t:0,bossDeath:0};const bossTs={};
 const perLevel=[];
 const t0=Date.now();
 for(const L of levels){
@@ -94,13 +94,14 @@ for(const L of levels){
   for(const c of classes)for(let i=0;i<runs;i++){
     let r;try{r=lvSim(c,L,T);}catch(e){console.error(`ERR ${c} L${L} ${v.b.n}: ${e.message}\n${(e.stack||'').split('\n').slice(1,3).join('\n')}`);r={w:0,t:0};}
     if(args.includes('--debug')&&!r.w)console.log(`  ${c} L${L} ${v.b.n}: ${r.timeout?'超时':'阵亡'} 房${r.ri} 首领血${r.bhp}% inv=${r.binv} mode=${r.bmode} 剩敌${r.ens??''} t=${Math.round(r.t)}`);
+    if(r.w&&r.bossT)(bossTs[L]=bossTs[L]||[]).push(r.bossT);
     tot[c].w+=r.w;tot[c].n++;tot[c].t+=r.t;if(!r.w&&r.boss)tot[c].bossDeath++;row.w+=r.w;row.n2++;}
   perLevel.push(row);
 }
 console.log(`levels=${levels.length} runs=${runs} time=${((Date.now()-t0)/1000).toFixed(1)}s`);
 console.log('职业胜率：'+classes.map(c=>`${c} ${Math.round(tot[c].w/tot[c].n*100)}%`).join(' | '));
 console.log('首领房阵亡：'+classes.map(c=>`${c} ${tot[c].bossDeath}`).join(' | '));
-if(args.includes('--levels'))for(const r of perLevel)console.log(`L${r.L} ${r.n}: ${Math.round(r.w/r.n2*100)}%`);
+if(args.includes('--levels'))for(const r of perLevel){const b=bossTs[r.L]||[];console.log(`L${r.L} ${r.n}: ${Math.round(r.w/r.n2*100)}%  首领用时 ${b.length?Math.round(b.reduce((a,x)=>a+x,0)/b.length)+'s':'-'}`);}
 
 // --tune N：自动校准。每轮跑全部样本关卡 × 全职业，按偏离均值修正职业系数，按偏离目标胜率修正全局难度
 const ti=args.indexOf('--tune');

@@ -48,6 +48,7 @@ function tilesOf(name){
   SHEET['t:'+name]=1;
   const im=new Image();
   im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(im,0,0,256,256);c.isArt=true;ART[name]=c;};
+  im.onerror=()=>{SHEET['t:'+name]='bad';};
   im.src='art/'+name+'.png?v='+VERSION;
 }
 // fallback:[现有图集名, 帧序号]，新图还没生成时用现有美术
@@ -100,6 +101,14 @@ function preload(L){
   for(const t of Object.values(r.trash))if(t.art){sheet(t.art[0]);sheet(t.art[0]+'x');}
 }
 window.raidPreload=preload;
+function levelSheets(L){const v=LV[L];if(!v)return{sheets:[],tiles:[]};const r=RAIDS[v.ri],b=v.b,S=new Set(['props_'+r.id,'fx_raid_black_1','fx_raid_black_2','fx_raid_black_3','fx_raid_green','bosses_fxfull','bosses_fx_sig_1','bosses_fx_sig_2','bosses_fx_sig_3','bosses_fx_sig_4']);
+  if(Array.isArray(b.art)){S.add(b.art[0]);S.add(b.art[0]+'z');}for(const m of b.multi||[])if(Array.isArray(m.art)){S.add(m.art[0]);S.add(m.art[0]+'z');}
+  for(const ph of b.ph||[])if(Array.isArray(ph.form))S.add(ph.form[0]);for(const a of b.adds||[])if(Array.isArray(a.art))S.add(a.art[0]);
+  for(const t of Object.values(r.trash))if(Array.isArray(t.art)){S.add(t.art[0]);S.add(t.art[0]+'x');}
+  return{sheets:[...S],tiles:[...new Set([r.tiles,tilesFor(L)].filter(Boolean))]};}
+// 进关加载进度：图集要么加载完、要么确认不存在（404）才算就绪
+window.levelReady=L=>{const{sheets,tiles}=levelSheets(L);for(const n of sheets)sheet(n);for(const t of tiles)tilesOf(t);
+  let ok=0;for(const n of sheets)if(SHEET[n]&&(SHEET[n].f||SHEET[n].bad))ok++;for(const t of tiles)if(ART[t]||SHEET['t:'+t]==='bad')ok++;return{ok,total:sheets.length+tiles.length};};
 // 多区副本：首领序号 → 分区瓦片后缀（新瓦片没到时回落到副本通用瓦片）
 const WING={naxx:[1,1,1,2,2,2,3,3,3,4,4,4,4,5,5],aq40:[0,0,0,0,0,0,0,0,1],uld:[0,0,0,0,0,0,0,0,0,0,0,0,1,2],toc:[0,0,0,0,1],icc:[0,0,0,0,1,1,1,2,2,2,0,3]};
 function tilesFor(L){const v=LV[L],r=RAIDS[v.ri],w=(WING[r.id]||[])[v.k];return w?r.tiles+'_'+w:r.tiles;}
@@ -404,7 +413,7 @@ const ENG={
 const SPECIAL={
   polarityShift(b,p,f){G.pol={sign:rand()<.5?1:-1,t:p.t||18};toast(`极性转换：你是${G.pol.sign>0?'正极（站左半场）':'负极（站右半场）'}`);return 1;},
   losBreath(b,p,f){const r=R();for(let i=0;i<3;i++){const s=randInRoom(30);OBS.push({kind:'pillar',x:s.x-7,y:s.y-7,w:14,h:14,hp:999,flash:0,dead:false,ice:true});}
-    castOn(b,{n:'冰霜吐息',T:3*f,need:0,then:()=>{if(los(b,pl)){pl.inv=0;hurt(b.skd*4);}else toast('躲在冰块后，安全！');for(const o of OBS)if(o.ice)o.dead=true;}});toast('躲到冰块后面！');return 3*f+.3;},
+    G.hideFrom=b;castOn(b,{n:'冰霜吐息',T:3*f,need:0,then:()=>{G.hideFrom=null;if(los(b,pl)){pl.inv=0;hurt(b.skd*(p.dmg||4));}else toast('躲在冰块后，安全！');for(const o of OBS)if(o.ice)o.dead=true;}});toast('躲到冰块后面！');return 3*f+.3;},
   webWrap(b,p){const r=R(),side=(rand()*4)|0;pl.x=side===0?r.x+8:side===1?r.x+r.w-8:r.cx;pl.y=side===2?r.y+8:side===3?r.y+r.h-8:r.y+r.h/2;pl.frozenT=3;G.wrapK=2;toast('被蛛网包裹！');return .8;},
   marks(b,p){G.markN=(G.markN||0)+1;pl.inv=0;hurt(b.skd*.12*Math.pow(G.markN,1.5));return .6;},
   stomach(b,p){const r=R();pl.x=r.cx;pl.y=r.y+r.h-14;G.stomachT=p.t||10;for(let i=0;i<2;i++){const e=spawnAt(r.cx+(i?-30:30),r.y+r.h-20,'SL');e.spd=0;e.hp=e.max*=2;e.name='血肉触须';}toast('被吞入胃中！击杀触须逃出');return 1;},

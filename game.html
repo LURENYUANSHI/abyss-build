@@ -23,7 +23,7 @@
   .right{text-align:right;font-size:11px;color:#c9cce0;line-height:1.6;min-width:92px}
   .right b{font:9px "Press Start 2P";color:#fff}
   #killT{font-size:10px;color:#ffcf6a}
-  .xp{position:absolute;left:0;right:0;top:64px;height:5px;background:rgba(255,255,255,.08);z-index:5;pointer-events:none}
+  .xp{display:none}
   .xp i{position:absolute;left:0;top:0;bottom:0;background:#5ad1ff;box-shadow:0 0 8px #5ad1ff}
   #lvT{position:absolute;left:12px;top:74px;font:7px "Press Start 2P";color:#5ad1ff;z-index:5;line-height:1.8}
   #buffT{position:absolute;left:12px;top:96px;font-size:10px;color:#ffd77a;z-index:5;line-height:1.5;pointer-events:none}
@@ -233,6 +233,7 @@
   <div class="btn" id="hexB">⬡<i id="hexN">0</i></div>
   <div class="btn" id="pauseB">❚❚</div>
   <div class="btn" id="spdB">1x</div>
+  <div class="ov" id="loadV"><div class="menu" style="min-width:200px;text-align:center"><div class="hname" style="font-size:14px">载入副本中…</div><div style="height:6px;background:#2a2244;border-radius:3px;margin-top:10px"><b id="loadI" style="display:block;height:100%;width:0;background:linear-gradient(90deg,#8a55ff,#e8b33a);border-radius:3px"></b></div><small id="loadT" style="color:#9a94c0"></small></div></div>
   <div class="ov" id="pauseV"><div class="menu"><div class="hname" style="font-size:15px">暂停</div><button class="b" id="pzGo">继续</button><button class="b ghost" id="pzSnd">音效</button><button class="b ghost" id="pzShk">震屏</button><button class="b ghost" id="pzHome">返回主界面</button></div></div>
   <div id="hexV"></div>
   <div id="hint"></div>
@@ -276,10 +277,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v49"></script>
+<script src="content/raids_data.js?v=v50"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v49';
+const W=195,H=347,VERSION='v50';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -446,7 +447,7 @@ loadArt('bg_home',fitBg,'jpg');loadArt('bg_map',fitBg,'jpg');
 loadArt('elites',im=>strip(im,12));
 loadArt('bosses',im=>strip(im,12));loadArt('forms',im=>strip(im,8));loadArt('props',im=>strip(im,8));
 loadArt('bossesAtk',im=>strip(im,12));loadArt('mobsAtk',im=>strip(im,16));loadArt('elitesAtk',im=>strip(im,12));loadArt('mobs2',im=>strip(im,16));
-loadArt('icons',im=>{const f=strip(im,18);setIcons();return f;});
+loadArt('icons',im=>{const f=strip(im,18);setTimeout(setIcons);return f;});
 loadArt('proj',named(PJ,['wave','orb','fireball','frost','bullet','arrow','shuriken','note','sword','hammer','efire','earrow','epoison','evoid','edragon','eblood'],24));
 loadArt('fx',named(FX,['slash','punch','xslash','holy','explosion','ice','poison','lightning','meteor','heal','levelup','smoke','drain','shield','sound','spark'],48));
 loadArt('fx2',named(FX,['breathFire','breathFrost','beam','lavaPillar','firePool','poisonPool','frostCircle','portal','rune','whirl','quake','spores','doom','voidFire','rock','sigil'],48));
@@ -884,6 +885,7 @@ const MINI=[
  {n:'死亡射手',hpx:.6,b:'SA',pal:{W:'#c4c4c4',S:'#6a6a6a',G:'#ff3a3a'},sk:['volley','spiral']},
 ];
 const BIG_HP=5000,MINI_HP=3400,BOSS_DMG=1.35,LV_STEP=2.5;
+const CURVE=L=>{const f=Math.min(1,Math.max(0,(L-1)/Math.max(1,NLV()-1)));return{hp:.5+.6*f,dmg:.7+.4*f};};   // 难度曲线：首领血 0.5→1.1，敌人伤害 0.7→1.1
 const BAL={bossHp:2.95,bossDmg:1.45,mobHp:1.45,mobDmg:1.25};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
 
 // ---------- 音频：全部用 Web Audio 现场合成（8-bit 风），无外部素材 ----------
@@ -1030,7 +1032,7 @@ function gearStats(){const t={atk:0,hp:0,crit:0,spd:0,skill:0,cdr:0},sets={};
   for(const[slot]of SLOTS){const it=PROG.inv.find(i=>i.id===PROG.eq[slot]);if(!it)continue;for(const k in it.st)t[k]+=it.st[k];if(it.set!==null)sets[it.set]=Math.min(4,(sets[it.set]||0)+1);}
   return{t,sets};}
 // 开局与每关重置海克斯时都调用：装备属性 + 套装 + 账号等级成长
-function metaApply(){const{t,sets}=gearStats(),a=PROG.acc.lv-1;st.atkMul*=1+t.atk+a*.008;pl.maxHp=Math.round(pl.maxHp*(1+t.hp+a*.008));pl.hp=Math.min(pl.hp,pl.maxHp);
+function metaApply(){const{t,sets}=gearStats(),a=PROG.acc.lv-1;st.atkMul*=1+t.atk+a*.008;pl.maxHp=Math.round(pl.maxHp*1.2*(1+t.hp+a*.008));pl.hp=Math.min(pl.hp,pl.maxHp);
   st.crit+=t.crit;st.speed*=1+t.spd;st.skillMul*=1+t.skill;st.skillCd*=1-Math.min(.4,t.cdr);
   for(const k in sets){const S=GSET[k];if(sets[k]>=2)S.b2[1](st,pl);if(sets[k]>=4)S.b4[1](st,pl);}
   for(const id of Object.values(PROG.eq)){const it=PROG.inv.find(x=>x.id===id);for(const k of(it&&it.fx)||[])if(GEFX[k])GEFX[k][1](st,pl);}}   // 装备特效
@@ -1067,7 +1069,7 @@ function baseStats(c){const a=AT[c.atk];return{
 function reset(){
   const C=CLS[selCls];st=baseStats(C);
   pl={x:0,y:0,hp:C.hp,maxHp:C.hp,shield:0,inv:0,face:1,moving:false,ax:0,ay:0,frozenT:0,path:null};
-  G={state:'play',cls:selCls,t:0,kills:0,lvl:1,pm:1,xp:0,need:12,energy:0,ultT:ULT_CD,skillT:1,atkT:0,atkN:0,shake:0,flash:0,hurtT:0,
+  G={state:'play',cls:selCls,t:0,kills:0,lvl:1,pm:1.45,xp:0,need:12,energy:0,ultT:ULT_CD,skillT:1,atkT:0,atkN:0,shake:0,flash:0,hurtT:0,
      sinceHurt:9,thornT:0,tempSwT:0,owned:new Set(),tags:{},revived:false,offer:null,rer:[0,0,0],booms:[],mcd:[],
      boss:null,pickQ:[],pickDown:'',frz:0,frzT:0,critT:0,critBuffT:0,songT:0,skT:0,skTick:0,after:0,cloneT:0,clones:0,
      turrets:[],arrowRains:[],pools:[],sched:[],beams:[],slashes:[],holyT:0,hearts:[],parts:[],amb:[],judges:[],fxs:[],etels:[],revives:[],doomT:0,sigilT:0,souls:0,warm:0,rushT:0,atkFx:0,sbN:0,sbArm:false,mad:0,castN:0,pickN:0,fireT:6,frostT:5,sealT:0,adrT:0,pSlowT:0,dmgAcc:0,dpsHist:[],dpsT:.5,dps:0,cam:{x:0,y:0},log:[]};
@@ -1092,7 +1094,7 @@ function newLevel(L,ri=0){
 function startFight(i){
   const R=G.rm=G.rooms[i];G.ri=i;R.seen=true;OBS=R.obs;
   const L=G.L,p=G.p=raidFrac(L)*LV_STEP*2+i*5/Math.max(1,G.rooms.length-1),type=R.type;   // 海克斯每关重置，难度按关内房间 + 每关固定台阶增长
-  G.hpMul=hpCurve(p)*CH_HP(L)*DIFF.hp*BAL.mobHp;G.dmgMul=(1+p*.04)*CH_DMG(L)*DIFF.dmg*BAL.mobDmg;G.xpMul=3+p*.4;
+  G.hpMul=hpCurve(p)*CH_HP(L)*DIFF.hp*BAL.mobHp*(.6+.4*CURVE(L).hp);G.dmgMul=(1+p*.04)*CH_DMG(L)*DIFF.dmg*BAL.mobDmg*CURVE(L).dmg;G.xpMul=3+p*.4;
   G.cfg={type,quota:Math.min(60,Math.round((type==='normal'?16+tierOf(L)*1.5+i*2:6+tierOf(L))*DIFF.quota)),rate:(type==='normal'?1.4+tierOf(L)*.1+i*.12:.5)*DIFF.rate,waveT:14,bossDelay:1.2};
   G.spawned=0;G.spawnAcc=-1;G.phase='fight';pl.wp=null;G.boss=null;G.bossDone=false;G.cutinDone=false;G.warm=0;
   if(st.mad){G.mad=rand()<.5?1:2;toast(G.mad===1?'疯狂科学家：变大了！':'疯狂科学家：变小了！');}
@@ -1218,7 +1220,7 @@ function spawnBoss(big){
   const L=G.L,chief=big&&isChief(L),el=!big&&ELITE[chOf(L)-1][LV[L].k%3],d=big?LV[L].b:{n:el[0],sk:MINI[(L-1)%MINI.length].sk},sc=big?(d.b==='BO'?2:3)*(chief?1:.85):2;
   let img,imgF;if(big){const pal=Object.assign({},P,d.pal),sb=SPR[d.b]||SPR.BO;img=sb.map(r=>mk(r,false,pal));imgF=sb.map(r=>mk(r,true,pal));}else({img,imgF}=G.roster[el[1]]);const ci=chOf(L)-1,ki=LV[L].k%3,ei=ci<3?ci*4+ki:ki*4+3,eart=big?ART.bosses&&ART.bosses[LV[L].b.art]&&[ART.bosses[LV[L].b.art]]:ART.elites?[ART.elites[ei]]:G.roster[el[1]].art,asz=big?(chief?64:54):34,
     eatk=eart&&fitPose(big?ART.bossesAtk&&ART.bossesAtk[LV[L].b.art]:ART.elitesAtk&&ART.elitesAtk[ei],eart[0]);
-  const hp=(big?BIG_HP:MINI_HP)*hpCurve(G.p)*BOSS_CH(L)*(d.hpx||1)*(big?(chief?.8:.85):1)*BAL.bossHp*(big?1:.5),R=G.rm;   // 精英房的小首领不跟着翻倍
+  const hp=(big?BIG_HP:MINI_HP)*hpCurve(G.p)*BOSS_CH(L)*(d.hpx||1)*(big?(chief?.8:.85):1)*BAL.bossHp*(big?1:.5)*CURVE(L).hp,R=G.rm;   // 精英房的小首领不跟着翻倍
   const b={boss:true,big,name:d.n,k:d.b,img,imgF,art:eart||null,artAtk:eatk||null,w:eart?asz:Math.round(img[0].width*sc),h:eart?asz:Math.round(img[0].height*sc),r:big?20:14,x:R.cx,y:R.y+40,hp,max:hp,
     spd:big?13:18,dmg:(big?14:10)*G.dmgMul*BOSS_DMG*BAL.bossDmg,skd:(big?16:12)*G.dmgMul*BOSS_DMG*BAL.bossDmg,flash:0,poison:0,pt:.5,scd:0,dead:false,burnT:0,burnD:0,bt:.5,slowT:0,frozenT:0,
     sk:d.sk,chief,mode:'walk',at:2,cyc:0,ph2:false,age:0,furyT:0,fury:d.enrage||d.fury||(big?52:40),tels:[]};
@@ -1487,6 +1489,8 @@ function autoDir(){
     for(let i=0;i<7;i++)for(let j=0;j<9;j++){const x=R.x+8+(R.w-16)*i/6,y=R.y+8+(R.h-16)*j/8;if(solidAt(x,y)||danger(x,y))continue;
       const d=(x-pl.x)**2+(y-pl.y)**2;if(d<bd){bd=d;best={x,y};}}
     if(best){const dx=best.x-pl.x,dy=best.y-pl.y,d=Math.hypot(dx,dy)||1;return[dx/d,dy/d];}}
+  {const b=G.hideFrom;if(b&&!b.dead){let best=null,bd=1e9;for(const o of OBS){if(!o.ice||o.dead)continue;const cx=o.x+o.w/2,cy=o.y+o.h/2,dx=cx-b.x,dy=cy-b.y,l=Math.hypot(dx,dy)||1,gx=cx+dx/l*13,gy=cy+dy/l*13,d=Math.hypot(gx-pl.x,gy-pl.y);if(d<bd){bd=d;best={x:gx,y:gy};}}   // 冰霜吐息：躲到冰块背后
+    if(best&&bd>2){const dx=best.x-pl.x,dy=best.y-pl.y,d=Math.hypot(dx,dy);return[dx/d,dy/d];}if(best)return[0,0];}}
   let vx=0,vy=0;
   const mel=AT[C.atk].melee,stuck=G.phase==='fight'&&G.t-(G.lastAtkT||G.t)>2&&en.some(e=>!e.dead&&!e.inv),kite=C.kite*(stuck?(mel?0:.2):1);   // 2 秒打不到人就别再风筝，主动贴上去
   for(const e of en){if(e.inv||e.prop)continue;const dx=pl.x-e.x,dy=pl.y-e.y,d2=dx*dx+dy*dy;if(d2<60*60&&d2>1){const w=(e.boss?(mel?1.5:4):1)*kite/d2;vx+=dx*w;vy+=dy*w;}}   // 首领对近战的排斥要小，否则近战永远贴不上去
@@ -1702,7 +1706,7 @@ function update(dt){
     for(const e of en)if(!e.dead&&Math.hypot(e.x-r.x,e.y-r.y)<rr+e.r){dmg(e,r.d,{col:mt?'#ff9a4a':undefined});if(mt){e.burnT=3;e.burnD=atkBase()*.5*st.burnMul;}}}}
   rain=rain.filter(r=>!r.done);
   for(const o of shots){o.x+=o.vx*dt;o.y+=o.vy*dt;o.life-=dt;
-    if((o.tr=(o.tr||0)-dt)<=0&&G.parts.length<260){o.tr=.045;G.parts.push({x:o.x-o.vx*.02,y:o.y-o.vy*.02,vx:-o.vx*.08+(rand()-.5)*8,vy:-o.vy*.08+(rand()-.5)*8,life:.28,T:.28,col:o.col||'#ff7a4a',s:1.6});}if(o.fire&&o.life<=dt&&G.pools.length<12)G.pools.push({x:o.x,y:o.y,r:9,arm:0,t:2.5,tick:0,dmg:o.dmg*.5,fire:1});
+    if((o.tr=(o.tr||0)-dt)<=0&&G.parts.length<180){o.tr=.06;G.parts.push({x:o.x-o.vx*.02,y:o.y-o.vy*.02,vx:-o.vx*.08+(rand()-.5)*8,vy:-o.vy*.08+(rand()-.5)*8,life:.28,T:.28,col:o.col||'#ff7a4a',s:1.6});}if(o.fire&&o.life<=dt&&G.pools.length<12)G.pools.push({x:o.x,y:o.y,r:9,arm:0,t:2.5,tick:0,dmg:o.dmg*.5,fire:1});
     if(!inRoom(o.x,o.y,4)||solidAt(o.x,o.y))o.life=0;
     if(Math.hypot(o.x-pl.x,o.y-pl.y)<3.5&&pl.inv<=0){o.life=0;hurt(o.dmg);if(o.fire&&G.pools.length<12)G.pools.push({x:o.x,y:o.y,r:9,arm:0,t:2.5,tick:0,dmg:o.dmg*.5,fire:1});}}
   for(const o of shots)if(o.life<=0&&rings.length<40){rings.push({x:o.x,y:o.y,r0:1,r1:9,t:.18,T:.18,col:o.col||'#ff7a4a'});burst(o.x,o.y,4,o.col||'#ffb070',35,.25,1.2);}
@@ -1746,7 +1750,7 @@ function update(dt){
     for(const q of A){q.x+=q.vx*dt;q.y+=q.vy*dt;q.t-=dt;}G.amb=A.filter(q=>q.t>0);}
   G.shake-=dt;G.flash-=dt;G.hurtT-=dt;G.doomT-=dt;G.sigilT-=dt;
   if(G.state==='play'&&G.pickQ.length)openPick(G.pickQ.shift());
-  while(G.xp>=G.need)levelUp();
+
 }
 function swordPos(){const out=[],n=st.swords,m=G.tempSwT>0?10:0,sr=G.skT>0&&G.cls==='sword'?6:0;
   for(let i=0;i<n;i++){const a=G.t*4.5+i*TAU/n;out.push({x:pl.x+Math.cos(a)*16,y:pl.y+Math.sin(a)*16,a});}
@@ -1827,7 +1831,9 @@ function pjName(p){if(p.src==='turret')return'bullet';if(p.min)return G.cls==='b
   if(p.kind==='orb'&&G.cls==='mage')return st.burn>0?'fireball':st.slow>0?'frost':'orb';return p.kind==='fist'?'orb':p.kind;}
 function shotName(o){return o.arrow?'earrow':o.fire?'efire':['efire','edragon','epoison','evoid'][chOf(G.L)-1];}
 const GLOW={};
-function glowKey(col){let m=/^rgba\((\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*),\s*([\d.]+)\s*\)$/.exec(col);if(m)return['rgb('+m[1]+')',+m[2]];
+const GK=new Map();
+function glowKey(col){const c=GK.get(col);if(c)return c;const r=glowKey0(col);if(GK.size<400)GK.set(col,r);return r;}
+function glowKey0(col){let m=/^rgba\((\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*),\s*([\d.]+)\s*\)$/.exec(col);if(m)return['rgb('+m[1]+')',+m[2]];
   m=/^(#[0-9a-f]{6})([0-9a-f]{2})$/i.exec(col);if(m)return[m[1],parseInt(m[2],16)/255];return[col,1];}
 function glowSpr(c){let s=GLOW[c];if(s)return s;s=document.createElement('canvas');s.width=s.height=64;const q=s.getContext('2d'),gr=q.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,c);gr.addColorStop(1,'rgba(0,0,0,0)');q.fillStyle=gr;q.fillRect(0,0,64,64);return GLOW[c]=s;}
 function render(){
@@ -1964,7 +1970,7 @@ function hud(){
   hC('shB','on',st.shieldMax>0||pl.shield>0);hS('shI','width',pc(Math.min(100,pl.shield/Math.max(1,st.shieldMax,pl.shield)*100)));
   hT('hpT',Math.ceil(pl.hp)+'/'+pl.maxHp+(pl.shield>0?' +'+Math.floor(pl.shield):''));
   hS('enI','width',pc(G.energy));hS('xpI','width',pc(Math.min(100,G.xp/G.need*100)));
-  hT('lvT',`LV ${G.lvl}  DPS ${Math.round(G.dps)}`);
+  hT('lvT',`英雄 Lv.${PROG.acc.lv}  DPS ${Math.round(G.dps)}`);
   const c=G.cfg;hT('killT',`地牢 ${G.ri+1}/${G.rooms.length} · `+(c.type==='normal'?`剩余 ${c.quota-G.spawned+en.length}`:c.type==='mini'?'精英':(isChief(G.L)?'尾王':'首领')));
   const bf=[];if(st.soul)bf.push(`超凡邪恶 ${G.souls}`);if(st.warmup&&G.warm)bf.push(`热身 ${G.warm}`);if(G.rushT>0&&st.rush)bf.push('兴奋起来');if(st.basics)bf.push('回归基本功');if(G.sealT>0)bf.push(`封印 ${Math.ceil(G.sealT)}s`);if(G.adrT>0)bf.push(`燃烧刺激 ${Math.ceil(G.adrT)}s`);if(G.critBuffT>0)bf.push(`孢子之力 ${Math.ceil(G.critBuffT)}s`);
   if(G.songT>0)bf.push(`战歌 ${Math.ceil(G.songT)}s`);if(pl.frozenT>0)bf.push('冻结');if(G.pSlowT>0)bf.push('减速');hT('buffT',bf.join(' · '));
@@ -2181,7 +2187,7 @@ $('raidTabs').addEventListener('click',e=>{const d=e.target.closest('[data-r]');
 const CH_DESC=['火山熔岩','龙巢峡谷','亡灵要塞','虚空神殿'];
 const fmtT=t=>String(t/60|0).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
 $('nodes').addEventListener('click',e=>{const d=e.target.closest('[data-l]');if(!d||d.classList.contains('lock'))return;selLevel=+d.dataset.l;renderLevels();});
-$('lvInfo').addEventListener('click',e=>{if(e.target.id==='lvGo'&&!e.target.disabled){$('nav').classList.remove('on');startGame();}});
+$('lvInfo').addEventListener('click',e=>{if(e.target.id==='lvGo'&&!e.target.disabled){$('nav').classList.remove('on');enterLevel();}});
 $('toLevels').onclick=()=>{auInit();selLevel=Math.min(PROG.un,NLV());if(PROG.hero&&CLS[PROG.hero])selCls=PROG.hero;show('hub','hero');};$('lvBack').onclick=()=>show('hub','hero');
 // ---------- 主界面（人物 / 副本 / 背包 / 组队 / 设置） ----------
 const HUB={v:'hero',sel:null};
@@ -2264,8 +2270,8 @@ $('pick').addEventListener('pointerdown',e=>{G.pickDown=pickKey(e);});
 $('pick').addEventListener('pointerup',e=>{const k=pickKey(e);if(!k||k!==G.pickDown)return;G.pickDown='';
   if(k[0]==='i')choose(+k.slice(1));else reroll(+k.slice(1));});
 $('dead').addEventListener('click',e=>{
-  if(e.target.id==='again'){$('dead').classList.remove('on');startGame();}
-  if(e.target.id==='next'){$('dead').classList.remove('on');selLevel=G.L+1;startGame();}
+  if(e.target.id==='again'){$('dead').classList.remove('on');enterLevel();}
+  if(e.target.id==='next'){$('dead').classList.remove('on');selLevel=G.L+1;enterLevel();}
   if(e.target.id==='home2'){$('dead').classList.remove('on');G=null;music(null);show('hub','hero');}
   if(e.target.id==='rev')showAd(()=>{G.revived=true;pl.hp=pl.maxHp;music(G.boss?'boss':'normal');pl.inv=2;$('dead').classList.remove('on');G.state='play';nova(80,atkBase()*3);});
 });
@@ -2277,7 +2283,11 @@ function startGame(){for(const k of SCREENS)$(k).classList.remove('on');$('nav')
   if(an){p.width=p.height=an.width;pc.clearRect(0,0,p.width,p.height);pc.drawImage(an,0,0);}else if(C.port){p.width=p.height=64;pc.drawImage(C.port,0,0,64,64);}else{p.width=18;p.height=18;pc.clearRect(0,0,18,18);pc.drawImage(C.bust,2,1);}
   $('cutSub').textContent=`${C.n} · 终极技能`;$('cutName').textContent=C.ult;$('skTx').textContent=C.sk.slice(0,2);setIcons();
   auInit();music('normal');}
-$('go').onclick=startGame;
+$('go').onclick=()=>enterLevel();
+// 进关：先把本关需要的图集全部加载好（最多等 10 秒，缺图不卡死），再开始
+function enterLevel(){if(!window.levelReady)return startGame();const L=selLevel,t0=performance.now();$('loadV').classList.add('on');
+  const tick=()=>{const{ok,total}=levelReady(L);$('loadI').style.width=Math.round(ok/Math.max(1,total)*100)+'%';$('loadT').textContent=`${ok}/${total}`;
+    if(ok>=total||performance.now()-t0>10000){$('loadV').classList.remove('on');startGame();}else setTimeout(tick,120);};tick();}
 $('spdB').textContent=GSPD+'x';$('spdB').onclick=()=>{GSPD=GSPD===1?1.5:GSPD===1.5?2:1;$('spdB').textContent=GSPD+'x';try{localStorage.setItem('abyss-speed',GSPD);}catch(_){}};   // 倍速
 // 关卡内暂停：继续 / 音效 / 震屏 / 返回主界面（放弃本关）
 const pzLabel=()=>{$('pzSnd').textContent='音效：'+(AU.muted?'关':'开');$('pzShk').textContent='震屏：'+(SHAKE?'开':'关');};
@@ -2308,7 +2318,7 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v49"></script>
-<script src="src/raid_engine.js?v=v49"></script>
+<script src="content/skill_fx.js?v=v50"></script>
+<script src="src/raid_engine.js?v=v50"></script>
 </body>
 </html>
