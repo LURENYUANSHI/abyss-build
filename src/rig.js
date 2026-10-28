@@ -35,10 +35,15 @@ function build(R){if(!R)return null;const k=R.sheet;if(CACHE[k]!==undefined)retu
   return CACHE[k]={R,im,b,H,wide:b.torso&&tw?Math.max(1,Math.min(1.3,H*.3/tw)):1};}
 window.rigReady=R=>!!build(R);
 // 原逐帧图待机帧的宽高比（按不透明包围盒），缓存在帧画布上
-function oldAspect(e){const A=e.anim,f=(A&&A.idle&&A.idle[0])||(e.art&&e.art[0]);if(!f||!f.getContext)return 0;if(f._ar===undefined){const b=box(f);f._ar=b?b.w/b.h:0;}return f._ar;}
+// 身体厚度：只量身高 35%~75% 这一段（躯干）每行的宽度取中位数，再除以身高；武器、举起的手臂、腿不影响
+function bandAspect(c){const w=c.width,h=c.height,d=c.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h).data,b=box(c);if(!b)return 0;const ws=[];
+  for(let y=Math.round(b.y0+b.h*.35);y<=b.y0+b.h*.75;y++){let x0=-1,x1=-1;for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>60){if(x0<0)x0=x;x1=x;}if(x0>=0)ws.push(x1-x0+1);}
+  ws.sort((a,b2)=>a-b2);return ws.length?ws[ws.length>>1]/b.h:0;}
+// 原逐帧图（英雄用 oldRef）的身体厚度，缓存在帧画布上
+function oldAspect(e){const A=e.anim,f=e.oldRef||(A&&A.idle&&A.idle[0])||(e.art&&e.art[0]);if(!f||!f.getContext)return 0;if(f._ba===undefined)f._ba=bandAspect(f);return f._ba;}
 // 分件按待机姿势拼一次量宽高比，缓存在部件集上
 function rigAspect(L,pl,pose){const k=pl===PLAN.front||pl===PLAN.ffront?'_arF':'_ar';if(L[k])return L[k];const n=Math.ceil(L.H*2.2),c=document.createElement('canvas');c.width=c.height=n;const g=c.getContext('2d');
-  g.translate(n/2,n*.9);pl.draw(g,L,pose,0,0);const b=box(c);return L[k]=b?b.w/b.h:1;}
+  g.translate(n/2,n*.9);pl.draw(g,L,pose,0,0);return L[k]=bandAspect(c)||1;}
 // 预先拼好侧面 / 正面 / 背面（加载界面里调用）
 window.rigWarm=R=>{if(!R)return;build(R);const fp=R.plan==='floater'?'ffront':'front';if(R.front)build({plan:fp,sheet:R.front,grip:R.grip});if(R.back)build({plan:fp,sheet:R.back,grip:R.grip});};
 window.rigCache=CACHE;   // 换团本时由 raid_engine 的 evictOthers 清掉别的团本的部件
@@ -86,8 +91,9 @@ const PLAN={
   height:b=>Math.max(b.lLeg.h,b.rLeg.h)+b.pelvis.h*.5+b.torso.h*.85+b.head.h*.85,
   pose:FP,
   draw(g,L,r,sw,bob){const{im,b}=L,tb=b.torso,pb=b.pelvis,legL=Math.max(b.lLeg.h,b.rLeg.h),hipY=-legL+r.dy+bob;
-   const leg=(k,x,lift)=>{if(b[k])g.drawImage(im[k],x-b[k].cx,hipY-top(b[k])-lift);};
-   const st=legL*.14;leg('lLeg',-pb.w*.2,Math.max(0,sw)*st);leg('rLeg',pb.w*.2,Math.max(0,-sw)*st);
+   // 正面走路：两腿交替抬起，抬起的腿纵向压短（像屈膝），整体左右轻晃
+   const leg=(k,x,q)=>{if(!b[k])return;const lb=b[k];g.save();g.translate(x+sw*1.2,hipY-q*legL*.22);g.scale(1,1-q*.28);g.drawImage(im[k],-lb.cx,-top(lb));g.restore();};
+   leg('lLeg',-pb.w*.2,Math.max(0,sw));leg('rLeg',pb.w*.2,Math.max(0,-sw));
    g.drawImage(im.pelvis,-pb.cx,hipY-pb.cy);
    g.save();g.translate(0,hipY-pb.h*.35);g.rotate(r.torso);g.drawImage(im.torso,-tb.cx,-bot(tb));
    g.save();g.translate(0,-tb.h*.8);g.rotate(r.head);g.drawImage(im.head,-b.head.cx,-(b.head.y1-b.head.h*.14));g.restore();
@@ -139,7 +145,7 @@ const PLAN={
   height:b=>b.lower.h*.8+b.torso.h*.85+b.head.h*.85,
   pose:{idle:{torso:0,head:0,lower:0,farUp:.15,farLow:.2,nearUp:-.1,nearLow:-.5,wpn:-1.2,dy:0},walk:{torso:.1,head:0,lower:-.15,farUp:.1,farLow:.2,nearUp:-.1,nearLow:-.5,wpn:-1.2,dy:0},
    wind:{torso:-.2,head:-.1,lower:.1,farUp:.5,farLow:.4,nearUp:-2.3,nearLow:-.8,wpn:.5,dy:-2},atk:{torso:.2,head:.1,lower:-.2,farUp:-.2,farLow:.1,nearUp:-1.2,nearLow:-.1,wpn:1.4,dy:1},
-   rec:{torso:.05,head:0,lower:-.05,farUp:.1,farLow:.2,nearUp:-.8,nearLow:-.3,wpn:1.2,dy:0},cast:{torso:-.1,head:-.2,lower:.05,farUp:-2.6,farLow:-.3,nearUp:-2.5,nearLow:-.3,wpn:1.2,dy:-3},
+   rec:{torso:.05,head:0,lower:-.05,farUp:.1,farLow:.2,nearUp:-.8,nearLow:-.3,wpn:1.2,dy:0},cast:{torso:-.1,head:-.2,lower:.05,farUp:-1.9,farLow:-.5,nearUp:-1.8,nearLow:-.5,wpn:.7,dy:-2},
    hurt:{torso:-.25,head:-.3,lower:.2,farUp:.4,farLow:.5,nearUp:.3,nearLow:-.2,wpn:-1.4,dy:0}},
   draw(g,L,r,sw,bob){const{im,b}=L,tb=b.torso,lb=b.lower,fl=Math.sin(G.t*2.4)*2.5,wy=-lb.h*.75+r.dy+fl;
    const arm=(up,low,aUp,aLow,wpn)=>{if(!b[up]||!b[low])return;const ub=b[up],l2=b[low];g.save();g.translate(up==='nearUp'?tb.w*.18:-tb.w*.15,-tb.h*.78+sh(ub));g.rotate(aUp);g.drawImage(im[up],-ub.cx,-top(ub)-sh(ub));
@@ -190,7 +196,7 @@ window.drawRig=(g,e,x,y,h,fl)=>{let L=e.rig&&build(e.rig);if(!L)return false;let
   const vs=e.rf?e.rig.front:e.rb?e.rig.back:null;   // 正面 / 背面共用一套对称姿势
   if(vs){const fp=e.rig.plan==='floater'?'ffront':'front',F=build({plan:fp,sheet:vs,grip:e.rig.grip});if(F){L=F;pl=PLAN[fp];r=e.rpf||FP.idle;fr=1;}}
   // 有原逐帧图的实体：宽高比对齐原图（新旧美术统一，不会越换越瘦）；没有的（英雄）按躯干补宽
-  const oa=oldAspect(e),wd=oa?Math.max(.85,Math.min(1.6,oa/rigAspect(L,pl,pl.pose.idle))):fr?L.wide:(L.wideF||L.wide);
+  const oa=oldAspect(e),wd=oa?Math.max(1,Math.min(1.8,oa/rigAspect(L,pl,pl.pose.idle))):fr?L.wide:(L.wideF||L.wide);
   const s=h/L.H,w=e.rw||0,walk=!!e._wk;
   const sw=walk?Math.sin(w):0,bob=(walk?-Math.abs(Math.cos(w))*1.4:Math.sin(G.t*2.2)*.5)/s;
   g.save();g.translate(x,y);g.scale((fl?-s:s)*wd,s);pl.draw(g,L,r,sw,bob);g.restore();

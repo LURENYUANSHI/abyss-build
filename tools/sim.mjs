@@ -1,6 +1,6 @@
 // 无界面平衡模拟：node tools/sim.mjs [levels=all|1,5,9|raid:mc] [runs=3] [classes=all]
 // 用桩替代 DOM / 画布 / 音频，载入 game.html 的脚本 + content/raids_data.js + src/raid_engine.js，直接循环 update(dt)。
-import {readFileSync} from 'node:fs';
+import {readFileSync,writeFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 function stub(name='stub'){
@@ -76,9 +76,25 @@ var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0,bt
     else return{w:G.state==='win'?1:0,bossT:G.state==='win'&&bt0>=0?t-bt0:0,t,ri:G.ri,boss:G.rooms&&G.ri===G.rooms.length-1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode};
     if(G.state==='play'&&G.pickQ.length)openPick(G.pickQ.shift());t+=dt;}
   return{w:0,t,ri:G.ri,timeout:1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode,ens:en.filter(e=>!e.dead).length};};
+// 整章连打：从章首关开始一路打到章末（海克斯整章保留），返回是否通关、死在哪关、各首领用时
+var runSim=(cls,ri)=>{const L0=firstL(ri);selCls=cls;selLevel=L0;startGame();const dt=1/30;let t=0,bt0=-1,curL=L0,bts=[];
+  while(t<9000){
+    if(G.state==='play'){update(dt);if(bt0<0&&G.boss&&G.cfg&&G.cfg.type==='big')bt0=t;if(G.L!==curL){bts.push(bt0<0?0:t-bt0);bt0=-1;curL=G.L;}}
+    else if(G.state==='pick')choose((rand()*G.offer.cards.length)|0);
+    else if(G.state==='cutin'){G.cutT-=dt;if(G.cutT<=0){G.state='play';doUlt();}}
+    else{if(G.state==='win')bts.push(bt0<0?0:t-bt0);return{w:G.state==='win'?1:0,L:G.L,k:G.L-L0,bts,t,room:G.ri,boss:!!(G.cfg&&G.cfg.type==='big'),bhp:G.boss&&G.boss.max?Math.round(G.boss.hp/G.boss.max*100):-1};}
+    if(G.state==='play'&&G.pickQ.length)openPick(G.pickQ.shift());t+=dt;}
+  return{w:0,L:G.L,k:G.L-L0,bts,t,timeout:1};};
 `,ctx);
 
 const args=process.argv.slice(2);
+if(args.includes('--run')){const ev0=e=>vm.runInContext(e,ctx),RA=ev0('RAIDS'),CL=ev0('CLS_IDS'),runSim=ev0('runSim'),setMeta0=ev0('setMeta');const runs=+(args[1]||2);const t0=Date.now();const cw={};
+  const J=[];for(let ri=0;ri<RA.length;ri++){setMeta0(ri);let w=0,n=0,bt=[],deaths={};const per=RA[ri].bosses.map(b=>({n:b.n,t:[],reach:0,die:0}));for(const c of CL)for(let i=0;i<runs;i++){let r;try{r=runSim(c,ri);}catch(e){console.error('ERR',c,ri,e.message);r={w:0,k:-1,bts:[]};}
+      w+=r.w;n++;bt.push(...r.bts.filter(x=>x>0));r.bts.forEach((x,k)=>{if(per[k]&&x>0)per[k].t.push(x);});for(let k=0;k<=Math.min(r.k,per.length-1);k++)per[k].reach++;if(!r.w&&per[r.k]){per[r.k].die++;(per[r.k].where=per[r.k].where||[]).push(r.boss?'首领'+r.bhp+'%':'房'+r.room);}if(!r.w)deaths[r.k+1]=(deaths[r.k+1]||0)+1;(cw[c]=cw[c]||[0,0]);cw[c][0]+=r.w;cw[c][1]++;}
+    J.push({ri,clear:w/n,per});    bt.sort((a,b)=>a-b);console.log(`${RA[ri].name}: 整章通关 ${Math.round(w/n*100)}%  首领用时 中位 ${Math.round(bt[bt.length>>1]||0)}s 最慢 ${Math.round(bt[bt.length-1]||0)}s  死在第几关 ${JSON.stringify(deaths)}`);}
+  if(args.includes('--json'))writeFileSync(process.env.RUN_JSON||'run_stats.json',JSON.stringify(J));
+  console.log('职业整章通关：'+CL.map(c=>`${c} ${Math.round(cw[c][0]/cw[c][1]*100)}%`).join(' | ')+`  (${((Date.now()-t0)/1000).toFixed(0)}s)`);process.exit(0);}
+
 const ev=e=>vm.runInContext(e,ctx);
 const NLV=ev('NLV()'),RAIDS=ev('RAIDS'),firstL=ev('firstL'),LV=ev('LV'),CLS_IDS=ev('CLS_IDS'),setMeta=ev('setMeta'),lvSim=ev('lvSim');
 let levels=[];

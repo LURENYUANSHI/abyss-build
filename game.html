@@ -164,10 +164,10 @@
   .back{position:absolute;left:10px;top:12px;padding:5px 10px!important}
   .nd{position:absolute;width:18px;height:18px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid #c8c0ff;background:#2b1f63;box-shadow:0 0 6px #8a55ff;cursor:pointer;display:grid;place-items:center;font-size:9px;color:#fff;font-weight:700}
   .nd.chief{width:24px;height:24px;margin:-14px 0 0 -14px;border-color:#ffd77a;background:#6a2a10;box-shadow:0 0 8px #ff8a2a}
-  .nd.clr{background:#c89a2a;border-color:#ffe8a0}.nd.lock{opacity:.45;border-color:#666;background:#1a1a22;box-shadow:none;cursor:default}
+  .nd.clr{background:#c89a2a;border-color:#ffe8a0}.nd.lock{opacity:.75;border-color:#888;background:#1a1a22;box-shadow:none;cursor:default}
   .nd.cur{animation:pulse 1s infinite}.nd.sel{outline:2px solid #fff;outline-offset:2px}
   .nd.pt{width:30px;height:30px;margin:-17px 0 0 -17px;background-size:cover;background-position:center}.nd.pt.chief{width:40px;height:40px;margin:-22px 0 0 -22px}
-  .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(1) brightness(.6)}
+  .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(.7) brightness(.8)}
   #nav{position:absolute;left:0;right:0;bottom:0;height:52px;z-index:40;display:none;background:linear-gradient(180deg,rgba(14,10,30,.96),rgba(6,5,14,.99));border-top:1px solid rgba(170,140,255,.45)}
   #nav.on{display:flex}#nav div{flex:1;display:grid;place-items:center;font-size:12px;letter-spacing:2px;color:#9a94c0;cursor:pointer}#nav div.on{color:#fff;text-shadow:0 0 8px #b48cff;background:rgba(90,60,180,.25)}
   #acct{position:absolute;left:0;right:0;top:0;height:54px;z-index:3;display:flex;align-items:center;gap:8px;padding:0 12px;background:linear-gradient(180deg,rgba(7,7,14,.95),rgba(7,7,14,.6))}
@@ -279,11 +279,11 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v61"></script>
-<script src="content/boss_tune.js?v=v61"></script>
+<script src="content/raids_data.js?v=v62"></script>
+<script src="content/boss_tune.js?v=v62"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v61';
+const W=195,H=347,VERSION='v62';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -376,7 +376,7 @@ const CLS={
 };
 const CLS_IDS=Object.keys(CLS);
 // 职业平衡（随机选卡自动模拟校准）：[生命倍率, 伤害倍率]；远程靠风筝天然更安全，伤害相应压低
-const TUNE={sword:[1.312,1.264],mage:[1.658,1.621],brawler:[0.954,0.638],eng:[1.648,2.135],archer:[1.099,1.164],assassin:[2.542,1.996],ninja:[1.321,1.511],bard:[0.994,0.986],paladin:[0.515,0.73]};   // tools/sim.mjs --tune 校准
+const TUNE={sword:[1.312,1.264],mage:[2.072,1.621],brawler:[0.954,0.638],eng:[2.266,2.135],archer:[1.374,1.164],assassin:[2.542,1.996],ninja:[1.816,1.738],bard:[1.193,1.134],paladin:[0.515,0.949]};   // tools/sim.mjs --tune 校准
 for(const id in TUNE){CLS[id].hp=Math.round(CLS[id].hp*TUNE[id][0]);CLS[id].dmg*=TUNE[id][1]*(id==='assassin'?1:1.15);}   // 刺客以外的职业整体加强
 // 外部美术：GPT 生成的合图放在 art/，缺失时回退到下面的程序像素图
 const ART={};
@@ -888,8 +888,10 @@ const MINI=[
 ];
 const BIG_HP=5000,MINI_HP=3400,BOSS_DMG=1.35,LV_STEP=2.5;
 // 难度按章节查表 [首领/小怪血量, 敌人伤害]，章内越往后的首领再强最多 15%（tools/sim.mjs 校准：第 1 章胜率约 90%，往后每章约降 8~10%）
-const RC=[[.42,.74],[.5,.83],[.55,.9],[.6,.96],[.65,1.01]];
-const CURVE=L=>{const v=LV[L],r=RC[Math.min(v.ri,RC.length-1)],n=RAIDS[v.ri].bosses.length,f=n>1?v.k/(n-1):0;return{hp:r[0]*(1+.15*f),dmg:r[1]*(1+.15*f)};};
+const RC=[[.42,.6],[.5,.66],[.55,.72],[.6,.77],[.65,.81]];
+// 一章 = 一局：玩家在章内会攒满海克斯越打越强，章内第 k 关的敌人血量按 (1+k)^1.4、伤害每关 +12% 同步变强（小怪和首领都适用）
+const RAMP=L=>{const k=LV[L].k;return{hp:Math.pow(1+k,1.4),dmg:1+.12*k};};
+const CURVE=L=>{const v=LV[L],r=RC[Math.min(v.ri,RC.length-1)],m=RAMP(L);return{hp:r[0]*m.hp,dmg:r[1]*m.dmg};};
 const BAL={bossHp:3.84,bossDmg:1.2,mobHp:1.45,mobDmg:1.25};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
 
 // ---------- 音频：全部用 Web Audio 现场合成（8-bit 风），无外部素材 ----------
@@ -994,6 +996,8 @@ function animTick(e,dt){if(!e.art||e.dead)return;
 // 逐帧图各帧画的大小不一：按待机帧的不透明身高统一，走路不再忽大忽小（结果缓存在帧画布上）
 function frameH(f){if(f._bh===undefined){f._bh=0;try{const w=f.width,h=f.height,d=f.getContext('2d').getImageData(0,0,w,h).data;let y0=-1,y1=-1;for(let y=0;y<h&&y0<0;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>60){y0=y;break;}for(let y=h-1;y>=0&&y1<0;y--)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>60){y1=y;break;}f._bh=y0<0?0:y1-y0+1;}catch(_){}}return f._bh;}
 function frameK(ref,f){if(!ref||!f||ref===f||!f.getContext)return 1;const a=frameH(ref),b=frameH(f);return a&&b?Math.max(.85,Math.min(1.15,a/b)):1;}
+// 脚下的椭圆影子（原来是长方条，在沙地上很显眼）
+function shadowE(c,x,y,rx,ry,a){c.save();c.globalAlpha=a;c.fillStyle='#000';c.beginPath();c.ellipse(x,y,Math.max(1,rx),ry,0,0,TAU);c.fill();c.restore();}
 function drawArt(c,im,cx,fy,w,h,flip,rot,sx,sy){c.save();c.translate(cx,fy);c.rotate(rot);c.scale(flip?-sx:sx,sy);c.drawImage(im,-w/2,-h,w,h);c.restore();}   // 以脚底为锚点
 function drawSpr(img,x,y,w,h,flip,c=g){const im=hd(img);if(!flip)return c.drawImage(im,x,y,w,h);c.save();c.translate(x+w,y);c.scale(-1,1);c.drawImage(im,0,0,w,h);c.restore();}
 const dI=(c,img,x,y)=>c.drawImage(hd(img),x,y,img.width,img.height);
@@ -1107,7 +1111,7 @@ function newLevel(L,ri=0){
   G.lvStart=G.t;
   G.roster=buildRoster(L);
   G.L=L;Object.assign(G,genLevel(L));
-  G.pickQ.push(1,2);   // 每进一关先送两个海克斯（银 + 金）
+  if(!G.runHex){G.runHex=1;G.pickQ.push(1,2);}   // 每章开局送两个海克斯（银 + 金）；海克斯整章保留，所以之后的关卡不再送
   ri=Math.min(ri,G.rooms.length-1);const R=G.rooms[ri];for(let i=0;i<ri;i++)G.rooms[i].done=G.rooms[i].seen=true;
   pl.x=R.cx;pl.y=R.y+R.h-26;G.cam.x=R.cx-W/2;G.cam.y=R.y+R.h/2-H*.56;
   $('lvName').textContent=LV[L].b.lv;
@@ -1117,10 +1121,10 @@ function newLevel(L,ri=0){
 function startFight(i){
   const R=G.rm=G.rooms[i];G.ri=i;R.seen=true;OBS=R.obs;
   const L=G.L,p=G.p=raidFrac(L)*LV_STEP*2+i*5/Math.max(1,G.rooms.length-1),type=R.type;   // 海克斯在本章内一直保留，难度按关内房间 + 每关固定台阶增长
-  G.hpMul=hpCurve(p)*CH_HP(L)*DIFF.hp*BAL.mobHp*(.6+.4*CURVE(L).hp);G.dmgMul=(1+p*.04)*CH_DMG(L)*DIFF.dmg*BAL.mobDmg*CURVE(L).dmg;G.xpMul=3+p*.4;
+  G.hpMul=hpCurve(p)*CH_HP(L)*DIFF.hp*BAL.mobHp*(.6+.4*RC[Math.min(LV[L].ri,RC.length-1)][0])*RAMP(L).hp;G.dmgMul=(1+p*.04)*CH_DMG(L)*DIFF.dmg*BAL.mobDmg*CURVE(L).dmg;G.xpMul=3+p*.4;
   G.cfg={type,quota:Math.min(60,Math.round((type==='normal'?16+tierOf(L)*1.5+i*2:6+tierOf(L))*DIFF.quota)),rate:(type==='normal'?1.4+tierOf(L)*.1+i*.12:.5)*DIFF.rate,waveT:14,bossDelay:1.2};
   G.spawned=0;G.spawnAcc=-1;G.phase='fight';pl.wp=null;G.boss=null;G.bossDone=false;G.cutinDone=false;G.warm=0;
-  if(st.mad){G.mad=rand()<.5?1:2;toast(G.mad===1?'疯狂科学家：变大了！':'疯狂科学家：变小了！');}
+  if(st.mad){G.mad=rand()<.5?1:2;num(pl.x,pl.y-18,G.mad===1?'变大':'变小','#c8a0ff');}   // 每个房间都会变，只飘字不弹提示
   en=[];proj=[];bolts=[];rings=[];rain=[];nums=[];shots=[];G.pools=[];G.booms=[];G.turrets=[];G.arrowRains=[];G.cloneT=0;G.skT=0;G.sched=[];G.hearts=[];G.parts=[];G.judges=[];G.fxs=[];G.etels=[];G.revives=[];G.orbT=6;G.beams=[];G.slashes=[];
   G.roomT=0;G.roomDmg=0;G.vents=[];
   {const ch=chOf(L),n=type==='big'?0:type==='mini'?1:1+(i>=2)+(raidFrac(L)>.4&&i>=4);   // 章节机关：越往后越多
@@ -1250,7 +1254,7 @@ function spawnBoss(big){
   const X=big&&BOSS_X[d.n];if(X){b.ph=X.ph||[];b.phi=0;if(X.sk)b.sk=X.sk.slice();
     if(X.breaths){const br=shuffle(['fireCone','frostCone','timeCone','acidCone']).slice(0,2);b.sk=[br[0],'affliction',br[1],'multi'];}
     if(X.start)b.hp=b.max*X.start;if(X.essence){b.essence=true;setTimeout(()=>toast('红龙精华：大招冷却减半'),2600);}}
-  en.push(b);G.boss=b;sfx('boss');music('boss');$('banner').textContent=chief?`章节首领 · ${d.n}`:big?`首领 · ${d.n}`:`精英 · ${d.n}`;banner();if(d.tip)setTimeout(()=>toast(d.tip),1300);
+  en.push(b);G.boss=b;sfx('boss');music('boss');$('banner').textContent=chief?`章节首领 · ${d.n}`:big?`首领 · ${d.n}`:`精英 · ${d.n}`;banner();if(d.tip)G.sched.push({t:1.3,fn:()=>{if(G.boss===b)toast(d.tip);}});   // 按游戏时间排，倍速下也不会在首领死后才弹
   if(X&&X.open){b.mode=X.open;b.say={n:skName(b,X.open),t:1.6};skOf(b,X.open).start(b,1);}
 }
 function bossAI(b,dt){
@@ -1312,7 +1316,8 @@ function ventTick(dt){for(const v of G.vents){v.t-=dt;v.fx-=dt;if(v.t>0)continue
 function spawnInRoom(){const R=G.rm;for(let i=0;i<12;i++){const x=R.x+10+rand()*(R.w-20),y=R.y+10+rand()*(R.h-20);
   if(Math.hypot(x-pl.x,y-pl.y)>60&&!solidAt(x,y)){rings.push({x,y,r0:1,r1:8,t:.3,T:.3,col:'#c99bff'});return spawnAt(x,y);}}
   return spawnAt(R.x+10,R.y+10);}
-function num(x,y,v,col,big){if(nums.length<90)nums.push({x:x-4+rand()*4,y,s:String(v),col,big,t:.7});}
+// 同一处连续跳字时往上错开一行、左右散开，不叠成一团
+function num(x,y,v,col,big){if(nums.length>=90)return;let k=0;for(const n of nums)if(n.t>.45&&Math.abs(n.x0-x)<12&&Math.abs(n.y0-y)<6)k++;nums.push({x:x-6+rand()*12,y:y-Math.min(k,4)*6,x0:x,y0:y,s:String(v),col,big,t:.7});}
 function dmg(e,d,o={}){if(!e.dead&&!e.inv)sfx('hit');if(window.dmgMulX&&!e.dead){d*=dmgMulX(e,o);if(!d)return;}
   if(e.dead||e.inv)return;let crit=false;
   const cc=st.crit+(G.critBuffT>0?.5:0)+(G.songT>0?st.songCrit:0)+(G.critT>0&&o.src==='atk'?1:0);
@@ -1337,8 +1342,8 @@ function dmg(e,d,o={}){if(!e.dead&&!e.inv)sfx('hit');if(window.dmgMulX&&!e.dead)
 }
 function kill(e){if(e.silent)return;
   e.dead=true;G.kills++;sfx('kill');
-  // 掉装备：精英房首领 40%，首领身边精英 8%，普通小怪 1.2%
-  if((e.elite&&rand()<.4)||(e.eliteAdd&&rand()<.08)||(!e.boss&&!e.eliteAdd&&!e.small&&rand()<.012))eliteDrop(e);
+  // 掉装备：精英房首领 40%，首领身边精英 8%，普通小怪 0.3%
+  if((e.elite&&rand()<.4)||(e.eliteAdd&&rand()<.08)||(!e.boss&&!e.eliteAdd&&!e.small&&rand()<.003))eliteDrop(e);
   if(!e.boss&&e.def&&window.trashDeath)trashDeath(e);
   if(!e.boss){const ch=e.def?0:chOf(G.L);
     if(e.k==='SL'&&ch<4&&!e.small)for(let i=0;i<2;i++){const s2=spawnAt(e.x+(i?5:-5),e.y,'SL');s2.small=true;s2.hp=s2.max*=.4;s2.w=Math.round(s2.w*.7);s2.h=Math.round(s2.h*.7);s2.r=3;}
@@ -1364,7 +1369,7 @@ function kill(e){if(e.silent)return;
 function burst(x,y,n,col,spd,life,size=1.5,up=0,g=0){if(G.parts.length>450)return;for(let i=0;i<n;i++){const a=rand()*TAU,v=spd*(.35+rand()*.65);
   G.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-up,life:life*(.6+rand()*.4),T:life,col,s:size,g});}}
 // 预警落地时的特效（按技能区分）
-function fireVfx(t){const v=t.vfx;{const r=G.rm,big=t.t==='rect'?t.w*t.h>=r.w*r.h*.35:t.t==='circle'&&t.r>=60;if(big&&window.fullFx)fullFx((G.boss&&G.boss.say&&G.boss.say.n)||String(v||''));}
+function fireVfx(t){const v=t.vfx;{const r=G.rm,big=t.t==='rect'?t.w*t.h>=r.w*r.h*.35:t.t==='circle'&&t.r>=60;if(big&&t.dmg>0&&window.fullFx)fullFx(String(t.n||v||(G.boss&&G.boss.say&&G.boss.say.n)||''),t.t==='circle'?t.x:t.x+t.w/2,t.t==='circle'?t.y:t.y+t.h/2);}
   if(t.raid)return;   // 覆盖大半场地的技能：全屏特效
   const vc={frostCone:'#7ad8ff',acidCone:'#7aff5a',timeCone:'#ffd77a',shadowflame:'#a14aff'}[v]||'#ff7a2a';
   if(t.t==='beam'&&window.vfxBeam){vfxBeam({x:t.x,y:t.y,a:t.a,w:t.w*1.1,col:vc});for(const d of[Math.PI])vfxBeam({x:t.x,y:t.y,a:t.a+d,w:t.w*1.1,col:vc});}
@@ -1463,7 +1468,7 @@ function castSkill(){
       pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.08);pl.shield=Math.max(pl.shield,20+st.faith);
       if(st.heaven){const tg=en.filter(e=>!e.dead&&!e.inv);for(let i=0;i<6&&tg.length;i++){const e=tg.splice((rand()*tg.length)|0,1)[0];bolts.push({pts:[[e.x,e.y-70],[e.x,e.y]],t:.3,col:'#ffe8a0'});fxs('holy',e.x,e.y-14,34,.4,0,0,1);dmg(e,A*2,{col:'#ffe8a0'});}}break;}
   }
-  G.skillT=st.skillCd;sfx('zap');pl.castAt=G.t;pl.castDur=.45;G.castN=(G.castN||0)+1;if(st.recast&&G.castN%3===0){G.skillT=.3;toast('无限递归：技能刷新');}
+  G.skillT=st.skillCd;sfx('zap');pl.castAt=G.t;pl.castDur=.45;G.castN=(G.castN||0)+1;if(st.recast&&G.castN%3===0){G.skillT=.3;num(pl.x,pl.y-18,'技能刷新','#9fe8ff');}
   if(st.skillHeal)pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.1);
   if(st.spellblade)G.sbN=3;if(st.manaShield)pl.shield=Math.max(pl.shield,25);
   if(st.missiles)for(let i=0;i<5;i++)fireProj(pl.x,pl.y-2,i*TAU/5,{kind:'orb',dmg:atkBase()*st.skillMul,home:true,boom:0,bounce:0,pierce:0});
@@ -1604,7 +1609,7 @@ function update(dt){
     if(Math.hypot(vx,vy)>.05){if(Math.abs(vy)>Math.abs(vx)*1.3)wd=vy>0?'down':'up';else if(Math.abs(vx)>Math.abs(vy)*1.1)wd='side';}
     if(wd!==pl.dir){if((pl.dT=(pl.dT||0)+dt)>.25||!pl.dir){pl.dir=wd;pl.dT=0;}}else pl.dT=0;}
   // 英雄分件骨骼：普攻=出手、移动=走路，朝向决定侧面 / 正面 / 背面
-  if(window.rigTick){pl.atkPose=G.atkFx>0?1:0;pl._wk=pl.moving;pl.rf=pl.dir==='down';pl.rb=pl.dir==='up';rigTick(pl,dt);}
+  if(window.rigTick){pl.atkPose=G.atkFx>0?1:0;pl._wk=pl.moving;pl.rf=pl.dir==='down';pl.rb=pl.dir==='up';const A0=C.art;pl.oldRef=A0&&(pl.dir!=='side'&&A0[pl.dir]&&A0[pl.dir].walk?A0[pl.dir].walk[0]:A0.idle&&A0.idle[0]);rigTick(pl,dt);}
   pl.inv-=dt;G.sinceHurt+=dt;G.thornT-=dt;G.sealT-=dt;G.blindT=(G.blindT||0)-dt;G.pSlowT-=dt;G.critT-=dt;G.critBuffT-=dt;
   if(st.shieldMax&&G.sinceHurt>2.5&&pl.shield<st.shieldMax)pl.shield=Math.min(st.shieldMax,pl.shield+st.shieldMax*st.shieldRegen*dt);
   if(G.adrT>0){G.adrT-=dt;pl.hp=Math.max(1,pl.hp-pl.maxHp*.04*dt);}
@@ -1802,7 +1807,7 @@ function drawEntities(c){
   items.sort((a,b)=>a[0]-b[0]);
   for(const[,it]of items){
     if(it===pl){const hi=C.img[0],hx=Math.round(pl.x-hi.width/2),hy=Math.round(pl.y-hi.height/2-2),f=pl.moving?((G.t*8)|0)%2:0;
-      c.fillStyle='rgba(0,0,0,.4)';c.fillRect(hx+3,hy+hi.height-2,hi.width-6,2);
+      shadowE(c,hx+hi.width/2,hy+hi.height-1,(hi.width-6)/2,1.6,.4);
       const zs=(st.giant?1.4:1)*(G.mad===1?1.3:G.mad===2?.75:1),zw=Math.round(hi.width*zs),zh=Math.round(hi.height*zs);
       {if(pl.inv>0)c.globalAlpha=.65;const rigd=window.drawRig&&drawRig(c,pl,rp(pl.x),rp(pl.y+hi.height/2-2),Math.round(zh*1.3),pl.face<0);const A=!rigd&&C.art,V=A&&pl.dir!=='side'&&A[pl.dir],fr=A&&(V?(G.atkFx>0?V.atk:pl.moving?V.walk:[V.walk[0]]):G.atkFx>0?(G.cmb&&A.anim&&C.combo?C.combo[G.cmb-1]:A.atk):pl.moving?A.walk:A.idle);if(fr){const ak=A.anim?1/.72:1,bw=Math.round(zw*1.45*ak),bh=Math.round(zh*1.3*ak),bob=A.anim?0:pl.moving?-Math.abs(Math.sin(G.t*14))*1.6:0,br=0,lean=A.anim?0:G.atkFx>0?pl.face*1.5:0;
         drawSpr(fr[G.atkFx>0?Math.min(fr.length-1,((1-G.atkFx/.25)*fr.length)|0):((G.t*(pl.moving?10:3))|0)%fr.length],rp(pl.x-bw/2+lean),rp(pl.y+hi.height/2-2-bh+bob-br),bw,Math.round(bh+br),pl.face<0);}else if(!rigd)drawSpr(C.img[f],Math.round(pl.x-zw/2),Math.round(pl.y+hi.height/2-2-zh)-f,zw,zh,pl.face<0);}
@@ -1814,7 +1819,7 @@ function drawEntities(c){
     else{const e=it,t=e.img?e:ET[e.k],x=rp(e.x-t.w/2),y=rp(e.y-t.h/2);
       const fr=e.img?(e.flash>0?e.imgF:e.img):IMG[e.flash>0?e.k+'f':e.k],im=fr&&fr[((G.t*6+e.x*.13)|0)%fr.length];
       if(e.hidden)c.globalAlpha=.25;
-      c.fillStyle='rgba(0,0,0,.35)';c.fillRect(x+2,y+t.h-2-(e.boss?2:0),t.w-4,e.boss?4:2);if(e.art){   // 贴图怪物的程序动画：呼吸、走路摇摆、施法蓄力、受击压扁；有第二姿势时切换帧
+      shadowE(c,x+t.w/2,y+t.h-1-(e.boss?2:0),(t.w-4)/2,e.boss?3:1.6,.35);if(e.art){   // 贴图怪物的程序动画：呼吸、走路摇摆、施法蓄力、受击压扁；有第二姿势时切换帧
         const T=e.ac||0,cast=e.boss&&e.mode&&e.mode!=='walk',big=e.boss,walk=!cast&&e._wk;   // 动画状态由 update 阶段的 animTick 算好，这里只读
         const A=!e.formArt&&window.animOf&&animOf(e),hit=e.dash>0||(e.k==='SA'&&e.shotT<.45)||e.atkPose>0,full=A&&A.full;
         const sp=G.t-(e.castAt||-9),sk=A&&sp<(e.castDur||.6)?sp/(e.castDur||.6):-1;   // 放技能的动作进度 0~1
@@ -1842,7 +1847,7 @@ function drawEntities(c){
       if(e.burnT>0&&PJ.fireball){c.save();c.translate(x+t.w/2+3,y-3);c.rotate(-Math.PI/2);c.drawImage(PJ.fireball,-4,-4,8,8);c.restore();}else if(e.burnT>0){c.fillStyle=((G.t*10)|0)%2?'#ff9a4a':'#ffd34a';c.fillRect(x+t.w-3,y-1+((G.t*8)|0)%2,1,2);}
       if(e.slowT>0&&!(e.frozenT>0)&&FX.ice)c.drawImage(FX.ice,x+t.w-4,y+t.h-6,6,6);else if(e.slowT>0&&!(e.frozenT>0)){c.fillStyle='#9fe8ff';c.fillRect(x+1,y+t.h-3,1,1);}}
   }
-  if(G.allies)for(const a of G.allies){if(a.dead)continue;const A2=CLS[a.cls].art;c.fillStyle='rgba(0,0,0,.35)';c.fillRect(a.x-5,a.y+5,10,2);
+  if(G.allies)for(const a of G.allies){if(a.dead)continue;const A2=CLS[a.cls].art;shadowE(c,a.x,a.y+6,5,1.6,.35);
     if(A2){const fr=a.atkFx>0?A2.atk:a.moving?A2.walk:A2.idle,k=A2.anim?1/.72:1,bw=19*k,bh=21*k;drawSpr(fr[((G.t*(a.moving?10:3))|0)%fr.length],rp(a.x-bw/2),rp(a.y+7-bh),bw,bh,a.face<0);}
     c.fillStyle='#14121c';c.fillRect(a.x-6,a.y-15,12,3);c.fillStyle='#5ad1ff';c.fillRect(a.x-5,a.y-14,Math.max(0,10*a.hp/a.maxHp),1);}
   {const mi=IT[G.cls==='archer'?'wolf':'spirit'];for(let i=0;i<st.minions;i++){const w=G.cls==='archer'&&G.wolves&&G.wolves[i],m=w||minionPos(i),f=((G.t*5+i)|0)%2;if(mi)drawSpr(mi,m.x-6-(w&&w.a>0?0:0),m.y-8+(w?-Math.abs(Math.sin(G.t*14+i))*1.2:Math.sin(G.t*4+i)*1.5),12,12,w?w.vx<0:pl.face<0);else dI(c,IMG.MI[f],Math.round(m.x-3),Math.round(m.y-3));}}
@@ -1918,7 +1923,7 @@ function render(){
       g.fillStyle=`rgba(${base},${fired?.55*t.fx/.25:.18})`;g.strokeStyle=`rgba(${base},.8)`;g.lineWidth=1;
       if(t.t==='circle'&&FX.rune){if(!fired)runeWarn(t.x,t.y,t.r,p,t.harmless?.4:.8);else{g.globalAlpha=Math.min(1,t.fx/.25);g.drawImage(FX[t.col==='i'?'frostCircle':'quake'],t.x-t.r,t.y-t.r,t.r*2,t.r*2);g.globalAlpha=1;}}
       else if(t.t==='circle'){g.beginPath();g.arc(t.x,t.y,t.r,0,TAU);g.fill();if(!fired){g.stroke();g.fillStyle=`rgba(${base},.3)`;g.beginPath();g.arc(t.x,t.y,t.r*p,0,TAU);g.fill();}}
-      else if(t.t==='beam'){if(!fired){g.save();g.translate(t.x,t.y);g.rotate(t.a);g.fillRect(-400,-t.w,800,t.w*2);g.strokeRect(-400,-t.w,800,t.w*2);g.restore();}}
+      else if(t.t==='beam'){if(!fired){g.save();g.translate(t.x,t.y);g.rotate(t.a);const lg=g.createLinearGradient(-400,0,400,0);lg.addColorStop(0,`rgba(${base},0)`);lg.addColorStop(.35,`rgba(${base},.28)`);lg.addColorStop(.65,`rgba(${base},.28)`);lg.addColorStop(1,`rgba(${base},0)`);g.fillStyle=lg;g.fillRect(-400,-t.w,800,t.w*2);g.setLineDash([5,4]);g.beginPath();g.moveTo(-400,-t.w);g.lineTo(400,-t.w);g.moveTo(-400,t.w);g.lineTo(400,t.w);g.stroke();g.restore();}}   // 光束预警：两端渐隐 + 虚线边，不再是实心长条
       else if(t.t==='cone'){g.beginPath();g.moveTo(t.x,t.y);g.arc(t.x,t.y,t.len,t.a-t.ang,t.a+t.ang);g.closePath();g.fill();if(!fired)g.stroke();}
       else if(t.t==='rect'){if(!(fired&&G.ffx))g.fillRect(t.x,t.y,t.w,t.h);if(!fired){g.strokeRect(t.x+.5,t.y+.5,t.w-1,t.h-1);g.fillStyle=`rgba(${base},.25)`;g.fillRect(t.x,t.y,t.w,t.h*p);}}}
     for(const b of en){if(!b.boss||b.dead)continue;
@@ -2018,7 +2023,7 @@ function hud(){
 let last=performance.now();
 let GSPD=1;try{GSPD=+localStorage.getItem('abyss-speed')||1;}catch(_){}
 function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;
-  if(G&&G.state==='play'){const n=Math.ceil(GSPD);for(let i=0;i<n&&G&&G.state==='play';i++)update(dt*GSPD/n);}
+  if(G&&G.state==='play'){G.rt=(G.rt||0)+dt;const n=Math.ceil(GSPD);for(let i=0;i<n&&G&&G.state==='play';i++)update(dt*GSPD/n);}
   else if(G&&G.state==='cutin'&&(G.cutT-=dt)<=0){$('cutin').classList.remove('on');G.state='play';doUlt();}
   if(G){render();hud();}
   const scr=G?null:SCREENS.find(k=>$(k).classList.contains('on'));mc.style.display=scr?'block':'none';
@@ -2045,7 +2050,7 @@ function levelUp(){fxs('levelup',pl.x,pl.y-2,26,.6,0,0,1.5);G.xp-=G.need;G.lvl++
   num(pl.x,pl.y-16,'LV UP','#5ad1ff',true);rings.push({x:pl.x,y:pl.y,r0:4,r1:18,t:.4,T:.4,col:'#5ad1ff'});}
 function openPick(bonus){G.pickN++;
   const o=makeOffer(G.lvl,bonus);o.bonus=bonus;
-  if(!o.tier){st.atkMul*=1.08;toast('海克斯已全部获得 · 攻击 +8%');return;}
+  if(!o.tier){st.atkMul*=1.005;if(!G.hexFull){G.hexFull=1;toast('海克斯已全部获得');}return;}   // 拿满后的选卡只给极小加成，否则连乘几十次会滚雪球
   G.offer=o;G.rer=[0,0,0];G.state='pick';sfx('lvl');G.pickDown='';joy.x=joy.y=0;renderPick();$('pick').classList.add('on');
 }
 function synHTML(tag,h0={}){
@@ -2094,16 +2099,16 @@ function reroll(i){
 function showAd(cb){let n=2;$('adN').textContent=n;$('ad').classList.add('on');
   const it=setInterval(()=>{if(--n<=0){clearInterval(it);$('ad').classList.remove('on');cb();}else $('adN').textContent=n;},1000);}
 
-function endPanel(title){
-  const s=G.t|0;
-  $('deadP').innerHTML=`<h2>${title}</h2><div class="stat"><div>到达<b>${rNo(G.L)}-${kOf(G.L)}</b></div><div>时间<b>${String(s/60|0).padStart(2,'0')}:${String(s%60).padStart(2,'0')}</b></div><div>击杀<b>${G.kills}</b></div><div>等级<b>${G.lvl}</b></div></div>
+function endPanel(title){const s=(G.rt||G.t)|0;
+  
+  $('deadP').innerHTML=`<h2>${title}</h2><div class="stat"><div>到达<b>${rNo(G.L)}-${kOf(G.L)}</b></div><div>时间<b>${String(s/60|0).padStart(2,'0')}:${String(s%60).padStart(2,'0')}</b></div><div>击杀<b>${G.kills}</b></div><div>英雄等级<b>${PROG.acc.lv}</b></div></div>
     <p>${CLS[G.cls].n} · ${LV[G.L].b.lv}</p><div class="chips">${chipsHTML()}</div>
     ${title==='你倒下了'&&!G.revived?'<button class="b" id="rev">看广告复活</button>':''}${G.state==='win'&&G.L<NLV()?'<button class="b" id="next">下一关</button>':''}<button class="b ghost" id="again">再来一次</button><button class="b ghost sm" id="home2">返回主页</button><p class="ver">${VERSION}</p>`;
   $('dead').classList.add('on');
 }
 function die(){G.state='dead';music(null);sfx('dead');endPanel('你倒下了');}
 function levelDone(){const up=rewardLevel(G.L),lt=(G.t-G.lvStart)|0,b=PROG.best[G.L];if(!b||lt<b.t)PROG.best[G.L]={t:lt,c:G.cls};PROG.un=Math.max(PROG.un,Math.min(NLV(),G.L+1));saveProg();
-  lootPick(LV[G.L].ri,(it,salv)=>{const extra=(G.runLoot||[]).length?`<br>战斗掉落：${G.runLoot.map(itemTag).join('、')}`:'';G.lastLoot=`获得装备：${itemTag(it)}${extra}${up}${salv}`;G.runLoot=[];toast(G.lastLoot.replace(/<[^>]+>/g,''));
+  lootPick(LV[G.L].ri,(it,salv)=>{const extra=(G.runLoot||[]).length?`<br>战斗掉落：${G.runLoot.map(itemTag).join('、')}`:'';G.lastLoot=`获得装备：${itemTag(it)}${extra}${up}${salv}`;G.runLoot=[];toast(G.lastLoot.replace(/<br>/g,'；').replace(/<[^>]+>/g,''));
     if(!isChief(G.L)){G.phase='trans';G.phaseT=.6;$('fade').classList.add('on');toast(`${rNo(G.L)}-${kOf(G.L)} 完成 · 进入下一关`);}else win();});}
 function win(){G.state='win';music(null);sfx('lvl');endPanel(`${RAIDS[LV[G.L].ri].name} 通关`);}
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2400);}
@@ -2127,7 +2132,7 @@ let selRaid=0;
 const EXP={classic:['经典旧世','#e8b33a'],tbc:['燃烧的远征','#5ad16a'],wotlk:['巫妖王之怒','#5ab4ff']};
 const firstL=ri=>LV.findIndex(v=>v&&v.ri===ri);
 // 当前副本的首领节点：自下而上蛇形排布（逻辑坐标 195×347）
-function raidNodes(ri){const n=RAIDS[ri].bosses.length;return RAIDS[ri].bosses.map((b,k)=>{const t=n>1?k/(n-1):.5;return[97+Math.sin(t*Math.PI*(n>8?3.5:n>3?2.5:1))*62,262-t*206];});}   // 第 1~4 章所在的纵向区间
+function raidNodes(ri){const n=RAIDS[ri].bosses.length;return RAIDS[ri].bosses.map((b,k)=>{const t=n>1?k/(n-1):.5;return[97+Math.sin(t*Math.PI*(n>8?3.5:n>3?2.5:1))*62,226-t*172];});}   // 纵向区间收到底部信息面板之上   // 第 1~4 章所在的纵向区间
 const MS=3,mc=$('mc');mc.width=W*MS;mc.height=H*MS;const mx=mc.getContext('2d');mx.imageSmoothingEnabled=false;   // 3 倍分辨率：插画背景不糊
 const mixc=(a,b,k)=>'rgb('+a.map((v,i)=>Math.round(v+(b[i]-v)*k)).join()+')';
 const hsh=i=>{let x=Math.sin(i*127.1)*43758.5;return x-Math.floor(x);};
@@ -2213,14 +2218,14 @@ function renderLevels(){
   if(miss&&(renderLevels.tries=(renderLevels.tries||0)+1)<8)setTimeout(()=>{if($('levels').classList.contains('on'))renderLevels();},700);else if(!miss)renderLevels.tries=0;
   const L=selLevel,v=LV[L],r=RAIDS[v.ri],lvLock=PROG.acc.lv<RAID_REQ(r),lock=L>PROG.un||lvLock,b=PROG.best[L];
   $('lvInfo').innerHTML=`<b>${rNo(L)}-${kOf(L)} ${v.b.lv}</b><br>${EXP[r.exp][0]} · ${r.name}　${r.desc||''}<br>${v.last?'尾王':'首领'}：<em>${v.b.n}</em>　地牢 ${v.b.rooms||6} 间<br>${lvLock?`🔒 需要账号等级 ${RAID_REQ(r)}`:lock?'🔒 通关上一关解锁':b?`最佳 ${fmtT(b.t)} · ${CLS[b.c].n}`:'未通关'}
-    <button class="b" id="lvGo"${lock?' disabled':''}>出发</button>`;
+    <br><small style="color:#9a94c0">每次出发从本章第一关开始，海克斯整章保留</small><button class="b" id="lvGo"${firstL(v.ri)>PROG.un?' disabled':''}>从章首出发</button>`;
   setTimeout(()=>{const o=document.querySelector('.rtab.on');if(o)o.scrollIntoView({inline:'center',block:'nearest'});});
 }
 $('raidTabs').addEventListener('click',e=>{const d=e.target.closest('[data-r]');if(!d||d.classList.contains('lock'))return;selRaid=+d.dataset.r;const f=firstL(selRaid);selLevel=Math.min(Math.max(f,PROG.un>=f?Math.min(PROG.un,f+RAIDS[selRaid].bosses.length-1):f),NLV());renderLevels();});
 const CH_DESC=['火山熔岩','龙巢峡谷','亡灵要塞','虚空神殿'];
 const fmtT=t=>String(t/60|0).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
 $('nodes').addEventListener('click',e=>{const d=e.target.closest('[data-l]');if(!d||d.classList.contains('lock'))return;selLevel=+d.dataset.l;renderLevels();});
-$('lvInfo').addEventListener('click',e=>{if(e.target.id==='lvGo'&&!e.target.disabled){$('nav').classList.remove('on');enterLevel();}});
+$('lvInfo').addEventListener('click',e=>{if(e.target.id==='lvGo'&&!e.target.disabled){$('nav').classList.remove('on');selLevel=firstL(LV[selLevel].ri);enterLevel();}});   // 一章 = 一局：出发总是从章首开始，海克斯整章保留
 $('toLevels').onclick=()=>{auInit();selLevel=Math.min(PROG.un,NLV());if(PROG.hero&&CLS[PROG.hero])selCls=PROG.hero;show('hub','hero');};$('lvBack').onclick=()=>show('hub','hero');
 // ---------- 主界面（人物 / 副本 / 背包 / 组队 / 设置） ----------
 const HUB={v:'hero',sel:null};
@@ -2355,9 +2360,9 @@ addEventListener('pointerdown',()=>auInit(),{once:true});
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v61"></script>
-<script src="src/raid_engine.js?v=v61"></script>
-<script src="content/rigs.js?v=v61"></script>
-<script src="src/rig.js?v=v61"></script>
+<script src="content/skill_fx.js?v=v62"></script>
+<script src="src/raid_engine.js?v=v62"></script>
+<script src="content/rigs.js?v=v62"></script>
+<script src="src/rig.js?v=v62"></script>
 </body>
 </html>

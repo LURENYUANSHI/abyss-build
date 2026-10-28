@@ -124,7 +124,9 @@ window.aiGoal=()=>{const near=a=>{let best=null,bd=1e9;for(const q of a){const d
       if(p.safe==='pol'&&G.pol)return{x:R().cx-G.pol.sign*R().w*.3,y:pl.y};
       if(p.safe==='near')return near(en.filter(q=>!q.dead&&!q.boss&&q.def&&(q.def.ab||[]).some(a=>a.k==='safeSpot')));
       const s=near((b._spots||[]).filter(s=>s.k===p.safe&&G.t<s.until));if(s)return s;}
-    if(b._pads){const P=b._pads.filter(q=>q.m&&!q.used);if(P.length&&(b._padMode!=='interrupt'||b.cast))return near(P);}}
+    if(b._pads){const P=b._pads.filter(q=>q.m&&!q.used);if(P.length&&(b._padMode!=='interrupt'||b.cast))return near(P);}
+    // 离远了会被惩罚的首领（拉格纳罗斯岩浆冲击等）：远程也要待在惩罚距离以内
+    {const P=b.passive||(b.data&&b.data.passive)||{},rp=P.rangedPunish;if(rp){const dd=Math.hypot(pl.x-b.x,pl.y-b.y),lim=(rp.d||70)*.8;if(dd>lim){const a=Math.atan2(pl.y-b.y,pl.x-b.x);return{x:b.x+Math.cos(a)*lim*.75,y:b.y+Math.sin(a)*lim*.75};}}}}
   return null;};
 window.levelReady=(L,extra=[])=>{const{sheets:s0,tiles}=levelSheets(L),sheets=s0.concat(extra);for(const n of sheets)sheet(n);for(const t of tiles)tilesOf(t);
   let ok=0;for(const n of sheets)if(SHEET[n]&&(SHEET[n].f||SHEET[n].bad))ok++;for(const t of tiles)if(ART[t]||SHEET['t:'+t]==='bad')ok++;
@@ -480,7 +482,7 @@ const ENG={
   pull(b,p){applyEff('pull',b);if(p.dmg)hurt(p.dmg*b.skd);if(p.root)pl.frozenT=p.root;return .6;},
   grab(b,p){applyEff('pull',b);pl.frozenT=p.T||2;if(p.dmg)G.sched.push({t:p.T||2,fn:()=>{pl.inv=0;hurt(p.dmg*b.skd);}});toast('被抓住了！');return (p.T||2)+.2;},
   trail(b,p){b.trail={t:p.t||6,dmg:(p.dmg||.25)*b.skd,r:p.r||12,k:0};return .5;},
-  totem(b,p){for(let i=0;i<(p.n||1);i++){const s=randInRoom(30),e=spawnAt(s.x,s.y,'SP');e.totem=Object.assign({k:0,b},p);e.hp=e.max=e.max*(p.hp||2);e.name='图腾';}toast(`${b.name} 放下了图腾`);return .8;},
+  totem(b,p){for(let i=0;i<(p.n||1);i++){const s=randInRoom(30),e=spawnAt(s.x,s.y,'SP');e.totem=Object.assign({k:0,b},p);e.hp=e.max=e.max*(p.hp||2);e.name='图腾';if(p.effect==='healBoss'||p.effect==='mc')e.prio=true;}toast(`${b.name} 放下了图腾`);return .8;},
   energyBar(b,p){b.mp=b.mp||0;b.mpRate=p.rate||10;b.mpThen=p.then;return .3;},
   mirrorImages(b,p){for(let i=0;i<(p.n||2);i++){const e=spawnAt(b.x+(i?-30:30),b.y,'SK');e.art=b.art;e.w=b.w*.8;e.h=b.h*.8;e.hp=e.max=b.max*(p.hp||.15);e.dmg=b.dmg*.4;e.name=b.name+'的幻象';}toast('幻象！');return .8;},
   burrow(b,p,f){b.hidden=true;b.inv=true;b.burrow={t:p.t||4,x:pl.x,y:pl.y,r:p.r||36,dmg:(p.dmg||1.6)*b.skd};return (p.t||4)+.4;},
@@ -670,7 +672,7 @@ function spawnData(b,v,d){
   if(d.start&&d.start.hp)b.hp=b.max*d.start.hp;
   for(const a of d.auto||[])if(a.once){const p=(d.skills||{})[a.k];if(p)runSkill(b,p);}
   b.autoSk=b.autoSk.filter(a=>!a.once);
-  if(d.objective&&d.objective.mode==='destroy'){const n=d.objective.n||4;b.inv=true;b.objs=[];for(let i=0;i<n;i++){const s=randInRoom(30),e=spawnAt(s.x,s.y,'EGG');e.pt2=1e9;e.hp=e.max=e.max*(d.objective.hp||2);e.name=d.objective.prop||'目标';b.objs.push(e);}toast(d.objective.msg||`先摧毁 ${n} 个${d.objective.prop||'目标'}！`);}
+  if(d.objective&&d.objective.mode==='destroy'){const n=d.objective.n||4;b.inv=true;b.objs=[];for(let i=0;i<n;i++){const s=randInRoom(30),e=spawnAt(s.x,s.y,'EGG');e.pt2=1e9;e.hp=e.max=e.max*(d.objective.hp||2);e.name=d.objective.prop||'目标';b.objs.push(e);}toast(d.objective.msg||`先摧毁 ${n} 个${({egg:'龙蛋',crystal:'水晶',manticronCube:'玛瑟里顿之笼'})[d.objective.prop]||'目标'}！`);}
   if(d.passive)b.passive=d.passive;
   b.data=d;
   if(d.adds)raidAdds(b,d.adds.filter(a=>!a.at||a.at==='start'));
@@ -715,7 +717,7 @@ window.raidTick=dt=>{
     else if(e.abx&&e.boss&&e.mode==='walk')mobTick(e,dt);
     if(e.cast){e.cast.t-=dt;if(e.cast.t<=0){const c=e.cast;e.cast=null;c.then&&c.then();}}
     if(e.shield&&(e.shield.t-=dt)<=0)e.shield=null;
-    if(e.totem){const T=e.totem;if((T.k-=dt)<=0){T.k=T.every||3;if(T.effect==='healBoss'&&T.b&&!T.b.dead){T.b.hp=Math.min(T.b.max,T.b.hp+T.b.max*.02);fxs('heal',T.b.x,T.b.y,20,.4);}
+    if(e.totem){const T=e.totem;if((T.k-=dt)<=0){T.k=T.every||3;if(T.effect==='healBoss'&&T.b&&!T.b.dead){T.b.hp=Math.min(T.b.max,T.b.hp+T.b.max*Math.min(.02,(T.pct||.015)*.4));fxs('heal',T.b.x,T.b.y,20,.4);}
       else if(T.effect==='mc'&&Math.hypot(pl.x-e.x,pl.y-e.y)<40)G.mcT=2;
       else G.etels.push({t:'circle',x:e.x,y:e.y,r:T.r||30,left:.8,dmg:(T.dmg||.5)*(T.b?T.b.skd:e.dmg),col:'#ff8a5a'});}}
     if(!e.boss)continue;
@@ -739,7 +741,8 @@ window.raidTick=dt=>{
       if(P.rangedPunish){const far=Math.hypot(pl.x-b.x,pl.y-b.y)>(P.rangedPunish.d||70);b.rpT=far?(b.rpT||0)+dt:0;if(b.rpT>2){b.rpT=0;const a=angTo(b,pl);shots.push({x:b.x,y:b.y,vx:Math.cos(a)*120,vy:Math.sin(a)*120,life:3,dmg:(P.rangedPunish.dmg||1.6)*b.skd,col:'#ff6a2a',fire:true});toast('回到近战范围！');}}}
   }
   if(G.curse&&G.curse.t>0){G.curse.t-=dt;if(G.curse.t<=0&&G.curse.kind==='delayed'){pl.inv=0;hurt(G.curse.dmg);fxs('doom',pl.x,pl.y-6,30,.5);}
-    if(G.curse.kind==='bossLeech'&&G.boss&&!G.boss.dead){G.boss.hp=Math.min(G.boss.max,G.boss.hp+G.boss.max*.015*dt);if(pl.hp>1)pl.hp=Math.max(1,pl.hp-pl.maxHp*.01*dt);}
+    // 吸血：首领回复量 = 吸走玩家血量的 3 倍（不按首领最大生命算，否则血厚的首领回得比低输出职业打得还快，永远打不死）
+    if(G.curse.kind==='bossLeech'&&G.boss&&!G.boss.dead){const dr=pl.hp>1?Math.min(pl.hp-1,pl.maxHp*.005*dt):0;pl.hp-=dr;G.boss.hp=Math.min(G.boss.max,G.boss.hp+dr*3);}
     if(G.curse.kind==='heal'&&pl.hp>(G.curse.hp??pl.hp))pl.hp=G.curse.hp+(pl.hp-G.curse.hp)*.25;G.curse.hp=pl.hp;}
   if(G.stk)for(const k in G.stk){const s=G.stk[k];if((s.t-=dt)<=0)s.n=0;}
   if(G.bomb){const B=G.bomb;B.t-=dt;if(B.t<=0){const n=en.filter(e=>!e.dead&&!e.prop&&Math.hypot(e.x-pl.x,e.y-pl.y)<B.r).length;pl.inv=0;hurt(B.dmg*(1+B.per*n));fxs('explosion',pl.x,pl.y,B.r*2,.5);
@@ -776,7 +779,8 @@ doUlt=function(){_doUlt();for(const e of en)if(e.boss&&!e.dead){if(e.frenzyT>0&&
 const RF=(n,i)=>{const f=sheet('fx_raid_'+n);if(n==='black_2'&&f&&f[4])f[4]._dir=true;return f&&f[i]||null;};   // 暗影箭是朝右画的有向弹
 window.raidFx=(n,i)=>RF(n,i);
 // 全屏技能特效（bosses_fxfull：火 / 冰 / 暗影 / 神圣 / 奥术 / 瘟疫 / 闪电 / 鲜血），按技能名选
-window.fullFx=(name)=>{const im=fxImg(fxSpec(name).f||'full:2');if(!im)return;G.ffx={im,t:.9,T:.9};G.shake=Math.max(G.shake||0,.35);};
+// 全屏技能：按元素颜色从技能中心泛开一层光 + 一圈波纹（程序绘制，不再拉伸低分辨率图片）
+window.fullFx=(name,x,y)=>{G.ffx={col:elemCol(name),t:.7,T:.7,x,y};G.shake=Math.max(G.shake||0,.35);};
 const fxAt=(g,f,x,y,s,a=1)=>{if(!f)return false;g.globalAlpha=a;g.drawImage(f,x-s/2,y-s/2,s,s);g.globalAlpha=1;return true;};
 window.raidDraw=g=>{
   if(!G)return;
@@ -807,7 +811,9 @@ window.raidDraw=g=>{
   if(G.markN)fxAt(g,RF('black_1',9),pl.x+10,pl.y-18,10+Math.min(6,G.markN));
   {const rr=R(),FF=sheet('bosses_fxfull');
     g.save();g.beginPath();g.rect(rr.x,rr.y,rr.w,rr.h);g.clip();
-    if(G.ffx&&G.ffx.t>0){const p=1-G.ffx.t/G.ffx.T;g.globalCompositeOperation='lighter';g.globalAlpha=Math.sin(Math.PI*p)*.85;g.drawImage(G.ffx.im,rr.x-30,rr.y-30,rr.w+60,rr.h+60);g.globalAlpha=1;g.globalCompositeOperation='source-over';}
+    if(G.ffx&&G.ffx.t>0){const F=G.ffx,p=1-F.t/F.T,cx=F.x??rr.x+rr.w/2,cy=F.y??rr.y+rr.h/2,R0=Math.hypot(rr.w,rr.h)*(.25+.85*p);g.save();g.globalCompositeOperation='lighter';
+      const gr=g.createRadialGradient(cx,cy,0,cx,cy,R0);gr.addColorStop(0,F.col);gr.addColorStop(.7,F.col);gr.addColorStop(1,'rgba(0,0,0,0)');g.globalAlpha=Math.sin(Math.PI*p)*.35;g.fillStyle=gr;g.fillRect(rr.x,rr.y,rr.w,rr.h);
+      g.globalAlpha=(1-p)*.8;g.strokeStyle=F.col;g.lineWidth=3;g.beginPath();g.arc(cx,cy,R0*.8,0,TAU);g.stroke();g.restore();}
     if(G.realm){fxAt(g,RF('black_2',11),rr.cx,rr.y+rr.h/2,70,.25);if(FF&&FF[2]){g.globalAlpha=.22+.05*Math.sin(G.t*2);g.drawImage(FF[2],rr.x-20,rr.y-20,rr.w+40,rr.h+40);g.globalAlpha=1;}else{g.globalAlpha=.18;g.fillStyle=G.realm.tint;g.fillRect(rr.x,rr.y,rr.w,rr.h);g.globalAlpha=1;}}
     g.restore();}
   if(G.beams3)for(const c of G.beams3.cols){const a=Math.atan2(G.beams3.b.y-c.y,G.beams3.b.x-c.x),l=Math.hypot(G.beams3.b.x-c.x,G.beams3.b.y-c.y);drawBeam(g,c.x,c.y,a,l,5,c.c,.9,G.t+c.x);fxAt(g,RF('black_2',11),c.x,c.y,22);}
