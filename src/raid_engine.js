@@ -85,7 +85,7 @@ if(selLevel>NLV())selLevel=1;
 
 // 进入一关前预载这一关要用的图
 // 换副本时释放上一个副本的图集与瓦片（共享的特效表保留），防止一路打下来内存越积越多
-let curRaid=null;
+let curRaid=null,G_VFX=[];
 function evictOthers(r){const keep=new RegExp('_'+r.id+'(_|x|z|$)');
   for(const k in SHEET){const n=k.startsWith('t:')?k.slice(2):k;if(/^(fx_raid|bosses_fx)/.test(n)||keep.test(n))continue;delete SHEET[k];if(k.startsWith('t:'))delete ART[n];}
   for(const k in ART)if(/^tiles_/.test(k)&&!keep.test(k)&&!/^tiles_c\d$/.test(k))delete ART[k];}
@@ -293,6 +293,33 @@ function fxImg(key){if(!key)return null;const[t,a,b]=key.split(':');
   if(t==='fx')return FX[a]||null;if(t==='rf')return RF(a,+b);
   const f=sheet(t==='sig'?'bosses_fx_sig_'+a:'bosses_fxfull');return f&&f[t==='sig'?+b:+a]||null;}
 function fxKey(key){const im=fxImg(key);if(!im)return null;FX['sk_'+key]=im;return 'sk_'+key;}
+// 元素颜色：特效按技能元素着色
+const ECOL=[[/血/,'#ff3a4a'],[/火|炎|熔|烈焰|燃|焚|陨|地狱|岩浆|灼/,'#ff7a2a'],[/冰|霜|寒|雪|冻/,'#7ad8ff'],[/闪电|雷|电|风暴|静电/,'#9ff6ff'],[/毒|瘟疫|疫|腐|孢子|酸|软泥|枯萎/,'#7aff5a'],
+  [/神圣|圣|光明|审判|阳光/,'#ffe08a'],[/奥术|法力|魔|星|能量|宇宙|虚空之/,'#c06aff'],[/暗|影|虚空|黑|死亡|灵魂|暮光|邪/,'#a14aff'],[/水|潮|漩涡/,'#4ab0ff']];
+const elemCol=n=>{for(const[re,c]of ECOL)if(re.test(n||''))return c;return '#ffd0a0';};
+window.elemCol=elemCol;
+// 射线到房间边界的长度，光束不画到墙外
+function rayLen(x,y,a,R){const dx=Math.cos(a),dy=Math.sin(a);let t=1e9;
+  if(dx>1e-6)t=Math.min(t,(R.x+R.w-x)/dx);if(dx<-1e-6)t=Math.min(t,(R.x-x)/dx);if(dy>1e-6)t=Math.min(t,(R.y+R.h-y)/dy);if(dy<-1e-6)t=Math.min(t,(R.y-y)/dy);return Math.max(0,t);}
+// 光束：外层光晕 + 中层主色 + 白热核心，起点 / 终点光斑；宽度按正弦平滑闪动（不随机跳）
+function drawBeam(g,x,y,a,len,w,col,al,t){if(al<=0||len<=0)return;const f=1+.07*Math.sin(t*38)+.04*Math.sin(t*21);
+  g.save();g.translate(x,y);g.rotate(a);g.globalCompositeOperation='lighter';
+  for(const[k,aa]of[[2.4,.28],[1.1,.55]]){const W=w*k*f,gr=g.createLinearGradient(0,-W,0,W);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(.5,col);gr.addColorStop(1,'rgba(0,0,0,0)');g.globalAlpha=al*aa;g.fillStyle=gr;g.fillRect(0,-W,len,W*2);}
+  g.globalAlpha=al*.9;g.fillStyle='#fffbe8';g.fillRect(0,-w*.18*f,len,w*.36*f);
+  if(FX.spark){g.globalAlpha=al;const z=w*3.2*f;g.drawImage(FX.spark,-z/2,-z/2,z,z);g.drawImage(FX.spark,len-z/2,-z/2,z,z);}
+  g.restore();}
+window.drawBeam=drawBeam;
+// 特效实例：beam（出现-持续-消散）/ cone（粒子喷射）
+window.vfxBeam=o=>{if(G_VFX.length<24)G_VFX.push(Object.assign({k:'beam',t:0,T:o.T||.45,len:rayLen(o.x,o.y,o.a,R())},o));};
+window.vfxCone=o=>{if(G_VFX.length<24)G_VFX.push(Object.assign({k:'cone',t:0,T:o.T||.55,acc:0},o));};
+function vfxTick(dt){for(const v of G_VFX){v.t+=dt;
+    if(v.k==='cone'&&v.t<v.T*.7){v.acc+=dt*90;while(v.acc>=1&&G.parts.length<300){v.acc--;const a=v.a+(rand()-.5)*2*v.ang*.9,sp=v.len*(1.6+rand()*.9);
+      G.parts.push({x:v.x+Math.cos(a)*6,y:v.y+Math.sin(a)*6,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:.42,T:.42,col:v.col,s:2.4+rand()*1.6});}}}
+  G_VFX=G_VFX.filter(v=>v.t<v.T);}
+function vfxDraw(g){for(const v of G_VFX){if(v.k!=='beam')continue;const p=v.t/v.T,al=p<.12?p/.12:p>.7?(1-p)/.3:1;drawBeam(g,v.x,v.y,v.a,v.len,(v.w||8)*(p<.12?.4+p/.2:1),v.col,al,G.t);}
+  for(const v of G_VFX){if(v.k!=='cone')continue;const p=v.t/v.T,al=(1-p)*.35;if(al<=0)continue;   // 锥形区域一层淡淡的底光，粒子负责主体
+    g.save();g.globalCompositeOperation='lighter';g.globalAlpha=al;const gr=g.createRadialGradient(v.x,v.y,0,v.x,v.y,v.len);gr.addColorStop(0,v.col);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;
+    g.beginPath();g.moveTo(v.x,v.y);g.arc(v.x,v.y,v.len,v.a-v.ang,v.a+v.ang);g.closePath();g.fill();g.restore();}}
 window.skillCastFx=(b,name,dur)=>{const k=fxKey(fxSpec(name).c);if(k)fxs(k,b.x,b.y+(b.h||40)*.3,(b.w||50)*1.3,Math.min(1.5,Math.max(.5,dur||1)),0,1.2,1.1);};
 const ENG={
   tel(b,p,f){
@@ -310,8 +337,8 @@ const ENG={
       const af=afterOf(p,b),sp=fxSpec(p._n||p.say);
       t.after=()=>{if(af)af(t);let k;
         if(shape==='circle'&&(k=fxKey(t.r>30&&sp.e?sp.e:sp.h)))fxs(k,t.x,t.y,t.r*2.3,.55,0,.6,1.15);
-        else if(shape==='cone'&&(k=fxKey(sp.k)))fxs(k,t.x,t.y,0,.5,t.a,0,1,t.len,Math.min(t.len,2*t.len*Math.tan(t.ang)),0);
-        else if(shape==='beam'&&(k=fxKey(sp.b)))fxs(k,t.x,t.y,0,.4,t.a||0,0,1,320,(t.w||8)*2.6,0);
+        else if(shape==='cone')vfxCone({x:t.x,y:t.y,a:t.a,ang:t.ang,len:t.len,col:elemCol(p._n||p.say)});
+        else if(shape==='beam')vfxBeam({x:t.x,y:t.y,a:t.a||0,w:(t.w||8)*.9,col:elemCol(p._n||p.say)});
         else if(shape==='rect'&&(k=fxKey(sp.e||sp.h)))for(let j=0;j<3;j++)fxs(k,t.x+t.w*(.2+.3*j),t.y+t.h/2,Math.min(t.w,t.h)*.9,.5,0,0,1.1);};
       b.tels.push(t);
     }
@@ -514,6 +541,7 @@ function applyPhase(b,o,on){
 // ---------- 每帧：首领附加状态、玩家减益、小怪技能 ----------
 window.raidTick=dt=>{
   if(!G)return;
+  vfxTick(dt);
   for(const p of G.pools)if(p.buff&&Math.hypot(pl.x-p.x,pl.y-p.y)<p.r+4)G[p.buff+'T']=p.buffT||10;   // 站进带增益的池子（哈卡之子的毒血）
   if(G.poisonBloodT>0)G.poisonBloodT-=dt;
   for(const e of en){if(!e.unk||e.dead)continue;const B=e.unk.b;   // 首领活着就打不死的召唤物（熔火怒犬）：残血回到一半，首领死了一起死
@@ -570,7 +598,7 @@ window.raidTick=dt=>{
   if(G.felRage&&(G.felRage.t-=dt)<=0)G.felRage=null;
   if(G.realm&&(G.realm.t-=dt)<=0)G.realm=null;
   if(G.vamp){G.vamp.t-=dt;if(G.vamp.t<=0){if((G.vampKills||0)<2&&G.boss)ENG.mindControl(G.boss,{t:3});G.vamp=null;}}
-  if(G.cutter){const C=G.cutter;C.t-=dt;C.a+=C.va*dt;const r=R(),c={x:r.cx,y:r.y+r.h/2};if((rayNear(c,C.a,pl.x,pl.y,C.w)||rayNear(c,C.a+Math.PI,pl.x,pl.y,C.w))&&pl.inv<=0){pl.inv=0;hurt(C.dmg);}if(C.t<=0)G.cutter=null;}
+  if(G.cutter){const C=G.cutter,r=R(),c={x:r.cx,y:r.y+r.h/2};for(const d of[0,Math.PI])drawBeam(g,c.x,c.y,C.a+d,rayLen(c.x,c.y,C.a+d,r),C.w*.9,'#c06aff',.95,G.t+d);}
   if(G.absorb){const A=G.absorb;A.t-=dt;A.got=A.hp0-A.b.hp;if(A.got>=A.need){toast('吸收盾已打破！');G.absorb=null;}else if(A.t<=0){runSkill(A.b,A.fail||{e:'tel',t:'circle',at:'player',r:60,T:.6,dmg:2});G.absorb=null;}}
   if(B&&B.chess&&!en.some(e=>e.chess&&!e.dead)){}
   for(const e of en){if(e.dead||!e.boss)continue;
@@ -593,6 +621,7 @@ window.fullFx=(name)=>{const im=fxImg(fxSpec(name).f||'full:2');if(!im)return;G.
 const fxAt=(g,f,x,y,s,a=1)=>{if(!f)return false;g.globalAlpha=a;g.drawImage(f,x-s/2,y-s/2,s,s);g.globalAlpha=1;return true;};
 window.raidDraw=g=>{
   if(!G)return;
+  vfxDraw(g);
   g.save();g.textAlign='center';const pulse=.85+.15*Math.sin(G.t*6);
   for(const e of en){
     if(e.dead)continue;
@@ -622,7 +651,7 @@ window.raidDraw=g=>{
     if(G.ffx&&G.ffx.t>0){const p=1-G.ffx.t/G.ffx.T;g.globalCompositeOperation='lighter';g.globalAlpha=Math.sin(Math.PI*p)*.85;g.drawImage(G.ffx.im,rr.x-30,rr.y-30,rr.w+60,rr.h+60);g.globalAlpha=1;g.globalCompositeOperation='source-over';}
     if(G.realm){fxAt(g,RF('black_2',11),rr.cx,rr.y+rr.h/2,70,.25);if(FF&&FF[2]){g.globalAlpha=.22+.05*Math.sin(G.t*2);g.drawImage(FF[2],rr.x-20,rr.y-20,rr.w+40,rr.h+40);g.globalAlpha=1;}else{g.globalAlpha=.18;g.fillStyle=G.realm.tint;g.fillRect(rr.x,rr.y,rr.w,rr.h);g.globalAlpha=1;}}
     g.restore();}
-  if(G.beams3)for(const c of G.beams3.cols){const bt=RF('black_3',4);if(bt){const a=Math.atan2(G.beams3.b.y-c.y,G.beams3.b.x-c.x),l=Math.hypot(G.beams3.b.x-c.x,G.beams3.b.y-c.y);g.save();g.translate(c.x,c.y);g.rotate(a);g.globalAlpha=.8;g.drawImage(bt,0,-8,l,16);g.restore();g.globalAlpha=1;fxAt(g,RF('black_2',11),c.x,c.y,22);continue;}g.strokeStyle=c.c;g.globalAlpha=.7;g.lineWidth=3;g.beginPath();g.moveTo(c.x,c.y);g.lineTo(G.beams3.b.x,G.beams3.b.y);g.stroke();g.globalAlpha=1;if(FX.portal)g.drawImage(FX.portal,c.x-10,c.y-10,20,20);}
+  if(G.beams3)for(const c of G.beams3.cols){const a=Math.atan2(G.beams3.b.y-c.y,G.beams3.b.x-c.x),l=Math.hypot(G.beams3.b.x-c.x,G.beams3.b.y-c.y);drawBeam(g,c.x,c.y,a,l,5,c.c,.9,G.t+c.x);fxAt(g,RF('black_2',11),c.x,c.y,22);}
   if(G.orbs)for(const o of G.orbs){if(fxAt(g,RF('black_2',9),o.x,o.y,o.r*1.4,.9))continue;if(PJ.orb)g.drawImage(PJ.orb,o.x-o.r*.6,o.y-o.r*.6,o.r*1.2,o.r*1.2);}
   if(G.cutter){const C=G.cutter,r=R(),c={x:r.cx,y:r.y+r.h/2};g.save();g.translate(c.x,c.y);g.rotate(C.a);const ct=RF('black_3',3)||FX.beam;if(ct)g.drawImage(ct,-300,-C.w*1.5,600,C.w*3);g.restore();}
   for(const e of en)if(e.cannons&&!e.dead)for(const c of e.cannons){if(IT.turret)g.drawImage(IT.turret,c.x-9,c.y-12,18,18);g.strokeStyle='rgba(255,215,90,.6)';g.beginPath();g.arc(c.x,c.y,12,0,TAU);g.stroke();}
