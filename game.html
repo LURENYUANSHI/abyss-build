@@ -274,10 +274,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v44"></script>
+<script src="content/raids_data.js?v=v45"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v44';
+const W=195,H=347,VERSION='v45';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -972,6 +972,13 @@ function scale2x(src){const w=src.width,h=src.height,s=new Uint32Array(src.getCo
     const i=y*2*w*2+x*2;o[i]=e0;o[i+1]=e1;o[i+w*2]=e2;o[i+w*2+1]=e3;}
   oc.putImageData(od,0,0);return out;}
 const hd=cv=>cv._hd||(cv._hd=cv.isArt?cv:scale2x(scale2x(cv)));
+// 怪物动画状态：每帧在 update 里用真实 dt 推进；render 只读取
+function animTick(e,dt){if(!e.art||e.dead)return;
+  const v=e._lx===undefined?0:Math.hypot(e.x-e._lx,e.y-e._ly)/Math.max(dt,1e-3);e._lx=e.x;e._ly=e.y;
+  e._v=(e._v||0)+(v-(e._v||0))*Math.min(1,dt*8);e._wk=e._wk?e._v>4:e._v>9;   // 平滑速度 + 迟滞：被挤一下不会在走 / 停之间来回切
+  e.ac=(e.ac===undefined?(e.x*.013)%10:e.ac)+dt;e.wc=e._wk?(e.wc||0)+dt:0;   // 走路循环每次从第一帧开始
+  const want=pl.x<e.x;if(Math.abs(pl.x-e.x)>10&&want!==e.fl){if((e._flT=(e._flT||0)+dt)>.25){e.fl=want;e._flT=0;}}else e._flT=0;   // 转身持续 0.25 秒才翻
+  if(e.boss&&e.mode!==e._pm){e._pm=e.mode;if(e.mode&&e.mode!=='walk'){e.castAt=G.t;e.castDur=Math.min(1.6,Math.max(.6,e.at||1));e.castK=window.skKind?skKind(e,e.mode):'spell';}}}
 function drawArt(c,im,cx,fy,w,h,flip,rot,sx,sy){c.save();c.translate(cx,fy);c.rotate(rot);c.scale(flip?-sx:sx,sy);c.drawImage(im,-w/2,-h,w,h);c.restore();}   // 以脚底为锚点
 function drawSpr(img,x,y,w,h,flip,c=g){const im=hd(img);if(!flip)return c.drawImage(im,x,y,w,h);c.save();c.translate(x+w,y);c.scale(-1,1);c.drawImage(im,0,0,w,h);c.restore();}
 const dI=(c,img,x,y)=>c.drawImage(hd(img),x,y,img.width,img.height);
@@ -1595,6 +1602,7 @@ function update(dt){
   // 敌人
   for(const e of en){
     if(e.dead)continue;
+    animTick(e,dt);
     if(e.poison&&(e.pt-=dt)<=0){e.pt=.5;dmg(e,atkBase()*.06*e.poison*st.poisonMul*(st.plague?2:1),{nocrit:true,col:'#a6ec6c'});
       if(st.plague&&rand()<.3){const o=nearest(e.x,e.y,18,new Set([e]));if(o&&!o.poison)o.poison=2;}}
     if(e.burnT>0){e.burnT-=dt;if((e.bt-=dt)<=0){e.bt=.5;dmg(e,e.burnD*.5,{nocrit:true,col:'#ff9a4a'});}}
@@ -1765,23 +1773,21 @@ function drawEntities(c){
       const fr=e.img?(e.flash>0?e.imgF:e.img):IMG[e.flash>0?e.k+'f':e.k],im=fr&&fr[((G.t*6+e.x*.13)|0)%fr.length];
       if(e.hidden)c.globalAlpha=.25;
       c.fillStyle='rgba(0,0,0,.35)';c.fillRect(x+2,y+t.h-2-(e.boss?2:0),t.w-4,e.boss?4:2);if(e.art){   // 贴图怪物的程序动画：呼吸、走路摇摆、施法蓄力、受击压扁；有第二姿势时切换帧
-        const T=G.t+e.x*.013,cast=e.boss&&e.mode&&e.mode!=='walk',big=e.boss;
-        {const dt2=Math.max(.001,G.t-(e._lt||G.t-.016)),v=e._lx===undefined?0:Math.hypot(e.x-e._lx,e.y-e._ly)/dt2;e._v=(e._v||0)*.85+v*.15;e._lx=e.x;e._ly=e.y;e._lt=G.t;e._wk=e._wk?e._v>4:e._v>9;}
-        const walk=!cast&&e._wk;   // 平滑后的移动速度 + 迟滞：被挤一下不会在走 / 停之间来回切
-        const A=!e.formArt&&window.animOf&&animOf(e),hit=e.dash>0||(e.k==='SA'&&e.shotT<.45)||e.atkPose>0;
-        if(e.boss&&e.mode!==e._pm){e._pm=e.mode;if(e.mode&&e.mode!=='walk'){e.castAt=G.t;e.castDur=Math.min(1.6,Math.max(.6,e.at||1));e.castK=window.skKind?skKind(e,e.mode):'spell';}}
+        const T=e.ac||0,cast=e.boss&&e.mode&&e.mode!=='walk',big=e.boss,walk=!cast&&e._wk;   // 动画状态由 update 阶段的 animTick 算好，这里只读
+        const A=!e.formArt&&window.animOf&&animOf(e),hit=e.dash>0||(e.k==='SA'&&e.shotT<.45)||e.atkPose>0,full=A&&A.full;
         const sp=G.t-(e.castAt||-9),sk=A&&sp<(e.castDur||.6)?sp/(e.castDur||.6):-1;   // 放技能的动作进度 0~1
         let im2=e.formArt?e.formArt:A?(G.t-(e.hurtAt||-9)<.2&&A.hurt?A.hurt
             :sk>=0?(e.castK==='melee'?(sk<.45?A.wind:sk<.8?A.atk:A.rec):A.cast[sk<.4?0:1])
             :cast?A.cast[((T*4)|0)%2]:e.wind>0?A.wind:hit?A.atk
-            :walk?A.walk[((T*(big?7:9))|0)%A.walk.length]:A.idle[((T*1.6)|0)%A.idle.length])
+            :walk?A.walk[((e.wc||0)*(big?7:9)|0)%A.walk.length]:A.idle[((T*1.6)|0)%A.idle.length])
           :(cast||e.wind>0||hit)&&e.artAtk?e.artAtk:walk&&e.art.length>1?e.art[((T*(big?4:6))|0)%2]:e.art[0];
-        let rot=0,sx=1,sy=1+Math.sin(T*3)*(big?.035:.02),dy=0;
-        if(e.k==='SL'&&!big){const q=Math.sin(T*8)*.07;sx+=q;sy-=q;}
-        else if(walk&&!e.prop&&!(A&&A.full)){rot=Math.sin(T*(big?5:8))*(big?.05:.08);dy=-Math.abs(Math.sin(T*(big?5:8)))*(big?1.6:1.2);}
-        if(cast){const q=1.03+.03*Math.sin(G.t*6);sx*=q;sy*=q;}
-        if(e.flash>0){sx*=1.07;sy*=.93;}
-        {const want=pl.x<e.x;if(Math.abs(pl.x-e.x)>10&&want!==e.fl){if((e._flT=(e._flT||0)+.016)>.25){e.fl=want;e._flT=0;}}else e._flT=0;}const ax=x+t.w/2,ay=y+t.h+dy,fl=!!e.fl;drawArt(c,im2,ax,ay,t.w,t.h,fl,rot,sx,sy);   // 朝向带死区，玩家经过时不来回翻
+        let rot=0,sx=1,sy=1,dy=0;
+        if(!full){sy=1+Math.sin(T*3)*(big?.035:.02);   // 只有旧的 1~3 帧图才用程序动画凑动作；完整动作帧不叠加任何整体变形
+          if(e.k==='SL'&&!big){const q=Math.sin(T*8)*.07;sx+=q;sy-=q;}
+          else if(walk&&!e.prop){rot=Math.sin(T*(big?5:8))*(big?.05:.08);dy=-Math.abs(Math.sin(T*(big?5:8)))*(big?1.6:1.2);}
+          if(cast){const q=1.03+.03*Math.sin(T*6);sx*=q;sy*=q;}
+          if(e.flash>0){sx*=1.07;sy*=.93;}}
+        const ax=x+t.w/2,ay=y+t.h+dy,fl=!!e.fl;drawArt(c,im2,ax,ay,t.w,t.h,fl,rot,sx,sy);
         if(e.flash>0){c.globalCompositeOperation='lighter';c.globalAlpha=.7;drawArt(c,im2,ax,ay,t.w,t.h,fl,rot,sx,sy);c.globalCompositeOperation='source-over';c.globalAlpha=1;}
         // 预警：蓄力 / 瞄准时头顶红色感叹号；首领施法时显示技能名
         const warn=!e.prop&&(e.wind>0||(e.k==='SA'&&e.shotT>0&&e.shotT<.45)||(e.boss&&e.say&&e.say.t>0));
@@ -2291,7 +2297,7 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v44"></script>
-<script src="src/raid_engine.js?v=v44"></script>
+<script src="content/skill_fx.js?v=v45"></script>
+<script src="src/raid_engine.js?v=v45"></script>
 </body>
 </html>
