@@ -277,10 +277,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v59"></script>
+<script src="content/raids_data.js?v=v60"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v59';
+const W=195,H=347,VERSION='v60';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -447,7 +447,6 @@ loadArt('bg_home',fitBg,'jpg');loadArt('bg_map',fitBg,'jpg');
 loadArt('elites',im=>strip(im,12));
 loadArt('bosses',im=>strip(im,12));loadArt('forms',im=>strip(im,8));loadArt('props',im=>strip(im,8));
 loadArt('bossesAtk',im=>strip(im,12));loadArt('mobsAtk',im=>strip(im,16));loadArt('elitesAtk',im=>strip(im,12));loadArt('mobs2',im=>strip(im,16));
-loadArt('icons',im=>{const f=strip(im,18);setTimeout(setIcons);return f;});
 loadArt('proj',named(PJ,['wave','orb','fireball','frost','bullet','arrow','shuriken','note','sword','hammer','efire','earrow','epoison','evoid','edragon','eblood'],24));
 loadArt('fx',named(FX,['slash','punch','xslash','holy','explosion','ice','poison','lightning','meteor','heal','levelup','smoke','drain','shield','sound','spark'],48));
 loadArt('fx2',named(FX,['breathFire','breathFrost','beam','lavaPillar','firePool','poisonPool','frostCircle','portal','rune','whirl','quake','spores','doom','voidFire','rock','sigil'],48));
@@ -2282,8 +2281,9 @@ $('dead').addEventListener('click',e=>{
   if(e.target.id==='home2'){$('dead').classList.remove('on');G=null;music(null);show('hub','hero');}
   if(e.target.id==='rev')showAd(()=>{G.revived=true;pl.hp=pl.maxHp;music(G.boss?'boss':'normal');pl.inv=2;$('dead').classList.remove('on');G.state='play';nova(80,atkBase()*3);});
 });
-function setIcons(){const f=ART.icons,i=CLS_IDS.indexOf(selCls);if(!f)return;
-  for(const[id,ic,k]of[['skill','skIc',0],['ult','ulIc',1]]){$(ic).style.backgroundImage=`url(${f[i*2+k].toDataURL()})`;$(id).classList.add('hasic');}}
+// 图标直接用 CSS 雪碧图定位，不经过画布 toDataURL（手机上画布内存紧张时会变空白）
+function setIcons(){const i=CLS_IDS.indexOf(selCls);if(i<0)return;
+  for(const[id,ic,k]of[['skill','skIc',0],['ult','ulIc',1]]){const e=$(ic).style;e.backgroundImage=`url(art/icons.png?v=${VERSION})`;e.backgroundSize='1800% 100%';e.backgroundPosition=`${(i*2+k)/17*100}% 0`;$(id).classList.add('hasic');}}
 function startGame(){for(const k of SCREENS)$(k).classList.remove('on');$('nav').classList.remove('on');reset();$('hexN').textContent=G.owned.size;$('hexV').classList.remove('on');
   const C=CLS[selCls],a=$('ava'),ac=a.getContext('2d');if(C.port){a.width=a.height=64;ac.clearRect(0,0,64,64);ac.drawImage(C.port,0,0,64,64);}else{a.width=16;a.height=14;ac.clearRect(0,0,16,14);ac.drawImage(C.img[0],0,0);}
   const p=$('por'),pc=p.getContext('2d'),an=ART.anime&&ART.anime[CLS_IDS.indexOf(selCls)];p.style.imageRendering=an?'auto':'';   // 大招特写：动漫立绘（非像素）
@@ -2325,9 +2325,9 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v59"></script>
-<script src="src/raid_engine.js?v=v59"></script>
-<script src="content/rigs.js?v=v59"></script>
-<script src="src/rig.js?v=v59"></script>
+<script src="content/skill_fx.js?v=v60"></script>
+<script src="src/raid_engine.js?v=v60"></script>
+<script src="content/rigs.js?v=v60"></script>
+<script src="src/rig.js?v=v60"></script>
 </body>
 </html>

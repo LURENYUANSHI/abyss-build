@@ -33,6 +33,8 @@ window.rigCache=CACHE;   // 换团本时由 raid_engine 的 evictOthers 清掉�
 
 const draw=(g,im,ax,ay,ang,px,py)=>{g.save();g.translate(ax,ay);g.rotate(ang);g.drawImage(im,-px,-py);g.restore();};
 const top=b=>b.y0+2,bot=b=>b.y1-2;
+// 肩关节在肩甲/上臂顶端往下约 0.3 个宽度处：绕这里转，手臂前挥时肩甲不会翻到脸上
+const sh=b=>Math.min(b.w,b.h)*.3;
 
 // ---------- 各体型：姿势表 + 组装绘制 ----------
 // 正面姿势：l* 为画面左侧手臂（正角向外张），r* 为右侧（负角向外张）；武器全局朝向 = rUp + rLow + wpn
@@ -41,15 +43,15 @@ const FP={idle:{torso:0,head:0,lUp:.15,lLow:.05,rUp:-.15,rLow:-.05,wpn:-1.37,dy:
  rec:{torso:.03,head:.03,lUp:.2,lLow:.1,rUp:-.3,rLow:-.1,wpn:2.3,dy:.5},cast:{torso:0,head:-.1,lUp:2.6,lLow:.2,rUp:-2.6,rLow:-.2,wpn:1.23,dy:-1},
  hurt:{torso:.1,head:.2,lUp:.5,lLow:.3,rUp:-.5,rLow:-.3,wpn:-.4,dy:0}};
 const frontArms=(g,L,r,tb,sw,wk,grip)=>{const{im,b}=L;
-  const arm=(up,low,x,aUp,aLow,wpn)=>{if(!b[up]||!b[low])return;const ub=b[up],lb=b[low];g.save();g.translate(x,-tb.h*.78);g.rotate(aUp);g.drawImage(im[up],-ub.cx,-top(ub));
-    g.translate(0,ub.h-6);g.rotate(aLow);g.drawImage(im[low],-lb.cx,-top(lb));
+  const arm=(up,low,x,aUp,aLow,wpn)=>{if(!b[up]||!b[low])return;const ub=b[up],lb=b[low];g.save();g.translate(x,-tb.h*.78+sh(ub));g.rotate(aUp);g.drawImage(im[up],-ub.cx,-top(ub)-sh(ub));
+    g.translate(0,ub.h-6-sh(ub));g.rotate(aLow);g.drawImage(im[low],-lb.cx,-top(lb));
     if(wpn&&b[wk]){const wb=b[wk];g.translate(0,lb.h-8);g.rotate(r.wpn);g.drawImage(im[wk],-(wb.x0+wb.w*grip),-wb.cy);}g.restore();};
   arm('lUp','lLow',-tb.w*.4,r.lUp+sw*.1,r.lLow,false);arm('rUp','rLow',tb.w*.4,r.rUp+sw*.1,r.rLow,true);};
 const PLAN={
  humanoid:{need:['head','torso','pelvis','nearUp','nearLow','nearLeg'],
   height:b=>Math.max(b.nearLeg.h,b.farLeg?b.farLeg.h:0)+b.pelvis.h*.5+b.torso.h*.85+b.head.h*.85,
-  pose:{idle:{torso:0,head:0,farUp:.12,farLow:.18,nearUp:-.05,nearLow:-.55,wpn:-1.25,farLeg:0,nearLeg:0,dy:0},
-   walk:{torso:.04,head:-.02,farUp:0,farLow:.2,nearUp:0,nearLow:-.55,wpn:-1.2,farLeg:0,nearLeg:0,dy:0},
+  pose:{idle:{torso:0,head:0,farUp:.12,farLow:.18,nearUp:-.05,nearLow:-.55,wpn:0,farLeg:0,nearLeg:0,dy:0},
+   walk:{torso:.04,head:-.02,farUp:0,farLow:.2,nearUp:0,nearLow:-.55,wpn:-.05,farLeg:0,nearLeg:0,dy:0},
    wind:{torso:-.18,head:-.1,farUp:.5,farLow:.4,nearUp:-2.3,nearLow:-.9,wpn:.5,farLeg:-.15,nearLeg:.25,dy:0},
    atk:{torso:.22,head:.1,farUp:-.2,farLow:.1,nearUp:-1.2,nearLow:-.1,wpn:1.4,farLeg:.25,nearLeg:-.3,dy:1.5},
    rec:{torso:.08,head:.04,farUp:.1,farLow:.2,nearUp:-.8,nearLow:-.3,wpn:1.2,farLeg:.1,nearLeg:-.1,dy:.5},
@@ -57,8 +59,8 @@ const PLAN={
    hurt:{torso:-.25,head:-.3,farUp:.4,farLow:.5,nearUp:.3,nearLow:-.2,wpn:-1.5,farLeg:.1,nearLeg:-.1,dy:0}},
   draw(g,L,r,sw,bob){const{im,b}=L,tb=b.torso,pb=b.pelvis,legL=Math.max(b.nearLeg.h,b.farLeg?b.farLeg.h:0),hipY=-legL+r.dy+bob;
    const leg=(k,a)=>{if(b[k])draw(g,im[k],k==='farLeg'?-3:3,hipY,a,b[k].cx,top(b[k]));};
-   const arm=(up,low,aUp,aLow,wpn)=>{if(!b[up]||!b[low])return;const ub=b[up],lb=b[low];g.save();g.translate(up==='nearUp'?tb.w*.14:-tb.w*.12,-tb.h*.78);g.rotate(aUp);g.drawImage(im[up],-ub.cx,-top(ub));
-     g.translate(0,ub.h-6);g.rotate(aLow);g.drawImage(im[low],-lb.cx,-top(lb));
+   const arm=(up,low,aUp,aLow,wpn)=>{if(!b[up]||!b[low])return;const ub=b[up],lb=b[low];g.save();g.translate(up==='nearUp'?tb.w*.14:-tb.w*.12,-tb.h*.78+sh(ub));g.rotate(aUp);g.drawImage(im[up],-ub.cx,-top(ub)-sh(ub));
+     g.translate(0,ub.h-6-sh(ub));g.rotate(aLow);g.drawImage(im[low],-lb.cx,-top(lb));
      if(wpn&&b.weapon){const wb=b.weapon;g.translate(0,lb.h-8);g.rotate(r.wpn);g.drawImage(im.weapon,-(wb.x0+wb.w*(L.R.grip||.3)),-wb.cy);}g.restore();};
    leg('farLeg',r.farLeg-sw*.45);
    g.save();g.translate(0,hipY-pb.h*.35);g.rotate(r.torso);arm('farUp','farLow',r.farUp+sw*.3,r.farLow,false);g.restore();
@@ -128,8 +130,8 @@ const PLAN={
    rec:{torso:.05,head:0,lower:-.05,farUp:.1,farLow:.2,nearUp:-.8,nearLow:-.3,wpn:1.2,dy:0},cast:{torso:-.1,head:-.2,lower:.05,farUp:-2.6,farLow:-.3,nearUp:-2.5,nearLow:-.3,wpn:1.2,dy:-3},
    hurt:{torso:-.25,head:-.3,lower:.2,farUp:.4,farLow:.5,nearUp:.3,nearLow:-.2,wpn:-1.4,dy:0}},
   draw(g,L,r,sw,bob){const{im,b}=L,tb=b.torso,lb=b.lower,fl=Math.sin(G.t*2.4)*2.5,wy=-lb.h*.75+r.dy+fl;
-   const arm=(up,low,aUp,aLow,wpn)=>{if(!b[up]||!b[low])return;const ub=b[up],l2=b[low];g.save();g.translate(up==='nearUp'?tb.w*.18:-tb.w*.15,-tb.h*.78);g.rotate(aUp);g.drawImage(im[up],-ub.cx,-top(ub));
-     g.translate(0,ub.h-6);g.rotate(aLow);g.drawImage(im[low],-l2.cx,-top(l2));if(wpn&&b.item){const wb=b.item;g.translate(0,l2.h-8);g.rotate(r.wpn);g.drawImage(im.item,-(wb.x0+wb.w*.3),-wb.cy);}g.restore();};
+   const arm=(up,low,aUp,aLow,wpn)=>{if(!b[up]||!b[low])return;const ub=b[up],l2=b[low];g.save();g.translate(up==='nearUp'?tb.w*.18:-tb.w*.15,-tb.h*.78+sh(ub));g.rotate(aUp);g.drawImage(im[up],-ub.cx,-top(ub)-sh(ub));
+     g.translate(0,ub.h-6-sh(ub));g.rotate(aLow);g.drawImage(im[low],-l2.cx,-top(l2));if(wpn&&b.item){const wb=b.item;g.translate(0,l2.h-8);g.rotate(r.wpn);g.drawImage(im.item,-(wb.x0+wb.w*.3),-wb.cy);}g.restore();};
    draw(g,im.lower,0,wy+lb.h*.1,r.lower+Math.sin(G.t*3)*.08,lb.cx,top(lb));
    g.save();g.translate(0,wy+lb.h*.1);g.rotate(r.torso);arm('farUp','farLow',r.farUp+Math.sin(G.t*2)*.1,r.farLow,false);
    g.drawImage(im.torso,-tb.cx,-bot(tb));g.save();g.translate(0,-tb.h*.8);g.rotate(r.head);g.drawImage(im.head,-b.head.cx,-(b.head.y1-b.head.h*.14));g.restore();
@@ -170,11 +172,14 @@ window.rigTick=(e,dt)=>{const L=e.rig&&build(e.rig);if(!L)return;const P=(PLAN[e
   e.rk=k;e.rw=(e.rw||0)+(k==='walk'?dt*7.5:0);};
 // 绘制：(x,y) 脚底中心，h 目标身高，fl 朝左翻转；返回 false 时调用方用旧逐帧图
 window.drawRig=(g,e,x,y,h,fl)=>{let L=e.rig&&build(e.rig);if(!L)return false;let pl=PLAN[e.rig.plan]||PLAN.humanoid,r=e.rp||pl.pose.idle,fr=0;
+  // 侧面按正面躯干宽度的 0.75 倍补宽（同身高下比），转身时不会一下变瘦
+  if(L.wideF===undefined&&e.rig.front){const F0=build({plan:e.rig.plan==='floater'?'ffront':'front',sheet:e.rig.front,grip:e.rig.grip});
+    if(F0){const sw0=(L.b.torso||{}).w,fw0=(F0.b.torso||{}).w;L.wideF=sw0&&fw0?Math.max(L.wide,Math.min(1.5,(fw0/F0.H)*.75/(sw0/L.H))):L.wide;}}
   const vs=e.rf?e.rig.front:e.rb?e.rig.back:null;   // 正面 / 背面共用一套对称姿势
   if(vs){const fp=e.rig.plan==='floater'?'ffront':'front',F=build({plan:fp,sheet:vs,grip:e.rig.grip});if(F){L=F;pl=PLAN[fp];r=e.rpf||FP.idle;fr=1;}}
   const s=h/L.H,w=e.rw||0,walk=e.rk==='walk';
   const sw=walk?Math.sin(w):0,bob=(walk?-Math.abs(Math.cos(w))*1.4:Math.sin(G.t*2.2)*.5)/s;
-  g.save();g.translate(x,y);g.scale((fl?-s:s)*L.wide,s);pl.draw(g,L,r,sw,bob);g.restore();
+  g.save();g.translate(x,y);g.scale((fl?-s:s)*(fr?L.wide:(L.wideF||L.wide)),s);pl.draw(g,L,r,sw,bob);g.restore();
   const fxk=L.im.fx||L.im.slash,fb=L.b.fx||L.b.slash;   // 出手瞬间的攻击特效（挥砍弧 / 吐息 / 爪击）
   if(e.rk==='atk'&&fxk&&fb){g.save();g.translate(x+(fr?0:(fl?-1:1)*h*.4),y-h*(fr?.35:.5));g.scale(fl?-s*1.1:s*1.1,s*1.1);g.globalCompositeOperation='lighter';g.globalAlpha=.85;g.drawImage(fxk,-fb.cx,-fb.cy);g.restore();}
   return true;};
