@@ -65,7 +65,8 @@ vm.runInContext(readFileSync('src/rig.js','utf8'),ctx,{filename:'rig.js'});
 
 // 测试辅助（在游戏上下文里执行）
 vm.runInContext(`
-var setMeta=ri=>{PROG.acc={lv:Math.min(80,Math.round(1+ri*3.5)),xp:0};PROG.inv=[];PROG.eq={};PROG.party=[];
+// 到达第 ri 章时的账号等级：按正常首通一路打过来的经验估算
+var setMeta=ri=>{PROG.acc={lv:[1,14,16,25,34][ri]??Math.min(80,Math.round(1+ri*8)),xp:0};PROG.inv=[];PROG.eq={};PROG.party=[];
   for(const[slot]of SLOTS){const it=makeItem(ri);it.slot=slot;it.rar=3;it.set=[0,1,1,3,3][ri]??3;
     it.st=slot==='wpn'?{atk:.06*1.7*(1+.25*ri)}:slot==='trk'?{crit:.04*1.7*(1+.25*ri)}:{hp:.07*1.7*(1+.25*ri)};PROG.inv.push(it);PROG.eq[slot]=it.id;}};
 var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0,bt0=-1;
@@ -77,7 +78,7 @@ var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0,bt
     if(G.state==='play'&&G.pickQ.length)openPick(G.pickQ.shift());t+=dt;}
   return{w:0,t,ri:G.ri,timeout:1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode,ens:en.filter(e=>!e.dead).length};};
 // 整章连打：从章首关开始一路打到章末（海克斯整章保留），返回是否通关、死在哪关、各首领用时
-var runSim=(cls,ri)=>{const L0=firstL(ri);selCls=cls;selLevel=L0;startGame();const dt=1/30;let t=0,bt0=-1,curL=L0,bts=[];
+var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);PROG.best={};selCls=cls;selLevel=L0;startGame();const dt=1/30;let t=0,bt0=-1,curL=L0,bts=[];
   while(t<9000){
     if(G.state==='play'){update(dt);if(bt0<0&&G.boss&&G.cfg&&G.cfg.type==='big')bt0=t;if(G.L!==curL){bts.push(bt0<0?0:t-bt0);bt0=-1;curL=G.L;}}
     else if(G.state==='pick')choose((rand()*G.offer.cards.length)|0);
