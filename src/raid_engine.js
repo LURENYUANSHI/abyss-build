@@ -210,7 +210,7 @@ window.trashDeath=e=>{
   for(const b of en)if(b.boss&&b.attuned>0){b.attuned=Math.max(0,b.attuned-5);}
   for(const a of e.def.ab||[]){
     if(a.k==='deathExplode')G.etels.push({t:'circle',x:e.x,y:e.y,r:a.r||16,left:a.T||.6,dmg:(a.dmg||1.3)*e.dmg,col:'#ff8a2a'});
-    if(a.k==='deathPool'&&G.pools.length<14)G.pools.push({x:e.x,y:e.y,r:a.r||10,arm:.3,t:a.t||3,tick:0,dmg:(a.dmg||.5)*e.dmg,fire:a.fire});
+    if(a.k==='deathPool'&&G.pools.length<14)G.pools.push({x:e.x,y:e.y,r:a.r||10,arm:.3,t:a.t||3,tick:0,dmg:(a.dmg||.5)*e.dmg,fire:a.fire,buff:a.buff,buffT:a.buffT});
     if(a.k==='deathSplit'&&!e.small)for(let i=0;i<(a.n||2);i++){const s=spawnAt(e.x+(i?5:-5),e.y,e.k);s.small=true;s.hp=s.max*=a.hp||.4;s.w=Math.round(s.w*.7);s.h=Math.round(s.h*.7);}
     if((a.k==='packRevive'||a.k==='revive')&&!e.revived)G.revives.push({x:e.x,y:e.y,t:a.t||3});
   }
@@ -383,7 +383,7 @@ const SPECIAL={
   shatter(b,p){b.shield={kind:'reduce',t:6,pct:.5};return .6;},
   vanish(b,p){b.hidden=true;b.inv=true;G.sched.push({t:p.t||3,fn:()=>{b.hidden=false;b.inv=false;b.x=pl.x-(pl.face||1)*14;b.y=pl.y;clampRoom(b,6);b.tels.push(tel('circle',{x:b.x,y:b.y,r:20},.6,b.skd*(p.dmg||1.5)));}});return (p.t||3)+.4;},
   channelBeam(b,p,f){return ENG.tel(b,{t:'beam',at:'boss',w:p.w||8,T:p.T||1,dmg:p.dmg||1.2,n:p.n||3,gap:.5},f);},
-  randomBreath(b,p,f){const k=b._breath||(b._breath=['fireCone','frostCone','timeCone','acidCone'][(rand()*4)|0]);SK[k].start(b,f);return b.at;},
+  randomBreath(b,p,f){if(!b._br){const a=['fireCone','frostCone','timeCone','acidCone'].sort(()=>rand()-.5);b._br=a.slice(0,2);}const k=b._br[(b._bi=(b._bi||0)+1)%2];b.say={n:{fireCone:'焚烧',frostCone:'冰霜吐息',timeCone:'时间流逝',acidCone:'腐蚀酸液'}[k],t:1.4};SK[k].start(b,f);return b.at;},
   classCall(b,p,f){SK.classcall.start(b,f);return b.at;},
   healBrother(b,p,f){const o=en.find(e=>e.boss&&e!==b&&!e.dead);if(o){o.hp=Math.min(o.max,o.hp+o.max*(p.pct||.05));fxs('heal',o.x,o.y,26,.5);}return .6;},
   twinTeleport(b,p){const o=en.find(e=>e.boss&&e!==b&&!e.dead);if(o){const x=b.x,y=b.y;b.x=o.x;b.y=o.y;o.x=x;o.y=y;fxs('portal',b.x,b.y,30,.4);fxs('portal',o.x,o.y,30,.4);}return .6;},
@@ -391,13 +391,13 @@ const SPECIAL={
   growingPool(b,p){G.pools.push({x:pl.x,y:pl.y,r:10,arm:.6,t:p.t||12,tick:0,dmg:(p.dmg||.25)*b.skd,grow:p.grow||3,im:RF('black_3',1)});return .6;},
   fixate(b,p){b.fixT=p.t||8;b.spd*=1.3;G.sched.push({t:p.t||8,fn:()=>{b.spd/=1.3;}});toast(`${b.name} 盯上了你！`);return .5;},
   enfeeble(b,p){pl.hp=Math.max(1,pl.hp*(p.p||.1));toast('衰弱！');return .6;},
-  demonForm(b,p){b.frenzyT=1e9;b.dmg*=1.3;b.skd*=1.2;fxs('voidFire',b.x,b.y-10,b.w,.8);toast(`${b.name} 化身恶魔！`);return .8;},
+  demonForm(b,p){b.frenzyT=1e9;if(!b._demon){b._demon=1;b.dmg*=1.3;b.skd*=1.2;}fxs('voidFire',b.x,b.y-10,b.w,.8);toast(`${b.name} 化身恶魔！`);return .8;},
   touchDot(b,p){b.passive=Object.assign({},b.passive,{touchDot:{t:p.t||6}});G.dotT=p.t||6;G.dotD=(p.dmg||.2)*b.skd/2;return .5;},
   aspectCycle(b,p,f){const o=p.order||[];if(!o.length)return .5;const q=o[(b._asp=(b._asp||0)+1)%o.length];if(q.say)b.say={n:q.say,t:1.4};return runSkill(b,q);},
   terrain(b,p){const r=R();for(const side of p.rects||[{side:'left'},{side:'right'}])for(let y=r.y+14;y<r.y+r.h;y+=24)G.pools.push({x:side.side==='left'?r.x+10:r.x+r.w-10,y,r:12,arm:0,t:1e9,tick:0,dmg:b.skd*.04,slow:true,terrain:true});toast('两侧的软泥会减速');return .6;},
   rotatingRect(b,p,f){SK.sweep.start(b,f);return b.at;},
   beamBlock(b,p){G.beams3={t:p.swap||15,b,cols:['#ff4a4a','#5aff6a','#5aa4ff'].map((c,i)=>{const r=R(),a=i*TAU/3+rand();return{c,x:b.x+Math.cos(a)*120,y:b.y+Math.sin(a)*120};})};toast('站进光束挡住它：绿光不挡首领会回血');return .8;},
-  chessBoard(b,p){b.shield={kind:'immune',t:1e9};const r=R();for(let i=0;i<6;i++){const e=spawnAt(r.x+20+i*(r.w-40)/5,r.y+r.h-30,i%2?'SK':'SL');e.hp=e.max*=3;e.name='棋子';e.chess=b;}toast('棋局：先吃掉对方的棋子，国王才能被攻击');return .8;},
+  chessBoard(b,p){b.shield={kind:'immune',t:1e9};const r=R();for(let i=0;i<6;i++){const e=spawnAt(r.x+20+i*(r.w-40)/5,r.y+r.h-30,i%2?'SK':'SL');e.hp=e.max*=3;e.name='棋子';e.chess=b;}b.chessOn=true;toast('棋局：先吃掉对方的棋子，国王才能被攻击');return .8;},
   growth(b,p){b.skd*=1+(p.dmgAdd||.15);b.dmg*=1+(p.dmgAdd||.15);b.growN=(b.growN||0)+1;num(b.x,b.y-30,'成长 ×'+b.growN,'#ff9a4a',true);return .5;},
   groundSlam(b,p,f){const r=R(),a=angTo(b,pl);pl.x=clamp(pl.x+Math.cos(a)*(p.knock||80),r.x+6,r.x+r.w-6);pl.y=clamp(pl.y+Math.sin(a)*(p.knock||80),r.y+6,r.y+r.h-6);pl.frozenT=p.petrify||2;fxs('quake',b.x,b.y,120,.5);toast('石化！');G.sched.push({t:p.petrify||2,fn:()=>runSkill(b,p.then||{e:'tel',t:'circle',at:'player',r:30,T:.6,dmg:1.5})});return (p.petrify||2)+.8;},
   gravityLapse(b,p){G.lapse={t:p.t||15,spd:p.spd||1.3};G.orbs=G.orbs||[];const o=p.orbs||{n:4};for(let i=0;i<(o.n||4);i++){const s=randInRoom(20);G.orbs.push({x:s.x,y:s.y,t:p.t||15,r:o.r||16,dmg:(o.dmg||.5)*b.skd,spd:o.spd||20});}toast('引力失效：躲开奥术球');return 1;},
@@ -437,7 +437,9 @@ window.raidAdds=(b,list)=>{const out=[];for(const a of [].concat(list)){if(!a||t
     const e=spawnAt(b.x+Math.cos(ang)*(a.ring||40),b.y+Math.sin(ang)*(a.ring||40),a.base||(t&&t.base)||'SK');
     if(t)applyTrash(e,t);e.name=a.n||e.name;e.hp=e.max*=(a.hp||1);
     const fr=frames(a.art,1);if(fr){e.art=[fr[0]];e.w=e.h=a.size||22;}
-    if(a.ab)e.abx=a.ab.map(x=>Object.assign({t:2+rand()*2},x));
+    if(a.ab){const def={n:a.n,ab:a.ab.filter(x=>x.k!=='unkillable')};if(!t){const hp=e.hp;applyTrash(e,def);e.hp=e.max=hp;}else e.def=Object.assign({},e.def,{ab:def.ab});
+      e.abx=def.ab.filter(x=>!/^death|packRevive/.test(x.k)).map(x=>Object.assign({t:2+rand()*2},x));
+      const u=a.ab.find(x=>x.k==='unkillable');if(u)e.unk={b,healAt:u.healAt||.5};}
     if(a.link&&a.link.bossDmgTaken){b.link={mul:a.link.bossDmgTaken,alive:()=>en.some(q=>q.linkTo===b&&!q.dead)};e.linkTo=b;}out.push(e);}}return out;};
 // 阶段里的 adds 可以写名字（对应首领 adds 表），也可以不写而由 end:{adds:true} 表示“刷出本首领的阶段召唤物并全部击杀”
 function resolveAdds(b,o){
@@ -512,6 +514,10 @@ function applyPhase(b,o,on){
 // ---------- 每帧：首领附加状态、玩家减益、小怪技能 ----------
 window.raidTick=dt=>{
   if(!G)return;
+  for(const p of G.pools)if(p.buff&&Math.hypot(pl.x-p.x,pl.y-p.y)<p.r+4)G[p.buff+'T']=p.buffT||10;   // 站进带增益的池子（哈卡之子的毒血）
+  if(G.poisonBloodT>0)G.poisonBloodT-=dt;
+  for(const e of en){if(!e.unk||e.dead)continue;const B=e.unk.b;   // 首领活着就打不死的召唤物（熔火怒犬）：残血回到一半，首领死了一起死
+    if(!B||B.dead){e.unk=null;e.hp=0;kill(e);continue;}if(e.hp<=e.max*.03){e.hp=e.max*e.unk.healAt;fxs('heal',e.x,e.y-6,20,.5);num(e.x,e.y-14,'复苏','#7dff8a',true);}}
   if(G.ffx&&(G.ffx.t-=dt)<=0)G.ffx=null;
   for(const b of en){if(!b.boss||b.dead||b.stationary||b.mode!=='walk'||b.hidden||b.frozenT>0)continue;
     b.swingT=(b.swingT||0)-dt;const d=Math.hypot(pl.x-b.x,pl.y-b.y);
@@ -572,7 +578,7 @@ window.raidTick=dt=>{
     if(e.shield&&e.shield.t>1e8&&e.shield.kind==='immune'){
       if(e.cannons){for(const c of e.cannons)if(Math.hypot(pl.x-c.x,pl.y-c.y)<12){if((c.k+=dt)>=1){c.k=0;e.hp-=e.max*e.shipDmg;fxs('explosion',e.x,e.y,40,.4);num(e.x,e.y-20,'开炮！','#ffd77a',true);if(e.hp<=0){e.shield=null;e.hp=0;kill(e);}}}else c.k=0;}
       else if(e.champions){if(!en.some(q=>!q.dead&&!q.boss&&q.name&&q.name.endsWith('（冠军）'))){e.shield=null;e.hidden=false;e.hp=1;}}
-      else if(!en.some(q=>q.chess===e&&!q.dead)&&en.some(q=>q.chess===e)){e.shield=null;toast('国王失去了保护！');}}}
+      else if(e.chessOn&&!en.some(q=>q.chess===e&&!q.dead)){e.chessOn=false;e.shield=null;toast('国王失去了保护！');}}}
 };
 // 大招：安抚狂乱、驱散护盾
 const _doUlt=doUlt;

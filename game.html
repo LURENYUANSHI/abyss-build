@@ -274,10 +274,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v42"></script>
+<script src="content/raids_data.js?v=v43"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v42';
+const W=195,H=347,VERSION='v43';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -1208,7 +1208,7 @@ function spawnBoss(big){
   const L=G.L,chief=big&&isChief(L),el=!big&&ELITE[chOf(L)-1][LV[L].k%3],d=big?LV[L].b:{n:el[0],sk:MINI[(L-1)%MINI.length].sk},sc=big?(d.b==='BO'?2:3)*(chief?1:.85):2;
   let img,imgF;if(big){const pal=Object.assign({},P,d.pal),sb=SPR[d.b]||SPR.BO;img=sb.map(r=>mk(r,false,pal));imgF=sb.map(r=>mk(r,true,pal));}else({img,imgF}=G.roster[el[1]]);const ci=chOf(L)-1,ki=LV[L].k%3,ei=ci<3?ci*4+ki:ki*4+3,eart=big?ART.bosses&&ART.bosses[LV[L].b.art]&&[ART.bosses[LV[L].b.art]]:ART.elites?[ART.elites[ei]]:G.roster[el[1]].art,asz=big?(chief?64:54):34,
     eatk=eart&&fitPose(big?ART.bossesAtk&&ART.bossesAtk[LV[L].b.art]:ART.elitesAtk&&ART.elitesAtk[ei],eart[0]);
-  const hp=(big?BIG_HP:MINI_HP)*hpCurve(G.p)*BOSS_CH(L)*(d.hpx||1)*(big?(chief?.8:.85):1)*BAL.bossHp,R=G.rm;
+  const hp=(big?BIG_HP:MINI_HP)*hpCurve(G.p)*BOSS_CH(L)*(d.hpx||1)*(big?(chief?.8:.85):1)*BAL.bossHp*(big?1:.5),R=G.rm;   // 精英房的小首领不跟着翻倍
   const b={boss:true,big,name:d.n,k:d.b,img,imgF,art:eart||null,artAtk:eatk||null,w:eart?asz:Math.round(img[0].width*sc),h:eart?asz:Math.round(img[0].height*sc),r:big?12:8,x:R.cx,y:R.y+40,hp,max:hp,
     spd:big?13:18,dmg:(big?14:10)*G.dmgMul*BOSS_DMG*BAL.bossDmg,skd:(big?16:12)*G.dmgMul*BOSS_DMG*BAL.bossDmg,flash:0,poison:0,pt:.5,scd:0,dead:false,burnT:0,burnD:0,bt:.5,slowT:0,frozenT:0,
     sk:d.sk,chief,mode:'walk',at:2,cyc:0,ph2:false,age:0,furyT:0,fury:d.enrage||d.fury||(big?52:40),tels:[]};
@@ -1289,7 +1289,7 @@ function dmg(e,d,o={}){if(!e.dead&&!e.inv)sfx('hit');if(window.dmgMulX&&!e.dead)
   if(o.src==='atk'&&G.sbN>0&&!o.splash)d*=1.6;
   if(st.soul&&o.src!=='atk')d*=1+.003*G.souls;   // 超凡邪恶只加技能伤害
   if(st.execDmg&&e.hp<e.max*.5)d*=1.4;if(st.rush&&G.rushT>0)d*=1.4;if(st.highHp&&pl.hp>pl.maxHp*.8)d*=1.3;if(G.mad===1)d*=1.4;
-  e.hp-=d;e.flash=.08;if(G.t-(e.hurtAt||-9)>.7)e.hurtAt=G.t;G.dmgAcc+=d;G.roomDmg+=d;num(e.x,e.y-6,Math.round(d),crit?'#ffd34a':o.col||'#fff',crit);
+  e.hp-=d;if(e.unk&&e.unk.b&&!e.unk.b.dead)e.hp=Math.max(1,e.hp);e.flash=.08;if(G.t-(e.hurtAt||-9)>.7)e.hurtAt=G.t;G.dmgAcc+=d;G.roomDmg+=d;num(e.x,e.y-6,Math.round(d),crit?'#ffd34a':o.col||'#fff',crit);
   if(o.poison)e.poison=Math.min(st.poisonCap,e.poison+o.poison);
   if(o.src==='atk'&&st.vamp)pl.hp=Math.min(pl.maxHp,pl.hp+d*st.vamp);
   if(crit&&st.critSplash&&!o.splash)for(const x of en)if(x!==e&&!x.dead&&Math.hypot(x.x-e.x,x.y-e.y)<14)dmg(x,d*.5/G.pm,{nocrit:true,splash:true,col:'#ffd34a'});
@@ -1369,8 +1369,8 @@ function onAtkHit(e){
 }
 function hitCrate(o,d){o.hp-=d;o.flash=.08;
   if(o.hp<=0){o.dead=true;if(rand()<.5)G.hearts.push({x:o.x+o.w/2,y:o.y+o.h/2,b:0});sfx('crate');rings.push({x:o.x+o.w/2,y:o.y+o.h/2,r0:2,r1:12,t:.25,T:.25,col:'#c48a4e'});G.xp+=4*G.xpMul;}}
-function nearestLos(p,r){let b=null,bd=r*r;for(const e of en){if(e.dead||e.inv)continue;const q=(e.x-p.x)**2+(e.y-p.y)**2;if(q<bd&&los(p,e)){bd=q;b=e;}}return b;}
-function nearest(x,y,r,skip){let b=null,bd=r*r;for(const e of en){if(e.dead||e.inv||(skip&&skip.has(e)))continue;const q=(e.x-x)**2+(e.y-y)**2;if(q<bd){bd=q;b=e;}}return b;}
+function nearestLos(p,r){let b=null,bd=r*r;for(const e of en){if(e.dead||e.inv||e.unk)continue;const q=(e.x-p.x)**2+(e.y-p.y)**2;if(q<bd&&los(p,e)){bd=q;b=e;}}return b;}
+function nearest(x,y,r,skip){let b=null,bd=r*r;for(const e of en){if(e.dead||e.inv||e.unk||(skip&&skip.has(e)))continue;const q=(e.x-x)**2+(e.y-y)**2;if(q<bd){bd=q;b=e;}}return b;}
 function jag(pts){const out=[pts[0]];for(let i=0;i<pts.length-1;i++){const[a,b]=[pts[i],pts[i+1]];
   for(let k=1;k<4;k++){const t=k/4;out.push([a[0]+(b[0]-a[0])*t+(rand()-.5)*6,a[1]+(b[1]-a[1])*t+(rand()-.5)*6]);}out.push(b);}return out;}
 function chain(sx,sy,n,first,hop,d,skip){
@@ -2289,7 +2289,7 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v42"></script>
-<script src="src/raid_engine.js?v=v42"></script>
+<script src="content/skill_fx.js?v=v43"></script>
+<script src="src/raid_engine.js?v=v43"></script>
 </body>
 </html>

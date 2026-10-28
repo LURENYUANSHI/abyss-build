@@ -119,10 +119,11 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"诅咒期间回血几乎无效，先清两只烈焰行者，火雨要立刻离开。",
-          sk:["rainOfFire","frostbolt","gehennasCurse"],
+          sk:["rainOfFire","shadowBoltG","gehennasCurse"],
           skills:{
             rainOfFire:{e:"tel",t:"circle",at:"player",r:24,T:1,dmg:1,n:3,spread:30,after:{pool:{t:4,dmg:.2,r:14}},say:"火焰之雨"},
-            gehennasCurse:{e:"curse",kind:"heal",t:12,say:"基赫纳斯的诅咒"}
+            gehennasCurse:{e:"curse",kind:"heal",t:12,say:"基赫纳斯的诅咒"},
+            shadowBoltG:{e:"shots",p:"aimed",n:1,spd:90,dmg:.9,say:"暗影箭"}
           },
           adds:[
             {
@@ -161,7 +162,7 @@ window.RAID_DATA={
               count:8,
               hp:.8,
               art:["adds_mc_1",4],
-              at:"start",
+              at:"phase",
               ab:[{k:"touchDot",t:3,dmg:.2},{k:"deathExplode",r:30,T:.6,dmg:.8},{k:"leash",d:80,dmg:2,size:1.2}]
             }
           ]
@@ -273,10 +274,10 @@ window.RAID_DATA={
               n:"熔火怒犬",
               base:"BT",
               count:2,
-              hp:3,
+              hp:10,
               art:["adds_mc_1",8],
               at:"start",
-              ab:[{k:"unkillable",healAt:.5,dieWithBoss:true},{k:"stacks",kind:"heal",max:5}]
+              ab:[{k:"unkillable",healAt:.5,dieWithBoss:true},{k:"pounce",wind:.35,range:50,dmg:1,cd:4}]
             }
           ]
         },
@@ -296,9 +297,9 @@ window.RAID_DATA={
           skills:{
             shieldSwap:{e:"bossShield",kind:"reflect",t:8,pct:.15,say:"魔法反射 / 伤害护盾"},
             teleportPit:{e:"teleportPlayer",to:"pit",root:0,pool:{t:3,dmg:.2,r:14},say:"传送"},
-            aegis:{e:"bossShield",kind:"immune",t:999,pct:0,say:"拉格纳罗斯之盾"}
+            aegis:{e:"bossShield",kind:"reduce",t:8,pct:.3,say:"拉格纳罗斯之盾"}
           },
-          open:{msg:"击败 8 名随从",inv:true,adds:"烈焰行者精英",end:{adds:true},win:"surrender"},
+          open:{msg:"击败 8 名随从",inv:true,adds:"烈焰行者精英 / 烈焰行者医师",end:{adds:true,after:60},win:"surrender"},
           adds:[
             {
               n:"烈焰行者精英",
@@ -306,10 +307,10 @@ window.RAID_DATA={
               count:4,
               hp:2.5,
               art:["adds_mc_1",10],
-              at:"start",
+              at:"phase",
               ab:[{k:"aoeAtPlayer",r:16,T:.7,dmg:1.2},{k:"nova",r:30,T:.8,dmg:1,eff:"slow"}]
             },
-            {n:"烈焰行者医师",base:"SA",count:4,hp:2,art:["adds_mc_2",0],at:"start",ab:[{k:"heal",T:2.5,need:4,pct:.3},{k:"volley",n:1,spd:75,dmg:1}]}
+            {n:"烈焰行者医师",base:"SA",count:4,hp:2,art:["adds_mc_2",0],at:"phase",ab:[{k:"heal",T:2.5,need:4,pct:.3},{k:"volley",n:1,spd:75,dmg:1}]}
           ]
         },
         {
@@ -484,11 +485,11 @@ window.RAID_DATA={
             warStomp:{e:"tel",t:"circle",at:"boss",r:40,T:.8,dmg:.8,eff:"stun",effT:.8,say:"战争践踏"}
           },
           objective:{mode:"destroy",n:6,prop:"egg",hp:30,hatch:false},
-          open:{msg:"P1 摧毁龙蛋",inv:true,move:"top",adds:"黑翼军团士兵",end:{objective:true},timeout:{after:45,adds:{k:"blackwing_legionnaire",n:6,hp:4}}},
+          open:{msg:"P1 摧毁龙蛋",move:"top",adds:"黑翼军团士兵 / 黑翼法师",timeout:{after:45,adds:{k:"blackwing_legionnaire",n:6,hp:4}}},
           ph:[],
           adds:[
-            {n:"黑翼军团士兵",base:"SK",count:0,hp:1,art:["mobs_bwl_1",0],at:"phase",ab:[{k:"summon",n:1,every:4,max:3,at:"corners",cd:4}]},
-            {n:"黑翼法师",base:"SA",count:0,hp:1,art:["mobs_bwl_1",3],at:"phase",ab:[{k:"stream",every:4,at:"corners"}]}
+            {n:"黑翼军团士兵",k:"blackwing_legionnaire",base:"SK",count:3,hp:1.5,art:["mobs_bwl_1",0],at:"phase"},
+            {n:"黑翼法师",k:"blackwing_mage",base:"SA",count:2,hp:1.5,art:["mobs_bwl_1",3],at:"phase"}
           ]
         },
         {
@@ -531,7 +532,7 @@ window.RAID_DATA={
             mortalStrike:{e:"tel",t:"circle",at:"player",r:16,T:.6,dmg:1.5,say:"致死打击"},
             knockAway:{e:"tel",t:"cone",at:"boss",len:40,ang:.5,T:.6,dmg:.8,eff:"knock",after:{knock:70},say:"击退"},
             blastWave:{e:"tel",t:"circle",at:"boss",r:40,T:.8,dmg:.9,eff:"slow",say:"冲击波"},
-            lashCleave:{e:"tel",t:"cone",at:"boss",len:30,ang:.6,T:.6,dmg:1,say:"顺劈斩"}
+            lashCleave:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.6,dmg:1,say:"顺劈斩"}
           }
         },
         {
@@ -630,7 +631,7 @@ window.RAID_DATA={
           spd:13,
           tip:"P1 先清龙人（注意颜色对应的吐息）；职业召唤每个职业不同，看清提示再动；20% 后骨头会站起来。",
           fallback:["bosses",5],
-          sk:["shadowflame","roar","classCall","nefCleave","veilOfShadow"],
+          sk:["volley","roar","nefPoly"],
           skills:{
             classCall:{
               e:"special",
@@ -654,13 +655,13 @@ window.RAID_DATA={
             nefPoly:{e:"tel",t:"circle",at:"player",r:14,T:1,dmg:0,eff:"stun",effT:1.5,say:"变形术"}
           },
           forms:[{n:"维克多·奈法里奥斯",art:["adds_bwl",0]}],
-          open:{msg:"P1 维克多·奈法里奥斯",go:"drakes",inv:true,form:["adds_bwl",0],sk:["volley","roar","nefPoly"],end:{kills:12}},
-          ph:[{at:.99,msg:"P2 奈法利安降临",inv:false,form:null},{at:.2,msg:"P3 骸骨复苏",go:"raise"}],
+          open:{msg:"P1 维克多·奈法里奥斯",go:"drakes",inv:true,form:["adds_bwl",0],adds:"龙人（五色）",end:{adds:true,after:30}},
+          ph:[{at:.99,msg:"P2 奈法利安降临",inv:false,form:null,sk:["shadowflame","roar","classCall","nefCleave","veilOfShadow"]},{at:.2,msg:"P3 骸骨复苏",go:"raise"}],
           adds:[
             {
               n:"龙人（五色）",
               base:"SK",
-              count:0,
+              count:6,
               hp:1.6,
               art:["adds_bwl",1],
               at:"phase",
@@ -777,7 +778,7 @@ window.RAID_DATA={
           tip:"蜘蛛卵出现马上打掉，幼蛛会越长越大；巨魔形态的吸取生命要打断。",
           sk:["spawnEggs","ring","drainLife"],
           skills:{
-            spawnEggs:{e:"summon",k:"prop:egg",n:4,at:"random",hatch:8,into:"玛尔里幼蛛",say:"产卵"},
+            spawnEggs:{e:"summon",k:"EGG",n:3,at:"random",hatch:8,into:"玛尔里幼蛛",say:"产卵"},
             drainLife:{e:"special",name:"channelBeam",t:3,tick:.5,dmg:.2,leech:1,need:4,breakLos:true,say:"吸取生命"},
             envelopingWeb:{e:"tel",t:"circle",at:"boss",r:50,T:.8,dmg:0,eff:"freeze",effT:2,say:"包裹之网"},
             corrosivePoison:{e:"special",name:"touchDot",t:6,dot:4,dmg:.2,say:"腐蚀毒药"}
@@ -809,7 +810,7 @@ window.RAID_DATA={
           },
           forms:[{n:"下马",art:["adds_zg_1",9]}],
           open:{msg:"开场骑乘奥根",form:["adds_zg_1",9],adds:"奥根"},
-          adds:[{n:"奥根",base:"BT",count:1,hp:4,art:["adds_zg_1",10],at:"start",ab:[{k:"stacks",kind:"vuln",max:5},{k:"onDeath",bossFrenzy:true}]}]
+          adds:[{n:"奥根",base:"BT",count:1,hp:4,art:["adds_zg_1",10],at:"phase",ab:[{k:"stacks",kind:"vuln",max:5},{k:"onDeath",bossFrenzy:true}]}]
         },
         {
           id:"zg/edge_of_madness",
@@ -891,11 +892,11 @@ window.RAID_DATA={
             frenzyThekal:{e:"frenzy",t:8,perm:false,spd:1.5,rate:.5,say:"狂乱"}
           },
           forms:[{n:"猛虎形态",art:["adds_zg_2",0]}],
-          open:{msg:"P1 三人同死",adds:"狂热者洛卡恩"},
+          open:{msg:"P1 三人同死",adds:"狂热者洛卡恩 / 狂热者札斯"},
           ph:[{at:.01,msg:"P2 猛虎形态",heal:1,inv:false,form:["adds_zg_2",0],sk:["charge","forcePunch","summonTigers","frenzyThekal"]}],
           adds:[
-            {n:"狂热者洛卡恩",base:"SA",count:1,hp:.8,art:["adds_zg_2",1],at:"start",ab:[{k:"volley",n:1,spd:75,dmg:1.2},{k:"heal",T:2.5,need:4,pct:.25}]},
-            {n:"狂热者札斯",base:"SK",count:1,hp:.8,art:["adds_zg_2",3],at:"start",ab:[{k:"aoeAtPlayer",r:14,T:.7,dmg:1,eff:"stun"},{k:"blink",cd:8}]}
+            {n:"狂热者洛卡恩",base:"SA",count:1,hp:.8,art:["adds_zg_2",1],at:"phase",ab:[{k:"volley",n:1,spd:75,dmg:1.2},{k:"heal",T:2.5,need:4,pct:.25}]},
+            {n:"狂热者札斯",base:"SK",count:1,hp:.8,art:["adds_zg_2",3],at:"phase",ab:[{k:"aoeAtPlayer",r:14,T:.7,dmg:1,eff:"stun"},{k:"blink",cd:8}]}
           ],
           shared:{reviveWindow:10,units:["狂热者洛卡恩","狂热者札斯"]}
         },
@@ -937,8 +938,8 @@ window.RAID_DATA={
             gouge:{e:"tel",t:"circle",at:"player",r:14,T:.6,dmg:1,eff:"stun",effT:1.2,say:"凿击"}
           },
           forms:[{n:"黑豹形态",art:["adds_zg_2",5]}],
-          ph:[{at:.5,msg:"黑豹形态",form:["adds_zg_2",5]}],
-          adds:[{n:"祖利安猎豹",base:"BT",count:0,hp:1,art:["adds_zg_2",6],at:"phase",ab:[{k:"pounce",wind:.35,range:60,dmg:1}]}]
+          ph:[{at:.5,msg:"黑豹形态：猎豹出笼",form:["adds_zg_2",5],adds:"祖利安猎豹"}],
+          adds:[{n:"祖利安猎豹",base:"BT",count:2,hp:1,art:["adds_zg_2",6],at:"start",ab:[{k:"pounce",wind:.35,range:60,dmg:1}]}]
         },
         {
           id:"zg/jindo_the_hexxer",
@@ -955,15 +956,14 @@ window.RAID_DATA={
           sk:["hex","healingWard","delusions","brainWash","pitTeleport"],
           skills:{
             hex:{e:"tel",t:"circle",at:"player",r:14,T:1,dmg:0,eff:"stun",effT:2,say:"妖术"},
-            healingWard:{e:"totem",n:1,hp:1.2,effect:"healBoss",pct:.015,every:1,at:"boss",max:1,say:"强力治疗结界"},
+            healingWard:{e:"totem",n:1,hp:1.2,effect:"healBoss",pct:.015,every:3,at:"boss",max:1,say:"强力治疗结界"},
             delusions:{e:"curse",kind:"delayed",t:10,dmg:1,say:"金度之惑"},
             brainWash:{e:"totem",n:1,hp:1,effect:"mc",r:80,t:3,every:6,at:"random",max:1,say:"洗脑图腾"},
             pitTeleport:{e:"teleportPlayer",to:"pit",root:0,say:"传送入坑"}
           },
+          ph:[{every:20,msg:"金度之影现身",adds:"金度之影"}],
           adds:[
-            {n:"强力治疗结界",base:"SL",count:0,hp:1.2,art:["adds_zg_2",8],at:"phase",ab:[{k:"totem",effect:"healBoss",every:2}]},
-            {n:"洗脑图腾",base:"SL",count:0,hp:1,art:["adds_zg_2",10],at:"phase",ab:[{k:"mc",t:3,cd:6,T:1}]},
-            {n:"金度之影",base:"BT",count:0,hp:.6,art:["adds_zg_3",0],at:"phase",ab:[{k:"onlyWhileCursed",curse:"delusions"}]},
+            {n:"金度之影",base:"BT",count:2,hp:.6,art:["adds_zg_3",0],at:"phase",ab:[{k:"onlyWhileCursed",curse:"delusions"},{k:"pounce",wind:.35,range:60,dmg:1}]},
             {n:"献祭骷髅",base:"SK",count:3,hp:.6,art:["adds_zg_3",2],at:"start",ab:[{k:"spawnOn",event:"pitTeleport"}]}
           ]
         },
@@ -1078,7 +1078,7 @@ window.RAID_DATA={
           skills:{
             thundercrash:{e:"decimate",p:.5,say:"雷霆轰击"},
             disarm:{e:"tel",t:"circle",at:"player",r:16,T:.8,dmg:1,say:"缴械"},
-            rajaxxCleave:{e:"tel",t:"cone",at:"boss",len:36,ang:.6,T:.6,dmg:1.1,say:"顺劈斩"}
+            rajaxxCleave:{e:"tel",t:"cone",at:"boss",len:44,ang:.6,T:.6,dmg:1.1,say:"顺劈斩"}
           },
           open:{msg:"3 波其拉军团",inv:true,end:{adds:true}},
           ph:[{at:.99,msg:"三波后拉贾克斯亲自下场",inv:false}],
@@ -1142,8 +1142,8 @@ window.RAID_DATA={
           },
           objective:{mode:"destroy",n:6,prop:"egg",explode:{r:30,bossDmg:.08},hatch:2},
           forms:[{n:"破壳",art:["adds_aq20_2",1]}],
-          ph:[{at:.2,msg:"破壳",form:["adds_aq20_2",1]}],
-          adds:[{n:"布鲁幼虫",base:"BT",count:0,hp:.5,art:["adds_aq20_2",2],at:"phase",ab:[{k:"pounce",wind:.3,range:50,dmg:.8,spawnOn:"eggBurst",n:2}]}]
+          ph:[{at:.2,msg:"破壳：布鲁加速，幼虫涌出",form:["adds_aq20_2",1],frenzy:true,adds:"布鲁幼虫"}],
+          adds:[{n:"布鲁幼虫",base:"BT",count:4,hp:.5,art:["adds_aq20_2",2],at:"phase",ab:[{k:"pounce",wind:.3,range:50,dmg:.8,spawnOn:"eggBurst",n:2}]}]
         },
         {
           id:"aq20/ayamiss_the_hunter",
@@ -1254,52 +1254,31 @@ window.RAID_DATA={
             images:{e:"mirrorImages",n:2,hp:.15,dmg:.4,swap:true,say:"分裂"}
           },
           passive:{rangedPunish:{d:50,dmg:1.4}},
-          ph:[{at:.75,msg:"分裂",go:"images"},{at:.5,msg:"分裂",go:"images"},{at:.25,msg:"分裂",go:"images"}],
-          adds:[{n:"斯克拉姆幻象",base:"SA",count:2,hp:.15,art:["adds_aq40_1",0],at:"start",ab:[{k:"mirror",dmg:.4}]}]
+          ph:[{at:.75,msg:"分裂",go:"images"},{at:.5,msg:"分裂",go:"images"},{at:.25,msg:"分裂",go:"images"}]
         },
         {
           id:"aq40/silithid_royalty",
-          n:"安其拉三宝",
+          n:"克里勋爵",
+          lv:"安其拉三宝",
           rooms:3,
-          hp:1.0,
+          hp:.6,
           enrage:90,
           elite:"qiraji_lasher",
           trash:["qiraji_lasher","vekniss_stinger","obsidian_eradicator"],
-          art:null,
           size:54,
           spd:13,
           tip:"三只一起上：先打断并击杀亚尔基公主，最后再杀维姆（他死了另外两只会狂暴）。",
-          sk:[],
-          skills:{},
           openMsg:"三只同时出场",
+          art:["bosses_aq40_1",1],
+          sk:["s0","s1"],
+          skills:{
+            s0:{e:"builtin",k:"ring",say:"毒箭齐射"},
+            s1:{e:"tel",t:"circle",at:"boss",r:36,T:.9,dmg:1,eff:"slow",say:"雷霆一击"}
+          },
+          onDeath:{pool:{at:"center",r:40,t:20,dmg:.3}},
           multi:[
-            {
-              n:"克里勋爵",
-              base:"SK",
-              hp:.6,
-              art:["bosses_aq40_1",1],
-              sk:["s0","s1"],
-              skills:{s0:{e:"builtin",k:"ring",say:"毒箭齐射"},s1:{e:"tel",t:"circle",at:"boss",r:36,T:.9,dmg:1,eff:"slow",say:"雷霆一击"}},
-              onDeath:{pool:{at:"center",r:40,t:20,dmg:.3}}
-            },
-            {
-              n:"维姆",
-              base:"SL",
-              hp:.6,
-              art:["bosses_aq40_1",2],
-              sk:["s0","s1"],
-              skills:{s0:{e:"builtin",k:"charge",say:"冲锋"},s1:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,eff:"knock",after:{knock:60},say:"击退"}},
-              onDeath:{frenzyOthers:true}
-            },
-            {
-              n:"亚尔基公主",
-              base:"SA",
-              hp:.5,
-              art:["bosses_aq40_2",0],
-              sk:["s0","s1"],
-              skills:{s0:{e:"builtin",k:"roar",say:"恐惧"},s1:{e:"castBar",T:2,need:5,heal:.15,say:"强效治疗"}},
-              onDeath:{adds:{k:"BT",n:4,hp:.3}}
-            }
+            {n:"维姆",base:"SL",hp:1,art:["bosses_aq40_1",2],sk:["s0","s1"],skills:{s0:{e:"builtin",k:"charge",say:"冲锋"},s1:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,eff:"knock",after:{knock:60},say:"击退"}},onDeath:{frenzyOthers:true}},
+            {n:"亚尔基公主",base:"SA",hp:.833,art:["bosses_aq40_2",0],sk:["s0","s1"],skills:{s0:{e:"builtin",k:"roar",say:"恐惧"},s1:{e:"castBar",T:2,need:5,heal:.15,say:"强效治疗"}},onDeath:{adds:{k:"BT",n:4,hp:.3}}}
           ],
           shared:{onDeath:true}
         },
@@ -1318,7 +1297,7 @@ window.RAID_DATA={
           sk:["whirlwindS","sarturaCleave"],
           skills:{
             whirlwindS:{e:"followAura",r:36,t:4,dmg:.45,tick:.5,spd:1,say:"旋风斩"},
-            sarturaCleave:{e:"tel",t:"cone",at:"boss",len:36,ang:.6,T:.6,dmg:1.1,say:"顺劈斩"}
+            sarturaCleave:{e:"tel",t:"cone",at:"boss",len:44,ang:.6,T:.6,dmg:1.1,say:"顺劈斩"}
           },
           ph:[{at:.25,msg:"狂怒",frenzy:true}],
           adds:[
@@ -1345,17 +1324,17 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"虫子出生 15 秒后会狂暴，必须马上击杀；致死创伤叠高时拉开距离。",
-          sk:["summonWorm","entangle","fankrissCleave"],
+          sk:["entangle","fankrissCleave","entangle"],
           skills:{
             mortalWoundF:{e:"stacks",kind:"heal",on:"hit",max:10,decay:6,say:"致死创伤"},
-            summonWorm:{e:"summon",k:"范克瑞斯之子",n:1,at:"prop:tunnel",say:"召唤虫子"},
             entangle:{e:"teleportPlayer",to:"random",root:2,say:"缠绕"},
-            fankrissCleave:{e:"tel",t:"cone",at:"boss",len:36,ang:.6,T:.6,dmg:1.2,say:"顺劈斩"}
+            fankrissCleave:{e:"tel",t:"cone",at:"boss",len:44,ang:.6,T:.6,dmg:1.2,say:"顺劈斩"}
           },
           auto:[{k:"mortalWoundF",every:2}],
+          ph:[{every:15,msg:"范克瑞斯之子钻出地面",adds:"范克瑞斯之子 / 维克尼斯孵化者"}],
           adds:[
-            {n:"范克瑞斯之子",base:"BT",count:0,hp:1.5,art:["adds_aq40_1",4],at:"phase",ab:[{k:"enrage",after:15,dmg:3}]},
-            {n:"维克尼斯孵化者",base:"BT",count:0,hp:.4,art:["adds_aq40_1",6],at:"phase",ab:[{k:"spawnOn",event:"entangle",n:3}]}
+            {n:"范克瑞斯之子",base:"BT",count:1,hp:1.5,art:["adds_aq40_1",4],at:"phase",ab:[{k:"enrage",after:15,dmg:3}]},
+            {n:"维克尼斯孵化者",base:"BT",count:3,hp:.4,art:["adds_aq40_1",6],at:"phase",ab:[{k:"spawnOn",event:"entangle",n:3}]}
           ]
         },
         {
@@ -1372,13 +1351,12 @@ window.RAID_DATA={
           tip:"打他不掉血：快速连续攻击把他冻住，再打碎成小球，杀掉的小球才算伤害。",
           sk:["ring","toxin","poisonShock"],
           skills:{
-            shatter:{e:"special",name:"shatter",slow:10,slower:20,freeze:30,window:15,frozenT:12,shatterHits:15,globs:8,globSpd:15,cycles:3,say:"冻结与碎裂"},
             toxin:{e:"tel",t:"circle",at:"random",r:20,T:1,dmg:1,n:3,after:{pool:{t:8,dmg:.2,r:14}},say:"毒素"},
             poisonShock:{e:"tel",t:"circle",at:"boss",r:34,T:.7,dmg:.9,eff:"dot",say:"毒性震击"}
           },
           forms:[{n:"冻结",art:["adds_aq40_1",8]}],
-          adds:[{n:"维希度斯之球",base:"SL",count:8,hp:.4,art:["adds_aq40_1",9],at:"start",ab:[{k:"walkTo",target:"center",spd:15,onArrive:{mergeBoss:true}}]}],
-          ph:[]
+          adds:[{n:"维希度斯之球",base:"SL",count:6,hp:.6,art:["adds_aq40_1",9],at:"phase",ab:[{k:"walkTo",target:"center",spd:15,onArrive:{mergeBoss:true}},{k:"nova",r:20,T:.8,dmg:.6,cd:5}]}],
+          ph:[{every:35,dur:20,msg:"维希度斯被冻结并碎裂：击杀所有软泥球",inv:true,form:["adds_aq40_1",8],adds:"维希度斯之球",end:{adds:true,after:20},endMsg:"软泥球重新聚合"}]
         },
         {
           id:"aq40/princess_huhuran",
@@ -1403,50 +1381,30 @@ window.RAID_DATA={
         },
         {
           id:"aq40/twin_emperors",
-          n:"双子皇帝",
+          n:"维克洛尔大帝",
+          lv:"双子皇帝",
           rooms:3,
-          hp:1.0,
+          hp:.9,
           enrage:100,
           elite:"anubisath_defender",
           trash:["anubisath_defender","anubisath_sentinel","qiraji_brainwasher"],
-          art:null,
           size:54,
           spd:13,
           tip:"近战职业打维克尼拉斯打不动，要去打维克洛尔；远程反之。别让两人靠在一起，他们会互相治疗。",
-          sk:[],
+          auto:[{k:"twinTeleport",every:20},{k:"healBrother",every:10}],
+          openMsg:"共用一条血",
+          art:["bosses_aq40_3",2],
+          sk:["s0","s1","s2"],
           skills:{
             twinTeleport:{e:"special",name:"twinTeleport",every:20,stun:1,say:"双子传送"},
-            healBrother:{e:"special",name:"healBrother",r:40,pct:.02,say:"治疗兄弟"}
+            healBrother:{e:"special",name:"healBrother",r:40,pct:.02,say:"治疗兄弟"},
+            s0:{e:"builtin",k:"frostbolt",say:"暗影箭"},
+            s1:{e:"trail",src:"seeker",t:6,r:24,dmg:.25,eff:"slow",spd:25,say:"暴风雪"},
+            s2:{e:"tel",t:"circle",at:"boss",r:40,T:.9,dmg:1,eff:"knock",after:{knock:50},say:"奥术爆发"}
           },
-          auto:[{k:"twinTeleport",every:20},{k:"healBrother",once:true}],
-          openMsg:"共用一条血",
+          resist:{melee:.2},
           multi:[
-            {
-              n:"维克洛尔大帝",
-              base:"SA",
-              hp:.9,
-              art:["bosses_aq40_3",2],
-              sk:["s0","s1","s2"],
-              skills:{
-                s0:{e:"builtin",k:"frostbolt",say:"暗影箭"},
-                s1:{e:"trail",src:"seeker",t:6,r:24,dmg:.25,eff:"slow",spd:25,say:"暴风雪"},
-                s2:{e:"tel",t:"circle",at:"boss",r:40,T:.9,dmg:1,eff:"knock",after:{knock:50},say:"奥术爆发"}
-              },
-              resist:{melee:.2}
-            },
-            {
-              n:"维克尼拉斯大帝",
-              base:"SK",
-              hp:.9,
-              art:["bosses_aq40_4",0],
-              sk:["s0","s1","s2"],
-              skills:{
-                s0:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1.2,eff:"knock",after:{knock:60},say:"上勾拳"},
-                s1:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"失衡打击"},
-                s2:{e:"summon",k:"BT",n:1,at:"random",every:15,explode:{r:24,dmg:1.5},say:"变异虫子"}
-              },
-              resist:{ranged:.2,skill:.2}
-            }
+            {n:"维克尼拉斯大帝",base:"SK",hp:1,art:["bosses_aq40_4",0],sk:["s0","s1","s2"],skills:{s0:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1.2,eff:"knock",after:{knock:60},say:"上勾拳"},s1:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"失衡打击"},s2:{e:"summon",k:"BT",n:1,at:"random",every:15,explode:{r:24,dmg:1.5},say:"变异虫子"}},resist:{ranged:.2,skill:.2}}
           ],
           shared:{hp:true}
         },
@@ -1484,27 +1442,29 @@ window.RAID_DATA={
           spd:13,
           tip:"P1 别和触须站一条线；P2 本体无敌，被吞进胃里后杀掉两只血肉触须，出来后趁虚弱全力输出。",
           fallback:["bosses",10],
-          sk:["eyebeam","sweep","claw","eyeTentacles"],
+          sk:["eyebeam","sweep","claw"],
           skills:{
-            eyeTentacles:{e:"summon",k:"眼球触须",n:8,at:"prop:tentacleHole",say:"眼球触须"},
             stomach:{e:"special",name:"stomach",every:15,zone:{w:160,h:48,at:"bottom"},acid:"vuln",fleshTentacles:2,weakT:15,weakTaken:2,say:"胃"},
-            giantTentacles:{e:"summon",k:"巨型巨爪触须",alt:"巨型眼球触须",n:1,at:"random",say:"巨型触须"}
+            giantTentacles:{e:"summon",k:"SL",n:1,hp:4,at:"random",say:"巨型触须"}
           },
           forms:[{n:"本体",art:["adds_aq40_2",2],fallback:["forms",2]},{n:"虚弱",art:["adds_aq40_2",3]}],
-          open:{msg:"P1 眼球",sk:["eyebeam","sweep","claw","eyeTentacles"]},
+          open:{msg:"P1 眼球"},
           ph:[
+            {every:20,msg:"触须破土而出",adds:"眼球触须 / 巨爪触须"},
             {
               at:.01,
               msg:"P2 本体",
               heal:1,
               inv:true,
               form:["adds_aq40_2",2],
-              sk:["eyeTentacles"],
+              sk:["eyebeam"],
+              adds:"巨型眼球触须 / 巨型巨爪触须",
+              end:{adds:true,after:30},
               auto:[{k:"stomach",every:15},{k:"giantTentacles",every:30}]
             }
           ],
           adds:[
-            {n:"眼球触须",base:"SA",count:8,hp:.5,art:["adds_aq40_2",4],at:"phase",ab:[{k:"beam",len:100,w:4,T:.8,dmg:.5,cd:2}]},
+            {n:"眼球触须",base:"SA",count:4,hp:.5,art:["adds_aq40_2",4],at:"phase",ab:[{k:"beam",len:100,w:4,T:.8,dmg:.5,cd:2}]},
             {n:"巨爪触须",base:"SL",count:1,hp:2,art:["adds_aq40_2",6],at:"phase",ab:[{k:"nova",r:26,T:.8,dmg:1,eff:"knock"}]},
             {n:"巨型眼球触须",base:"SA",count:1,hp:4,art:["adds_aq40_2",8],at:"phase",ab:[{k:"beam",len:100,w:4,T:.8,dmg:1}]},
             {n:"巨型巨爪触须",base:"SL",count:1,hp:5,art:["adds_aq40_2",10],at:"phase",ab:[{k:"nova",r:36,T:.8,dmg:1,eff:"knock"}]},
@@ -1585,6 +1545,7 @@ window.RAID_DATA={
             locustSwarm:{e:"followAura",r:40,t:6,dmg:.35,tick:.5,spd:.5,say:"虫群风暴"}
           },
           open:{msg:"开场 2 名地穴卫士",adds:"地穴卫士"},
+          ph:[{every:30,msg:"腐尸甲虫从尸体中爬出",adds:"腐尸甲虫"}],
           adds:[
             {
               n:"地穴卫士",
@@ -1592,10 +1553,10 @@ window.RAID_DATA={
               count:2,
               hp:3,
               art:["adds_naxx_1",0],
-              at:"start",
+              at:"phase",
               ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.6,dmg:1.2},{k:"aoeAtPlayer",r:16,T:1,dmg:1,eff:"dot"}]
             },
-            {n:"腐尸甲虫",base:"BT",count:0,hp:.3,art:["adds_naxx_1",2],at:"phase",ab:[{k:"spawnOn",event:"corpse",n:3}]}
+            {n:"腐尸甲虫",base:"BT",count:4,hp:.3,art:["adds_naxx_1",2],at:"phase",ab:[{k:"spawnOn",event:"corpse",n:3},{k:"pounce",wind:.3,range:50,dmg:.6}]}
           ]
         },
         {
@@ -1647,7 +1608,7 @@ window.RAID_DATA={
             poisonShockM:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.6,dmg:1,eff:"dot",say:"毒性震击"},
             necroticPoison:{e:"curse",kind:"heal",t:8,say:"坏死毒药"}
           },
-          ph:[{at:.3,msg:"狂乱",frenzy:true}],
+          ph:[{at:.3,msg:"狂乱",frenzy:true},{every:30,msg:"蜘蛛宝宝涌出",adds:"迈克斯纳蜘蛛宝宝"}],
           adds:[{n:"迈克斯纳蜘蛛宝宝",base:"BT",count:6,hp:.4,art:["adds_naxx_1",8],at:"start",ab:[{k:"stream",every:30,n:6,at:"edges"}]}]
         },
         {
@@ -1662,9 +1623,9 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"他会定时上阳台召唤一大批亡灵：先清守护者，诅咒倒计时结束前补好血。",
-          sk:["curseOfPlague","blink","summonSkeletons"],
-          skills:{curseOfPlague:{e:"curse",kind:"delayed",t:8,dmg:1.5,say:"瘟疫使者的诅咒"},summonSkeletons:{e:"summon",k:"瘟疫战士",n:4,at:"corners",say:"召唤骷髅"}},
-          ph:[{every:35,dur:15,msg:"传送到阳台",inv:true,move:"top",adds:"瘟疫守护者"}],
+          sk:["curseOfPlague","blink","crippleNoth"],
+          skills:{curseOfPlague:{e:"curse",kind:"delayed",t:8,dmg:1.5,say:"瘟疫使者的诅咒"},crippleNoth:{e:"tel",t:"circle",at:"player",r:20,T:.9,dmg:.3,eff:"slow",say:"残废术"}},
+          ph:[{every:35,dur:15,msg:"传送到阳台",inv:true,move:"top",adds:"瘟疫守护者"},{every:20,msg:"召唤瘟疫战士",adds:"瘟疫战士"}],
           adds:[
             {n:"瘟疫战士",base:"SK",count:3,hp:1.2,art:["adds_naxx_1",10],at:"phase",ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.6,dmg:1}]},
             {n:"瘟疫守护者",base:"SA",count:2,hp:1.5,art:["adds_naxx_2",0],at:"phase",ab:[{k:"nova",r:30,T:.8,dmg:1},{k:"blink",cd:8}]}
@@ -1702,7 +1663,7 @@ window.RAID_DATA={
           fallback:["bosses",9],
           sk:["doom","spores","aura"],
           skills:{},
-          ph:[{t:60,msg:"厄运加速",gapMul:.5}]
+          ph:[{t:60,msg:"厄运加速",gapMul:.5,sk:["doom","spores","doom","aura"]}]
         },
         {
           id:"naxx/instructor_razuvious",
@@ -1738,12 +1699,13 @@ window.RAID_DATA={
           sk:["frostbolt","harvestSoul","blink"],
           skills:{harvestSoul:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"收割灵魂"}},
           open:{msg:"P1 收割",inv:true,move:"top",adds:"冷酷的学徒",end:{after:40},gateOpenAt:20},
+          ph:[{t:12,msg:"冷酷的死亡骑士加入",adds:"冷酷的死亡骑士"},{t:25,msg:"冷酷的骑兵冲入战场",adds:"冷酷的骑兵"}],
           adds:[
-            {n:"冷酷的学徒",base:"SK",count:0,hp:1,art:["adds_naxx_2",4],at:"phase",ab:[{k:"onDeath",ghost:"otherSide"}]},
+            {n:"冷酷的学徒",base:"SK",count:3,hp:1,art:["adds_naxx_2",4],at:"phase",ab:[{k:"onDeath",ghost:"otherSide"}]},
             {
               n:"冷酷的死亡骑士",
               base:"SK",
-              count:0,
+              count:2,
               hp:2,
               art:["adds_naxx_2",6],
               at:"phase",
@@ -1752,7 +1714,7 @@ window.RAID_DATA={
             {
               n:"冷酷的骑兵",
               base:"BT",
-              count:0,
+              count:1,
               hp:3,
               art:["adds_naxx_2",8],
               at:"phase",
@@ -1762,39 +1724,27 @@ window.RAID_DATA={
         },
         {
           id:"naxx/the_four_horsemen",
-          n:"天启四骑士",
+          n:"库尔塔兹领主",
+          lv:"天启四骑士",
           rooms:4,
-          hp:1.0,
+          hp:.55,
           enrage:120,
           elite:"deathknight_captain",
           trash:["deathknight_captain","necropolis_acolyte","stoneskin_gargoyle"],
-          art:null,
           size:54,
           spd:13,
           tip:"印记会越叠越痛：在一个角落打几下就换到下一个角落，别在同一个骑士身边待太久。",
-          sk:[],
-          skills:{marks:{e:"special",name:"marks",every:12,r:70,dmg:.12,pow:1.5,decay:20,say:"印记"}},
           auto:[{k:"marks",every:12}],
+          art:["bosses_naxx_3",2],
+          sk:["s0"],
+          skills:{
+            marks:{e:"special",name:"marks",every:12,r:70,dmg:.12,pow:1.5,decay:20,say:"印记"},
+            s0:{e:"tel",t:"circle",at:"player",r:30,T:1.2,dmg:2,say:"陨石"}
+          },
           multi:[
-            {n:"库尔塔兹领主",base:"SK",hp:.55,art:["bosses_naxx_3",2],sk:["s0"],skills:{s0:{e:"tel",t:"circle",at:"player",r:30,T:1.2,dmg:2,say:"陨石"}}},
-            {
-              n:"布劳缪克丝女士",
-              base:"SA",
-              hp:.55,
-              art:["bosses_naxx_4",0],
-              sk:["s0"],
-              skills:{s0:{e:"tel",t:"circle",at:"player",r:18,T:1,dmg:.3,after:{pool:{t:10,dmg:.25,r:18}},say:"虚空领域"}}
-            },
-            {
-              n:"大领主莫格莱尼",
-              base:"SK",
-              hp:.55,
-              art:["bosses_naxx_4",1],
-              sk:["s1"],
-              skills:{s1:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,say:"顺劈"}},
-              touchDot:{t:999,dot:4,dmg:.2}
-            },
-            {n:"瑟里耶克爵士",base:"SA",hp:.55,art:["bosses_naxx_4",2],sk:["s0"],skills:{s0:{e:"shots",p:"aimed",n:3,spd:90,dmg:1.2,bounce:2,say:"神圣之怒"}}}
+            {n:"布劳缪克丝女士",base:"SA",hp:1,art:["bosses_naxx_4",0],sk:["s0"],skills:{s0:{e:"tel",t:"circle",at:"player",r:18,T:1,dmg:.3,after:{pool:{t:10,dmg:.25,r:18}},say:"虚空领域"}}},
+            {n:"大领主莫格莱尼",base:"SK",hp:1,art:["bosses_naxx_4",1],sk:["s1"],skills:{s1:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,say:"顺劈"}},touchDot:{t:999,dot:4,dmg:.2}},
+            {n:"瑟里耶克爵士",base:"SA",hp:1,art:["bosses_naxx_4",2],sk:["s0"],skills:{s0:{e:"shots",p:"aimed",n:3,spd:90,dmg:1.2,bounce:2,say:"神圣之怒"}}}
           ],
           shared:{pos:"corners",fixed:true}
         },
@@ -1811,7 +1761,8 @@ window.RAID_DATA={
           spd:13,
           tip:"纯输出检定：仇恨打击很痛但有节奏，60 秒内必须打死。",
           fallback:["bosses",6],
-          sk:["hateful","hateful","hateful","patchSlime"],
+          sk:["hateful"],
+          auto:[{k:"patchSlime",once:true}],
           skills:{patchSlime:{e:"special",name:"terrain",rects:[{side:"left",w:24},{side:"right",w:24}],spd:.6,say:"软泥池"}},
           ph:[{at:.05,msg:"狂怒",frenzy:true}]
         },
@@ -1833,7 +1784,8 @@ window.RAID_DATA={
             slimeSpray:{e:"tel",t:"cone",at:"boss",len:60,ang:.6,T:.8,dmg:1,say:"软泥喷射"},
             poisonCloudG:{e:"special",name:"growingPool",at:"boss",every:15,r0:10,r1:40,grow:10,t:20,dmg:.25,say:"毒云"}
           },
-          adds:[{n:"辐射软泥",base:"SL",count:0,hp:2,art:["adds_naxx_2",10],at:"phase",ab:[{k:"nova",r:20,T:.8,dmg:1,eff:"dot"}]}]
+          ph:[{every:20,msg:"辐射软泥",adds:"辐射软泥"}],
+          adds:[{n:"辐射软泥",base:"SL",count:2,hp:2,art:["adds_naxx_2",10],at:"phase",ab:[{k:"nova",r:20,T:.8,dmg:1,eff:"dot"}]}]
         },
         {
           id:"naxx/gluth",
@@ -1851,13 +1803,14 @@ window.RAID_DATA={
           skills:{
             mortalWoundG:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"致死之伤"},
             frenzyGluth:{e:"frenzy",t:8,perm:false,spd:1.5,rate:.5,say:"狂乱"},
-            decimate:{e:"decimate",p:.5,say:"残杀"}
+            decimate:{e:"decimate",p:.5,adds:true,say:"残杀"}
           },
+          ph:[{every:15,msg:"僵尸构造体涌入",adds:"僵尸构造体"}],
           adds:[
             {
               n:"僵尸构造体",
               base:"SL",
-              count:0,
+              count:2,
               hp:1,
               art:["adds_naxx_3",0],
               at:"phase",
@@ -1883,7 +1836,7 @@ window.RAID_DATA={
             polarityShift:{e:"special",name:"polarityShift",every:20,T:2,sameBuff:1.5,otherDmg:.4,say:"极性转换"},
             chainLightning:{e:"shots",p:"volley",n:3,spd:80,dmg:.7,bounce:1,say:"闪电链"}
           },
-          open:{msg:"P1 斯塔拉格与费尔根",inv:true,adds:"斯塔拉格",reviveWindow:5,end:{adds:true}},
+          open:{msg:"P1 斯塔拉格与费尔根",inv:true,adds:"斯塔拉格 / 费尔根",reviveWindow:5,end:{adds:true}},
           ph:[{at:.99,msg:"P2 塔迪乌斯苏醒",inv:false}],
           adds:[
             {n:"斯塔拉格",base:"SK",count:1,hp:.8,art:["adds_naxx_3",2],at:"phase",ab:[{k:"frenzy",t:6}]},
@@ -1932,13 +1885,12 @@ window.RAID_DATA={
           fallback:["bosses",8],
           sk:["frostbolt","ring","frostblast","fissure","detonateMana","chainsKT"],
           skills:{detonateMana:{e:"playerBomb",t:4,r:40,dmg:.8,perEnemy:.5,say:"法力引爆"},chainsKT:{e:"mindControl",t:4,say:"克尔苏加德的锁链"}},
-          open:{msg:"P1 亡灵大军",go:"p1adds",inv:true,end:{after:20}},
+          open:{msg:"P1 亡灵大军",go:"p1adds",inv:true,adds:"不可阻挡的憎恶 / 灵魂编织者 / 冰霜荒原士兵",end:{after:20}},
           ph:[{at:.99,msg:"P2",inv:false},{at:.4,msg:"P3 冰冠守护者",go:"guardians"}],
           adds:[
-            {n:"冰冠守护者",base:"SK",count:2,hp:9,art:["adds_naxx_3",7],at:"phase",ab:[{k:"resist",melee:.3,ranged:.3,skill:.3}]},
-            {n:"不可阻挡的憎恶",base:"SL",count:0,hp:2,art:["adds_naxx_3",9],at:"phase",ab:[{k:"stacks",kind:"heal",max:5}]},
-            {n:"灵魂编织者",base:"SA",count:0,hp:1.5,art:["adds_naxx_3",11],at:"phase",ab:[{k:"nova",r:40,T:.8,dmg:1,eff:"knock"}]},
-            {n:"冰霜荒原士兵",base:"SK",count:0,hp:.5,art:["adds_naxx_4",1],at:"phase",ab:[{k:"deathExplode",r:20,T:.6,dmg:1.3}]}
+            {n:"不可阻挡的憎恶",base:"SL",count:1,hp:2,art:["adds_naxx_3",9],at:"phase",ab:[{k:"stacks",kind:"heal",max:5}]},
+            {n:"灵魂编织者",base:"SA",count:1,hp:1.5,art:["adds_naxx_3",11],at:"phase",ab:[{k:"nova",r:40,T:.8,dmg:1,eff:"knock"}]},
+            {n:"冰霜荒原士兵",base:"SK",count:4,hp:.5,art:["adds_naxx_4",1],at:"phase",ab:[{k:"deathExplode",r:20,T:.6,dmg:1.3}]}
           ]
         }
       ]
@@ -1973,7 +1925,7 @@ window.RAID_DATA={
           spd:13,
           tip:"先打马，两者合体后会冲锋，注意预警线。",
           sk:["shadowCleave","intangible","charge"],
-          skills:{shadowCleave:{e:"tel",t:"cone",at:"boss",len:36,ang:.6,T:.6,dmg:1.2,say:"暗影顺劈"},intangible:{e:"curse",kind:"dmg",t:6,say:"无形存在"}},
+          skills:{shadowCleave:{e:"tel",t:"cone",at:"boss",len:44,ang:.6,T:.6,dmg:1.2,say:"暗影顺劈"},intangible:{e:"curse",kind:"dmg",t:6,say:"无形存在"}},
           forms:[{n:"骑乘午夜",art:["adds_kara_1",0]}],
           open:{msg:"先打午夜",adds:"午夜",bossJoinAt:.95},
           ph:[{at:.25,msg:"骑乘合体",form:["adds_kara_1",0],mergeAdds:"午夜",sk:["shadowCleave","charge","intangible"]}],
@@ -1999,25 +1951,10 @@ window.RAID_DATA={
           },
           ph:[{at:.3,msg:"狂怒",frenzy:true}],
           adds:[
-            {
-              n:"宾客（4 名）",
-              base:"SK",
-              count:4,
-              hp:1.5,
-              art:["adds_kara_1",3],
-              at:"start",
-              ab:[
-                {
-                  k:"byIndex",
-                  list:[
-                    {k:"heal",T:2,need:3,pct:.25},
-                    {k:"aoeAtPlayer",r:16,T:1,dmg:1,eff:"dot"},
-                    {k:"onHit",executeBelow:.2},
-                    {k:"blink",behind:true,dmg:1.5}
-                  ]
-                }
-              ]
-            }
+            {n:"卡翠欧娜·冯因迪女士",base:"SA",count:1,hp:1.5,art:["adds_kara_1",3],at:"start",ab:[{k:"heal",T:2,need:3,pct:.25,cd:8},{k:"volley",n:1,dmg:.8}]},
+            {n:"男爵夫人多萝西娅·米尔斯迪普",base:"SA",count:1,hp:1.5,art:["adds_kara_1",3],at:"start",ab:[{k:"aoeAtPlayer",r:16,T:1,dmg:1,eff:"dot",cd:6}]},
+            {n:"罗宾·达瑞斯男爵",base:"SK",count:1,hp:1.5,art:["adds_kara_1",3],at:"start",ab:[{k:"nova",r:26,T:.8,dmg:1,cd:6}]},
+            {n:"拉弗·德鲁格尔男爵",base:"SK",count:1,hp:1.5,art:["adds_kara_1",3],at:"start",ab:[{k:"aoeAtPlayer",r:14,T:.8,dmg:.6,eff:"stun",cd:8}]}
           ]
         },
         {
@@ -2057,34 +1994,38 @@ window.RAID_DATA={
           skills:{},
           variants:[
             {
-              n:"绿野仙踪",
+              n:"巫婆",
               art:["bosses_kara_2",0],
-              sk:["v0","v1"],
+              sk:["v1","v2"],
               skills:{
-                v0:{
-                  e:"special",
-                  name:"operaOz",
-                  units:[{n:"多萝茜",sk:["waterBolt","fear"]},{n:"稻草人",taken:{skill:2}},{n:"铁皮人",rustStacks:{every:3,spd:-0.1}},{n:"狮子",sk:["fear"]}],
-                  then:"巫婆",
-                  say:"四位角色"
-                },
-                v1:{e:"trail",src:"seeker",n:2,t:10,r:16,dmg:.4,eff:"knock",spd:25,say:"巫婆·龙卷风"}
-              }
+                v1:{e:"trail",src:"seeker",n:2,t:10,r:16,dmg:.4,eff:"knock",spd:25,say:"巫婆·龙卷风"},
+                v2:{e:"shots",p:"aimed",n:3,dmg:1,say:"连锁闪电"}
+              },
+              open:{msg:"绿野仙踪：先击败多萝茜、稻草人、铁皮人与狮子",inv:true,adds:"多萝茜 / 稻草人 / 铁皮人 / 狮子",end:{adds:true,after:45},endMsg:"巫婆登场"},
+              adds:[
+                {n:"多萝茜",base:"SA",count:1,hp:1.5,art:["bosses_kara_2",0],at:"phase",ab:[{k:"volley",n:1,dmg:1},{k:"fear",r:50,T:.9,t:1.2,cd:10}]},
+                {n:"稻草人",base:"SK",count:1,hp:1.5,art:["bosses_kara_2",0],at:"phase",ab:[{k:"aoeAtPlayer",r:14,T:.8,dmg:.4,eff:"stun",cd:8}]},
+                {n:"铁皮人",base:"SK",count:1,hp:2,art:["bosses_kara_2",0],at:"phase",ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.6,dmg:1.2,cd:4}]},
+                {n:"狮子",base:"BT",count:1,hp:1.5,art:["bosses_kara_2",0],at:"phase",ab:[{k:"pounce",wind:.35,range:60,dmg:1},{k:"fear",r:50,T:.9,t:1.2,cd:12}]}
+              ]
             },
             {
               n:"大灰狼",
               art:["bosses_kara_2",1],
-              sk:["v0","v1"],
-              skills:{v0:{e:"special",name:"redRidingHood",every:20,t:8,noAttack:true,spd:1.3,wolfFixate:true,hitDmg:3,say:"小红帽"},v1:{e:"builtin",k:"roar"}}
+              sk:["v0","v2","v1","v2"],
+              skills:{v0:{e:"special",name:"fixate",t:8,say:"小红帽：大灰狼盯上了你"},v1:{e:"builtin",k:"roar"},v2:{e:"tel",t:"cone",at:"boss",len:44,ang:.7,T:.7,dmg:1.2,say:"猛烈挥击"}}
             },
             {
-              n:"罗密欧与朱丽叶",
+              n:"朱丽叶",
               art:["bosses_kara_2",2],
-              sk:["v0","v1"],
+              sk:["v0","v1","v2"],
               skills:{
-                v0:{e:"special",name:"operaRJ",acts:["朱丽叶","罗密欧","both"],reviveWindow:10,say:"三幕"},
-                v1:{e:"castBar",T:2,need:4,heal:.2,alt:{e:"mindControl",t:2},say:"技能"}
-              }
+                v0:{e:"healTarget",pct:.1,T:2,need:4,say:"永恒的爱"},
+                v1:{e:"mindControl",t:2,say:"强力吸引"},
+                v2:{e:"tel",t:"circle",at:"player",r:16,T:.9,dmg:.4,eff:"dot",effT:6,say:"盲目激情"}
+              },
+              multi:[{n:"罗密欧",hp:1,art:["bosses_kara_2",2],sk:["r0","r1","r2"],skills:{r0:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.7,dmg:1.1,eff:"knock",say:"反手"},r1:{e:"frenzy",t:8,rate:.5,say:"大胆"},r2:{e:"stacks",kind:"vuln",on:"hit",max:5,decay:8,say:"毒性刺击"}}}],
+              shared:{hp:true}
             }
           ],
           multi:[],
@@ -2102,10 +2043,10 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"他每次唤醒时是爆发窗口；闪光一出来就点掉。",
-          sk:["hatefulBolt","summonFlare"],
-          skills:{hatefulBolt:{e:"shots",p:"aimed",n:1,spd:130,dmg:1.6,say:"仇恨箭"},summonFlare:{e:"summon",k:"星界闪光",n:1,at:"random",every:10,say:"召唤闪光"}},
-          ph:[{every:30,dur:10,msg:"唤醒",taken:2,stop:true},{at:.15,msg:"狂怒",frenzy:true,stopEvery:true}],
-          adds:[{n:"星界闪光",base:"SA",count:0,hp:.6,art:["adds_kara_1",5],at:"phase",ab:[{k:"volley",n:1,spd:120,dmg:.8,bounce:2}]}]
+          sk:["hatefulBolt"],
+          skills:{hatefulBolt:{e:"shots",p:"aimed",n:1,spd:130,dmg:1.6,say:"仇恨箭"}},
+          ph:[{every:30,dur:10,inv:false,msg:"唤醒：馆长停止施法",taken:2,stop:true,endMsg:"唤醒结束"},{every:10,msg:"星界闪光",adds:"星界闪光"},{at:.15,msg:"狂怒",frenzy:true,stopEvery:true}],
+          adds:[{n:"星界闪光",base:"SA",count:1,hp:.6,art:["adds_kara_1",5],at:"phase",ab:[{k:"volley",n:1,spd:120,dmg:.8,bounce:2}]}]
         },
         {
           id:"kara/terestian_illhoof",
@@ -2121,9 +2062,10 @@ window.RAID_DATA={
           tip:"被锁链绑住就打锁链；先杀小鬼基尔里克能让首领受伤增加。",
           sk:["sacrifice","shadowBoltT"],
           skills:{sacrifice:{e:"grab",T:4,dmg:.3,say:"牺牲"},shadowBoltT:{e:"shots",p:"aimed",n:1,spd:90,dmg:1.1,say:"暗影箭"}},
+          ph:[{every:10,msg:"恶魔传送门：小鬼涌出",adds:"恶魔小鬼"}],
           adds:[
             {n:"基尔里克",base:"SA",count:1,hp:1.5,art:["adds_kara_1",7],at:"start",ab:[{k:"volley",n:1,spd:75,dmg:1}]},
-            {n:"恶魔小鬼",base:"BT",count:0,hp:.3,art:["adds_kara_1",9],at:"phase",ab:[{k:"stream",every:4,n:1,at:"edges"}]}
+            {n:"恶魔小鬼",base:"BT",count:2,hp:.3,art:["adds_kara_1",9],at:"phase",ab:[{k:"pounce",wind:.3,range:50,dmg:.6}]}
           ]
         },
         {
@@ -2145,7 +2087,7 @@ window.RAID_DATA={
             blizzardA:{e:"special",name:"rotatingRect",w:48,t:8,dir:"cw",dmg:.3,eff:"slow",say:"暴风雪"},
             massPoly:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:2,dmg:0,eff:"stun",effT:3,say:"群体变形"}
           },
-          ph:[{at:.4,msg:"召唤水元素",adds:"召唤的水元素"},{every:45,dur:6,msg:"喝水",taken:2,stop:true,then:"massPoly"}],
+          ph:[{at:.4,msg:"召唤水元素",adds:"召唤的水元素"},{every:45,dur:6,inv:false,msg:"喝水",taken:2,stop:true,go:"massPoly",endMsg:"喝水结束"}],
           adds:[{n:"召唤的水元素",base:"SA",count:4,hp:1,art:["adds_kara_1",11],at:"phase",ab:[{k:"volley",n:1,spd:75,dmg:1,eff:"slow"}]}]
         },
         {
@@ -2190,11 +2132,10 @@ window.RAID_DATA={
           tip:"清出一条路直取对方国王；麦迪文会作弊点燃格子。",
           sk:["medivhCheat"],
           skills:{
-            chessWin:{e:"special",name:"chessBoard",grid:8,step:2,win:"kingDead",snapPlayer:true,say:"棋局"},
             medivhCheat:{e:"tel",t:"rect",at:"random",w:48,T:1,dmg:1,after:{pool:{t:4,dmg:.2,r:14}},say:"麦迪文作弊"}
           },
-          auto:[{k:"chessWin",every:12}],
-          adds:[{n:"兽人棋子（兵/车/马/象/后）",base:"SK",count:8,hp:1,art:["adds_kara_2",1],at:"start",ab:[{k:"gridMove",step:2,hitAdjacent:true}]}]
+          open:{msg:"棋局：先吃掉对方的棋子，国王才能被攻击",inv:true,adds:"兽人棋子（兵/车/马/象/后）",end:{adds:true,after:60},endMsg:"国王失去了保护！"},
+          adds:[{n:"兽人棋子（兵/车/马/象/后）",base:"SK",count:6,hp:2.5,art:["adds_kara_2",1],at:"phase",ab:[{k:"gridMove",step:2,hitAdjacent:true},{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.7,dmg:1,cd:4}]}]
         },
         {
           id:"kara/prince_malchezaar",
@@ -2212,7 +2153,7 @@ window.RAID_DATA={
           skills:{
             enfeeble:{e:"special",name:"enfeeble",t:7,hp:1,then:"shadowNova",thenAfter:4,say:"衰弱"},
             shadowNova:{e:"tel",t:"circle",at:"boss",r:70,T:1.2,dmg:1.5,say:"暗影新星"},
-            infernalDrop:{e:"tel",t:"circle",at:"random",r:20,T:1.5,dmg:1,say:"地狱火"},
+            infernalDrop:{e:"tel",t:"circle",at:"random",r:20,T:1.5,dmg:1,after:{pool:{t:15,dmg:.3,r:20}},say:"地狱火"},
             amplify:{e:"curse",kind:"vuln",t:10,say:"伤害增幅"},
             axeCleave:{e:"tel",t:"cone",at:"boss",ang:.7,len:40,T:.6,dmg:1.2,say:"双斧顺劈"}
           },
@@ -2221,7 +2162,6 @@ window.RAID_DATA={
             {at:.3,msg:"P3 飞斧",adds:"飞斧",auto:[{k:"infernalDrop",every:10}]}
           ],
           adds:[
-            {n:"地狱火",base:"SL",count:0,hp:99,art:["adds_kara_2",3],at:"phase",ab:[{k:"static",unkillable:true,aura:{r:20,dmg:.3}}]},
             {n:"飞斧",base:"BT",count:2,hp:2,art:["adds_kara_2",5],at:"phase",ab:[{k:"pounce",wind:.4,range:200,dmg:1.2}]}
           ]
         },
@@ -2244,8 +2184,8 @@ window.RAID_DATA={
           },
           passive:{facing:"fixed"},
           forms:[{n:"飞行",art:["adds_kara_2",7]}],
-          ph:[{at:.75,msg:"起飞",go:"fly"},{msg:"起飞",go:"fly",at:.5},{msg:"起飞",go:"fly",at:.25}],
-          adds:[{n:"复活的骸骨",base:"SK",count:5,hp:.8,art:["adds_kara_2",8],at:"start",ab:[{k:"spawnOn",event:"airPhase",n:5}]}]
+          ph:[{at:.75,msg:"起飞",go:"fly",adds:"复活的骸骨"},{msg:"起飞",go:"fly",at:.5,adds:"复活的骸骨"},{msg:"起飞",go:"fly",at:.25,adds:"复活的骸骨"}],
+          adds:[{n:"复活的骸骨",base:"SK",count:5,hp:.8,art:["adds_kara_2",8],at:"phase",ab:[{k:"spawnOn",event:"airPhase",n:5}]}]
         }
       ]
     },
@@ -2439,7 +2379,8 @@ window.RAID_DATA={
           },
           forms:[{n:"腐化形态",art:["adds_ssc_1",0]}],
           openMsg:"首领进入另一半区地砖 → 换形",
-          adds:[{n:"纯净/腐化的元素",base:"SL",count:4,hp:.8,art:["adds_ssc_1",1],at:"phase",ab:[{k:"spawnOn",event:"formSwap",n:4}]}]
+          ph:[{every:25,msg:"海度斯换形：元素涌出",form:["adds_ssc_1",0],adds:"纯净/腐化的元素"}],
+          adds:[{n:"纯净/腐化的元素",base:"SL",count:3,hp:.8,art:["adds_ssc_1",1],at:"phase",ab:[{k:"spawnOn",event:"formSwap",n:4}]}]
         },
         {
           id:"ssc/the_lurker_below",
@@ -2474,18 +2415,17 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"精灵形态远离旋风斩；恶魔形态出现心魔要在 15 秒内杀掉。",
-          sk:["whirlwindL","chaosBlast","innerDemons"],
+          sk:["whirlwindL","chaosBlast"],
           skills:{
             whirlwindL:{e:"followAura",r:36,t:8,dmg:.4,tick:.5,spd:1,say:"旋风斩"},
             chaosBlast:{e:"shots",p:"aimed",n:1,spd:130,dmg:1.2,eff:"vuln",say:"混沌冲击"},
-            innerDemons:{e:"summon",k:"心魔",n:1,at:"player",mirrorPlayer:true,timeout:15,onTimeout:{e:"mindControl",t:6},say:"心魔"}
           },
           forms:[{n:"恶魔形态",art:["adds_ssc_1",6]}],
           ph:[
-            {every:40,toggle:true,msg:"恶魔形态",form:["adds_ssc_1",6],sk:["chaosBlast","innerDemons"]},
+            {every:40,dur:15,inv:false,toggle:true,msg:"恶魔形态：心魔出现",form:["adds_ssc_1",6],sk:["chaosBlast","chaosBlast","whirlwindL"],adds:"心魔",endMsg:"莱欧瑟拉斯恢复人形"},
             {at:.15,msg:"分裂",split:true,sk:["whirlwindL","chaosBlast"]}
           ],
-          adds:[{n:"心魔",base:"SK",count:1,hp:1.5,art:["adds_ssc_1",7],at:"start",ab:[{k:"mc",t:6,cd:14,T:1}]}]
+          adds:[{n:"心魔",base:"SK",count:1,hp:1.5,art:["adds_ssc_1",7],at:"phase",ab:[{k:"mc",t:6,cd:14,T:1}]}]
         },
         {
           id:"ssc/fathom_lord_karathress",
@@ -2540,11 +2480,11 @@ window.RAID_DATA={
           skills:{
             tidalWave:{e:"tel",t:"cone",at:"boss",len:60,ang:.7,T:.8,dmg:1,eff:"slow",say:"潮汐之波"},
             wateryGrave:{e:"teleportPlayer",to:"corner",root:2,say:"水之墓穴"},
-            earthquakeM:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:1,dmg:.4,after:{adds:{k:"潮汐鱼人",n:6,at:"edges"}},say:"地震"},
+            earthquakeM:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:1,dmg:.4,say:"地震"},
             globules:{e:"tel",t:"circle",at:"random",r:24,T:1.4,dmg:1.2,n:3,say:"水泡"}
           },
-          ph:[{at:.25,msg:"水泡",auto:[{k:"globules",every:10}]}],
-          adds:[{n:"潮汐鱼人",base:"BT",count:12,hp:.5,art:["adds_ssc_2",3],at:"start",ab:[{k:"stream",every:30,n:6,at:"edges"}]}]
+          ph:[{at:.25,msg:"水泡",auto:[{k:"globules",every:10}]},{every:30,msg:"地震过后，潮汐鱼人涌入",adds:"潮汐鱼人"}],
+          adds:[{n:"潮汐鱼人",base:"BT",count:6,hp:.5,art:["adds_ssc_2",3],at:"phase",ab:[{k:"stream",every:30,n:6,at:"edges"}]}]
         },
         {
           id:"ssc/lady_vashj",
@@ -2562,14 +2502,15 @@ window.RAID_DATA={
           skills:{
             shockBlast:{e:"tel",t:"circle",at:"player",r:16,T:.6,dmg:0,eff:"stun",effT:1,say:"震击冲击"},
             staticCharge:{e:"playerBomb",t:6,r:30,dmg:.5,perEnemy:.5,say:"静电冲能"},
-            entangleV:{e:"tel",t:"circle",at:"boss",r:40,T:.9,dmg:0,eff:"freeze",effT:2,say:"纠缠"}
+            entangleV:{e:"tel",t:"circle",at:"boss",r:40,T:.9,dmg:0,eff:"freeze",effT:2,say:"纠缠"},
+            forkedLightning:{e:"shots",p:"volley",n:3,dmg:.8,say:"叉状闪电"}
           },
           objective:{mode:"activate",n:4,prop:"shieldGenerator",needItem:"taintedCore"},
-          ph:[{at:.7,msg:"P2 护盾发生器",inv:true,move:"center",adds:"污染元素",end:{objective:true}},{at:.69,msg:"P3",inv:false,adds:"毒蝙蝠"}],
+          ph:[{at:.7,msg:"P2 护盾发生器",inv:true,move:"center",adds:"污染元素 / 盘牙精英",sk:["forkedLightning"],end:{objective:true}},{at:.69,msg:"P3",inv:false,adds:"毒蝙蝠",sk:["shockBlast","staticCharge","entangleV","forkedLightning"]}],
           adds:[
-            {n:"污染元素",base:"SL",count:0,hp:1,art:["adds_ssc_2",5],at:"phase",ab:[{k:"onDeath",drop:"taintedCore"}]},
-            {n:"盘牙精英",base:"SK",count:0,hp:1.5,art:["adds_ssc_2",7],at:"phase",ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.6,dmg:1}]},
-            {n:"毒蝙蝠",base:"BT",count:0,hp:.6,art:["adds_ssc_2",9],at:"phase",ab:[{k:"deathPool",r:14,t:6,dmg:.3,trail:true}]}
+            {n:"污染元素",base:"SL",count:3,hp:1,art:["adds_ssc_2",5],at:"phase",ab:[{k:"onDeath",drop:"taintedCore"}]},
+            {n:"盘牙精英",base:"SK",count:2,hp:1.5,art:["adds_ssc_2",7],at:"phase",ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.6,dmg:1}]},
+            {n:"毒蝙蝠",base:"BT",count:3,hp:.6,art:["adds_ssc_2",9],at:"phase",ab:[{k:"deathPool",r:14,t:6,dmg:.3,trail:true}]}
           ]
         }
       ]
@@ -2651,7 +2592,7 @@ window.RAID_DATA={
             voidBolt:{e:"shots",p:"aimed",n:1,spd:90,dmg:1.4,say:"虚空箭"}
           },
           forms:[{n:"虚空行者形态",art:["adds_tk",3]}],
-          ph:[{every:50,dur:20,msg:"分身",inv:true,adds:"索兰莉安的密探"},{at:.2,msg:"虚空行者",form:["adds_tk",3],sk:["roar","voidBolt"],stopEvery:true}],
+          ph:[{every:50,dur:20,msg:"分身",inv:true,adds:"索兰莉安的密探 / 索兰莉安的牧师"},{at:.2,msg:"虚空行者",form:["adds_tk",3],sk:["roar","voidBolt"],stopEvery:true}],
           adds:[
             {n:"索兰莉安的密探",base:"SK",count:4,hp:.8,art:["adds_tk",4],at:"phase",ab:[]},
             {n:"索兰莉安的牧师",base:"SA",count:2,hp:1.5,art:["adds_tk",6],at:"phase",ab:[{k:"heal",T:2,need:3,pct:.25}]}
@@ -2677,10 +2618,14 @@ window.RAID_DATA={
             pyroblastK:{e:"castBar",T:3,need:4,then:{e:"tel",t:"circle",at:"player",r:20,T:.6,dmg:4},say:"炎爆术"},
             gravityLapse:{e:"special",name:"gravityLapse",t:15,playerFly:true,spd:1.3,orbs:{n:4,r:16,dmg:.5,spd:20},say:"引力失效"}
           },
-          open:{msg:"顾问与传奇武器",inv:true,adds:"四位顾问",stages:["advisors","weapons","advisorsRevive"],end:{adds:true}},
-          ph:[{at:.99,msg:"凯尔萨斯降临",inv:false,adds:"凤凰"},{at:.5,msg:"引力失效",go:"gravityLapse",auto:[{k:"gravityLapse",every:30}]}],
+          open:{msg:"P1 四位顾问",inv:true,adds:"黑暗者萨拉德雷 / 血亲王桑古纳尔 / 星术师卡波妮娅 / 首席技师塔隆尼库斯",stages:["advisors","weapons","advisorsRevive"],end:{adds:true,after:60}},
+          ph:[{at:.99,msg:"凯尔萨斯降临：传奇武器与凤凰",inv:false,adds:"传奇武器 / 凤凰"},{at:.5,msg:"引力失效",go:"gravityLapse",auto:[{k:"gravityLapse",every:30}]}],
           adds:[
-            {n:"四位顾问",base:"SK",count:4,hp:.8,art:["adds_tk",8],at:"phase",ab:[{k:"fear",r:60,T:.9,t:1.2}]},
+            {n:"黑暗者萨拉德雷",base:"SK",count:1,hp:1,art:["adds_tk",8],at:"phase",ab:[{k:"pounce",wind:.4,range:80,dmg:1.2},{k:"aoeAtPlayer",r:14,T:.8,dmg:.4,eff:"silence",cd:10}]},
+            {n:"血亲王桑古纳尔",base:"SK",count:1,hp:1,art:["adds_tk",8],at:"phase",ab:[{k:"fear",r:60,T:.9,t:1.2,cd:12}]},
+            {n:"星术师卡波妮娅",base:"SA",count:1,hp:.8,art:["adds_tk",8],at:"phase",ab:[{k:"volley",n:1,dmg:1.2},{k:"nova",r:30,T:.8,dmg:1,cd:8}]},
+            {n:"首席技师塔隆尼库斯",base:"SA",count:1,hp:.8,art:["adds_tk",8],at:"phase",ab:[{k:"aoeAtPlayer",r:20,T:1,dmg:1,cd:6}]},
+            {n:"传奇武器",base:"SK",count:3,hp:.6,art:["adds_tk",8],at:"phase",ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.7,dmg:1,cd:4}]},
             {n:"凤凰",base:"BT",count:1,hp:2,art:["adds_tk",10],at:"phase",ab:[{k:"revive",selfDot:.03,egg:15}]}
           ]
         }
@@ -2738,9 +2683,8 @@ window.RAID_DATA={
           skills:{
             carrionSwarm:{e:"tel",t:"cone",at:"boss",len:80,ang:.6,T:.8,dmg:1,say:"腐臭虫群"},
             sleep:{e:"tel",t:"circle",at:"player",r:16,T:.9,dmg:0,eff:"stun",effT:3,say:"沉睡"},
-            infernoA:{e:"tel",t:"circle",at:"random",r:24,T:1.5,dmg:2,say:"地狱火"}
+            infernoA:{e:"tel",t:"circle",at:"random",r:24,T:1.5,dmg:2,after:{adds:{k:"giant_infernal",n:1}},say:"地狱火"}
           },
-          adds:[{n:"地狱火",base:"SL",count:0,hp:2,art:["mobs_hyjal_2",1],at:"phase",ab:[{k:"touchDot",t:3,dmg:.3,aura:18}]}]
         },
         {
           id:"hyjal/kazrogal",
@@ -2779,7 +2723,8 @@ window.RAID_DATA={
             howl:{e:"tel",t:"circle",at:"boss",r:200,T:.9,dmg:0,eff:"silence",effT:4,say:"阿兹加洛之嚎"},
             doomAz:{e:"curse",kind:"delayed",t:15,dmg:2,say:"末日"}
           },
-          adds:[{n:"末日守卫",base:"SK",count:0,hp:2,art:["adds_hyjal",0],at:"phase",ab:[{k:"nova",r:28,T:.8,dmg:1,eff:"slow"}]}]
+          ph:[{every:30,msg:"末日守卫从末日中爬出",adds:"末日守卫"}],
+          adds:[{n:"末日守卫",base:"SK",count:1,hp:2,art:["adds_hyjal",0],at:"phase",ab:[{k:"nova",r:28,T:.8,dmg:1,eff:"slow"}]}]
         },
         {
           id:"hyjal/archimonde",
@@ -2835,11 +2780,11 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"他套上潮汐之盾后，捡起地上的脊刺扔给他破盾。",
-          sk:["needleSpine","impalingSpine","tidalShield"],
+          sk:["needleSpine","impalingSpine","needleSpine"],
           skills:{
             needleSpine:{e:"shots",p:"volley",n:3,spd:80,dmg:.7,say:"针刺"},
             impalingSpine:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:1,eff:"stun",effT:2,after:{pickup:"spine"},say:"穿刺之脊"},
-            tidalShield:{e:"bossShield",kind:"immune",t:999,breakBy:"spine",burst:1,say:"潮汐之盾"}
+            tidalShield:{e:"bossShield",kind:"reduce",t:12,pct:.1,breakBy:"spine",burst:1,say:"潮汐之盾（用大招打破）"}
           },
           auto:[{k:"tidalShield",every:30}]
         },
@@ -2876,10 +2821,10 @@ window.RAID_DATA={
           openMsg:"P1",
           adds:[
             {n:"灰舌导魔者",base:"SA",count:6,hp:1,art:["adds_bt_1",0],at:"phase",ab:[{k:"static",ring:true,bindsBoss:true}]},
-            {n:"灰舌防御者/巫师",base:"SK",count:0,hp:1.2,art:["adds_bt_1",2],at:"phase",ab:[{k:"stream",every:6,n:2,at:"doors"}]}
+            {n:"灰舌防御者",base:"SK",count:2,hp:1.2,art:["adds_bt_1",2],at:"phase",ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.7,dmg:1,cd:4}]}
           ],
-          open:{msg:"击杀导魔者",inv:true,adds:"灰舌导魔者",end:{adds:true}},
-          ph:[]
+          open:{msg:"击杀导魔者",inv:true,adds:"灰舌导魔者 / 灰舌防御者",end:{adds:true}},
+          ph:[{every:20,msg:"灰舌防御者从门口涌入",adds:"灰舌防御者"}]
         },
         {
           id:"bt/teron_gorefiend",
@@ -2900,7 +2845,8 @@ window.RAID_DATA={
             crushingShadows:{e:"tel",t:"circle",at:"player",r:24,T:.9,dmg:1.2,say:"粉碎之影"},
             doomBlossom:{e:"totem",n:2,hp:.6,effect:"shots",every:2,at:"edges",dmg:.6,say:"末日之花"}
           },
-          adds:[{n:"影子构造体",base:"SK",count:4,hp:.8,art:["adds_bt_1",4],at:"start",ab:[{k:"touchDot",t:3,dmg:.2}]}]
+          ph:[{every:25,msg:"死亡之影结束：影子构造体出现",adds:"影子构造体"}],
+          adds:[{n:"影子构造体",base:"SK",count:3,hp:.8,art:["adds_bt_1",4],at:"phase",ab:[{k:"touchDot",t:3,dmg:.2}]}]
         },
         {
           id:"bt/gurtogg_bloodboil",
@@ -2937,11 +2883,17 @@ window.RAID_DATA={
           sk:["fixateSuffer","soulDrain"],
           skills:{
             fixateSuffer:{e:"curse",kind:"heal",t:999,mul:0,fixate:true,say:"痛苦光环"},
-            soulDrain:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.3,eff:"dot",effT:8,leech:1,say:"灵魂抽取"}
+            soulDrain:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.3,eff:"dot",effT:8,leech:1,say:"灵魂抽取"},
+            runeShield:{e:"bossShield",kind:"reduce",t:6,pct:.3,say:"符文护盾"},
+            spiritShock:{e:"tel",t:"circle",at:"player",r:16,T:.8,dmg:1,eff:"stun",effT:1,say:"灵魂震击"},
+            deadenR:{e:"curse",kind:"dmg",t:6,say:"衰减"},
+            soulScream:{e:"tel",t:"cone",at:"boss",len:80,ang:.6,T:.9,dmg:1.2,say:"灵魂尖啸"},
+            spite:{e:"curse",kind:"delayed",t:4,dmg:1.2,say:"怨恨"},
+            seethe:{e:"frenzy",t:8,rate:.5,say:"沸腾"}
           },
           forms:[{n:"欲望精华",art:["adds_bt_1",6]},{n:"愤怒精华",art:["adds_bt_1",7]}],
-          ph:[{at:.66,msg:"欲望精华",form:["adds_bt_1",6]},{at:.33,msg:"愤怒精华",form:["adds_bt_1",7]}],
-          adds:[{n:"灵魂碎片",base:"BT",count:0,hp:.3,art:["mobs_bt_2",1],at:"phase",ab:[{k:"spawnOn",event:"phase",n:6}]}]
+          ph:[{at:.66,msg:"欲望精华",form:["adds_bt_1",6],adds:"灵魂碎片",sk:["runeShield","spiritShock","deadenR"]},{at:.33,msg:"愤怒精华",form:["adds_bt_1",7],adds:"灵魂碎片",sk:["soulScream","spite","seethe"]}],
+          adds:[{n:"灵魂碎片",base:"BT",count:6,hp:.3,art:["mobs_bt_2",1],at:"phase",ab:[{k:"spawnOn",event:"phase",n:6}]}]
         },
         {
           id:"bt/mother_shahraz",
@@ -2972,64 +2924,27 @@ window.RAID_DATA={
         },
         {
           id:"bt/the_illidari_council",
-          n:"伊利达雷议会",
+          n:"击碎者加西奥斯",
+          lv:"伊利达雷议会",
           rooms:3,
-          hp:1.0,
+          hp:.6,
           enrage:120,
           elite:"illidari_fearbringer_dragonmaw_wyrmcaller",
           trash:["illidari_fearbringer_dragonmaw_wyrmcaller","dragonmaw_sky_stalker","shadowmoon_deathshaper"],
-          art:null,
           size:54,
           spd:13,
           tip:"四人共用血量：优先打断玛兰德的治疗，躲开塞勒沃尔的烈焰风暴。",
-          sk:[],
-          skills:{},
           openMsg:"四人共用一条血",
+          art:["bosses_bt_3",1],
+          sk:["s0","s1"],
+          skills:{
+            s0:{e:"followAura",r:20,t:999,dmg:.15,tick:.5,say:"奉献"},
+            s1:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.6,eff:"stun",effT:3,say:"制裁之锤"}
+          },
           multi:[
-            {
-              n:"击碎者加西奥斯",
-              base:"SK",
-              hp:.6,
-              art:["bosses_bt_3",1],
-              sk:["s0","s1"],
-              skills:{
-                s0:{e:"followAura",r:20,t:999,dmg:.15,tick:.5,say:"奉献"},
-                s1:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.6,eff:"stun",effT:3,say:"制裁之锤"}
-              }
-            },
-            {
-              n:"女公爵玛兰德",
-              base:"SA",
-              hp:.6,
-              art:["bosses_bt_3",2],
-              sk:["s0","s1"],
-              skills:{
-                s0:{e:"castBar",T:2,need:4,then:{e:"tel",t:"circle",at:"player",r:20,T:.6,dmg:1.5},say:"强效治疗"},
-                s1:{e:"bossShield",kind:"reflect",t:6,pct:.3,say:"反射护盾"}
-              }
-            },
-            {
-              n:"高阶灵术师塞勒沃尔",
-              base:"SA",
-              hp:.6,
-              art:["bosses_bt_4",0],
-              sk:["s0","s1"],
-              skills:{
-                s0:{e:"tel",t:"circle",at:"player",r:28,T:.9,dmg:1,say:"烈焰风暴"},
-                s1:{e:"trail",src:"seeker",t:6,r:22,dmg:.25,spd:20,eff:"slow",say:"暴风雪"}
-              }
-            },
-            {
-              n:"维尔莱斯·深影",
-              base:"SK",
-              hp:.6,
-              art:["bosses_bt_4",1],
-              sk:["s0","s1"],
-              skills:{
-                s0:{e:"special",name:"vanish",t:2,then:{e:"tel",t:"circle",at:"player",r:14,T:.6,dmg:1.5},say:"消失"},
-                s1:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.3,eff:"dot",effT:8,say:"毒伤"}
-              }
-            }
+            {n:"女公爵玛兰德",base:"SA",hp:1,art:["bosses_bt_3",2],sk:["s0","s1"],skills:{s0:{e:"castBar",T:2,need:4,then:{e:"tel",t:"circle",at:"player",r:20,T:.6,dmg:1.5},say:"强效治疗"},s1:{e:"bossShield",kind:"reflect",t:6,pct:.3,say:"反射护盾"}}},
+            {n:"高阶灵术师塞勒沃尔",base:"SA",hp:1,art:["bosses_bt_4",0],sk:["s0","s1"],skills:{s0:{e:"tel",t:"circle",at:"player",r:28,T:.9,dmg:1,say:"烈焰风暴"},s1:{e:"trail",src:"seeker",t:6,r:22,dmg:.25,spd:20,eff:"slow",say:"暴风雪"}}},
+            {n:"维尔莱斯·深影",base:"SK",hp:1,art:["bosses_bt_4",1],sk:["s0","s1"],skills:{s0:{e:"special",name:"vanish",t:2,then:{e:"tel",t:"circle",at:"player",r:14,T:.6,dmg:1.5},say:"消失"},s1:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.3,eff:"dot",effT:8,say:"毒伤"}}}
           ],
           shared:{hp:true}
         },
@@ -3050,7 +2965,7 @@ window.RAID_DATA={
             shear:{e:"tel",t:"circle",at:"player",r:16,T:.6,dmg:1.5,say:"剪切"},
             flameCrash:{e:"tel",t:"circle",at:"player",r:22,T:1,dmg:1,after:{pool:{t:8,dmg:.2,r:14}},say:"烈焰撞击"},
             drawSoul:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,say:"汲取灵魂"},
-            parasiticFiend:{e:"summon",k:"寄生暗影魔",n:1,at:"player",say:"寄生暗影魔"},
+            parasiticFiend:{e:"summon",k:"BT",n:2,hp:.5,at:"player",say:"寄生暗影魔"},
             darkBarrage:{e:"curse",kind:"dot",t:10,dmg:.3,say:"黑暗弹幕"},
             fireballI:{e:"tel",t:"circle",at:"player",r:20,T:1,dmg:1.2,after:{pool:{t:4,dmg:.2,r:16}},say:"火球"},
             agonizingFlames:{e:"tel",t:"circle",at:"player",r:24,T:1,dmg:.8,eff:"dot",effT:8,say:"剧痛之焰"},
@@ -3062,8 +2977,9 @@ window.RAID_DATA={
           forms:[{n:"飞行",art:["adds_bt_1",8]},{n:"恶魔形态",art:["adds_bt_1",9]}],
           ph:[
             {at:.65,msg:"P2 起飞",inv:true,move:"top",form:["adds_bt_1",8],sk:["sweep","darkBarrage","fireballI"],adds:"阿兹诺斯之焰",end:{adds:true}},
-            {at:.6,msg:"P3",inv:false,form:null,auto:[{k:"agonizingFlames",every:15}]},
-            {at:.3,msg:"P5 玛维的陷阱",objective:true,auto:[{k:"demonForm",every:60}]}
+            {at:.6,msg:"P3",inv:false,form:null,sk:["shear","flameCrash","drawSoul","parasiticFiend"],auto:[{k:"agonizingFlames",every:15}]},
+            {at:.45,msg:"P4 恶魔形态",form:["adds_bt_1",9],sk:["shadowBlast","flameBurst","shadowBlast"],adds:"暗影恶魔",go:"demonForm"},
+            {at:.3,msg:"P5 玛维的陷阱",form:null,objective:true,sk:["shear","flameCrash","shadowBlast","parasiticFiend"],auto:[{k:"agonizingFlames",every:15}]}
           ],
           adds:[
             {
@@ -3075,8 +2991,7 @@ window.RAID_DATA={
               at:"phase",
               ab:[{k:"aoeAtPlayer",r:18,T:1,dmg:1},{k:"leash",d:50,to:"prop:glaive",dmg:2}]
             },
-            {n:"寄生暗影魔",base:"BT",count:0,hp:.5,art:["adds_bt_2",0],at:"phase",ab:[{k:"aoeAtPlayer",r:14,T:.8,dmg:.3,eff:"dot",effT:6}]},
-            {n:"暗影恶魔",base:"BT",count:4,hp:1,art:["adds_bt_2",2],at:"phase",ab:[{k:"walkTo",target:"player",spd:12,onArrive:{stun:3,dmg:2}}]}
+            {n:"暗影恶魔",base:"BT",count:4,hp:1,art:["adds_bt_2",2],at:"phase",ab:[{k:"walkTo",target:"player",spd:12,onArrive:{stun:3,dmg:2}},{k:"pounce",wind:.5,range:40,dmg:1.5,cd:6}]}
           ]
         }
       ]
@@ -3159,15 +3074,14 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"火焰炸弹满屏时找空隙站好；孵化者要在走到蛋前杀掉。",
-          sk:["fireBombsJ","flameBreathJ","hatchers"],
+          sk:["flameBreathJ","fireBombsJ","flameBreathJ"],
           skills:{
             fireBombsJ:{e:"special",name:"bombGrid",n:30,r:14,T:3,dmg:2,gaps:true,bossTo:"center",say:"火焰炸弹"},
             flameBreathJ:{e:"tel",t:"beam",at:"boss",w:10,T:.9,dmg:1,say:"火焰吐息"},
-            hatchers:{e:"summon",k:"阿曼尼孵化者",n:2,at:"edges",say:"孵化者"},
-            hatchAll:{e:"summon",k:"prop:egg",n:99,hatchNow:true,say:"孵化"}
+            hatchAll:{e:"summon",k:"EGG",n:4,at:"random",hatchNow:true,say:"孵化"}
           },
-          ph:[{at:.35,msg:"孵化全部龙蛋",go:"hatchAll"}],
-          adds:[{n:"阿曼尼孵化者",base:"SK",count:2,hp:1,art:["adds_za_1",3],at:"start",ab:[{k:"walkTo",target:"prop:egg",spd:20,onArrive:{hatch:4}}]}]
+          ph:[{at:.35,msg:"孵化全部龙蛋",go:"hatchAll"},{every:25,msg:"阿曼尼孵化者赶来孵蛋",adds:"阿曼尼孵化者"}],
+          adds:[{n:"阿曼尼孵化者",base:"SK",count:2,hp:1,art:["adds_za_1",3],at:"phase",ab:[{k:"walkTo",target:"prop:egg",spd:20,onArrive:{hatch:4}}]}]
         },
         {
           id:"za/halazzi",
@@ -3187,8 +3101,8 @@ window.RAID_DATA={
             flameShockH:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.3,eff:"dot",effT:8,say:"烈焰震击"},
             lightningTotem:{e:"totem",n:1,hp:.8,effect:"shots",every:1,dmg:.8,at:"boss",say:"腐蚀闪电图腾"}
           },
-          ph:[{at:.75,msg:"分离",adds:"山猫之魂",inv:false,dur:20},{at:.5,msg:"分离",adds:"山猫之魂",dur:20},{at:.25,msg:"分离",adds:"山猫之魂"}],
-          adds:[{n:"山猫之魂",base:"BT",count:1,hp:.5,art:["adds_za_1",5],at:"start",ab:[{k:"split",at:[.75,.5,.25],t:20,merge:true}]}]
+          ph:[{at:.75,msg:"分离",adds:"山猫之魂",inv:false,dur:20},{at:.5,msg:"分离",adds:"山猫之魂",inv:false,dur:20},{at:.25,msg:"分离",adds:"山猫之魂"}],
+          adds:[{n:"山猫之魂",base:"BT",count:1,hp:.5,art:["adds_za_1",5],at:"phase",ab:[{k:"split",at:[.75,.5,.25],t:20,merge:true}]}]
         },
         {
           id:"za/hex_lord_malacrass",
@@ -3225,14 +3139,23 @@ window.RAID_DATA={
           sk:["whirlwindZ","grievousThrow"],
           skills:{
             whirlwindZ:{e:"followAura",r:34,t:4,dmg:.4,tick:.5,spd:1,say:"旋风斩"},
-            grievousThrow:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.3,eff:"dot",effT:8,say:"重伤投掷"}
+            grievousThrow:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.3,eff:"dot",effT:8,say:"重伤投掷"},
+            paralysis:{e:"tel",t:"circle",at:"player",r:20,T:1,dmg:.3,eff:"stun",effT:2,say:"蔓延麻痹"},
+            overpower:{e:"tel",t:"circle",at:"player",r:16,T:.6,dmg:1.4,say:"压制"},
+            energyStorm:{e:"followAura",r:400,t:8,dmg:.08,tick:1,say:"能量风暴"},
+            featherVortex:{e:"summon",k:"BT",n:3,hp:.5,at:"edges",say:"羽毛旋风"},
+            clawRage:{e:"special",name:"fixate",t:6,say:"利爪之怒"},
+            lynxRush:{e:"tel",t:"beam",at:"boss",w:10,T:.8,dmg:1,n:3,gap:.4,say:"山猫冲锋"},
+            flameWhirl:{e:"tel",t:"circle",at:"boss",r:50,T:.8,dmg:1,say:"烈焰旋风"},
+            flameBreathZ:{e:"tel",t:"cone",at:"boss",len:120,ang:.6,T:1,dmg:1.2,say:"烈焰吐息"},
+            pillarOfFire:{e:"tel",t:"circle",at:"player",r:20,T:1,dmg:1,after:{pool:{t:8,dmg:.2,r:16}},say:"火焰之柱"}
           },
           forms:[{n:"熊",art:["adds_za_1",9]},{n:"鹰",art:["adds_za_1",10]},{n:"山猫",art:["adds_za_1",11]},{n:"龙鹰",art:["adds_za_2",0]}],
           ph:[
-            {at:.8,msg:"熊形态",form:["adds_za_1",9]},
-            {at:.6,msg:"鹰形态",form:["adds_za_1",10]},
-            {at:.4,msg:"山猫形态",form:["adds_za_1",11]},
-            {at:.2,msg:"龙鹰形态",form:["adds_za_2",0]}
+            {at:.8,msg:"熊形态",form:["adds_za_1",9],sk:["paralysis","overpower","overpower"]},
+            {at:.6,msg:"鹰形态",form:["adds_za_1",10],sk:["energyStorm","featherVortex"]},
+            {at:.4,msg:"山猫形态",form:["adds_za_1",11],sk:["clawRage","lynxRush","grievousThrow"]},
+            {at:.2,msg:"龙鹰形态",form:["adds_za_2",0],sk:["flameWhirl","flameBreathZ","pillarOfFire"]}
           ]
         }
       ]
@@ -3315,50 +3238,33 @@ window.RAID_DATA={
             fogOfCorruption:{e:"tel",t:"rect",at:"fixed",w:192,h:40,T:1.2,dmg:0,eff:"mc",effT:4,n:3,gap:1,say:"腐蚀之雾"}
           },
           forms:[{n:"飞行",art:["adds_swp",2]}],
-          ph:[{every:40,dur:20,msg:"起飞",inv:true,form:["adds_swp",2],go:"demonicVapor",auto:[{k:"fogOfCorruption",every:10}]}],
-          adds:[{n:"不死骷髅",base:"SK",count:0,hp:.6,art:["adds_swp",3],at:"phase",ab:[{k:"spawnOn",event:"vaporTrail",n:1,every:1.5}]}]
+          ph:[{every:40,dur:20,msg:"起飞",inv:true,form:["adds_swp",2],go:"demonicVapor",sk:["fogOfCorruption","demonicVapor"],adds:"不死骷髅"}],
+          adds:[{n:"不死骷髅",base:"SK",count:3,hp:.6,art:["adds_swp",3],at:"phase",ab:[{k:"spawnOn",event:"vaporTrail",n:1,every:1.5}]}]
         },
         {
           id:"swp/eredar_twins",
-          n:"艾瑞达双子",
+          n:"萨洛拉丝女王",
+          lv:"艾瑞达双子",
           rooms:3,
-          hp:1.0,
+          hp:.9,
           enrage:120,
           elite:"shadowsword_assassin",
           trash:["shadowsword_assassin","sunblade_arch_mage","volatile_fiend"],
-          art:null,
           size:54,
           spd:13,
           tip:"先杀一个，另一个会继承技能；两种颜色的叠层别同时拿。",
-          sk:[],
-          skills:{touchStacks:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"黑暗之触 / 火焰之触"}},
           auto:[{k:"touchStacks",every:2}],
           openMsg:"一人死亡",
+          art:["bosses_swp_2",0],
+          sk:["s0","s1","s2"],
+          skills:{
+            touchStacks:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"黑暗之触 / 火焰之触"},
+            s0:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,say:"暗影之刃"},
+            s1:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.6,eff:"stun",effT:1.5,say:"迷惑之击"},
+            s2:{e:"tel",t:"circle",at:"boss",r:40,T:.9,dmg:1,say:"暗影新星"}
+          },
           multi:[
-            {
-              n:"萨洛拉丝女王",
-              base:"SK",
-              hp:.9,
-              art:["bosses_swp_2",0],
-              sk:["s0","s1","s2"],
-              skills:{
-                s0:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,say:"暗影之刃"},
-                s1:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.6,eff:"stun",effT:1.5,say:"迷惑之击"},
-                s2:{e:"tel",t:"circle",at:"boss",r:40,T:.9,dmg:1,say:"暗影新星"}
-              }
-            },
-            {
-              n:"高阶术士奥蕾塞丝",
-              base:"SA",
-              hp:.9,
-              art:["bosses_swp_2",1],
-              sk:["s0","s1","s2"],
-              skills:{
-                s0:{e:"tel",t:"circle",at:"player",r:20,T:.9,dmg:.8,after:{pool:{t:5,dmg:.2,r:16}},say:"火焰引燃"},
-                s1:{e:"playerBomb",t:6,r:30,dmg:1,perEnemy:.5,say:"燃烧"},
-                s2:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"火焰之触"}
-              }
-            }
+            {n:"高阶术士奥蕾塞丝",base:"SA",hp:1,art:["bosses_swp_2",1],sk:["s0","s1","s2"],skills:{s0:{e:"tel",t:"circle",at:"player",r:20,T:.9,dmg:.8,after:{pool:{t:5,dmg:.2,r:16}},say:"火焰引燃"},s1:{e:"playerBomb",t:6,r:30,dmg:1,perEnemy:.5,say:"燃烧"},s2:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"火焰之触"}}}
           ],
           shared:{onDeath:true}
         },
@@ -3378,15 +3284,14 @@ window.RAID_DATA={
           skills:{
             negativeEnergy:{e:"shots",p:"aimed",n:1,spd:130,dmg:1,bounce:2,say:"负能量"},
             darkness:{e:"tel",t:"circle",at:"random",r:24,T:.9,dmg:1,after:{pool:{t:5,dmg:.2,r:24}},say:"黑暗"},
-            blackHole:{e:"pull",T:1.5,to:"boss",say:"黑洞"},
-            reinforce:{e:"summon",k:"影刃狂战士/法师",n:4,at:"doors",say:"增援"}
+            blackHole:{e:"pull",T:1.5,to:"boss",say:"黑洞"}
           },
           forms:[{n:"熵魔",art:["adds_swp",5]}],
-          open:{msg:"P1 增援",adds:"虚空哨兵",auto:[{k:"reinforce",every:30}]},
-          ph:[{at:.01,msg:"P2 熵魔",heal:1,form:["adds_swp",5],auto:[{k:"blackHole",every:15}]}],
+          open:{msg:"P1 增援"},
+          ph:[{at:.01,msg:"P2 熵魔",heal:1,form:["adds_swp",5],auto:[{k:"blackHole",every:15}]},{every:20,msg:"影刃增援从门口涌入",adds:"影刃狂战士/法师"},{every:30,msg:"虚空哨兵出现",adds:"虚空哨兵"}],
           adds:[
-            {n:"虚空哨兵",base:"SL",count:0,hp:2,art:["adds_swp",6],at:"phase",ab:[{k:"nova",r:28,T:.8,dmg:1},{k:"deathSplit",n:8,hp:.15}]},
-            {n:"影刃狂战士/法师",base:"SK",count:0,hp:1,art:["mobs_swp_1",2],at:"phase",ab:[{k:"stream",every:30,n:4,at:"doors"}]}
+            {n:"虚空哨兵",base:"SL",count:1,hp:2,art:["adds_swp",6],at:"phase",ab:[{k:"nova",r:28,T:.8,dmg:1},{k:"deathSplit",n:8,hp:.15}]},
+            {n:"影刃狂战士/法师",base:"SK",count:2,hp:1,art:["mobs_swp_1",2],at:"phase",ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.7,dmg:1,cd:4}]}
           ]
         },
         {
@@ -3410,12 +3315,12 @@ window.RAID_DATA={
             armageddon:{e:"tel",t:"circle",at:"random",r:24,T:1.2,dmg:1.5,n:6,gap:.3,say:"末日决战"}
           },
           ph:[
-            {at:.85,msg:"邪恶镜像",adds:"邪恶镜像",go:"darknessSouls"},
-            {at:.55,msg:"末日决战",adds:"邪恶镜像",go:"darknessSouls",auto:[{k:"armageddon",every:12}]},
+            {at:.85,msg:"邪恶镜像与盾球",adds:"邪恶镜像 / 盾球",go:"darknessSouls"},
+            {at:.55,msg:"末日决战",adds:"邪恶镜像 / 盾球",go:"darknessSouls",auto:[{k:"armageddon",every:12}]},
             {at:.25,msg:"最终阶段",gapMul:.7,auto:[{k:"darknessSouls",every:25}]}
           ],
           adds:[
-            {n:"盾球",base:"SA",count:0,hp:.8,art:["adds_swp",8],at:"phase",ab:[{k:"volley",n:1,spd:75,dmg:1}]},
+            {n:"盾球",base:"SA",count:2,hp:.8,art:["adds_swp",8],at:"phase",ab:[{k:"volley",n:1,spd:75,dmg:1}]},
             {n:"邪恶镜像",base:"SK",count:0,hp:.8,art:["adds_swp",10],at:"phase",ab:[{k:"mirror",of:"player",dmg:.5}]}
           ],
           objective:{mode:"activate",n:4,prop:"blueDragonOrb",standT:1,buff:"dragonShield",buffT:10},
@@ -3467,27 +3372,27 @@ window.RAID_DATA={
           },
           passive:{facing:"fixed"},
           openMsg:"三头幼龙默认在岛上",
-          ph:[{at:.1,msg:"狂怒",frenzy:true,go:"lavaElementals"}],
+          ph:[{at:.1,msg:"狂怒",frenzy:true,go:"lavaElementals"},{t:30,msg:"塔尼布隆加入战斗",adds:"塔尼布隆"},{t:75,msg:"沙德隆加入战斗",adds:"沙德隆"},{t:120,msg:"维斯匹隆加入战斗",adds:"维斯匹隆"}],
           adds:[
-            {n:"塔尼布隆",base:"BT",count:1,hp:.6,art:["adds_os",0],at:"start",ab:[{k:"summon",realm:"twilight",n:6,base:"BT",joinAt:30}]},
+            {n:"塔尼布隆",base:"SK",count:1,hp:3,art:["adds_os",0],at:"phase",ab:[{k:"summon",realm:"twilight",n:2,base:"BT",hp:.3,cd:15},{k:"aoeAtPlayer",r:20,T:1,dmg:1,cd:6}]},
             {
               n:"沙德隆",
-              base:"BT",
+              base:"SK",
               count:1,
-              hp:.6,
+              hp:3,
               art:["adds_os",0],
-              at:"start",
-              ab:[{k:"buffAllies",on:"join",joinAt:75,bossDmg:1.3,clearBy:"twilightAcolyte"}],
+              at:"phase",
+              ab:[{k:"buffAllies",r:300,cd:25,bossDmg:1.3,clearBy:"twilightAcolyte"},{k:"aoeAtPlayer",r:20,T:1,dmg:1,cd:6}],
               tint:"#5a4a6a"
             },
             {
               n:"维斯匹隆",
-              base:"BT",
+              base:"SK",
               count:1,
-              hp:.6,
+              hp:3,
               art:["adds_os",0],
-              at:"start",
-              ab:[{k:"curse",kind:"vuln",t:999,joinAt:120,clearBy:"twilightAcolyte"}],
+              at:"phase",
+              ab:[{k:"curse",kind:"vuln",t:10,cd:20,clearBy:"twilightAcolyte"},{k:"aoeAtPlayer",r:20,T:1,dmg:1,cd:6}],
               tint:"#3a3a8a"
             }
           ],
@@ -3539,7 +3444,7 @@ window.RAID_DATA={
             {at:.5,msg:"P2 魔枢领主",inv:true,move:"top",adds:"魔枢领主 / 永恒子嗣",sk:["arcaneStorm","deepBreathA"],end:{adds:true}},
             {at:.49,msg:"P3 红龙",inv:false,vehicle:{n:"红龙",hp:2,sk:["flameSpike","engulf","revivify"]},sk:["staticField","surgeOfPower"]}
           ],
-          adds:[{n:"魔枢领主 / 永恒子嗣",base:"SK",count:6,hp:1,art:["mobs_eoe",0],at:"phase",ab:[{k:"onDeath",drop:"disc"}]}],
+          adds:[{n:"魔枢领主 / 永恒子嗣",base:"SK",count:6,hp:2.5,art:["mobs_eoe",0],at:"phase",ab:[{k:"onDeath",drop:"disc"}]}],
           auto:[{k:"powerSpark",every:15}]
         }
       ]
@@ -3635,10 +3540,9 @@ window.RAID_DATA={
           sk:["whiteout","frozenOrb","frostbiteT"],
           skills:{
             whiteout:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:1,dmg:.5,ramp:.2,say:"白化"},
-            frozenOrb:{e:"summon",k:"冰霜之球",n:1,at:"random",say:"冰霜之球"},
+            frozenOrb:{e:"summon",k:"frozen_orb",n:1,at:"random",say:"冰霜之球"},
             frostbiteT:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"冻伤"}
-          },
-          adds:[{n:"冰霜之球",base:"SL",count:0,hp:1,art:["mobs_voa",2],at:"phase",ab:[{k:"nova",r:30,T:.8,dmg:.4,cd:2}]}]
+          }
         }
       ]
     },
@@ -3699,13 +3603,13 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"把构造体引进火里加热、再引进水里冷却，然后打碎。",
-          sk:["flameJets","slagPot","scorch","activateConstruct"],
+          sk:["flameJets","slagPot","scorch"],
           skills:{
             flameJets:{e:"tel",t:"circle",at:"boss",r:200,T:.9,dmg:0,eff:"silence",effT:2,say:"烈焰喷射"},
             slagPot:{e:"grab",T:4,dmg:.3,say:"熔渣罐"},
-            scorch:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,say:"灼烧"},
-            activateConstruct:{e:"summon",k:"铁铸构造体",n:1,at:"edges",every:30,say:"激活构造体"}
+            scorch:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,after:{pool:{t:6,dmg:.2,r:16}},say:"灼烧"}
           },
+          ph:[{every:20,msg:"激活构造体",adds:"铁铸构造体"}],
           adds:[
             {
               n:"铁铸构造体",
@@ -3738,8 +3642,8 @@ window.RAID_DATA={
           },
           forms:[{n:"飞行",art:["adds_uld_1",2]}],
           openMsg:"空中阶段",
-          ph:[{every:40,dur:20,msg:"再次起飞",inv:true,sk:["fireballRS","devouringFlame"],end:{objective:true}},{at:.5,msg:"永久落地",stopEvery:true}],
-          adds:[{n:"黑暗符文矮人",base:"SK",count:0,hp:1,art:["adds_uld_1",3],at:"phase",ab:[{k:"stream",every:8,n:3,at:"prop:pit"}]}],
+          ph:[{every:40,dur:20,msg:"再次起飞",inv:true,sk:["fireballRS","devouringFlame"],adds:"黑暗符文矮人",end:{objective:true}},{at:.5,msg:"永久落地",stopEvery:true}],
+          adds:[{n:"黑暗符文矮人",base:"SK",count:3,hp:1,art:["adds_uld_1",3],at:"phase",ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.7,dmg:1,cd:4}]}],
           objective:{mode:"activate",n:4,prop:"harpoon",standT:1,onDone:"ground"},
           open:{msg:"空中阶段",inv:true,move:"top",adds:"黑暗符文矮人",sk:["fireballRS","devouringFlame"],end:{objective:true}}
         },
@@ -3771,53 +3675,29 @@ window.RAID_DATA={
         },
         {
           id:"uld/assembly_of_iron",
-          n:"钢铁议会",
+          n:"断钢者",
+          lv:"钢铁议会",
           rooms:3,
-          hp:1.0,
+          hp:.7,
           enrage:150,
           elite:"iron_construct",
           trash:["iron_construct","iron_dwarf","runic_colossus_rune_giant"],
-          art:null,
           size:54,
           spd:13,
           tip:"击杀顺序决定难度；布隆迪尔的过载一定要跑开。",
-          sk:[],
-          skills:{},
           open:{msg:"每死一个",heal:1},
+          drop:["open"],
+          art:["bosses_uld_2",1],
+          sk:["s0","s1"],
+          skills:{
+            s0:{e:"followAura",r:400,t:999,dmg:.05,tick:1,say:"高压电"},
+            s1:{e:"tel",t:"circle",at:"player",r:20,T:.9,dmg:1.5,say:"熔合重拳"}
+          },
           multi:[
-            {
-              n:"断钢者",
-              base:"SK",
-              hp:.7,
-              art:["bosses_uld_2",1],
-              sk:["s0","s1"],
-              skills:{s0:{e:"followAura",r:400,t:999,dmg:.05,tick:1,say:"高压电"},s1:{e:"tel",t:"circle",at:"player",r:20,T:.9,dmg:1.5,say:"熔合重拳"}}
-            },
-            {
-              n:"符文大师莫尔基姆",
-              base:"SA",
-              hp:.7,
-              art:["bosses_uld_2",2],
-              sk:["s0","s1"],
-              skills:{
-                s0:{e:"summon",k:"prop:runeOfPower",n:1,at:"boss",aura:{r:24,bossDmg:1.5},say:"能量符文"},
-                s1:{e:"tel",t:"circle",at:"player",r:20,T:1,dmg:.5,after:{pool:{t:8,dmg:.3,r:20}},say:"死亡符文"}
-              }
-            },
-            {
-              n:"唤雷者布隆迪尔",
-              base:"SA",
-              hp:.7,
-              art:["bosses_uld_3",0],
-              sk:["s0","s1"],
-              skills:{
-                s0:{e:"castBar",T:2,need:4,then:{e:"tel",t:"circle",at:"boss",r:60,T:.9,dmg:1},say:"过载"},
-                s1:{e:"special",name:"fixate",t:999,onlyLast:true,fly:true,spd:1.2,touchDmg:1,say:"闪电卷须"}
-              }
-            }
+            {n:"符文大师莫尔基姆",base:"SA",hp:1,art:["bosses_uld_2",2],sk:["s0","s1"],skills:{s0:{e:"summon",k:"prop:runeOfPower",n:1,at:"boss",aura:{r:24,bossDmg:1.5},say:"能量符文"},s1:{e:"tel",t:"circle",at:"player",r:20,T:1,dmg:.5,after:{pool:{t:8,dmg:.3,r:20}},say:"死亡符文"}}},
+            {n:"唤雷者布隆迪尔",base:"SA",hp:1,art:["bosses_uld_3",0],sk:["s0","s1"],skills:{s0:{e:"castBar",T:2,need:4,then:{e:"tel",t:"circle",at:"boss",r:60,T:.9,dmg:1},say:"过载"},s1:{e:"special",name:"fixate",t:999,onlyLast:true,fly:true,spd:1.2,touchDmg:1,say:"闪电卷须"}}}
           ],
-          shared:{onDeath:true},
-          drop:["open"]
+          shared:{onDeath:true}
         },
         {
           id:"uld/kologarn",
@@ -3831,11 +3711,12 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"打掉手臂会直接让本体掉血；被石之握抓住就打右臂。",
-          sk:["focusedEyebeam","overheadSmash","petrifyBreath"],
+          sk:["focusedEyebeam","overheadSmash","stoneGrip","petrifyBreath"],
           skills:{
             focusedEyebeam:{e:"trail",t:8,dmg:.25,r:12,say:"聚焦眼棱"},
             overheadSmash:{e:"tel",t:"circle",at:"player",r:20,T:.9,dmg:2,say:"重击"},
-            petrifyBreath:{e:"special",name:"rangedPunishSkill",d:60,dmg:1.6,say:"石化吐息"}
+            petrifyBreath:{e:"special",name:"rangedPunishSkill",d:60,dmg:1.6,say:"石化吐息"},
+            stoneGrip:{e:"grab",T:3,dmg:.5,say:"岩石之握"}
           },
           openMsg:"本体 spd 0",
           adds:[
@@ -3899,7 +3780,7 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"P1 清竞技场，P2 注意角落闪电球的锥形充能。",
-          sk:["chainLightningT","lightningCharge","unbalancingStrikeT"],
+          sk:["arenaLightning","chainLightningT","arenaLightning"],
           skills:{
             chainLightningT:{e:"shots",p:"aimed",n:3,spd:90,dmg:1.2,bounce:2,say:"闪电链"},
             lightningCharge:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:2,say:"闪电充能"},
@@ -3907,9 +3788,9 @@ window.RAID_DATA={
             arenaLightning:{e:"tel",t:"circle",at:"player",r:18,T:1,dmg:1,say:"闪电"}
           },
           openMsg:"P1 竞技场 40s",
-          ph:[{at:.99,msg:"托里姆跳下竞技场",inv:false}],
-          adds:[{n:"竞技场挑战者",base:"SK",count:0,hp:1,art:["adds_uld_2",4],at:"phase",ab:[{k:"stream",every:6,n:2,at:"edges"}]}],
-          open:{msg:"P1 竞技场",inv:true,move:"top",adds:"竞技场挑战者",auto:[{k:"arenaLightning",every:4}],end:{after:40}}
+          ph:[{at:.99,msg:"托里姆跳下竞技场",inv:false,sk:["chainLightningT","lightningCharge","unbalancingStrikeT"]}],
+          adds:[{n:"竞技场挑战者",base:"SK",count:4,hp:1,art:["adds_uld_2",4],at:"phase",ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:30,T:.7,dmg:1,cd:4}]}],
+          open:{msg:"P1 竞技场",inv:true,move:"top",adds:"竞技场挑战者",end:{after:40}}
         },
         {
           id:"uld/freya",
@@ -3931,8 +3812,9 @@ window.RAID_DATA={
             ironRoots:{e:"grab",T:4,dmg:.3,say:"铁之根须"},
             lifebinderGift:{e:"totem",n:1,hp:.8,effect:"healBoss",burst:.3,after:15,at:"random",say:"生命之赐"}
           },
-          auto:[{k:"attuned",every:12}],
-          open:{msg:"召唤波次",waves:["引爆鞭笞者","上古守护者","元素三人组"],every:15,count:6},
+          auto:[{k:"attuned",once:true}],
+          open:{msg:"召唤波次",waves:["引爆鞭笞者","上古守护者","元素三人组"],every:15,count:6,adds:"引爆鞭笞者"},
+          ph:[{t:25,msg:"上古守护者",adds:"上古守护者"},{t:50,msg:"元素三人组",adds:"元素三人组"},{every:60,msg:"新一波自然之力",adds:"引爆鞭笞者"}],
           adds:[
             {n:"引爆鞭笞者",base:"BT",count:10,hp:.3,art:["adds_uld_2",6],at:"phase",ab:[{k:"deathExplode",r:24,T:.6,dmg:1.3}]},
             {n:"上古守护者",base:"SL",count:1,hp:3,art:["adds_uld_2",8],at:"phase",ab:[{k:"stacks",kind:"vuln",max:5}]},
@@ -3955,7 +3837,7 @@ window.RAID_DATA={
           skills:{
             shockBlastM:{e:"castBar",T:4,need:4,then:{e:"tel",t:"circle",at:"boss",r:70,T:.9,dmg:3},say:"震荡冲击"},
             napalm:{e:"tel",t:"circle",at:"player",r:20,T:.9,dmg:1,after:{pool:{t:5,dmg:.2,r:14}},say:"凝固汽油弹"},
-            mines:{e:"summon",k:"prop:mine",n:6,at:"boss",ring:40,explode:{r:16,dmg:1.2},say:"近炸地雷"},
+            mines:{e:"tel",t:"circle",at:"random",r:16,T:1.5,dmg:1.2,n:6,gap:.15,say:"近炸地雷"},
             rocketStrike:{e:"tel",t:"circle",at:"player",r:30,T:1.5,dmg:3,say:"火箭打击"},
             heatWave:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:1,dmg:.3,say:"热浪"},
             plasmaBall:{e:"shots",p:"aimed",n:1,spd:100,dmg:1.2,say:"等离子球"}
@@ -4008,18 +3890,18 @@ window.RAID_DATA={
           skills:{
             sanity:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"理智"},
             deafening:{e:"curse",kind:"silence",t:3,say:"震耳咆哮"},
+            lunaticGaze:{e:"gaze",t:2,dmg:1.5,say:"疯狂凝视"},
             brainPortal:{e:"special",name:"realm",t:15,realm:"brain",enemies:["尤格-萨隆之脑"],illusions:3,tint:"#2a4a2a",say:"大脑传送门"}
           },
           forms:[{n:"萨拉",art:["adds_uld_3",5]}],
           open:{msg:"P1 萨拉",inv:true,form:["adds_uld_3",5],adds:"尤格-萨隆的守护者",end:{saraDmg:1}},
           ph:[
             {at:.99,msg:"P2 触须与大脑",inv:true,form:null,adds:"触须（压碎者/腐蚀者/束缚者）",auto:[{k:"brainPortal",every:45}],end:{brainHp:.3}},
-            {at:.3,msg:"P3 疯狂凝视",inv:false,sk:["sweep","deafening"]}
+            {at:.3,msg:"P3 疯狂凝视",inv:false,sk:["lunaticGaze","sweep","deafening"]}
           ],
           adds:[
-            {n:"尤格-萨隆的守护者",base:"SL",count:0,hp:1,art:["adds_uld_3",6],at:"phase",ab:[{k:"deathExplode",r:20,T:.6,dmg:1.3}]},
-            {n:"触须（压碎者/腐蚀者/束缚者）",base:"SL",count:0,hp:1.5,art:["adds_uld_3",8],at:"phase",ab:[{k:"nova",r:28,T:.8,dmg:1}]},
-            {n:"尤格-萨隆之脑",base:"SL",count:1,hp:2,art:["adds_uld_3",10],at:"start",ab:[{k:"static",realm:"brain"}]}
+            {n:"尤格-萨隆的守护者",base:"SL",count:3,hp:1,art:["adds_uld_3",6],at:"phase",ab:[{k:"deathExplode",r:20,T:.6,dmg:1.3}]},
+            {n:"触须（压碎者/腐蚀者/束缚者）",base:"SL",count:3,hp:1.5,art:["adds_uld_3",8],at:"phase",ab:[{k:"nova",r:28,T:.8,dmg:1}]}
           ]
         },
         {
@@ -4041,10 +3923,10 @@ window.RAID_DATA={
             phasePunch:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"相位冲压"},
             bigBang:{e:"castBar",T:8,need:999,then:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:.6,dmg:10},safe:"blackHoleRealm",say:"大爆炸"}
           },
-          ph:[{every:90,msg:"大爆炸",go:"bigBang"},{at:.2,msg:"不再刷星",stopEvery:true}],
+          ph:[{every:90,msg:"大爆炸",go:"bigBang"},{at:.2,msg:"不再刷星",stopEvery:true},{every:40,msg:"活体星座降临",adds:"活体星座"}],
           adds:[
             {n:"坍缩之星",base:"SL",count:4,hp:.6,art:["adds_uld_4",0],at:"start",ab:[{k:"onDeath",blackHole:{r:16,realm:"void"},selfDot:.05}]},
-            {n:"活体星座",base:"SA",count:0,hp:1,art:["adds_uld_4",2],at:"phase",ab:[{k:"volley",n:1,spd:80,dmg:1,realm:"void"}]}
+            {n:"活体星座",base:"SA",count:2,hp:1,art:["adds_uld_4",2],at:"phase",ab:[{k:"volley",n:1,spd:80,dmg:1,realm:"void"}]}
           ]
         }
       ]
@@ -4081,7 +3963,7 @@ window.RAID_DATA={
           sk:["impaleG","snobolds","stomp"],
           skills:{
             impaleG:{e:"stacks",kind:"vuln",on:"hit",max:10,decay:6,say:"穿刺"},
-            snobolds:{e:"summon",k:"雪人狗头人",n:1,at:"boss",every:20,say:"雪人狗头人"},
+            snobolds:{e:"summon",k:"snobold_vassal",n:1,at:"boss",every:20,say:"雪人狗头人"},
             stomp:{e:"tel",t:"circle",at:"boss",r:40,T:.9,dmg:0,eff:"stun",effT:1.5,say:"践踏"}
           },
           ph:[{at:.01,msg:"双虫",heal:1,inv:true,adds:"酸喉 / 恐鳞",end:{adds:true}},{at:.009,msg:"冰吼",inv:true,adds:"冰吼",end:{adds:true},win:"addsDead"}],
@@ -4090,19 +3972,12 @@ window.RAID_DATA={
               n:"酸喉 / 恐鳞",
               base:"SL",
               count:2,
-              hp:.6,
+              hp:6,
               art:["adds_toc",0],
-              at:"start",
-              ab:[
-                {
-                  k:"byIndex",
-                  list:[{k:"curse",kind:"delayed",t:20,stun:5,curedBy:"burningBile"},{k:"aoeAtPlayer",r:16,T:1,dmg:.8,eff:"dot",cures:"paralytic"}],
-                  revive:{window:10},
-                  submerge:20
-                }
-              ]
+              at:"phase",
+              ab:[{k:"aoeAtPlayer",r:16,T:1,dmg:.8,eff:"dot",cd:5},{k:"curse",kind:"delayed",t:8,dmg:1,cd:15},{k:"nova",r:24,T:.8,dmg:.6,eff:"slow",cd:8}]
             },
-            {n:"冰吼",base:"SK",count:1,hp:.8,art:["adds_toc",2],at:"phase",ab:[{k:"chargeLine",len:90,w:6,T:.6,dmg:1.5,range:100,eff:"knock"}]}
+            {n:"冰吼",base:"SK",count:1,hp:8,art:["adds_toc",2],at:"phase",ab:[{k:"chargeLine",len:90,w:6,T:.6,dmg:1.5,range:100,eff:"knock",cd:6},{k:"nova",r:30,T:.9,dmg:1,eff:"stun",cd:10}]}
           ]
         },
         {
@@ -4117,25 +3992,25 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"打断邪能火球；军团烈焰时跑直线把火留在边上。",
-          sk:["felFireball","legionFlame","incinerateFlesh","netherPortal"],
+          sk:["felFireball","legionFlame","incinerateFlesh"],
           skills:{
             felFireball:{e:"castBar",T:2,need:3,then:{e:"tel",t:"circle",at:"player",r:20,T:.6,dmg:1.5},say:"邪能火球"},
             legionFlame:{e:"trail",t:6,dmg:.25,r:12,say:"军团烈焰"},
             incinerateFlesh:{e:"special",name:"absorbCheck",t:12,need:.05,fail:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:.6,dmg:2},say:"焚化血肉"},
-            netherPortal:{e:"summon",k:"痛苦女王",alt:"地狱火",n:1,at:"random",say:"虚空传送门 / 地狱火山"},
             netherPower:{e:"bossShield",kind:"reduce",t:20,pct:1,dmgMul:1.5,stacks:10,say:"虚空能量"}
           },
           auto:[{k:"netherPower",every:40}],
+          ph:[{every:30,msg:"虚空传送门与地狱火山",adds:"痛苦女王 / 地狱火"}],
           adds:[
-            {n:"痛苦女王",base:"SK",count:0,hp:1.5,art:["adds_toc",4],at:"phase",ab:[{k:"chargeLine",len:120,w:8,T:.8,dmg:1.2,range:140,returns:true}]},
-            {n:"地狱火",base:"SL",count:0,hp:1,art:["adds_kara_2",3],at:"phase",ab:[{k:"touchDot",aura:18,t:3,dmg:.3}]}
+            {n:"痛苦女王",base:"SK",count:1,hp:1.5,art:["adds_toc",4],at:"phase",ab:[{k:"chargeLine",len:120,w:8,T:.8,dmg:1.2,range:140,returns:true}]},
+            {n:"地狱火",base:"SL",count:2,hp:1,art:["adds_kara_2",3],at:"phase",ab:[{k:"touchDot",aura:18,t:3,dmg:.3},{k:"nova",r:18,T:.8,dmg:.6,cd:4}]}
           ]
         },
         {
           id:"toc/faction_champions",
           n:"阵营冠军",
           rooms:2,
-          hp:1.0,
+          hp:1,
           enrage:150,
           elite:null,
           trash:["argent_trainee","scourge_caster"],
@@ -4143,70 +4018,38 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"像 PVP 一样：先杀治疗职业的冠军。",
-          sk:[],
-          skills:{},
+          sk:["command"],
+          skills:{
+            champions:{e:"special",name:"championAI",n:4,fromClasses:true,excludePlayer:true,focus:true,say:"PVP AI"},
+            command:{e:"tel",t:"circle",at:"boss",r:12,T:1,dmg:0,say:"冠军指挥"}
+          },
           openMsg:"4 名冠军同场",
-          multi:[
-            {
-              n:"敌方冠军（4 名）",
-              base:"SK",
-              hp:.5,
-              art:null,
-              artFrom:"heroes",
-              sk:["s0"],
-              skills:{s0:{e:"special",name:"championAI",n:4,fromClasses:true,excludePlayer:true,focus:true,say:"PVP AI"}}
-            }
-          ],
-          shared:{}
+          multi:[],
+          shared:{},
+          auto:[{k:"champions",once:true}]
         },
         {
           id:"toc/twin_valkyr",
-          n:"瓦格里双子",
+          n:"光明邪使菲奥拉",
+          lv:"瓦格里双子",
           rooms:2,
-          hp:1.0,
+          hp:1,
           enrage:180,
           elite:null,
           trash:["argent_trainee","scourge_caster"],
-          art:null,
           size:54,
           spd:13,
           tip:"看清下一个漩涡是光还是暗，提前换成同色精华。",
-          sk:[],
+          auto:[{k:"essence",every:30}],
+          art:["bosses_toc_1",2],
+          sk:["s0","s1"],
           skills:{
-            essence:{
-              e:"special",
-              name:"polarityShift",
-              variant:"essence",
-              colors:["light","dark"],
-              pickAt:"sides",
-              vortexT:8,
-              wrongDmg:3,
-              orbs:{n:6,sameBuff:.1,otherDmg:.5},
-              say:"精华切换"
-            }
+            essence:{e:"special",name:"polarityShift",variant:"essence",colors:["light","dark"],pickAt:"sides",vortexT:8,wrongDmg:3,orbs:{n:6,sameBuff:.1,otherDmg:.5},say:"精华切换"},
+            s0:{e:"castBar",T:8,need:4,then:{e:"tel",t:"circle",at:"player",r:20,T:.6,dmg:3},say:"光明漩涡"},
+            s1:{e:"bossShield",kind:"reduce",t:8,pct:.3,say:"光明之盾"}
           },
-          auto:[{k:"essence",once:true}],
           multi:[
-            {
-              n:"光明邪使菲奥拉",
-              base:"SA",
-              hp:1,
-              art:["bosses_toc_1",2],
-              sk:["s0","s1"],
-              skills:{
-                s0:{e:"castBar",T:8,need:4,then:{e:"tel",t:"circle",at:"player",r:20,T:.6,dmg:3},say:"光明漩涡"},
-                s1:{e:"bossShield",kind:"immune",t:10,breakDmg:.08,then:"twinPact",say:"光明之盾"}
-              }
-            },
-            {
-              n:"黑暗邪使艾蒂丝",
-              base:"SA",
-              hp:1,
-              art:["bosses_tk_1",0],
-              tint:"#3a1a4a",
-              sk:["s0"],
-              skills:{s0:{e:"castBar",T:8,need:999,then:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:.6,dmg:3},safeIf:"dark",say:"黑暗漩涡"}}
-            }
+            {n:"黑暗邪使艾蒂丝",base:"SA",hp:1,art:["bosses_tk_1",0],tint:"#3a1a4a",sk:["s0"],skills:{s0:{e:"castBar",T:8,need:999,then:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:.6,dmg:3},safeIf:"dark",say:"黑暗漩涡"}}}
           ],
           shared:{hp:true}
         },
@@ -4231,10 +4074,10 @@ window.RAID_DATA={
           },
           forms:[{n:"潜地",art:["adds_toc",6]}],
           ph:[
-            {every:40,dur:20,msg:"潜地",inv:true,form:["adds_toc",6],go:"pursuingSpikes",adds:"虫群甲虫"},
+            {every:40,dur:20,msg:"潜地",inv:true,form:["adds_toc",6],go:"pursuingSpikes",adds:"蛛魔掘地者"},
             {at:.3,msg:"P3 吸血虫群",stopEvery:true,auto:[{k:"leechingSwarm",every:1}]}
           ],
-          adds:[{n:"蛛魔掘地者",base:"SK",count:0,hp:1,art:["mobs_toc_1",2],at:"phase",ab:[{k:"stream",every:30,n:2,at:"edges"}]}]
+          adds:[{n:"蛛魔掘地者",k:"nerubian_burrower",base:"SK",count:2,hp:1.5,art:["mobs_toc_1",2],at:"phase"}]
         }
       ]
     },
@@ -4277,11 +4120,10 @@ window.RAID_DATA={
           tip:"骨风暴时远离他；被骨刺钉住先打碎骨刺。",
           sk:["boneSpike","coldflame","boneStorm"],
           skills:{
-            boneSpike:{e:"summon",k:"骨刺",n:1,at:"player",say:"骨刺坟场"},
+            boneSpike:{e:"grab",T:2,dmg:.3,say:"骨刺坟场"},
             coldflame:{e:"trail",t:8,dmg:.25,r:12,say:"冷焰"},
             boneStorm:{e:"followAura",r:40,t:15,dmg:.4,tick:.5,spd:1,say:"骨风暴"}
           },
-          adds:[{n:"骨刺",base:"SL",count:0,hp:.8,art:["adds_icc_1",0],at:"phase",ab:[{k:"carry",impale:true,dmg:.3}]}]
         },
         {
           id:"icc/lady_deathwhisper",
@@ -4302,12 +4144,13 @@ window.RAID_DATA={
             cultWave:{e:"summon",k:"cult_fanatic",alt:"cult_adherent",n:3,at:"edges",say:"教派援军"},
             frostboltD:{e:"castBar",T:1.5,need:3,then:{e:"shots",p:"aimed",n:1,spd:140,dmg:2},say:"寒冰箭"},
             dominateMind:{e:"mindControl",t:4,say:"支配心灵"},
-            vengefulShade:{e:"summon",k:"复仇之魂",n:1,at:"random",say:"复仇之魂"}
+            vengefulShade:{e:"summon",k:"BT",n:1,hp:.5,at:"random",say:"复仇之魂"}
           },
           openMsg:"P1",
-          ph:[{at:.99,msg:"P2",sk:["frostboltD","deathAndDecayD","dominateMind"],auto:[{k:"vengefulShade",every:15}]}],
-          adds:[{n:"复仇之魂",base:"BT",count:0,hp:.5,art:["adds_icc_1",2],at:"phase",ab:[{k:"deathExplode",r:20,T:.6,dmg:2}]}],
-          open:{msg:"法力屏障",manaShield:true,adds:"复仇之魂",auto:[{k:"cultWave",every:30}],end:{manaShield:0}}
+          auto:[{k:"cultWave",every:25}],
+          ph:[{at:.99,msg:"P2 法力屏障破碎",sk:["frostboltD","deathAndDecayD","dominateMind"],adds:"复仇之魂",auto:[{k:"vengefulShade",every:15}]}],
+          adds:[{n:"复仇之魂",base:"BT",count:2,hp:.5,art:["adds_icc_1",2],at:"phase",ab:[{k:"deathExplode",r:20,T:.6,dmg:2}]}],
+          open:{msg:"法力屏障：先清理两侧教徒",manaShield:true,inv:true,end:{after:25},endMsg:"法力屏障耗尽"}
         },
         {
           id:"icc/icecrown_gunship_battle",
@@ -4321,28 +4164,23 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"守住甲板、用炮台轰敌舰；敌方舰长登船时先避开他。",
-          sk:["enemyCannon","boarding"],
+          sk:["enemyCannon"],
           skills:{
             enemyCannon:{e:"tel",t:"rect",at:"random",w:48,h:64,T:1.2,dmg:1.5,n:2,say:"敌方炮火"},
-            boarding:{e:"summon",k:"登船者 / 步枪手 / 迫击炮手",n:3,at:"edges",every:20,captainEvery:60,captainT:15,say:"登船"},
             vehicle:{e:"special",name:"deckCannon",n:2,standT:1,shipDmg:.05,say:"火箭背包"}
           },
-          auto:[{k:"vehicle",once:true},{k:"boarding",every:20},{k:"enemyCannon",every:6}],
+          auto:[{k:"vehicle",once:true},{k:"enemyCannon",every:6}],
+          ph:[{every:20,msg:"敌方登船",adds:"登船者 / 步枪手 / 迫击炮手"}],
           openMsg:"胜利条件 = 敌舰血量 0",
           adds:[
             {
               n:"登船者 / 步枪手 / 迫击炮手",
               base:"SK",
-              count:0,
+              count:3,
               hp:1,
               art:["adds_icc_1",4],
               at:"phase",
-              ab:[
-                {
-                  k:"byIndex",
-                  list:[{k:"tel",t:"cone",at:"self",ang:.6,len:28,T:.6,dmg:1},{k:"volley",n:1,spd:100,dmg:.8},{k:"aoeAtPlayer",r:20,T:1.2,dmg:1.2}]
-                }
-              ]
+              ab:[{k:"tel",t:"cone",at:"self",ang:.6,len:28,T:.6,dmg:1,cd:4},{k:"aoeAtPlayer",r:20,T:1.2,dmg:1.2,cd:7}]
             }
           ],
           open:{msg:"炮舰战",win:"enemyShipHp",ship:{ours:1,theirs:1}}
@@ -4359,17 +4197,16 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"他的能量满了就给你一个永久印记：快速击杀鲜血野兽，少挨打。",
-          sk:["boilingBlood","runeOfBlood","bloodBeasts","bloodNova"],
+          sk:["boilingBlood","runeOfBlood","bloodNova"],
           skills:{
-            bloodPower:{e:"energyBar",rate:0,perHit:2,then:{e:"curse",kind:"dot",t:999,dmg:.05,stack:true},say:"鲜血能量 / 陨落勇士印记"},
+            bloodPower:{e:"energyBar",rate:2,perHit:2,then:{e:"curse",kind:"delayed",t:6,dmg:1.5,say:"陨落勇士印记"},say:"鲜血能量 / 陨落勇士印记"},
             boilingBlood:{e:"tel",t:"circle",at:"player",r:14,T:.8,dmg:.3,eff:"dot",effT:8,say:"沸腾之血"},
             runeOfBlood:{e:"curse",kind:"bossLeech",t:10,heal:.02,say:"鲜血符文"},
-            bloodBeasts:{e:"summon",k:"鲜血野兽",n:2,at:"edges",every:40,say:"召唤鲜血野兽"},
             bloodNova:{e:"tel",t:"circle",at:"boss",r:40,T:.9,dmg:1,say:"鲜血新星"}
           },
           auto:[{k:"bloodPower",once:true}],
-          ph:[{at:.3,msg:"狂怒",frenzy:true}],
-          adds:[{n:"鲜血野兽",base:"BT",count:2,hp:1.2,art:["adds_icc_1",6],at:"start",ab:[{k:"onHit",bossEnergy:3}]}]
+          ph:[{at:.3,msg:"狂怒",frenzy:true},{every:30,msg:"召唤鲜血野兽",adds:"鲜血野兽"}],
+          adds:[{n:"鲜血野兽",base:"BT",count:2,hp:1.2,art:["adds_icc_1",6],at:"phase",ab:[{k:"onHit",bossEnergy:3}]}]
         },
         {
           id:"icc/festergut",
@@ -4389,7 +4226,7 @@ window.RAID_DATA={
               e:"special",
               name:"inhaleBlight",
               stacks:3,
-              dmgAdd:.3,
+              dmgAdd:.04,
               then:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:1.5,dmg:3},
               reducedBy:"inoculated",
               say:"吸入枯萎"
@@ -4416,7 +4253,8 @@ window.RAID_DATA={
             mutatedInfection:{e:"playerBomb",t:6,r:30,dmg:1,perEnemy:.5,say:"变异感染"},
             oozeFlood:{e:"tel",t:"rect",at:"corner",w:60,h:60,T:1.2,dmg:.3,after:{pool:{t:8,dmg:.25,r:30}},say:"软泥洪流"}
           },
-          adds:[{n:"小软泥 / 大软泥",base:"SL",count:0,hp:1,art:["adds_icc_1",8],at:"phase",ab:[{k:"merge",into:"big",explodeAt:5,explode:{n:6,r:20,dmg:1.2}}]}]
+          ph:[{every:20,msg:"变异感染：小软泥出现",adds:"小软泥 / 大软泥"}],
+          adds:[{n:"小软泥 / 大软泥",base:"SL",count:2,hp:1.5,art:["adds_icc_1",8],at:"phase",ab:[{k:"merge",into:"big",explodeAt:5,explode:{n:6,r:20,dmg:1.2}},{k:"nova",r:18,T:.8,dmg:.6,cd:5}]}]
         },
         {
           id:"icc/professor_putricide",
@@ -4430,67 +4268,47 @@ window.RAID_DATA={
           size:54,
           spd:13,
           tip:"三阶段疯狂科学家：软泥水坑越来越大，保持场地；P3 拼输出。",
-          sk:["slimePuddle","unstableExperiment","malleableGoo","chokingGas"],
+          sk:["slimePuddle","malleableGoo","slimePuddle"],
           skills:{
             slimePuddle:{e:"tel",t:"circle",at:"player",r:20,T:.9,dmg:1,say:"软泥水坑"},
-            unstableExperiment:{e:"summon",k:"易爆软泥",alt:"毒气云",n:1,at:"random",say:"不稳定的实验"},
             malleableGoo:{e:"tel",t:"circle",at:"player",r:24,T:1.5,dmg:1.5,eff:"slow",say:"可塑软泥"},
             chokingGas:{e:"tel",t:"circle",at:"random",r:20,T:2,dmg:1.2,n:3,gap:.4,say:"窒息毒气炸弹"},
             tearGas:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:1,dmg:0,eff:"stun",effT:2,say:"催泪瓦斯"},
             mutatedPlague:{e:"stacks",kind:"dot",on:"aura",every:10,max:99,decay:999,say:"变异瘟疫"}
           },
           ph:[
-            {at:.8,msg:"P2 催泪瓦斯",go:"tearGas",sk:["slimePuddle","unstableExperiment","malleableGoo","chokingGas"]},
+            {at:.8,msg:"P2 催泪瓦斯",go:"tearGas",sk:["slimePuddle","malleableGoo","chokingGas"]},
+            {every:25,msg:"不稳定的实验",adds:"易爆软泥 / 毒气云"},
             {at:.35,msg:"P3 变异瘟疫",go:"tearGas",auto:[{k:"mutatedPlague",every:10}]}
           ],
           adds:[
-            {n:"易爆软泥",base:"SL",count:0,hp:1,art:["adds_icc_1",10],at:"phase",ab:[{k:"carry",then:{r:24,dmg:1.5}}]},
-            {n:"毒气云",base:"BT",count:0,hp:1,art:["adds_icc_2",0],at:"phase",ab:[{k:"aoeAtPlayer",r:14,T:.8,dmg:.3,eff:"dot",effT:6}]}
+            {n:"易爆软泥",base:"SL",count:1,hp:1.5,art:["adds_icc_1",10],at:"phase",ab:[{k:"carry",then:{r:24,dmg:1.5}},{k:"nova",r:24,T:1,dmg:1.2,cd:6}]},
+            {n:"毒气云",base:"BT",count:1,hp:1,art:["adds_icc_2",0],at:"phase",ab:[{k:"aoeAtPlayer",r:14,T:.8,dmg:.3,eff:"dot",effT:6}]}
           ]
         },
         {
           id:"icc/blood_prince_council",
-          n:"鲜血王子议会",
+          n:"瓦拉纳王子",
+          lv:"鲜血王子议会",
           rooms:3,
-          hp:1.0,
+          hp:1,
           enrage:180,
           elite:"darkfallen_archmage",
           trash:["darkfallen_archmage","deathbound_ward"],
-          art:null,
           size:54,
           spd:13,
           tip:"只打头顶发红光的那位王子；塔达拉姆的火球要拉远再让它爆。",
-          sk:[],
-          skills:{invocation:{e:"special",name:"invocation",every:30,empoweredTaken:1,otherTaken:.1,say:"祈求之血"}},
           auto:[{k:"invocation",every:30}],
+          art:["bosses_icc_3",1],
+          sk:["s0","s1"],
+          skills:{
+            invocation:{e:"special",name:"invocation",every:30,empoweredTaken:1,otherTaken:.1,say:"祈求之血"},
+            s0:{e:"tel",t:"circle",at:"random",r:30,T:3,dmg:1.5,eff:"knock",say:"动能炸弹"},
+            s1:{e:"tel",t:"circle",at:"random",r:24,T:1.2,dmg:.8,eff:"knock",after:{knock:40},say:"震荡漩涡"}
+          },
           multi:[
-            {
-              n:"瓦拉纳王子",
-              base:"SK",
-              hp:1,
-              art:["bosses_icc_3",1],
-              sk:["s0","s1"],
-              skills:{
-                s0:{e:"summon",k:"prop:kineticBomb",n:1,at:"random",fall:12,explode:{r:30,dmg:1.5},pushOnHit:true,say:"动能炸弹"},
-                s1:{e:"tel",t:"circle",at:"random",r:24,T:1.2,dmg:.8,eff:"knock",after:{knock:40},say:"震荡漩涡"}
-              }
-            },
-            {
-              n:"凯雷塞斯王子",
-              base:"SA",
-              hp:1,
-              art:["bosses_icc_3",2],
-              sk:["s0","s1"],
-              skills:{s0:{e:"shots",p:"aimed",n:1,spd:90,dmg:1.2,say:"暗影之矛"},s1:{e:"summon",k:"prop:darkNucleus",n:3,orbit:"player",absorb:.3,say:"黑暗核心"}}
-            },
-            {
-              n:"塔达拉姆王子",
-              base:"SA",
-              hp:1,
-              art:["bosses_icc_4",0],
-              sk:["s0","s1"],
-              skills:{s0:{e:"shots",p:"aimed",n:1,spd:90,dmg:1.2,say:"召唤火焰"},s1:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,eff:"dot",say:"闪耀火花"}}
-            }
+            {n:"凯雷塞斯王子",base:"SA",hp:1,art:["bosses_icc_3",2],sk:["s0","s1"],skills:{s0:{e:"shots",p:"aimed",n:1,spd:90,dmg:1.2,say:"暗影之矛"},s1:{e:"bossShield",kind:"reduce",t:8,pct:.5,say:"黑暗核心"}}},
+            {n:"塔达拉姆王子",base:"SA",hp:1,art:["bosses_icc_4",0],sk:["s0","s1"],skills:{s0:{e:"shots",p:"aimed",n:1,spd:90,dmg:1.2,say:"召唤火焰"},s1:{e:"tel",t:"cone",at:"boss",len:40,ang:.6,T:.9,dmg:1,eff:"dot",say:"闪耀火花"}}}
           ],
           shared:{hp:true}
         },
@@ -4515,8 +4333,7 @@ window.RAID_DATA={
             bloodboltWhirl:{e:"shots",p:"ring",n:20,spd:55,dmg:.7,waves:3,say:"鲜血箭旋风"}
           },
           forms:[{n:"空中",art:["adds_icc_2",2]}],
-          ph:[{every:75,dur:8,msg:"起飞",inv:true,move:"center",go:"bloodboltWhirl"}],
-          adds:[{n:"血仆",base:"SK",count:0,hp:1,art:["adds_icc_2",3],at:"phase",ab:[{k:"spawnOn",event:"thirst",n:1}]}]
+          ph:[{every:75,dur:8,msg:"起飞",inv:true,move:"center",go:"bloodboltWhirl"}]
         },
         {
           id:"icc/valithria_dreamwalker",
@@ -4530,15 +4347,17 @@ window.RAID_DATA={
           size:54,
           spd:0,
           tip:"这一关不打首领，是把被困的绿龙治好：先杀抑制者，再进梦境吃梦云。",
-          sk:[],
+          sk:["manaVoid","columnOfFrost"],
           skills:{
+            manaVoid:{e:"tel",t:"circle",at:"player",r:20,T:1,dmg:.4,after:{pool:{t:6,dmg:.2,r:18}},say:"法力虚空"},
+            columnOfFrost:{e:"tel",t:"circle",at:"player",r:16,T:1,dmg:1.2,eff:"slow",say:"冰霜之柱"},
             healValithria:{e:"healTarget",pct:1,start:.5,fail:0,say:"治疗她"},
             dreamPortal:{e:"special",name:"realm",t:10,realm:"emeraldDream",clouds:6,cloudBuff:{heal:.1,t:15},tint:"#3aa060",say:"梦境传送门"}
           },
           forms:[{n:"痊愈",art:["adds_icc_2",5]}],
           auto:[{k:"healValithria",once:true},{k:"dreamPortal",every:30}],
-          ph:[],
-          adds:[{n:"四种入侵者",base:"SK",count:0,hp:1,art:["adds_icc_2",6],at:"phase",ab:[{k:"deathExplode",r:24,T:.6,dmg:1.3}]}],
+          ph:[{every:15,msg:"入侵者从传送门涌出",adds:"四种入侵者"}],
+          adds:[{n:"四种入侵者",base:"SK",count:3,hp:1,art:["adds_icc_2",6],at:"phase",ab:[{k:"deathExplode",r:24,T:.6,dmg:1.3}]}],
           fixed:true,
           open:{msg:"治疗她",win:"healTarget",ally:{hp:.5}}
         },
@@ -4590,20 +4409,23 @@ window.RAID_DATA={
             defile:{e:"tel",t:"circle",at:"player",r:20,T:.9,dmg:1,after:{pool:{t:5,dmg:.2,r:14}},say:"亵渎"},
             soulReaper:{e:"curse",kind:"delayed",t:5,dmg:3,say:"灵魂收割者"},
             remorselessWinter:{e:"followAura",r:60,t:20,dmg:.3,tick:.5,edgeShrink:true,adds:{k:"冰霜之球 / 狂暴之魂",n:2},say:"无情寒冬"},
-            harvestSoul:{e:"special",name:"realm",t:20,realm:"frostmourne",enemies:["spiritWarden"],ally:"泰瑞纳斯",fail:"death",tint:"#4a6aa0",say:"收割灵魂"}
+            harvestSoul:{e:"special",name:"realm",t:20,realm:"frostmourne",enemies:["spiritWarden"],ally:"泰瑞纳斯",fail:"death",tint:"#4a6aa0",say:"收割灵魂"},
+            furyOfFrostmourne:{e:"castBar",T:4,need:999,then:{e:"tel",t:"rect",at:"fixed",w:192,h:256,T:.6,dmg:2},say:"霜之哀伤之怒"}
           },
           ph:[
-            {at:.7,msg:"过渡：无情寒冬",go:"remorselessWinter",inv:true,end:{after:20}},
+            {at:.7,msg:"过渡：无情寒冬",go:"remorselessWinter",inv:true,adds:"冰霜之球 / 狂暴之魂",end:{after:20}},
             {at:.69,msg:"P2 瓦格里",inv:false,sk:["defile","soulReaper","infest"],adds:"瓦格里暗影卫士"},
-            {at:.4,msg:"过渡 2",go:"remorselessWinter",inv:true,end:{after:20}},
+            {at:.4,msg:"过渡 2",go:"remorselessWinter",inv:true,adds:"冰霜之球 / 狂暴之魂",end:{after:20}},
             {at:.39,msg:"P3 收割灵魂",inv:false,sk:["defile","soulReaper","harvestSoul"],adds:"邪恶之魂"},
-            {at:.1,msg:"霜之哀伤之怒",script:"furyOfFrostmourne",win:"scripted"}
+            {at:.1,msg:"霜之哀伤之怒",script:"furyOfFrostmourne",win:"scripted",go:"furyOfFrostmourne"},
+            {t:5,msg:"食尸鬼与蹒跚恐魔",adds:"食尸鬼 / 蹒跚恐魔"},
+            {t:40,msg:"食尸鬼与蹒跚恐魔",adds:"食尸鬼 / 蹒跚恐魔"}
           ],
           adds:[
-            {n:"食尸鬼 / 蹒跚恐魔",base:"SK",count:0,hp:2,art:["adds_icc_2",9],at:"phase",ab:[{k:"frenzy",t:8,cd:15}]},
+            {n:"食尸鬼 / 蹒跚恐魔",base:"SK",count:3,hp:2,art:["adds_icc_2",9],at:"phase",ab:[{k:"frenzy",t:8,cd:15}]},
             {n:"瓦格里暗影卫士",base:"BT",count:0,hp:1.5,art:["adds_icc_2",11],at:"phase",ab:[{k:"carry",to:"edge",t:6,killAtEdge:true}]},
             {n:"邪恶之魂",base:"BT",count:0,hp:.5,art:["adds_icc_3",1],at:"phase",ab:[{k:"walkTo",target:"player",spd:30,onArrive:{r:20,dmg:1.5}}]},
-            {n:"冰霜之球 / 狂暴之魂",base:"SA",count:0,hp:1,art:["adds_icc_3",3],at:"phase",ab:[{k:"spawnOn",event:"transition",n:2}]}
+            {n:"冰霜之球 / 狂暴之魂",base:"SA",count:2,hp:1,art:["adds_icc_3",3],at:"phase",ab:[{k:"spawnOn",event:"transition",n:2}]}
           ]
         }
       ]
@@ -4650,7 +4472,7 @@ window.RAID_DATA={
           forms:[{n:"暮光海里昂",art:["adds_rs",0]}],
           ph:[
             {at:.75,msg:"P2 暮光位面",realm:"twilight",sk:["soulConsumption","darkBreath","twilightCutter"]},
-            {at:.5,msg:"P3 双位面",auto:[{k:"corporeality",once:true}],sk:["fieryCombustion","meteorStrike","soulConsumption","twilightCutter"]}
+            {at:.5,msg:"P3 双位面",go:"corporeality",sk:["fieryCombustion","meteorStrike","soulConsumption","twilightCutter"]}
           ]
         }
       ]
