@@ -48,6 +48,7 @@
   .btn.hasic .ic{display:block}.btn.hasic em{display:none}#ult .ic{inset:4px}#skill em,#ult em{font-style:normal}
   #ult.ready{animation:pulse 1s infinite}#ult.ready span{color:#fff;background:#4a2590}
   @keyframes pulse{50%{box-shadow:0 0 22px #b47cff}}
+  #spdB{left:12px;bottom:130px;width:26px;height:26px;font-size:10px;font-weight:700;color:#ffd77a;border:1px solid rgba(232,179,58,.45);background:rgba(15,16,32,.75);pointer-events:auto;cursor:pointer}
   #pauseB{left:12px;bottom:96px;width:26px;height:26px;font-size:10px;color:#c8c0ff;border:1px solid rgba(160,140,255,.35);background:rgba(15,16,32,.75);pointer-events:auto;cursor:pointer}
   #pauseV .menu{display:flex;flex-direction:column;gap:8px;align-items:stretch;min-width:160px}
   #muteB{left:12px;bottom:28px;width:26px;height:26px;font-size:13px;color:#c8c0ff;border:1px solid rgba(160,140,255,.35);background:rgba(15,16,32,.75);pointer-events:auto;cursor:pointer}
@@ -170,7 +171,7 @@
   #nav.on{display:flex}#nav div{flex:1;display:grid;place-items:center;font-size:12px;letter-spacing:2px;color:#9a94c0;cursor:pointer}#nav div.on{color:#fff;text-shadow:0 0 8px #b48cff;background:rgba(90,60,180,.25)}
   #acct{position:absolute;left:0;right:0;top:0;height:54px;z-index:3;display:flex;align-items:center;gap:8px;padding:0 12px;background:linear-gradient(180deg,rgba(7,7,14,.95),rgba(7,7,14,.6))}
   #acct .lv{width:38px;height:38px;border-radius:50%;border:2px solid #e8b33a;display:grid;place-items:center;font-weight:900;color:#ffd77a;background:#1a1230}
-  #acct .xp{flex:1}#acct .xp i{display:block;height:5px;background:#2a2244;margin-top:4px}#acct .xp b{display:block;height:100%;background:linear-gradient(90deg,#8a55ff,#e8b33a)}
+  #acct .axp{flex:1;min-width:0;font-size:12px;white-space:nowrap}#acct .axp i{display:block;height:5px;background:#2a2244;margin-top:4px}#acct .axp b{display:block;height:100%;background:linear-gradient(90deg,#8a55ff,#e8b33a)}
   #acct .pw{font-size:11px;color:#ffd77a;text-align:right}
   #hubView{position:absolute;left:0;right:0;top:54px;bottom:52px;overflow-y:auto;padding:10px 12px 14px;box-sizing:border-box;color:#d8d4f0;font-size:12px}
   .hero{position:relative;height:300px}.hero canvas.art{position:absolute;left:50%;top:0;width:260px;height:260px;margin-left:-130px;filter:drop-shadow(0 0 12px rgba(140,90,255,.6))}
@@ -231,6 +232,7 @@
   <div class="btn" id="muteB">♪</div>
   <div class="btn" id="hexB">⬡<i id="hexN">0</i></div>
   <div class="btn" id="pauseB">❚❚</div>
+  <div class="btn" id="spdB">1x</div>
   <div class="ov" id="pauseV"><div class="menu"><div class="hname" style="font-size:15px">暂停</div><button class="b" id="pzGo">继续</button><button class="b ghost" id="pzSnd">音效</button><button class="b ghost" id="pzShk">震屏</button><button class="b ghost" id="pzHome">返回主界面</button></div></div>
   <div id="hexV"></div>
   <div id="hint"></div>
@@ -274,10 +276,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v48"></script>
+<script src="content/raids_data.js?v=v49"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v48';
+const W=195,H=347,VERSION='v49';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -437,7 +439,7 @@ function applyWalk(id){const C=CLS[id],W=C._walk,ref=C._ref;if(!W||!ref||!C.art)
   C.art.walk=rowFit(W.slice(12,18),ref);if(C.art.down)C.art.down.walk=rowFit(W.slice(0,6),ref);if(C.art.up)C.art.up.walk=rowFit(W.slice(6,12),ref);if(C.art.down&&C.art.up)C._walk=null;}
 loadArt('mobs',im=>strip(im,16));
 loadArt('gear',im=>strip(im,16));
-loadArt('anime',im=>strip(im,9));
+loadArt('anime',im=>{const f=strip(im,9);setTimeout(()=>{if($('hub').classList.contains('on')&&HUB.v==='hero')renderHub('hero');});return f;});
 const fitBg=im=>{const c=document.createElement('canvas');c.width=585;c.height=1041;const x=c.getContext('2d');x.imageSmoothingQuality='high';
   const k=Math.max(c.width/im.width,c.height/im.height);x.drawImage(im,(c.width-im.width*k)/2,(c.height-im.height*k)/2,im.width*k,im.height*k);return c;};   // 预缩放到菜单画布（3×）
 loadArt('bg_home',fitBg,'jpg');loadArt('bg_map',fitBg,'jpg');
@@ -574,7 +576,8 @@ function drawWorld(c,rooms,cors,th){
 
 // ---------- 碰撞 / 寻路 ----------
 let OBS=[];
-const obsOff=o=>o.dead||(o.kind==='decor'&&!o.d.f());
+const decorOn=d=>{if(d.ok)return true;if(G.t-(d.ct??-9)<.5)return false;d.ct=G.t;return d.ok=!!d.f();};   // 装饰图加载好就记住，没加载的每 0.5 秒才查一次
+const obsOff=o=>o.dead||(o.kind==='decor'&&!decorOn(o.d));
 function pushOut(b,r){let hit=null;
   for(const o of OBS){if(obsOff(o))continue;
     const l=b.x+r-o.x,rr=o.x+o.w-(b.x-r),t=b.y+r-o.y,bt=o.y+o.h-(b.y-r);
@@ -881,7 +884,7 @@ const MINI=[
  {n:'死亡射手',hpx:.6,b:'SA',pal:{W:'#c4c4c4',S:'#6a6a6a',G:'#ff3a3a'},sk:['volley','spiral']},
 ];
 const BIG_HP=5000,MINI_HP=3400,BOSS_DMG=1.35,LV_STEP=2.5;
-const BAL={bossHp:4.21,bossDmg:1.45,mobHp:1.45,mobDmg:1.25};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
+const BAL={bossHp:2.95,bossDmg:1.45,mobHp:1.45,mobDmg:1.25};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
 
 // ---------- 音频：全部用 Web Audio 现场合成（8-bit 风），无外部素材 ----------
 const AU={ctx:null,master:null,mus:null,sfx:null,noise:null,muted:false,song:null,step:0,next:0,last:{}};
@@ -1216,7 +1219,7 @@ function spawnBoss(big){
   let img,imgF;if(big){const pal=Object.assign({},P,d.pal),sb=SPR[d.b]||SPR.BO;img=sb.map(r=>mk(r,false,pal));imgF=sb.map(r=>mk(r,true,pal));}else({img,imgF}=G.roster[el[1]]);const ci=chOf(L)-1,ki=LV[L].k%3,ei=ci<3?ci*4+ki:ki*4+3,eart=big?ART.bosses&&ART.bosses[LV[L].b.art]&&[ART.bosses[LV[L].b.art]]:ART.elites?[ART.elites[ei]]:G.roster[el[1]].art,asz=big?(chief?64:54):34,
     eatk=eart&&fitPose(big?ART.bossesAtk&&ART.bossesAtk[LV[L].b.art]:ART.elitesAtk&&ART.elitesAtk[ei],eart[0]);
   const hp=(big?BIG_HP:MINI_HP)*hpCurve(G.p)*BOSS_CH(L)*(d.hpx||1)*(big?(chief?.8:.85):1)*BAL.bossHp*(big?1:.5),R=G.rm;   // 精英房的小首领不跟着翻倍
-  const b={boss:true,big,name:d.n,k:d.b,img,imgF,art:eart||null,artAtk:eatk||null,w:eart?asz:Math.round(img[0].width*sc),h:eart?asz:Math.round(img[0].height*sc),r:big?12:8,x:R.cx,y:R.y+40,hp,max:hp,
+  const b={boss:true,big,name:d.n,k:d.b,img,imgF,art:eart||null,artAtk:eatk||null,w:eart?asz:Math.round(img[0].width*sc),h:eart?asz:Math.round(img[0].height*sc),r:big?20:14,x:R.cx,y:R.y+40,hp,max:hp,
     spd:big?13:18,dmg:(big?14:10)*G.dmgMul*BOSS_DMG*BAL.bossDmg,skd:(big?16:12)*G.dmgMul*BOSS_DMG*BAL.bossDmg,flash:0,poison:0,pt:.5,scd:0,dead:false,burnT:0,burnD:0,bt:.5,slowT:0,frozenT:0,
     sk:d.sk,chief,mode:'walk',at:2,cyc:0,ph2:false,age:0,furyT:0,fury:d.enrage||d.fury||(big?52:40),tels:[]};
   const X=big&&BOSS_X[d.n];if(X){b.ph=X.ph||[];b.phi=0;if(X.sk)b.sk=X.sk.slice();
@@ -1251,7 +1254,9 @@ function bossAI(b,dt){
       let s=b.sk[b.ph2?(rand()*b.sk.length)|0:b.cyc%b.sk.length];
       if(!ok(s)){const alt=b.sk.filter(ok);s=alt.length?alt[(rand()*alt.length)|0]:null;}
       if(s){b.cyc++;b.mode=s;b.say={n:skName(b,s),t:1.4};skOf(b,s).start(b,f);}else b.at=.25;}}
-  else{const s=skOf(b,b.mode);if(s.tick)s.tick(b,dt,f);if(b.at<=0){endSkill(b);b.mode='walk';b.at=(b.big?1.3:1.6)*f;}}
+  else{const s=skOf(b,b.mode);if(s.tick)s.tick(b,dt,f);
+    if(!b.stationary&&!b.cast&&!b.inv&&!b.addPh&&!b.frozenT&&!b.hidden&&b.mode!=='charge'&&b.spd>0)chase(b,b.spd*.5,dt);   // 放技能时也慢慢追人（预警位置已在施放瞬间定好）
+    if(b.at<=0){endSkill(b);b.mode='walk';b.at=(b.big?1.3:1.6)*f;}}
   clampRoom(b,6);if(b.mode!=='charge'){const h=pushOut(b,b.r-3);if(h&&!b.wp)setWp(b,h,b.r);}
 }
 function endSkill(b){const s=skOf(b,b.mode);if(s&&s.end)s.end(b);b.aim=null;}
@@ -1730,7 +1735,7 @@ function update(dt){
     if(d<28||G.phase!=='fight'){const v=G.phase==='fight'?160:260;h.x+=dx/d*v*dt;h.y+=dy/d*v*dt;}
     if(d<5){h.got=1;fxs('heal',pl.x,pl.y-4,18,.5,0,0,1.3);const a=Math.round(pl.maxHp*.15);pl.hp=Math.min(pl.maxHp,pl.hp+a);num(pl.x,pl.y-12,'+'+a,'#7dff8a',true);burst(pl.x,pl.y,8,'#7dff8a',40,.5);sfx('heal');}}
   G.hearts=G.hearts.filter(h=>!h.got);
-  for(const q of G.parts){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.92;q.vy=q.vy*.92+(q.g||0)*dt;q.life-=dt;}G.parts=G.parts.filter(q=>q.life>0);
+  for(const q of G.parts){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.92;q.vy=q.vy*.92+(q.g||0)*dt;q.life-=dt;}{let j=0;for(const q of G.parts)if(q.life>0)G.parts[j++]=q;G.parts.length=j;}   // 原地压缩，不每帧分配新数组
   {const th=THEMES[LV[G.L].b.theme],cx=G.cam.x,cy=G.cam.y,A=G.amb;   // 环境粒子：余烬、雪、孢子……
     if(th.amb&&A.length<50&&rand()<.5){const x=cx+rand()*W,y=cy+rand()*H;
       const o={ember:{x,y:cy+H,vx:rand()*6-3,vy:-18-rand()*14,c:'#ff8a2a',l:4},snow:{x,y:cy,vx:rand()*8-4,vy:12+rand()*8,c:'#eef8ff',l:6},
@@ -1973,8 +1978,9 @@ function hud(){
   drawMinimap();
 }
 let last=performance.now();
+let GSPD=1;try{GSPD=+localStorage.getItem('abyss-speed')||1;}catch(_){}
 function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;
-  if(G&&G.state==='play')update(dt);
+  if(G&&G.state==='play'){const n=Math.ceil(GSPD);for(let i=0;i<n&&G&&G.state==='play';i++)update(dt*GSPD/n);}
   else if(G&&G.state==='cutin'&&(G.cutT-=dt)<=0){$('cutin').classList.remove('on');G.state='play';doUlt();}
   if(G){render();hud();}
   const scr=G?null:SCREENS.find(k=>$(k).classList.contains('on'));mc.style.display=scr?'block':'none';
@@ -2096,7 +2102,7 @@ function bossPortrait(L){if(PORT[L])return PORT[L];const b=LV[L]&&LV[L].b;if(!b|
   x.drawImage(f,f.width*.1,f.height*.02,f.width*.8,f.height*.8,0,0,48,48);return PORT[L]=c.toDataURL();}
 function drawMap(c,t){
   const R=(col,x,y,w,h)=>{c.fillStyle=col;c.fillRect(x|0,y|0,w,h);};
-  const MB=raidMap(selRaid)||ART.bg_map;if(MB){c.drawImage(MB,0,0,W,H);mapOverlay(c,t,R);return;}
+  const MB=raidMap(selRaid)||ART.bg_map;if(MB){c.drawImage(MB,0,0,W,H);if($('levels').classList.contains('on'))mapOverlay(c,t,R);return;}
   // 第 4 章：虚空神殿
   grad(c,0,80,[16,6,34],[38,14,58]);
   for(let i=0;i<40;i++){if(((t*2+i*7)|0)%6)R('#c8b0ff',hsh(i)*W,hsh(i+50)*76,1,1);}
@@ -2187,7 +2193,7 @@ function itemIcon(it,size=36){const c=document.createElement('canvas');c.width=c
   if(g){x.drawImage(g[it?it.slot==='wpn'?WPN_ICON[selCls]:SLOT_ICON[it.slot]:13],0,0,size,size);}else{x.fillStyle='#3a3260';x.fillRect(4,4,size-8,size-8);}return c;}
 function statLine(st){return Object.entries(st).map(([k,v])=>`${ST_N[k][0]} ${k==='cdr'?'-':'+'}${(v*100).toFixed(1)}%`).join('　');}
 function renderHub(v){HUB.v=v;const A=PROG.acc,C=CLS[selCls];
-  $('acct').innerHTML=`<div class="lv">${A.lv}</div><div class="xp">账号等级 Lv.${A.lv}　<span style="color:#9a94c0">${A.xp}/${accNeed(A.lv)}</span><i><b style="width:${Math.min(100,A.xp/accNeed(A.lv)*100)}%"></b></i></div><div class="pw">战力<br><b style="font-size:15px">${power()}</b></div>`;
+  $('acct').innerHTML=`<div class="lv">${A.lv}</div><div class="axp">账号等级 Lv.${A.lv}　<span style="color:#9a94c0">${A.xp}/${accNeed(A.lv)}</span><i><b style="width:${Math.min(100,A.xp/accNeed(A.lv)*100)}%"></b></i></div><div class="pw">战力<br><b style="font-size:15px">${power()}</b></div>`;
   const V=$('hubView');
   if(v==='hero'){const{t,sets}=gearStats();
     V.innerHTML=`<div class="hero"><canvas class="art" id="heroArt"></canvas>${SLOTS.map(([k,n],i)=>{const pos=[[8,30],[8,110],[8,190],['r8',30],['r8',110]][i];return `<div class="slot" data-slot="${k}" style="${typeof pos[0]==='string'?'right:8px':'left:'+pos[0]+'px'};top:${pos[1]}px;border-color:${(PROG.inv.find(x=>x.id===PROG.eq[k])||{}).rar?RAR[PROG.inv.find(x=>x.id===PROG.eq[k]).rar][1]:'#3a3260'}"><small>${n}</small></div>`;}).join('')}</div>
@@ -2197,7 +2203,7 @@ function renderHub(v){HUB.v=v;const A=PROG.acc,C=CLS[selCls];
       <div class="sets">${GSET.map((S,k)=>sets[k]?`<b>${S.n}套装 ${sets[k]}/4</b><br><span class="${sets[k]>=2?'':'off'}">(2) ${S.b2[0]}</span><br><span class="${sets[k]>=4?'':'off'}">(4) ${S.b4[0]}</span>`:'').filter(Boolean).join('<br>')||'<span class="off">穿戴同一副本的史诗 / 传说装备可激活套装（最多 4 件）</span>'}</div>
       <button class="bigbtn" id="toRaid">进入副本</button>`;
     renderClasses();SLOTS.forEach(([k])=>{const it=PROG.inv.find(x=>x.id===PROG.eq[k]),el=V.querySelector(`[data-slot="${k}"]`);if(it)el.prepend(itemIcon(it));});
-    const cv=$('heroArt'),an=ART.anime&&ART.anime[CLS_IDS.indexOf(selCls)],im=an||C.port;if(im){cv.width=cv.height=im.width;cv.getContext('2d').drawImage(im,0,0);cv.style.imageRendering=an?'auto':'pixelated';}}
+    const cv=$('heroArt'),an=ART.anime&&ART.anime[CLS_IDS.indexOf(selCls)];if(an){cv.width=cv.height=an.width;cv.getContext('2d').drawImage(an,0,0);cv.style.imageRendering='auto';}}
   else if(v==='bag'){const items=PROG.inv.slice().sort((a,b)=>b.rar-a.rar||b.il-a.il),eqIds=Object.values(PROG.eq);
     V.innerHTML=`<div style="margin-bottom:8px">背包 ${PROG.inv.length}/60　<span style="color:#9a94c0">点击装备查看 / 穿戴；每通关一关掉落 1 件</span></div><div class="bag">${items.map(it=>`<div class="it${eqIds.includes(it.id)?' eq':''}" data-id="${it.id}" style="border-color:${RAR[it.rar][1]}"></div>`).join('')||'<span style="grid-column:1/-1;color:#6a6490">还没有装备，去副本里打首领吧</span>'}</div><div id="itip"></div>`;
     V.querySelectorAll('.it').forEach(el=>el.append(itemIcon(PROG.inv.find(x=>x.id===+el.dataset.id))));if(HUB.sel)showItem(HUB.sel);}
@@ -2272,6 +2278,7 @@ function startGame(){for(const k of SCREENS)$(k).classList.remove('on');$('nav')
   $('cutSub').textContent=`${C.n} · 终极技能`;$('cutName').textContent=C.ult;$('skTx').textContent=C.sk.slice(0,2);setIcons();
   auInit();music('normal');}
 $('go').onclick=startGame;
+$('spdB').textContent=GSPD+'x';$('spdB').onclick=()=>{GSPD=GSPD===1?1.5:GSPD===1.5?2:1;$('spdB').textContent=GSPD+'x';try{localStorage.setItem('abyss-speed',GSPD);}catch(_){}};   // 倍速
 // 关卡内暂停：继续 / 音效 / 震屏 / 返回主界面（放弃本关）
 const pzLabel=()=>{$('pzSnd').textContent='音效：'+(AU.muted?'关':'开');$('pzShk').textContent='震屏：'+(SHAKE?'开':'关');};
 $('pauseB').onclick=()=>{if(!G||G.state!=='play')return;G.state='pause';pzLabel();$('pauseV').classList.add('on');};
@@ -2301,7 +2308,7 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v48"></script>
-<script src="src/raid_engine.js?v=v48"></script>
+<script src="content/skill_fx.js?v=v49"></script>
+<script src="src/raid_engine.js?v=v49"></script>
 </body>
 </html>

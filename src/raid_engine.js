@@ -499,12 +499,13 @@ spawnBoss=function(big){
 function spawnData(b,v,d){
   b.name=d.n;b.hp=b.max=b.max*(d.hp||1);
   b.fury=(d.enrage||b.fury)*1.8;   // 首领血量翻倍后狂暴计时同步拉长
-  if(d.spd!==undefined)b.spd=Math.max(28,d.spd);   // 数据里的 13 太慢，看起来像站桩
+  if(d.spd!==undefined)b.spd=Math.max(40,d.spd);   // 数据里的 13 太慢，看起来像站桩
   if(d.fixed)b.spd=0;
   const f=frames(d.art,4)||(fb(d.fallback)&&[fb(d.fallback)])||(ART.bosses&&[ART.bosses[d.fallbackArt]]);
   if(f){b.art=f.length>=2?[f[0],f[1]]:[f[0]];b.artAtk=f[3]||f[2]||null;b.w=b.h=d.size||(v.last?64:54);}
   b.animRef=Array.isArray(d.art)?d.art:null;b.animPer=4;b._an=null;
-  if(d.fixed||b.spd===0){const r=R();b.x=r.cx;b.y=r.y+r.h*.45;b.w=b.h=Math.round((b.w||54)*1.4);b.stationary=true;}   // 固定首领：居中、放大
+  b.r=Math.max(b.r||0,Math.round((b.w||54)*.36));   // 碰撞 / 近战命中半径按贴图大小
+  if(d.fixed||b.spd===0){const r=R();b.x=r.cx;b.y=r.y+r.h*.45;b.w=b.h=Math.round((b.w||54)*1.4);b.r=Math.round(b.w*.36);b.stationary=true;}   // 固定首领：居中、放大
   wrapSkills(b,d.skills);
   b.sk=(d.sk&&d.sk.length?d.sk:b.sk).filter(k=>b.skx[k]||SK[k]);
   if(!b.sk.length)b.sk=['slam'];
