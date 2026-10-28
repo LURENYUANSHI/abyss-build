@@ -106,7 +106,7 @@ window.raidDecor=(L,type)=>{const r=RAIDS[LV[L].ri],ids=[];(r.props||[]).forEach
 const _newLevel=newLevel;
 newLevel=function(L,ri){const rr=LV[L]&&RAIDS[LV[L].ri];if(rr&&curRaid!==rr.id){curRaid=rr.id;evictOthers(rr);}preload(L);if(LV[L+1])preload(L+1);return _newLevel(L,ri);};
 const _renderLevels=renderLevels;
-renderLevels=function(){preload(selLevel);return _renderLevels();};
+renderLevels=function(){preload(selLevel);const v=LV[selLevel];if(v)for(const bb of RAIDS[v.ri].bosses)if(Array.isArray(bb.art))sheet(bb.art[0]);return _renderLevels();};   // 选关地图要显示这个副本全部首领的头像
 
 // ---------- 小怪：按本关的 trash 名单生成，带数据驱动的技能 ----------
 // 每个副本的标志性小怪：只刷这些（权重越高越常见）；没列的副本按首领自己的名单

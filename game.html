@@ -162,6 +162,8 @@
   .nd.chief{width:24px;height:24px;margin:-14px 0 0 -14px;border-color:#ffd77a;background:#6a2a10;box-shadow:0 0 8px #ff8a2a}
   .nd.clr{background:#c89a2a;border-color:#ffe8a0}.nd.lock{opacity:.45;border-color:#666;background:#1a1a22;box-shadow:none;cursor:default}
   .nd.cur{animation:pulse 1s infinite}.nd.sel{outline:2px solid #fff;outline-offset:2px}
+  .nd.pt{width:30px;height:30px;margin:-17px 0 0 -17px;background-size:cover;background-position:center}.nd.pt.chief{width:40px;height:40px;margin:-22px 0 0 -22px}
+  .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(1) brightness(.6)}
   #nav{position:absolute;left:0;right:0;bottom:0;height:52px;z-index:40;display:none;background:linear-gradient(180deg,rgba(14,10,30,.96),rgba(6,5,14,.99));border-top:1px solid rgba(170,140,255,.45)}
   #nav.on{display:flex}#nav div{flex:1;display:grid;place-items:center;font-size:12px;letter-spacing:2px;color:#9a94c0;cursor:pointer}#nav div.on{color:#fff;text-shadow:0 0 8px #b48cff;background:rgba(90,60,180,.25)}
   #acct{position:absolute;left:0;right:0;top:0;height:54px;z-index:3;display:flex;align-items:center;gap:8px;padding:0 12px;background:linear-gradient(180deg,rgba(7,7,14,.95),rgba(7,7,14,.6))}
@@ -268,10 +270,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v39"></script>
+<script src="content/raids_data.js?v=v40"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v39';
+const W=195,H=347,VERSION='v40';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -2033,9 +2035,16 @@ const MS=3,mc=$('mc');mc.width=W*MS;mc.height=H*MS;const mx=mc.getContext('2d');
 const mixc=(a,b,k)=>'rgb('+a.map((v,i)=>Math.round(v+(b[i]-v)*k)).join()+')';
 const hsh=i=>{let x=Math.sin(i*127.1)*43758.5;return x-Math.floor(x);};
 function grad(c,y0,y1,a,b){for(let y=y0;y<y1;y+=2){c.fillStyle=mixc(a,b,(y-y0)/(y1-y0));c.fillRect(0,y,W,2);}}
+const MAPL={};
+function raidMap(ri){const r=RAIDS[ri];if(!r)return null;const k='map_'+r.id;if(!MAPL[k]){MAPL[k]=1;loadArt(k,fitBg,'jpg');}return ART[k]||null;}
+// 关卡节点上的首领头像：取首领精灵表的待机帧，裁成圆形头像缓存成 dataURL
+const PORT={};
+function bossPortrait(L){if(PORT[L])return PORT[L];const b=LV[L]&&LV[L].b;if(!b||!Array.isArray(b.art)||!window.formOf)return null;
+  const f=formOf([b.art[0],b.art[1]*4]);if(!f)return null;const c=document.createElement('canvas');c.width=c.height=48;const x=c.getContext('2d');
+  x.drawImage(f,f.width*.1,f.height*.02,f.width*.8,f.height*.8,0,0,48,48);return PORT[L]=c.toDataURL();}
 function drawMap(c,t){
   const R=(col,x,y,w,h)=>{c.fillStyle=col;c.fillRect(x|0,y|0,w,h);};
-  if(ART.bg_map){c.drawImage(ART.bg_map,0,0,W,H);mapOverlay(c,t,R);return;}
+  const MB=raidMap(selRaid)||ART.bg_map;if(MB){c.drawImage(MB,0,0,W,H);mapOverlay(c,t,R);return;}
   // 第 4 章：虚空神殿
   grad(c,0,80,[16,6,34],[38,14,58]);
   for(let i=0;i<40;i++){if(((t*2+i*7)|0)%6)R('#c8b0ff',hsh(i)*W,hsh(i+50)*76,1,1);}
@@ -2100,9 +2109,11 @@ function drawHome(c,t){
 function renderLevels(){
   if(LV[selLevel])selRaid=LV[selLevel].ri;
   $('raidTabs').innerHTML=RAIDS.map((r,ri)=>`<div class="rtab${ri===selRaid?' on':''}${firstL(ri)>PROG.un||PROG.acc.lv<RAID_REQ(r)?' lock':''}" data-r="${ri}" style="--c:${EXP[r.exp][1]}">${r.name}${RAID_REQ(r)>1?` <small>Lv${RAID_REQ(r)}</small>`:''}</div>`).join('');
-  const f=firstL(selRaid);
+  const f=firstL(selRaid);let miss=0;raidMap(selRaid);
   $('nodes').innerHTML=raidNodes(selRaid).map(([x,y],k)=>{const L=f+k,lock=L>PROG.un,clr=PROG.best[L],last=isChief(L);
-    return `<div class="nd${last?' chief':''}${lock?' lock':''}${clr?' clr':''}${L===PROG.un&&!clr?' cur':''}${L===selLevel?' sel':''}" data-l="${L}" style="left:${x*2}px;top:${y*2}px">${lock?'':last?'☠':k+1}</div>`;}).join('');
+    const pt=bossPortrait(L);if(!pt)miss++;
+    return `<div class="nd${last?' chief':''}${lock?' lock':''}${clr?' clr':''}${L===PROG.un&&!clr?' cur':''}${L===selLevel?' sel':''}${pt?' pt':''}" data-l="${L}" style="left:${x*2}px;top:${y*2}px${pt?`;background-image:url(${pt})`:''}">${pt?`<i>${k+1}</i>`:lock?'':last?'☠':k+1}</div>`;}).join('');
+  if(miss&&(renderLevels.tries=(renderLevels.tries||0)+1)<8)setTimeout(()=>{if($('levels').classList.contains('on'))renderLevels();},700);else if(!miss)renderLevels.tries=0;
   const L=selLevel,v=LV[L],r=RAIDS[v.ri],lvLock=PROG.acc.lv<RAID_REQ(r),lock=L>PROG.un||lvLock,b=PROG.best[L];
   $('lvInfo').innerHTML=`<b>${rNo(L)}-${kOf(L)} ${v.b.lv}</b><br>${EXP[r.exp][0]} · ${r.name}　${r.desc||''}<br>${v.last?'尾王':'首领'}：<em>${v.b.n}</em>　地牢 ${v.b.rooms||6} 间<br>${lvLock?`🔒 需要账号等级 ${RAID_REQ(r)}`:lock?'🔒 通关上一关解锁':b?`最佳 ${fmtT(b.t)} · ${CLS[b.c].n}`:'未通关'}
     <button class="b" id="lvGo"${lock?' disabled':''}>出发</button>`;
@@ -2230,7 +2241,7 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v39"></script>
-<script src="src/raid_engine.js?v=v39"></script>
+<script src="content/skill_fx.js?v=v40"></script>
+<script src="src/raid_engine.js?v=v40"></script>
 </body>
 </html>
