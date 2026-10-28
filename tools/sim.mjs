@@ -52,10 +52,11 @@ const ctx={
   addEventListener(){},confirm:()=>false,alert(){},
   URLSearchParams,devicePixelRatio:1,innerWidth:390,innerHeight:693,
 };
-ctx.window=ctx;ctx.globalThis=ctx;ctx.self=ctx;
+ctx.window=ctx;ctx.globalThis=ctx;ctx.self=ctx;ctx.SIM=true;
 vm.createContext(ctx);
 const html=readFileSync('game.html','utf8'),a=html.lastIndexOf('<script>'),b=html.indexOf('</script>',a);
 vm.runInContext(readFileSync('content/raids_data.js','utf8'),ctx,{filename:'raids_data.js'});
+vm.runInContext(readFileSync('content/boss_tune.js','utf8'),ctx,{filename:'boss_tune.js'});
 vm.runInContext(html.slice(a+8,b),ctx,{filename:'game.js'});
 vm.runInContext(readFileSync('content/skill_fx.js','utf8'),ctx,{filename:'skill_fx.js'});
 vm.runInContext(readFileSync('src/raid_engine.js','utf8'),ctx,{filename:'raid_engine.js'});
@@ -69,7 +70,7 @@ var setMeta=ri=>{PROG.acc={lv:Math.min(80,Math.round(1+ri*3.5)),xp:0};PROG.inv=[
     it.st=slot==='wpn'?{atk:.06*1.7*(1+.25*ri)}:slot==='trk'?{crit:.04*1.7*(1+.25*ri)}:{hp:.07*1.7*(1+.25*ri)};PROG.inv.push(it);PROG.eq[slot]=it.id;}};
 var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0,bt0=-1;
   while(t<T){
-    if(G.state==='play'){update(dt);if(bt0<0&&G.boss&&G.cfg&&G.cfg.type==='big')bt0=t;if(G.L!==L)return{w:1,t,ri:G.ri,bossT:bt0<0?0:t-bt0};}
+    if(G.state==='play'){const bx=G.boss&&G.boss.x,by=G.boss&&G.boss.y;update(dt);if(G.boss&&bx!==undefined&&bt0>=0){globalThis.MV=(globalThis.MV||0)+Math.hypot(G.boss.x-bx,G.boss.y-by);globalThis.MVT=(globalThis.MVT||0)+dt;}if(bt0<0&&G.boss&&G.cfg&&G.cfg.type==='big')bt0=t;if(G.L!==L)return{w:1,t,ri:G.ri,bossT:bt0<0?0:t-bt0};}
     else if(G.state==='pick')choose((rand()*G.offer.cards.length)|0);
     else if(G.state==='cutin'){G.cutT-=dt;if(G.cutT<=0){G.state='play';doUlt();}}
     else return{w:G.state==='win'?1:0,bossT:G.state==='win'&&bt0>=0?t-bt0:0,t,ri:G.ri,boss:G.rooms&&G.ri===G.rooms.length-1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode};
@@ -92,12 +93,13 @@ const tot={};for(const c of classes)tot[c]={w:0,n:0,t:0,bossDeath:0};const bossT
 const perLevel=[];
 const t0=Date.now();
 for(const L of levels){
-  const v=LV[L];setMeta(v.ri);const row={L,n:v.b.n,w:0,n2:0};
+  const v=LV[L];setMeta(v.ri);const row={L,n:v.b.n,w:0,n2:0};ctx.MV=0;ctx.MVT=0;
   for(const c of classes)for(let i=0;i<runs;i++){
     let r;try{r=lvSim(c,L,T);}catch(e){console.error(`ERR ${c} L${L} ${v.b.n}: ${e.message}\n${(e.stack||'').split('\n').slice(1,3).join('\n')}`);r={w:0,t:0};}
     if(args.includes('--debug')&&!r.w)console.log(`  ${c} L${L} ${v.b.n}: ${r.timeout?'超时':'阵亡'} 房${r.ri} 首领血${r.bhp}% inv=${r.binv} mode=${r.bmode} 剩敌${r.ens??''} t=${Math.round(r.t)}`);
     if(r.w&&r.bossT)(bossTs[L]=bossTs[L]||[]).push(r.bossT);
     tot[c].w+=r.w;tot[c].n++;tot[c].t+=r.t;if(!r.w&&r.boss)tot[c].bossDeath++;row.w+=r.w;row.n2++;}
+  if(args.includes('--move'))console.log(`L${L} ${v.b.n} 首领移动 ${Math.round(ctx.MV/Math.max(1,ctx.MVT))} px/s · spd ${Math.round((ctx.G&&0)||0)}`);
   perLevel.push(row);
 }
 console.log(`levels=${levels.length} runs=${runs} time=${((Date.now()-t0)/1000).toFixed(1)}s`);

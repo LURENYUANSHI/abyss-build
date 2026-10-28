@@ -62,7 +62,7 @@ for R in data['raids']:
     for k,t in R.get('trash',{}).items():
         a=t.get('art')
         if not a or a[0] not in mob or a[1]>=len(mob[a[0]]):continue
-        add('trash',k,mob[a[0]][a[1]][0],'rig_'+a[0][len('mobs_'):]+'_'+str(a[1]))
+        add('trash',k,mob[a[0]][a[1]][0],'rigm_'+a[0][len('mobs_'):]+'_'+str(a[1]))
 js="// 自动生成（tools/rig_jobs.py）：分件骨骼的部件顺序与实体映射\nwindow.RIG_PARTS="+json.dumps(PARTS)+";\nwindow.RIG_MAP="+json.dumps(rmap,ensure_ascii=False)+";\n"
 open('content/rigs.js','w').write(js);json.dump(jobs+fronts,open('tools/rig_jobs.json','w'),ensure_ascii=False)
 from collections import Counter

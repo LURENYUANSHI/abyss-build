@@ -17,18 +17,30 @@ const CACHE={};
 const FXP=new Set(['slash','fx','spark']);
 // 部件裁到包围盒（留 1 像素），省掉格子里的空白内存；裁完直接替换图集里的帧，不留两份
 function crop(c){const b=box(c);if(!b)return c;const o=document.createElement('canvas');o.width=b.w+2;o.height=b.h+2;o.getContext('2d').drawImage(c,b.x0-1,b.y0-1,b.w+2,b.h+2,0,0,b.w+2,b.h+2);return o;}
+// 去掉和主体不相连的小碎片（GPT 画出格子时，相邻部件的边角会渗进这一格）
+function despeck(c){const w=c.width,h=c.height,x=c.getContext('2d',{willReadFrequently:true}),d=x.getImageData(0,0,w,h),a=d.data,lab=new Int32Array(w*h),sz=[0];let n=0;
+  for(let i=0;i<w*h;i++){if(lab[i]||a[i*4+3]<=30)continue;n++;let c2=0;const st=[i];lab[i]=n;while(st.length){const q=st.pop();c2++;const qx=q%w,qy=(q/w)|0;
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=qx+dx,ny=qy+dy;if(nx<0||ny<0||nx>=w||ny>=h)continue;const r=ny*w+nx;if(!lab[r]&&a[r*4+3]>30){lab[r]=n;st.push(r);}}}sz.push(c2);}
+  const big=Math.max(...sz);if(n<2)return c;for(let i=0;i<w*h;i++)if(lab[i]&&sz[lab[i]]<big*.06)a[i*4+3]=0;x.putImageData(d,0,0);return c;}
 function fade(c){const w=c.width,h=c.height,o=document.createElement('canvas');o.width=w;o.height=h;const x=o.getContext('2d');x.drawImage(c,0,0);
   const d=x.getImageData(0,0,w,h),a=d.data,m=Math.max(4,Math.min(w,h)*.18);
   for(let y=0;y<h;y++)for(let i=0;i<w;i++){const e=Math.min(i,y,w-1-i,h-1-y);if(e<m)a[(y*w+i)*4+3]*=e/m;}
   x.putImageData(d,0,0);return o;}
 // 图集加载后算一次：每个部件的图和包围盒，以及整体高度（用于缩放到游戏里的身高）
 function build(R){if(!R)return null;const k=R.sheet;if(CACHE[k]!==undefined)return CACHE[k];const f=window.raidSheet&&raidSheet(k);if(!f)return null;
-  const names=PARTS[R.plan]||PARTS.humanoid,im={},b={};names.forEach((n,i)=>{if(f[i]&&!f[i]._rc){f[i]=crop(FXP.has(n)?fade(f[i]):f[i]);f[i]._rc=1;}im[n]=f[i];b[n]=im[n]&&box(im[n]);});
+  const names=PARTS[R.plan]||PARTS.humanoid,im={},b={};names.forEach((n,i)=>{if(f[i]&&!f[i]._rc){f[i]=crop(FXP.has(n)?fade(f[i]):despeck(f[i]));f[i]._rc=1;}im[n]=f[i];b[n]=im[n]&&box(im[n]);});
   const need=(PLAN[R.plan]||PLAN.humanoid).need;if(need.some(n=>!b[n]))return CACHE[k]=null;
   const H=(PLAN[R.plan]||PLAN.humanoid).height(b),tw=(b.torso||b.body||{}).w||0;
   // 侧面人形 GPT 常画得偏瘦：躯干宽不足身高 0.3 时横向加宽，最多 1.3 倍
   return CACHE[k]={R,im,b,H,wide:b.torso&&tw?Math.max(1,Math.min(1.3,H*.3/tw)):1};}
 window.rigReady=R=>!!build(R);
+// 原逐帧图待机帧的宽高比（按不透明包围盒），缓存在帧画布上
+function oldAspect(e){const A=e.anim,f=(A&&A.idle&&A.idle[0])||(e.art&&e.art[0]);if(!f||!f.getContext)return 0;if(f._ar===undefined){const b=box(f);f._ar=b?b.w/b.h:0;}return f._ar;}
+// 分件按待机姿势拼一次量宽高比，缓存在部件集上
+function rigAspect(L,pl,pose){const k=pl===PLAN.front||pl===PLAN.ffront?'_arF':'_ar';if(L[k])return L[k];const n=Math.ceil(L.H*2.2),c=document.createElement('canvas');c.width=c.height=n;const g=c.getContext('2d');
+  g.translate(n/2,n*.9);pl.draw(g,L,pose,0,0);const b=box(c);return L[k]=b?b.w/b.h:1;}
+// 预先拼好侧面 / 正面 / 背面（加载界面里调用）
+window.rigWarm=R=>{if(!R)return;build(R);const fp=R.plan==='floater'?'ffront':'front';if(R.front)build({plan:fp,sheet:R.front,grip:R.grip});if(R.back)build({plan:fp,sheet:R.back,grip:R.grip});};
 window.rigCache=CACHE;   // 换团本时由 raid_engine 的 evictOthers 清掉别的团本的部件
 
 const draw=(g,im,ax,ay,ang,px,py)=>{g.save();g.translate(ax,ay);g.rotate(ang);g.drawImage(im,-px,-py);g.restore();};
@@ -75,7 +87,7 @@ const PLAN={
   pose:FP,
   draw(g,L,r,sw,bob){const{im,b}=L,tb=b.torso,pb=b.pelvis,legL=Math.max(b.lLeg.h,b.rLeg.h),hipY=-legL+r.dy+bob;
    const leg=(k,x,lift)=>{if(b[k])g.drawImage(im[k],x-b[k].cx,hipY-top(b[k])-lift);};
-   leg('lLeg',-pb.w*.2,Math.max(0,sw)*4);leg('rLeg',pb.w*.2,Math.max(0,-sw)*4);
+   const st=legL*.14;leg('lLeg',-pb.w*.2,Math.max(0,sw)*st);leg('rLeg',pb.w*.2,Math.max(0,-sw)*st);
    g.drawImage(im.pelvis,-pb.cx,hipY-pb.cy);
    g.save();g.translate(0,hipY-pb.h*.35);g.rotate(r.torso);g.drawImage(im.torso,-tb.cx,-bot(tb));
    g.save();g.translate(0,-tb.h*.8);g.rotate(r.head);g.drawImage(im.head,-b.head.cx,-(b.head.y1-b.head.h*.14));g.restore();
@@ -169,7 +181,7 @@ window.rigTick=(e,dt)=>{const L=e.rig&&build(e.rig);if(!L)return;const P=(PLAN[e
   const T=P[k],r=e.rp||(e.rp=Object.assign({},P.idle)),a=Math.min(1,dt*(k==='atk'?22:12));
   for(const q in T)r[q]=(r[q]??0)+(T[q]-(r[q]??0))*a;
   if(e.rig.front||e.rig.back){const F=FP[k],f=e.rpf||(e.rpf=Object.assign({},FP.idle));for(const q in F)f[q]+=(F[q]-f[q])*a;}
-  e.rk=k;e.rw=(e.rw||0)+(k==='walk'?dt*7.5:0);};
+  e.rk=k;e.rw=(e.rw||0)+(e._wk?dt*7.5:0);};   // 腿跟着移动走，不管上半身在出手还是施法
 // 绘制：(x,y) 脚底中心，h 目标身高，fl 朝左翻转；返回 false 时调用方用旧逐帧图
 window.drawRig=(g,e,x,y,h,fl)=>{let L=e.rig&&build(e.rig);if(!L)return false;let pl=PLAN[e.rig.plan]||PLAN.humanoid,r=e.rp||pl.pose.idle,fr=0;
   // 侧面按正面躯干宽度的 0.75 倍补宽（同身高下比），转身时不会一下变瘦
@@ -177,9 +189,11 @@ window.drawRig=(g,e,x,y,h,fl)=>{let L=e.rig&&build(e.rig);if(!L)return false;let
     if(F0){const sw0=(L.b.torso||{}).w,fw0=(F0.b.torso||{}).w;L.wideF=sw0&&fw0?Math.max(L.wide,Math.min(1.5,(fw0/F0.H)*.75/(sw0/L.H))):L.wide;}}
   const vs=e.rf?e.rig.front:e.rb?e.rig.back:null;   // 正面 / 背面共用一套对称姿势
   if(vs){const fp=e.rig.plan==='floater'?'ffront':'front',F=build({plan:fp,sheet:vs,grip:e.rig.grip});if(F){L=F;pl=PLAN[fp];r=e.rpf||FP.idle;fr=1;}}
-  const s=h/L.H,w=e.rw||0,walk=e.rk==='walk';
+  // 有原逐帧图的实体：宽高比对齐原图（新旧美术统一，不会越换越瘦）；没有的（英雄）按躯干补宽
+  const oa=oldAspect(e),wd=oa?Math.max(.85,Math.min(1.6,oa/rigAspect(L,pl,pl.pose.idle))):fr?L.wide:(L.wideF||L.wide);
+  const s=h/L.H,w=e.rw||0,walk=!!e._wk;
   const sw=walk?Math.sin(w):0,bob=(walk?-Math.abs(Math.cos(w))*1.4:Math.sin(G.t*2.2)*.5)/s;
-  g.save();g.translate(x,y);g.scale((fl?-s:s)*(fr?L.wide:(L.wideF||L.wide)),s);pl.draw(g,L,r,sw,bob);g.restore();
+  g.save();g.translate(x,y);g.scale((fl?-s:s)*wd,s);pl.draw(g,L,r,sw,bob);g.restore();
   const fxk=L.im.fx||L.im.slash,fb=L.b.fx||L.b.slash;   // 出手瞬间的攻击特效（挥砍弧 / 吐息 / 爪击）
   if(e.rk==='atk'&&fxk&&fb){g.save();g.translate(x+(fr?0:(fl?-1:1)*h*.4),y-h*(fr?.35:.5));g.scale(fl?-s*1.1:s*1.1,s*1.1);g.globalCompositeOperation='lighter';g.globalAlpha=.85;g.drawImage(fxk,-fb.cx,-fb.cy);g.restore();}
   return true;};

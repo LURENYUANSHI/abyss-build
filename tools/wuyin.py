@@ -12,6 +12,7 @@ def env():
     return d
 
 E = env(); KEY = E['IMAGE_WUYIN_API_KEY']
+SITE = 'https://lurenyuanshi.github.io/abyss-build/'
 # 默认的 Python-urllib UA 会被对方防火墙 403
 UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/126 Safari/537.36'
 
@@ -21,8 +22,11 @@ def call(url, body=None):
     with urllib.request.urlopen(req, timeout=60) as r:
         return json.loads(r.read())
 
-def gen(prompt, size):
-    r = call(E['IMAGE_WUYIN_SUBMIT_URL'], {'key': KEY, 'prompt': prompt, 'size': size})
+def gen(prompt, size, urls=None):
+    body = {'key': KEY, 'prompt': prompt, 'size': size}
+    if urls:
+        body['urls'] = urls
+    r = call(E['IMAGE_WUYIN_SUBMIT_URL'], body)
     tid = (r.get('data') or {}).get('id')
     if not tid:
         raise RuntimeError(f'提交失败: {r.get("code")} {r.get("msg")}')
@@ -36,13 +40,14 @@ def gen(prompt, size):
     raise RuntimeError('超时')
 
 def one(j, out, size, art, proc):
-    # j: [name, kind, cols, rows, used, per, prompt]（与 ChatGPT 页面任务同格式）
-    name, prompt = j[0], j[-1]
+    # j: [name, kind, cols, rows, used, per, prompt, 参考图相对路径(可选)]（与 ChatGPT 页面任务同格式）
+    name, prompt = j[0], j[6]
+    urls = [SITE + j[7]] if len(j) > 7 else None
     dst = os.path.join(out, name + '.png')
     for att in range(3):
         try:
             if not os.path.exists(dst):
-                url = gen(prompt, size)
+                url = gen(prompt, size, urls)
                 with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': UA}), timeout=120) as r:
                     open(dst, 'wb').write(r.read())
             if art and proc:

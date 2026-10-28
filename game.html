@@ -50,6 +50,7 @@
   @keyframes pulse{50%{box-shadow:0 0 22px #b47cff}}
   #spdB{left:12px;bottom:130px;width:26px;height:26px;font-size:10px;font-weight:700;color:#ffd77a;border:1px solid rgba(232,179,58,.45);background:rgba(15,16,32,.75);pointer-events:auto;cursor:pointer}
   #pauseB{left:12px;bottom:96px;width:26px;height:26px;font-size:10px;color:#c8c0ff;border:1px solid rgba(160,140,255,.35);background:rgba(15,16,32,.75);pointer-events:auto;cursor:pointer}
+  #lootV .menu{display:flex;flex-direction:column;gap:8px;align-items:stretch;max-width:300px}#lootV .lootc{line-height:1.5;padding:8px 10px}
   #pauseV .menu{display:flex;flex-direction:column;gap:8px;align-items:stretch;min-width:160px}
   #muteB{left:12px;bottom:28px;width:26px;height:26px;font-size:13px;color:#c8c0ff;border:1px solid rgba(160,140,255,.35);background:rgba(15,16,32,.75);pointer-events:auto;cursor:pointer}
   #muteB.off{opacity:.4;text-decoration:line-through}
@@ -234,6 +235,7 @@
   <div class="btn" id="pauseB">❚❚</div>
   <div class="btn" id="spdB">1x</div>
   <div class="ov" id="loadV"><div class="menu" style="min-width:200px;text-align:center"><div class="hname" style="font-size:14px">载入副本中…</div><div style="height:6px;background:#2a2244;border-radius:3px;margin-top:10px"><b id="loadI" style="display:block;height:100%;width:0;background:linear-gradient(90deg,#8a55ff,#e8b33a);border-radius:3px"></b></div><small id="loadT" style="color:#9a94c0"></small></div></div>
+  <div class="ov" id="lootV"><div class="menu" id="lootM"></div></div>
   <div class="ov" id="pauseV"><div class="menu"><div class="hname" style="font-size:15px">暂停</div><button class="b" id="pzGo">继续</button><button class="b ghost" id="pzSnd">音效</button><button class="b ghost" id="pzShk">震屏</button><button class="b ghost" id="pzHome">返回主界面</button></div></div>
   <div id="hexV"></div>
   <div id="hint"></div>
@@ -249,7 +251,7 @@
     <div class="nm"><small id="cutSub"></small><b id="cutName"></b></div></div>
 
   <canvas id="mc"></canvas>
-  <div class="ov on" id="home"><div class="menu">
+  <div class="ov" id="home"><div class="menu">
     <div class="logo">深渊构筑<small>像素地牢 · 构筑割草</small></div>
     <div class="mbtns"><button class="b" id="toLevels">开始冒险</button>
       <div class="row"><button class="b ghost sm" id="sndB">音效：开</button><button class="b ghost sm" id="shkB">镜头震动：开</button></div>
@@ -277,10 +279,11 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v60"></script>
+<script src="content/raids_data.js?v=v61"></script>
+<script src="content/boss_tune.js?v=v61"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v60';
+const W=195,H=347,VERSION='v61';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -373,8 +376,8 @@ const CLS={
 };
 const CLS_IDS=Object.keys(CLS);
 // 职业平衡（随机选卡自动模拟校准）：[生命倍率, 伤害倍率]；远程靠风筝天然更安全，伤害相应压低
-const TUNE={sword:[1.312,1.104],mage:[1.658,1.485],brawler:[0.954,0.638],eng:[1.648,2.578],archer:[1.099,0.98],assassin:[2.542,1.996],ninja:[1.321,1.272],bard:[0.994,0.912],paladin:[0.515,0.793]};   // tools/sim.mjs --tune 校准
-for(const id in TUNE){CLS[id].hp=Math.round(CLS[id].hp*TUNE[id][0]);CLS[id].dmg*=TUNE[id][1];}
+const TUNE={sword:[1.312,1.264],mage:[1.658,1.621],brawler:[0.954,0.638],eng:[1.648,2.135],archer:[1.099,1.164],assassin:[2.542,1.996],ninja:[1.321,1.511],bard:[0.994,0.986],paladin:[0.515,0.73]};   // tools/sim.mjs --tune 校准
+for(const id in TUNE){CLS[id].hp=Math.round(CLS[id].hp*TUNE[id][0]);CLS[id].dmg*=TUNE[id][1]*(id==='assassin'?1:1.15);}   // 刺客以外的职业整体加强
 // 外部美术：GPT 生成的合图放在 art/，缺失时回退到下面的程序像素图
 const ART={};
 function loadArt(name,fn,ext='png'){const im=new Image();im.onload=()=>{ART[name]=fn(im);};im.src='art/'+name+'.'+ext;}
@@ -884,8 +887,10 @@ const MINI=[
  {n:'死亡射手',hpx:.6,b:'SA',pal:{W:'#c4c4c4',S:'#6a6a6a',G:'#ff3a3a'},sk:['volley','spiral']},
 ];
 const BIG_HP=5000,MINI_HP=3400,BOSS_DMG=1.35,LV_STEP=2.5;
-const CURVE=L=>{const f=Math.min(1,Math.max(0,(L-1)/Math.max(1,NLV()-1)));return{hp:.5+.6*f,dmg:.7+.4*f};};   // 难度曲线：首领血 0.5→1.1，敌人伤害 0.7→1.1
-const BAL={bossHp:2.95,bossDmg:1.45,mobHp:1.45,mobDmg:1.25};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
+// 难度按章节查表 [首领/小怪血量, 敌人伤害]，章内越往后的首领再强最多 15%（tools/sim.mjs 校准：第 1 章胜率约 90%，往后每章约降 8~10%）
+const RC=[[.42,.74],[.5,.83],[.55,.9],[.6,.96],[.65,1.01]];
+const CURVE=L=>{const v=LV[L],r=RC[Math.min(v.ri,RC.length-1)],n=RAIDS[v.ri].bosses.length,f=n>1?v.k/(n-1):0;return{hp:r[0]*(1+.15*f),dmg:r[1]*(1+.15*f)};};
+const BAL={bossHp:3.84,bossDmg:1.2,mobHp:1.45,mobDmg:1.25};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
 
 // ---------- 音频：全部用 Web Audio 现场合成（8-bit 风），无外部素材 ----------
 const AU={ctx:null,master:null,mus:null,sfx:null,noise:null,muted:false,song:null,step:0,next:0,last:{}};
@@ -965,7 +970,7 @@ document.addEventListener('visibilitychange',()=>{if(AU.ctx)document.hidden?AU.c
 
 // ---------- 画布 ----------
 const low=document.createElement('canvas');low.width=W;low.height=H;const lc=low.getContext('2d');lc.imageSmoothingEnabled=false;
-const gv=$('g'),dpr=Math.min(window.devicePixelRatio||1,2),K=2*dpr,rp=v=>Math.round(v*K)/K;   // rp：对齐到物理像素
+const gv=$('g'),dpr=Math.min(window.devicePixelRatio||1,2),K=dpr>=2?3:2,rp=v=>Math.round(v*K)/K;   // rp：对齐到物理像素；像素风 3 倍足够，手机上少填 40% 像素
 gv.width=W*K;gv.height=H*K;const g=gv.getContext('2d');
 // Scale2x（EPX）：放大 2 倍并把斜边、圆弧补平滑；跑两次得到 4 倍像素密度
 function scale2x(src){const w=src.width,h=src.height,s=new Uint32Array(src.getContext('2d').getImageData(0,0,w,h).data.buffer);
@@ -986,6 +991,9 @@ function animTick(e,dt){if(!e.art||e.dead)return;
   if(e.rig&&e.rig.front){const fw=pl.y-e.y>Math.abs(pl.x-e.x)*.8;if(fw!==!!e.rf){if((e._rfT=(e._rfT||0)+dt)>.3){e.rf=fw;e._rfT=0;}}else e._rfT=0;}
   if(e.boss&&e.mode!==e._pm){e._pm=e.mode;if(e.mode&&e.mode!=='walk'){e.castAt=G.t;e.castDur=Math.min(1.6,Math.max(.6,e.at||1));e.castK=window.skKind?skKind(e,e.mode):'spell';}}
   if(e.rig&&window.rigTick)rigTick(e,dt);}
+// 逐帧图各帧画的大小不一：按待机帧的不透明身高统一，走路不再忽大忽小（结果缓存在帧画布上）
+function frameH(f){if(f._bh===undefined){f._bh=0;try{const w=f.width,h=f.height,d=f.getContext('2d').getImageData(0,0,w,h).data;let y0=-1,y1=-1;for(let y=0;y<h&&y0<0;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>60){y0=y;break;}for(let y=h-1;y>=0&&y1<0;y--)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>60){y1=y;break;}f._bh=y0<0?0:y1-y0+1;}catch(_){}}return f._bh;}
+function frameK(ref,f){if(!ref||!f||ref===f||!f.getContext)return 1;const a=frameH(ref),b=frameH(f);return a&&b?Math.max(.85,Math.min(1.15,a/b)):1;}
 function drawArt(c,im,cx,fy,w,h,flip,rot,sx,sy){c.save();c.translate(cx,fy);c.rotate(rot);c.scale(flip?-sx:sx,sy);c.drawImage(im,-w/2,-h,w,h);c.restore();}   // 以脚底为锚点
 function drawSpr(img,x,y,w,h,flip,c=g){const im=hd(img);if(!flip)return c.drawImage(im,x,y,w,h);c.save();c.translate(x+w,y);c.scale(-1,1);c.drawImage(im,0,0,w,h);c.restore();}
 const dI=(c,img,x,y)=>c.drawImage(hd(img),x,y,img.width,img.height);
@@ -1040,10 +1048,23 @@ function metaApply(){const{t,sets}=gearStats(),a=PROG.acc.lv-1;st.atkMul*=1+t.at
   for(const id of Object.values(PROG.eq)){const it=PROG.inv.find(x=>x.id===id);for(const k of(it&&it.fx)||[])if(GEFX[k])GEFX[k][1](st,pl);}}   // 装备特效
 const power=()=>{const{t}=gearStats();return Math.round(100*(1+PROG.acc.lv*.03)*(1+t.atk)*(1+t.hp)*(1+t.crit)*(1+t.skill)*(1+t.spd)*(1+t.cdr));};
 // 关卡通关：账号经验 + 掉落装备
-function rewardLevel(L){const ri=LV[L].ri,A=PROG.acc;A.xp+=PROG.best[L]?120:600+ri*30;let up=0;while(A.xp>=accNeed(A.lv)&&A.lv<80){A.xp-=accNeed(A.lv);A.lv++;up++;}
-  const it=makeItem(ri);PROG.inv.push(it);let salv='';if(PROG.inv.length>60){const eqd=Object.values(PROG.eq),c=PROG.inv.filter(x=>!eqd.includes(x.id)&&x.set===null).sort((a,b)=>a.rar-b.rar||a.il-b.il)[0];   // 背包满：自动分解最差的非套装装备（不删套装 / 已穿戴）
-    if(c){PROG.inv=PROG.inv.filter(x=>x!==c);PROG.dust=(PROG.dust||0)+c.rar*5;salv=`<br>背包已满，自动分解 ${c.n}`;}}saveProg();
-  return `获得装备：<b style="color:${RAR[it.rar][1]}">${it.n}</b>${up?`<br>账号升级！Lv.${A.lv}`:''}${salv}`;}
+function rewardLevel(L){const ri=LV[L].ri,A=PROG.acc;A.xp+=PROG.best[L]?120:600+ri*30;let up=0;while(A.xp>=accNeed(A.lv)&&A.lv<80){A.xp-=accNeed(A.lv);A.lv++;up++;}saveProg();
+  return up?`<br>账号升级！Lv.${A.lv}`:'';}
+// 装备进背包；背包满时自动分解最差的非套装、未穿戴装备
+function addItem(it){PROG.inv.push(it);let salv='';if(PROG.inv.length>60){const eqd=Object.values(PROG.eq),c=PROG.inv.filter(x=>!eqd.includes(x.id)&&x.set===null&&x!==it).sort((a,b)=>a.rar-b.rar||a.il-b.il)[0];
+    if(c){PROG.inv=PROG.inv.filter(x=>x!==c);PROG.dust=(PROG.dust||0)+c.rar*5;salv=`<br>背包已满，自动分解 ${c.n}`;}}saveProg();return salv;}
+const itemTag=it=>`<b style="color:${RAR[it.rar][1]}">${it.n}</b>`;
+// 通关三选一：暂停在选装备界面，选完再继续（模拟器里直接拿第一件）
+function lootPick(ri,then){const items=[makeItem(ri),makeItem(ri),makeItem(ri)];
+  if(window.SIM){then(items[0],addItem(items[0]));return;}
+  G.state='loot';const M=$('lootM');M.innerHTML='<div class="hname" style="font-size:15px">通关奖励 · 三选一</div>'+items.map((it,i)=>`<button class="b ghost lootc" data-i="${i}" style="text-align:left;border-color:${RAR[it.rar][1]}">
+    ${itemTag(it)} <span style="color:#9a94c0">${RAR[it.rar][0]} · ${SLOTS.find(x=>x[0]===it.slot)[1]} · 装等 ${it.il}</span><br><span style="font-size:11px">${statLine(it.st)}</span>
+    ${it.set!==null?`<br><span style="font-size:11px;color:#ffd27a">套装 · ${GSET[it.set].n}</span>`:''}${(it.fx||[]).map(k=>`<br><span style="font-size:11px;color:#7dffcf">特效 · ${GEFX[k][0]}</span>`).join('')}</button>`).join('');
+  $('lootV').classList.add('on');
+  M.querySelectorAll('.lootc').forEach(b=>b.onclick=()=>{const it=items[+b.dataset.i];$('lootV').classList.remove('on');G.state='play';then(it,addItem(it));});}
+// 精英怪随机掉装备：浮字 + 提示条，结算时汇总
+function eliteDrop(e){const it=makeItem(LV[G.L].ri),salv=addItem(it);(G.runLoot=G.runLoot||[]).push(it);
+  num(e.x,e.y-22,'掉落装备！',RAR[it.rar][1],true);burst(e.x,e.y,16,RAR[it.rar][1],50,.6,2);sfx('lvl');toast(`${e.elite||e.eliteAdd?'精英掉落':'掉落装备'}：${it.n}（${RAR[it.rar][0]}）已放入背包${salv?'，背包满已分解旧装备':''}`);}
 // DPS 曲线：怪物血量随进度（关卡×房间）指数增长，玩家伤害随等级 +6%/级 + 海克斯成长
 // 关卡内：随房间推进（玩家同步升级、拿海克斯）怪物每间 +30%；关卡间：基础血量逐关提高
 // 章节内连续成长：p＝章节内第几个地牢（0~17）
@@ -1095,7 +1116,7 @@ function newLevel(L,ri=0){
 // 每个地牢：普通房间定额刷怪；第 3 间精英首领，第 6 间大首领
 function startFight(i){
   const R=G.rm=G.rooms[i];G.ri=i;R.seen=true;OBS=R.obs;
-  const L=G.L,p=G.p=raidFrac(L)*LV_STEP*2+i*5/Math.max(1,G.rooms.length-1),type=R.type;   // 海克斯每关重置，难度按关内房间 + 每关固定台阶增长
+  const L=G.L,p=G.p=raidFrac(L)*LV_STEP*2+i*5/Math.max(1,G.rooms.length-1),type=R.type;   // 海克斯在本章内一直保留，难度按关内房间 + 每关固定台阶增长
   G.hpMul=hpCurve(p)*CH_HP(L)*DIFF.hp*BAL.mobHp*(.6+.4*CURVE(L).hp);G.dmgMul=(1+p*.04)*CH_DMG(L)*DIFF.dmg*BAL.mobDmg*CURVE(L).dmg;G.xpMul=3+p*.4;
   G.cfg={type,quota:Math.min(60,Math.round((type==='normal'?16+tierOf(L)*1.5+i*2:6+tierOf(L))*DIFF.quota)),rate:(type==='normal'?1.4+tierOf(L)*.1+i*.12:.5)*DIFF.rate,waveT:14,bossDelay:1.2};
   G.spawned=0;G.spawnAcc=-1;G.phase='fight';pl.wp=null;G.boss=null;G.bossDone=false;G.cutinDone=false;G.warm=0;
@@ -1254,14 +1275,14 @@ function bossAI(b,dt){
     if(t.after)t.after();}
   if(!b.sec){let j=0;for(const t of b.tels)if(!t.done||t.fx>0)b.tels[j++]=t;b.tels.length=j;}   // 副首领往同一个数组里放预警
   if(b.mode==='walk'){const dd=Math.hypot(pl.x-b.x,pl.y-b.y),sp=b.spd*(b.ph2?1.4:1)*(b.slowT>0?1-st.slow*.5:1);
-    if(!b.frozenT){if(dd>b.r+14)chase(b,sp*(dd>80?1.5:1),dt);
+    if(!(b.frozenT>0)){if(dd>b.r+14)chase(b,sp*(dd>80?1.5:1),dt);
       else if(!b.stationary){if((b.orbT=(b.orbT||0)-dt)<=0){b.orbT=2+rand()*2;b.orbD=rand()<.5?1:-1;}const a=Math.atan2(b.y-pl.y,b.x-pl.x)+b.orbD*sp*.6*dt/Math.max(20,dd);b.x=pl.x+Math.cos(a)*dd;b.y=pl.y+Math.sin(a)*dd;}}   // 贴身后绕着玩家横移，不站桩
     if(b.at<=0){const d=Math.hypot(pl.x-b.x,pl.y-b.y),ok=k=>b.stationary||!window.skReach||d<=skReach(b,k);
       let s=b.sk[b.ph2?(rand()*b.sk.length)|0:b.cyc%b.sk.length];
       if(!ok(s)){const alt=b.sk.filter(ok);s=alt.length?alt[(rand()*alt.length)|0]:null;}
       if(s){b.cyc++;b.mode=s;b.say={n:skName(b,s),t:1.4};skOf(b,s).start(b,f);}else b.at=.25;}}
   else{const s=skOf(b,b.mode);if(s.tick)s.tick(b,dt,f);
-    if(!b.stationary&&!b.cast&&!b.inv&&!b.addPh&&!b.frozenT&&!b.hidden&&b.mode!=='charge'&&b.spd>0)chase(b,b.spd*.5,dt);   // 放技能时也慢慢追人（预警位置已在施放瞬间定好）
+    if(!b.stationary&&!b.cast&&!b.inv&&!b.addPh&&!(b.frozenT>0)&&!b.hidden&&b.mode!=='charge'&&b.spd>0)chase(b,b.spd*.5,dt);   // 放技能时也慢慢追人（预警位置已在施放瞬间定好）
     if(b.at<=0){endSkill(b);b.mode='walk';b.at=(b.big?1.3:1.6)*f;}}
   clampRoom(b,6);if(b.mode!=='charge'){const h=pushOut(b,b.r-3);if(h&&!b.wp)setWp(b,h,b.r);}
 }
@@ -1316,6 +1337,8 @@ function dmg(e,d,o={}){if(!e.dead&&!e.inv)sfx('hit');if(window.dmgMulX&&!e.dead)
 }
 function kill(e){if(e.silent)return;
   e.dead=true;G.kills++;sfx('kill');
+  // 掉装备：精英房首领 40%，首领身边精英 8%，普通小怪 1.2%
+  if((e.elite&&rand()<.4)||(e.eliteAdd&&rand()<.08)||(!e.boss&&!e.eliteAdd&&!e.small&&rand()<.012))eliteDrop(e);
   if(!e.boss&&e.def&&window.trashDeath)trashDeath(e);
   if(!e.boss){const ch=e.def?0:chOf(G.L);
     if(e.k==='SL'&&ch<4&&!e.small)for(let i=0;i<2;i++){const s2=spawnAt(e.x+(i?5:-5),e.y,'SL');s2.small=true;s2.hp=s2.max*=.4;s2.w=Math.round(s2.w*.7);s2.h=Math.round(s2.h*.7);s2.r=3;}
@@ -1388,8 +1411,9 @@ function onAtkHit(e){
 }
 function hitCrate(o,d){o.hp-=d;o.flash=.08;
   if(o.hp<=0){o.dead=true;if(rand()<.5)G.hearts.push({x:o.x+o.w/2,y:o.y+o.h/2,b:0});sfx('crate');rings.push({x:o.x+o.w/2,y:o.y+o.h/2,r0:2,r1:12,t:.25,T:.25,col:'#c48a4e'});G.xp+=4*G.xpMul;}}
-function nearestLos(p,r){let b=null,bd=r*r;for(const e of en){if(e.dead||e.inv||e.unk)continue;const q=(e.x-p.x)**2+(e.y-p.y)**2;if(q<bd&&los(p,e)){bd=q;b=e;}}return b;}
-function nearest(x,y,r,skip){let b=null,bd=r*r;for(const e of en){if(e.dead||e.inv||e.unk||(skip&&skip.has(e)))continue;const q=(e.x-x)**2+(e.y-y)**2;if(q<bd){bd=q;b=e;}}return b;}
+// prio：必须先打掉的单位（爬向祭坛的幼虫等），在射程内优先选它
+function nearestLos(p,r){let b=null,bd=r*r;for(const e of en){if(e.dead||e.inv||e.unk)continue;const q=(e.x-p.x)**2+(e.y-p.y)**2;if(q<r*r&&q*(e.prio?.02:1)<bd&&los(p,e)){bd=q*(e.prio?.02:1);b=e;}}return b;}
+function nearest(x,y,r,skip){let b=null,bd=r*r;for(const e of en){if(e.dead||e.inv||e.unk||(skip&&skip.has(e)))continue;const q=(e.x-x)**2+(e.y-y)**2;if(q<r*r&&q*(e.prio?.02:1)<bd){bd=q*(e.prio?.02:1);b=e;}}return b;}
 function jag(pts){const out=[pts[0]];for(let i=0;i<pts.length-1;i++){const[a,b]=[pts[i],pts[i+1]];
   for(let k=1;k<4;k++){const t=k/4;out.push([a[0]+(b[0]-a[0])*t+(rand()-.5)*6,a[1]+(b[1]-a[1])*t+(rand()-.5)*6]);}out.push(b);}return out;}
 function chain(sx,sy,n,first,hop,d,skip){
@@ -1478,10 +1502,11 @@ function doUlt(){
 
 // ---------- 自动战斗：躲首领预警，近战贴脸、远程保持射程 ----------
 function danger(x,y){
-  for(const p of G.pools)if(Math.hypot(x-p.x,y-p.y)<p.r+5)return true;
+  for(const p of G.pools)if(p.dmg>0&&!p.buff&&Math.hypot(x-p.x,y-p.y)<p.r+5)return true;   // 无伤害的增益池（哈卡毒血）不躲
   for(const t of G.etels){if(!t.dmg)continue;if(t.t==='circle'){if(Math.hypot(x-t.x,y-t.y)<t.r+5)return true;}
     else{const ux=Math.cos(t.a),uy=Math.sin(t.a),px=x-t.x,py=y-t.y,al=px*ux+py*uy;if(al>-4&&al<t.len+4&&Math.abs(-px*uy+py*ux)<t.w+5)return true;}}
   const b=G.boss;if(!b)return false;
+  if(b.aura&&!(b.aura.warm>0)&&Math.hypot(x-b.x,y-b.y)<b.aura.r+6)return true;   // 跟随首领的伤害光环（地狱火等）
   for(const t of b.tels)if(!t.done&&!t.harmless&&telHit(t,x,y,5))return true;
   if(b.aim){const ux=Math.cos(b.aim.a),uy=Math.sin(b.aim.a),px=x-b.x,py=y-b.y;if(px*ux+py*uy>-10&&Math.abs(-px*uy+py*ux)<15)return true;}
   if(b.sw){for(let k=0;k<=5;k++)if(rayNear(b,b.sw.a+b.sw.va*k*.15,x,y,10))return true;}
@@ -1495,6 +1520,7 @@ function autoDir(){
     if(best){const dx=best.x-pl.x,dy=best.y-pl.y,d=Math.hypot(dx,dy)||1;return[dx/d,dy/d];}}
   {const b=G.hideFrom;if(b&&!b.dead){let best=null,bd=1e9;for(const o of OBS){if(!o.ice||o.dead)continue;const cx=o.x+o.w/2,cy=o.y+o.h/2,dx=cx-b.x,dy=cy-b.y,l=Math.hypot(dx,dy)||1,gx=cx+dx/l*13,gy=cy+dy/l*13,d=Math.hypot(gx-pl.x,gy-pl.y);if(d<bd){bd=d;best={x:gx,y:gy};}}   // 冰霜吐息：躲到冰块背后
     if(best&&bd>2){const dx=best.x-pl.x,dy=best.y-pl.y,d=Math.hypot(dx,dy);return[dx/d,dy/d];}if(best)return[0,0];}}
+  {const g=window.aiGoal&&aiGoal();if(g){const dx=g.x-pl.x,dy=g.y-pl.y,d=Math.hypot(dx,dy);return d>3?[dx/d,dy/d]:[0,0];}}
   let vx=0,vy=0;
   const mel=AT[C.atk].melee,stuck=G.phase==='fight'&&G.t-(G.lastAtkT||G.t)>2&&en.some(e=>!e.dead&&!e.inv),kite=C.kite*(stuck?(mel?0:.2):1);   // 2 秒打不到人就别再风筝，主动贴上去
   for(const e of en){if(e.inv||e.prop)continue;const dx=pl.x-e.x,dy=pl.y-e.y,d2=dx*dx+dy*dy;if(d2<60*60&&d2>1){const w=(e.boss?(mel?1.5:4):1)*kite/d2;vx+=dx*w;vy+=dy*w;}}   // 首领对近战的排斥要小，否则近战永远贴不上去
@@ -1579,7 +1605,7 @@ function update(dt){
     if(wd!==pl.dir){if((pl.dT=(pl.dT||0)+dt)>.25||!pl.dir){pl.dir=wd;pl.dT=0;}}else pl.dT=0;}
   // 英雄分件骨骼：普攻=出手、移动=走路，朝向决定侧面 / 正面 / 背面
   if(window.rigTick){pl.atkPose=G.atkFx>0?1:0;pl._wk=pl.moving;pl.rf=pl.dir==='down';pl.rb=pl.dir==='up';rigTick(pl,dt);}
-  pl.inv-=dt;G.sinceHurt+=dt;G.thornT-=dt;G.sealT-=dt;G.pSlowT-=dt;G.critT-=dt;G.critBuffT-=dt;
+  pl.inv-=dt;G.sinceHurt+=dt;G.thornT-=dt;G.sealT-=dt;G.blindT=(G.blindT||0)-dt;G.pSlowT-=dt;G.critT-=dt;G.critBuffT-=dt;
   if(st.shieldMax&&G.sinceHurt>2.5&&pl.shield<st.shieldMax)pl.shield=Math.min(st.shieldMax,pl.shield+st.shieldMax*st.shieldRegen*dt);
   if(G.adrT>0){G.adrT-=dt;pl.hp=Math.max(1,pl.hp-pl.maxHp*.04*dt);}
   if(G.dotT>0){G.dotT-=dt;pl.hp=Math.max(1,pl.hp-G.dotD*dt);}G.vulnT-=dt;
@@ -1613,7 +1639,7 @@ function update(dt){
       else levelDone();}
   }else if(G.phase==='walk'){
     if(!pl.path.length||(G.phaseT-=dt)<=0){if(pl.path.length){const e=pl.path.at(-1);pl.x=e[0];pl.y=e[1];}startFight(G.ri+1);}
-  }else if(G.phase==='trans'&&(G.phaseT-=dt)<=0){resetBuild();newLevel(G.L+1);alliesInit();toast('新关卡：海克斯已重置');pl.hp=Math.min(pl.maxHp,pl.hp+(pl.maxHp-pl.hp)*.5);$('fade').classList.remove('on');}
+  }else if(G.phase==='trans'&&(G.phaseT-=dt)<=0){newLevel(G.L+1);alliesInit();toast('新关卡：海克斯保留到本章结束');pl.hp=Math.min(pl.maxHp,pl.hp+(pl.maxHp-pl.hp)*.5);$('fade').classList.remove('on');}
 
   // 敌人
   for(const e of en){
@@ -1803,7 +1829,7 @@ function drawEntities(c){
           else if(walk&&!e.prop){rot=Math.sin(T*(big?5:8))*(big?.05:.08);dy=-Math.abs(Math.sin(T*(big?5:8)))*(big?1.6:1.2);}
           if(cast){const q=1.03+.03*Math.sin(T*6);sx*=q;sy*=q;}
           if(e.flash>0){sx*=1.07;sy*=.93;}}
-        const ax=x+t.w/2,ay=y+t.h+dy,fl=!!e.fl,rigd=e.rig&&window.drawRig&&!e.formArt&&drawRig(c,e,ax,ay,t.h*1.05,fl);if(!rigd)drawArt(c,im2,ax,ay,t.w,t.h,fl,rot,sx,sy);
+        const ax=x+t.w/2,ay=y+t.h+dy,fl=!!e.fl,rigd=e.rig&&window.drawRig&&!e.formArt&&drawRig(c,e,ax,ay,t.h*1.05,fl);if(!rigd){const k=walk&&A&&A.idle?frameK(A.idle[0],im2):1;drawArt(c,im2,ax,ay,t.w,t.h,fl,rot,sx*k,sy*k);}
         if(e.flash>0&&!rigd){c.globalCompositeOperation='lighter';c.globalAlpha=.7;drawArt(c,im2,ax,ay,t.w,t.h,fl,rot,sx,sy);c.globalCompositeOperation='source-over';c.globalAlpha=1;}
         // 预警：蓄力 / 瞄准时头顶红色感叹号；首领施法时显示技能名
         const warn=!e.prop&&(e.wind>0||(e.k==='SA'&&e.shotT>0&&e.shotT<.45)||(e.boss&&e.say&&e.say.t>0));
@@ -1814,7 +1840,7 @@ function drawEntities(c){
       c.globalAlpha=1;
       if(e.poison&&FX.poison)c.drawImage(FX.poison,x+t.w/2-7,y-6,6,6);else if(e.poison){c.fillStyle='#8ff07a';c.fillRect(x+2+((G.t*6+e.x)|0)%4,y-2,1,1);}
       if(e.burnT>0&&PJ.fireball){c.save();c.translate(x+t.w/2+3,y-3);c.rotate(-Math.PI/2);c.drawImage(PJ.fireball,-4,-4,8,8);c.restore();}else if(e.burnT>0){c.fillStyle=((G.t*10)|0)%2?'#ff9a4a':'#ffd34a';c.fillRect(x+t.w-3,y-1+((G.t*8)|0)%2,1,2);}
-      if(e.slowT>0&&!e.frozenT&&FX.ice)c.drawImage(FX.ice,x+t.w-4,y+t.h-6,6,6);else if(e.slowT>0&&!e.frozenT){c.fillStyle='#9fe8ff';c.fillRect(x+1,y+t.h-3,1,1);}}
+      if(e.slowT>0&&!(e.frozenT>0)&&FX.ice)c.drawImage(FX.ice,x+t.w-4,y+t.h-6,6,6);else if(e.slowT>0&&!(e.frozenT>0)){c.fillStyle='#9fe8ff';c.fillRect(x+1,y+t.h-3,1,1);}}
   }
   if(G.allies)for(const a of G.allies){if(a.dead)continue;const A2=CLS[a.cls].art;c.fillStyle='rgba(0,0,0,.35)';c.fillRect(a.x-5,a.y+5,10,2);
     if(A2){const fr=a.atkFx>0?A2.atk:a.moving?A2.walk:A2.idle,k=A2.anim?1/.72:1,bw=19*k,bh=21*k;drawSpr(fr[((G.t*(a.moving?10:3))|0)%fr.length],rp(a.x-bw/2),rp(a.y+7-bh),bw,bh,a.face<0);}
@@ -2076,8 +2102,9 @@ function endPanel(title){
   $('dead').classList.add('on');
 }
 function die(){G.state='dead';music(null);sfx('dead');endPanel('你倒下了');}
-function levelDone(){G.lastLoot=rewardLevel(G.L);toast(G.lastLoot.replace(/<[^>]+>/g,''));const lt=(G.t-G.lvStart)|0,b=PROG.best[G.L];if(!b||lt<b.t)PROG.best[G.L]={t:lt,c:G.cls};PROG.un=Math.max(PROG.un,Math.min(NLV(),G.L+1));saveProg();
-  if(!isChief(G.L)){G.phase='trans';G.phaseT=.6;$('fade').classList.add('on');toast(`${rNo(G.L)}-${kOf(G.L)} 完成 · 进入下一关`);}else win();}
+function levelDone(){const up=rewardLevel(G.L),lt=(G.t-G.lvStart)|0,b=PROG.best[G.L];if(!b||lt<b.t)PROG.best[G.L]={t:lt,c:G.cls};PROG.un=Math.max(PROG.un,Math.min(NLV(),G.L+1));saveProg();
+  lootPick(LV[G.L].ri,(it,salv)=>{const extra=(G.runLoot||[]).length?`<br>战斗掉落：${G.runLoot.map(itemTag).join('、')}`:'';G.lastLoot=`获得装备：${itemTag(it)}${extra}${up}${salv}`;G.runLoot=[];toast(G.lastLoot.replace(/<[^>]+>/g,''));
+    if(!isChief(G.L)){G.phase='trans';G.phaseT=.6;$('fade').classList.add('on');toast(`${rNo(G.L)}-${kOf(G.L)} 完成 · 进入下一关`);}else win();});}
 function win(){G.state='win';music(null);sfx('lvl');endPanel(`${RAIDS[LV[G.L].ri].name} 通关`);}
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2400);}
 function banner(){const e=$('banner');e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1300);}
@@ -2217,7 +2244,7 @@ function renderHub(v){HUB.v=v;const A=PROG.acc,C=CLS[selCls];
     renderClasses();SLOTS.forEach(([k])=>{const it=PROG.inv.find(x=>x.id===PROG.eq[k]),el=V.querySelector(`[data-slot="${k}"]`);if(it)el.prepend(itemIcon(it));});
     const cv=$('heroArt'),an=ART.anime&&ART.anime[CLS_IDS.indexOf(selCls)];if(an){cv.width=cv.height=an.width;cv.getContext('2d').drawImage(an,0,0);cv.style.imageRendering='auto';}}
   else if(v==='bag'){const items=PROG.inv.slice().sort((a,b)=>b.rar-a.rar||b.il-a.il),eqIds=Object.values(PROG.eq);
-    V.innerHTML=`<div style="margin-bottom:8px">背包 ${PROG.inv.length}/60　<span style="color:#9a94c0">点击装备查看 / 穿戴；每通关一关掉落 1 件</span></div><div class="bag">${items.map(it=>`<div class="it${eqIds.includes(it.id)?' eq':''}" data-id="${it.id}" style="border-color:${RAR[it.rar][1]}"></div>`).join('')||'<span style="grid-column:1/-1;color:#6a6490">还没有装备，去副本里打首领吧</span>'}</div><div id="itip"></div>`;
+    V.innerHTML=`<div style="margin-bottom:8px">背包 ${PROG.inv.length}/60　<span style="color:#9a94c0">点击装备查看 / 穿戴；每通关一关三选一，精英怪随机掉落</span></div><div class="bag">${items.map(it=>`<div class="it${eqIds.includes(it.id)?' eq':''}" data-id="${it.id}" style="border-color:${RAR[it.rar][1]}"></div>`).join('')||'<span style="grid-column:1/-1;color:#6a6490">还没有装备，去副本里打首领吧</span>'}</div><div id="itip"></div>`;
     V.querySelectorAll('.it').forEach(el=>el.append(itemIcon(PROG.inv.find(x=>x.id===+el.dataset.id))));if(HUB.sel)showItem(HUB.sel);}
   else if(v==='party'){V.innerHTML=`<div class="hname" style="font-size:15px">组队</div><p style="text-align:center;color:#9a94c0">打不过的副本可以带 AI 队友（最多 2 名），他们使用各自职业的技能自动战斗。</p>
       <div class="party">${[0,1].map(i=>{const c=PROG.party[i];return `<div class="pm" data-pi="${i}">${c?`<div><canvas data-pc="${c}"></canvas><br>${CLS[c].n}<br><small style="color:#ff8a8a">点击移除</small></div>`:'<div>＋<br>添加队友</div>'}</div>`;}).join('')}</div>
@@ -2227,7 +2254,7 @@ function renderHub(v){HUB.v=v;const A=PROG.acc,C=CLS[selCls];
       <div>音效 / 音乐<em><button class="b ghost sm" id="sndB2">${AU.muted?'关':'开'}</button></em></div>
       <div>镜头震动<em><button class="b ghost sm" id="shkB2">${SHAKE?'开':'关'}</button></em></div>
       <div>版本<em>${VERSION}</em></div></div>
-      <button class="bigbtn" id="toHome" style="background:#2b1f63">返回标题</button><button class="bigbtn" id="resetAll" style="background:#5a1a2a">清空存档</button>`;}
+      <button class="bigbtn" id="resetAll" style="background:#5a1a2a">清空存档</button>`;}
   navSel();}
 function showItem(id){HUB.sel=id;const it=PROG.inv.find(x=>x.id===id);if(!it)return;const on=PROG.eq[it.slot]===it.id;
   $('itip').innerHTML=`<div class="itip"><b style="color:${RAR[it.rar][1]}">${it.n}</b>　<span style="color:#9a94c0">${RAR[it.rar][0]} · ${SLOTS.find(s=>s[0]===it.slot)[1]} · 物品等级 ${it.il}</span><br>${statLine(it.st)}
@@ -2236,7 +2263,7 @@ function showItem(id){HUB.sel=id;const it=PROG.inv.find(x=>x.id===id);if(!it)ret
     <button class="b" data-act="${on?'off':'on'}">${on?'卸下':'穿戴'}</button><button class="b ghost" data-act="del">分解</button></div>`;}
 $('hubView').addEventListener('click',e=>{const V=$('hubView');
   if(e.target.id==='toRaid'){show('levels');return;}
-  if(e.target.id==='toHome'){show('home');return;}
+  if(e.target.id==='toHome'){show('hub','hero');return;}
   if(e.target.id==='sndB2'){toggleMute();renderHub('set');return;}
   if(e.target.id==='shkB2'){SHAKE=!SHAKE;try{localStorage.setItem('abyss-shake',SHAKE?'1':'0');}catch(_){}renderHub('set');return;}
   if(e.target.id==='resetAll'){if(confirm('确定清空所有进度、装备和等级吗？')){try{localStorage.removeItem('abyss-prog');}catch(_){}location.reload();}return;}
@@ -2279,7 +2306,7 @@ $('dead').addEventListener('click',e=>{
   if(e.target.id==='again'){$('dead').classList.remove('on');enterLevel();}
   if(e.target.id==='next'){$('dead').classList.remove('on');selLevel=G.L+1;enterLevel();}
   if(e.target.id==='home2'){$('dead').classList.remove('on');G=null;music(null);show('hub','hero');}
-  if(e.target.id==='rev')showAd(()=>{G.revived=true;pl.hp=pl.maxHp;music(G.boss?'boss':'normal');pl.inv=2;$('dead').classList.remove('on');G.state='play';nova(80,atkBase()*3);});
+  if(e.target.id==='rev')showAd(()=>{G.revived=true;pl.hp=pl.maxHp;music(G.boss?'boss':'normal');pl.inv=2;$('dead').classList.remove('on');G.state='play';nova(80,atkBase()*3);openPick(3);toast('复活奖励：棱彩海克斯三选一');});
 });
 // 图标直接用 CSS 雪碧图定位，不经过画布 toDataURL（手机上画布内存紧张时会变空白）
 function setIcons(){const i=CLS_IDS.indexOf(selCls);if(i<0)return;
@@ -2293,8 +2320,9 @@ function startGame(){for(const k of SCREENS)$(k).classList.remove('on');$('nav')
 $('go').onclick=()=>enterLevel();
 // 进关：先把本关需要的图集全部加载好（最多等 10 秒，缺图不卡死），再开始
 function enterLevel(){if(!window.levelReady)return startGame();const L=selLevel,t0=performance.now();$('loadV').classList.add('on');
-  const tick=()=>{const{ok,total}=levelReady(L);$('loadI').style.width=Math.round(ok/Math.max(1,total)*100)+'%';$('loadT').textContent=`${ok}/${total}`;
-    if(ok>=total||performance.now()-t0>10000){$('loadV').classList.remove('on');startGame();}else setTimeout(tick,120);};tick();}
+  const hero=['righ_','righf_','righb_'].map(p=>p+selCls),art=['heroes','walk_'+selCls,'anime'];
+  const tick=()=>{const r=levelReady(L,hero),ok=r.ok+art.filter(n=>ART[n]).length,total=r.total+art.length;$('loadI').style.width=Math.round(ok/Math.max(1,total)*100)+'%';$('loadT').textContent=`${ok}/${total}`;
+    if(ok>=total||performance.now()-t0>15000){if(window.rigWarm)rigWarm({plan:'humanoid',sheet:hero[0],front:hero[1],back:hero[2],grip:.25});$('loadV').classList.remove('on');startGame();}else setTimeout(tick,120);};tick();}
 $('spdB').textContent=GSPD+'x';$('spdB').onclick=()=>{GSPD=GSPD===1?1.5:GSPD===1.5?2:1;$('spdB').textContent=GSPD+'x';try{localStorage.setItem('abyss-speed',GSPD);}catch(_){}};   // 倍速
 // 关卡内暂停：继续 / 音效 / 震屏 / 返回主界面（放弃本关）
 const pzLabel=()=>{$('pzSnd').textContent='音效：'+(AU.muted?'关':'开');$('pzShk').textContent='震屏：'+(SHAKE?'开':'关');};
@@ -2321,13 +2349,15 @@ for(const d of BIG.concat(MINI))console.assert(d.sk.every(s=>SK[s]),'boss skill'
 console.assert(new Set(BIG.concat(MINI).map(d=>d.sk.slice().sort().join())).size===24,'unique boss kits');
 selCls='mage';reset();
 for(let i=0;i<300;i++){const o=makeOffer(1+i%15);console.assert(o.cards.length===3&&o.cards.every(h=>h.tier===o.tier)&&new Set(o.cards.map(h=>h.id)).size===3,'offer',o);}
-G=null;show('home');
+G=null;selLevel=Math.min(PROG.un,NLV());if(PROG.hero&&CLS[PROG.hero])selCls=PROG.hero;show('hub','hero');
+// 直接进大厅（去掉旧标题页）；音效要等第一次点击才能开
+addEventListener('pointerdown',()=>auInit(),{once:true});
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v60"></script>
-<script src="src/raid_engine.js?v=v60"></script>
-<script src="content/rigs.js?v=v60"></script>
-<script src="src/rig.js?v=v60"></script>
+<script src="content/skill_fx.js?v=v61"></script>
+<script src="src/raid_engine.js?v=v61"></script>
+<script src="content/rigs.js?v=v61"></script>
+<script src="src/rig.js?v=v61"></script>
 </body>
 </html>
