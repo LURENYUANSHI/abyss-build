@@ -28,8 +28,9 @@ function trimBleed(c){
   if(!tot)return;
   let y=h-1,low=0;while(y>0&&r[y]>0)low+=r[y--];
   let gap=0;while(y>0&&r[y]===0){gap++;y--;}
-  if(!low||gap<2||low>tot*.15||y<h*.3)return;
-  x.clearRect(0,y+gap+1,w,h);const sh=h-2-y;if(sh<=0)return;
+  let bot=h-1;while(bot>0&&!r[bot])bot--;
+  if(low&&gap>=2&&low<=tot*.15&&y>=h*.3){x.clearRect(0,y+gap+1,w,h);bot=y;}
+  const sh=h-2-bot;if(sh<=0)return;
   const t=document.createElement('canvas');t.width=w;t.height=h;t.getContext('2d').drawImage(c,0,0);x.clearRect(0,0,w,h);x.drawImage(t,0,sh);}
 function frames(ref,per){
   if(!Array.isArray(ref))return null;
@@ -47,11 +48,15 @@ function tilesOf(name){
 }
 // fallback:[现有图集名, 帧序号]，新图还没生成时用现有美术
 const fb=ref=>Array.isArray(ref)&&ART[ref[0]]&&ART[ref[0]][ref[1]]||null;
-// 动作集：新表 <表名>x（首领 8 帧：待机/走A/走B/蓄力/出手/施法A/施法B/受击；小怪 6 帧：待机/走A/走B/蓄力/出手/受击），没有就用旧表的 4/3 帧凑
-window.animOf=e=>{const r=e.animRef;if(!r)return null;if(e._an&&e._an.full)return e._an;const B=e.animPer===4,n=frames([r[0]+'x',r[1]],B?8:6);
-  if(n&&n.length===(B?8:6))return e._an={full:true,idle:n[0],walk:[n[1],n[2]],wind:n[3],atk:n[4],cast:B?[n[5],n[6]]:[n[3],n[4]],hurt:B?n[7]:n[5]};
+// 动作集：首领 <表名>z 12 帧（待机×2/走路×4/蓄力/出手/收招/施法×2/受击），小怪 <表名>x 6 帧（待机/走A/走B/蓄力/出手/受击）；新表没到就用旧表 4/3 帧凑
+window.animOf=e=>{const r=e.animRef;if(!r)return null;if(e._an&&e._an.full)return e._an;const B=e.animPer===4,n=frames([r[0]+(B?'z':'x'),r[1]],B?12:6);
+  if(n&&n.length===(B?12:6))return e._an=B?{full:true,idle:[n[0],n[1]],walk:[n[2],n[3],n[4],n[5]],wind:n[6],atk:n[7],rec:n[8],cast:[n[9],n[10]],hurt:n[11]}
+    :{full:true,idle:[n[0]],walk:[n[1],n[0],n[2],n[0]],wind:n[3],atk:n[4],rec:n[4],cast:[n[3],n[4]],hurt:n[5]};
   if(e._an)return e._an;const o=frames(r,e.animPer);if(!o)return null;
-  return e._an=B?{idle:o[0],walk:[o[1],o[1]],wind:o[2],atk:o[2],cast:[o[3]||o[2],o[3]||o[2]],hurt:null}:{idle:o[0],walk:[o[1],o[1]],wind:o[2],atk:o[2],cast:[o[2],o[2]],hurt:null};};
+  return e._an=B?{idle:[o[0]],walk:[o[1],o[0]],wind:o[2],atk:o[2],rec:o[2],cast:[o[3]||o[2],o[3]||o[2]],hurt:null}:{idle:[o[0]],walk:[o[1],o[0]],wind:o[2],atk:o[2],rec:o[2],cast:[o[2],o[2]],hurt:null};};
+// 技能动作类型：近身的预警 / 冲锋 / 内置近战技 = 挥砍；其余 = 施法
+const MELEE_SK=/slam|cleave|charge|sweep|stomp|whirl|smash|bite|claw|tail|pounce|knock|swipe|cross/i;
+window.skKind=(b,k)=>{const p=b.skills&&b.skills[k];if(p){if(p.e==='charge'||p.e==='followAura'||p.e==='grab'||p.e==='pull')return 'melee';if(p.e==='tel'&&(p.t==='cone'||(p.at==='boss'&&(p.r||20)<=50)))return 'melee';if(p.e==='builtin')return MELEE_SK.test(p.k||'')?'melee':'spell';return 'spell';}return MELEE_SK.test(k)?'melee':'spell';};
 window.formOf=f=>Array.isArray(f)?((frames(f,1)||[null])[0]):FORM(f);
 
 // ---------- 用数据重建关卡表：一个副本一章，一个首领一关 ----------
@@ -74,10 +79,10 @@ function preload(L){
   const v=LV[L];if(!v)return;
   const r=RAIDS[v.ri],b=v.b;
   tilesOf(r.tiles);tilesOf(tilesFor(L));sheet('props_'+r.id);for(const n of ['black_1','black_2','black_3','green'])sheet('fx_raid_'+n);
-  if(b.art){sheet(b.art[0]);sheet(b.art[0]+'x');}
+  if(b.art){sheet(b.art[0]);sheet(b.art[0]+'z');}
   for(const ph of b.ph||[])if(Array.isArray(ph.form))sheet(ph.form[0]);
   for(const a of b.adds||[])if(a.art)sheet(a.art[0]);
-  for(const m of b.multi||[])if(m.art){sheet(m.art[0]);sheet(m.art[0]+'x');}
+  for(const m of b.multi||[])if(m.art){sheet(m.art[0]);sheet(m.art[0]+'z');}
   for(const t of Object.values(r.trash))if(t.art){sheet(t.art[0]);sheet(t.art[0]+'x');}
 }
 window.raidPreload=preload;
@@ -99,10 +104,30 @@ const _renderLevels=renderLevels;
 renderLevels=function(){preload(selLevel);return _renderLevels();};
 
 // ---------- 小怪：按本关的 trash 名单生成，带数据驱动的技能 ----------
+// 每个副本的标志性小怪：只刷这些（权重越高越常见）；没列的副本按首领自己的名单
+const ICONIC={
+  mc:{core_hound:3,molten_giant:2,firelord:2},                       // 熔火恶犬、熔火巨人（大石头人）、火焰之王（小火元素）
+  ony:{onyxian_whelp:4,onyxian_warder:2,black_dragonspawn:1,black_dragon_cultist:1},
+  bwl:{death_talon_wyrmguard:3,blackwing_legionnaire:2,corrupted_whelp:2,blackwing_technician:2,blackwing_spellbinder:1},
+  zg:{gurubashi_berserker:2,zulian_tiger:2,razzashi_broodwidow:2,gurubashi_axe_thrower:2,hakkari_witch_doctor:1},
+  aq20:{qiraji_gladiator:2,hivezara_stinger:2,hivezara_wasp:2,anubisath_guardian:1,obsidian_destroyer:1},
+  aq40:{anubisath_sentinel:2,vekniss_stinger:3,qiraji_lasher:2,anubisath_defender:1,qiraji_brainwasher:1,obsidian_eradicator:1},
+  kara:{spectral_servant:2,spectral_charger:2,phantom_guest:2,arcane_anomaly_librarian:1,enchanted_broom:1},
+  gruul:{gronn_giant:2,ogre_warrior:2,gronn_priest:1,rock_hound:2},
+  mag:{hellfire_warder:2,hellfire_channeler:2,burning_abyssal:2,felhound:2},
+  hyjal:{ghoul:3,abomination:2,gargoyle:2,shadowy_necromancer:1,fel_stalker:2,giant_infernal:1},
+  ssc:{coilfang_guardian:2,coilfang_murloc:3,coilfang_priestess:1,coilfang_serpentguard:1,underbog_colossus:1},
+  toc:{nerubian_burrower:3,swarm_scarab:3,snobold_vassal:2,argent_trainee:1,scourge_caster:1},
+  os:{onyx_brood_general:1,onyx_flight_captain_sanctum_guardian:1,onyx_blaze_mistress:1,twilight_whelp:3},
+  eoe:{nexus_lord:1,scion_of_eternity:2,azure_drake:2,arcane_elemental:2},
+  voa:{archavon_warder:2,tempest_minion:2,frozen_orb:2,flame_warder:1},
+  rs:{charscale_commander:1,charscale_invoker:2,charscale_assaulter:2,charscale_elite:1},
+};
 function levelTrash(){
   const v=LV[G.L];if(!v)return null;
-  const r=RAIDS[v.ri],names=(v.b.trash&&v.b.trash.length?v.b.trash:Object.keys(r.trash));
-  return names.map(n=>r.trash[n]&&Object.assign({id:n},r.trash[n])).filter(Boolean);
+  const r=RAIDS[v.ri],I=ICONIC[r.id],names=I?Object.keys(I):(v.b.trash&&v.b.trash.length?v.b.trash:Object.keys(r.trash));
+  const out=[];for(const n of names){const t=r.trash[n];if(!t)continue;for(let w=0;w<(I?I[n]:1);w++)out.push(Object.assign({id:n},t));}
+  return out;
 }
 window.trashByName=n=>{const v=G&&LV[G.L];if(!v)return null;const t=RAIDS[v.ri].trash[n]||Object.values(RAIDS[v.ri].trash).find(x=>x.n===n);return t&&ET[t.base]?Object.assign({id:n},t):null;};
 window.raidMech=L=>{const r=RAIDS[LV[L].ri];const p=(r.props||[]).find(x=>['vent','egg','grave','rift'].includes(x.k));return p?{vent:'vent',egg:'EGG',grave:'GRV',rift:'RFT'}[p.k]:null;};
@@ -141,6 +166,7 @@ function mobTick(e,dt){
     if(a.range&&d>a.range){a.t=.5;continue;}
     a.t=a.cd||5;
     const D=(a.dmg||1)*e.dmg,T=a.T||.7;
+    e.castAt=G.t;e.castDur=Math.min(1.4,Math.max(.55,T));e.castK=/pounce|chargeLine|stacks|onHit/.test(a.k)?'melee':'spell';
     switch(a.k){
       case'pounce':e.wind=a.wind||.35;e.tx=pl.x;e.ty=pl.y;break;
       case'chargeLine':e.wind=T;e.tx=pl.x;e.ty=pl.y;G.etels.push({t:'line',x:e.x,y:e.y,a:angTo(e,pl),len:a.len||80,w:a.w||5,left:T,dmg:0,col:'#ff6a6a',vis:1});break;
@@ -425,6 +451,7 @@ function spawnData(b,v,d){
   const f=frames(d.art,4)||(fb(d.fallback)&&[fb(d.fallback)])||(ART.bosses&&[ART.bosses[d.fallbackArt]]);
   if(f){b.art=f.length>=2?[f[0],f[1]]:[f[0]];b.artAtk=f[3]||f[2]||null;b.w=b.h=d.size||(v.last?64:54);}
   b.animRef=Array.isArray(d.art)?d.art:null;b.animPer=4;b._an=null;
+  if(d.fixed||b.spd===0){const r=R();b.x=r.cx;b.y=r.y+r.h*.45;b.w=b.h=Math.round((b.w||54)*1.4);b.stationary=true;}   // 固定首领：居中、放大
   wrapSkills(b,d.skills);
   b.sk=(d.sk&&d.sk.length?d.sk:b.sk).filter(k=>b.skx[k]||SK[k]);
   if(!b.sk.length)b.sk=['slam'];
@@ -463,6 +490,10 @@ function applyPhase(b,o,on){
 // ---------- 每帧：首领附加状态、玩家减益、小怪技能 ----------
 window.raidTick=dt=>{
   if(!G)return;
+  for(const b of en){if(!b.boss||b.dead||b.stationary||b.mode!=='walk'||b.hidden||b.frozenT>0)continue;
+    b.swingT=(b.swingT||0)-dt;const d=Math.hypot(pl.x-b.x,pl.y-b.y);
+    if(b.swingT<=0&&d<b.w*.55+10){b.swingT=1.8;b.castAt=G.t;b.castDur=.7;b.castK='melee';
+      G.sched.push({t:.35,fn:()=>{if(!b.dead&&Math.hypot(pl.x-b.x,pl.y-b.y)<b.w*.55+14){hurt(b.skd*.45);fxs('slash',(b.x+pl.x)/2,(b.y+pl.y)/2,26,.25,angTo(b,pl));}}});}}
   for(const e of en){
     if(e.dead)continue;
     if(e.abx&&!e.boss)mobTick(e,dt);
@@ -527,6 +558,7 @@ doUlt=function(){_doUlt();for(const e of en)if(e.boss&&!e.dead){if(e.frenzyT>0&&
 // ---------- 绘制：读条、光环、炸弹、凝视、极性 ----------
 // 团本特效图集（GPT 生成，黑底按亮度抠图）：fx_raid_black_1/2/3、fx_raid_green
 const RF=(n,i)=>{const f=sheet('fx_raid_'+n);return f&&f[i]||null;};
+window.raidFx=(n,i)=>RF(n,i);
 const fxAt=(g,f,x,y,s,a=1)=>{if(!f)return false;g.globalAlpha=a;g.drawImage(f,x-s/2,y-s/2,s,s);g.globalAlpha=1;return true;};
 window.raidDraw=g=>{
   if(!G)return;

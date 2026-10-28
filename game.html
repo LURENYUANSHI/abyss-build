@@ -268,10 +268,10 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v30"></script>
+<script src="content/raids_data.js?v=v31"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v30';
+const W=195,H=347,VERSION='v31';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -364,7 +364,7 @@ const CLS={
 };
 const CLS_IDS=Object.keys(CLS);
 // 职业平衡（随机选卡自动模拟校准）：[生命倍率, 伤害倍率]；远程靠风筝天然更安全，伤害相应压低
-const TUNE={sword:[1.192,0.955],mage:[1.607,1.415],brawler:[1.186,0.906],eng:[1.477,2.187],archer:[1.17,1.076],assassin:[2.471,1.913],ninja:[1.256,1.18],bard:[1.079,1.031],paladin:[0.524,0.813]};   // tools/sim.mjs --tune 校准
+const TUNE={sword:[1.293,1.079],mage:[1.578,1.378],brawler:[1.192,0.912],eng:[1.504,2.248],archer:[1.123,1.011],assassin:[2.449,1.888],ninja:[1.262,1.188],bard:[1.044,0.982],paladin:[0.505,0.77]};   // tools/sim.mjs --tune 校准
 for(const id in TUNE){CLS[id].hp=Math.round(CLS[id].hp*TUNE[id][0]);CLS[id].dmg*=TUNE[id][1];}
 // 外部美术：GPT 生成的合图放在 art/，缺失时回退到下面的程序像素图
 const ART={};
@@ -405,7 +405,8 @@ loadArt('heroes',im=>{const f=strip(im,9);CLS_IDS.forEach((id,i)=>{if(!CLS[id].a
 // 动作帧：角色占格子 72% 高（攻击刀光可溢出），绘制时按 1/0.72 放大
 for(const id of CLS_IDS)loadArt('combo_'+id,im=>{CLS[id]._combo=strip(im,8);normAnim(id);return 1;});   // 连击第 2、3 段
 for(const id of CLS_IDS)loadArt('anim_'+id,im=>{CLS[id]._anim=strip(im,8);normAnim(id);return 1;});
-for(const id of CLS_IDS)loadArt('dir_'+id,im=>{CLS[id]._dir=strip(im,16);normAnim(id);return 1;});   // 正面（向下）/ 背面（向上）：走路 4 + 攻击 4
+for(const id of CLS_IDS)loadArt('dir_'+id,im=>{CLS[id]._dir=strip(im,16);normAnim(id);return 1;});   // 帧序：正面走路 4、背面走路 4、正面攻击 4、背面攻击 4
+for(const id of CLS_IDS)loadArt('walk_'+id,im=>{CLS[id]._walk=strip(im,18);applyWalk(id);return 1;});   // 6 帧走路：正面 / 背面 / 侧面各一行
 // GPT 各帧里角色位置/大小有漂移：按深色描边像素测出角色的高度、脚底、重心，
 // 走路帧逐帧对齐，攻击 / 连击按整行对齐到走路帧的尺寸与基线，避免切换动作时人物跳动
 function darkBox(cv){const w=cv.width,h=cv.height,d=cv.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h).data;let t=h,b=-1,sx=0,n=0;   // 返回 h 高度、b 脚底、t 头顶、cx 重心
@@ -419,11 +420,15 @@ function rowFit(fr,ref){const bs=fr.map(darkBox).filter(Boolean);if(!bs.length)r
 function normAnim(id){const C=CLS[id],a=C._anim;if(!a)return;const wb=a.slice(0,4).map(darkBox);if(wb.some(q=>!q)){C.art={idle:[a[0]],walk:a.slice(0,4),atk:a.slice(4),anim:true};return;}
   const ref={h:med(wb.map(q=>q.h)),b:med(wb.map(q=>q.b)),cx:med(wb.map(q=>q.cx))},walk=a.slice(0,4).map((f,i)=>refit(f,wb[i],ref,1));   // 走路帧不逐帧缩放，只对齐脚底与重心
   C.art={idle:[walk[0]],walk,atk:rowFit(a.slice(4),ref),anim:true};
-  const d=C._dir;if(d)for(const[k,o]of[['down',0],['up',8]]){const w=d.slice(o,o+4),bs=w.map(darkBox);const kk=bs.every(Boolean)?Math.min(1.35,Math.max(.75,ref.h/med(bs.map(q=>q.h)))):1,mt=bs.every(Boolean)?med(bs.map(q=>q.t)):0,mb=bs.every(Boolean)?med(bs.map(q=>q.b)):0;
+  const d=C._dir;if(d)for(const[k,o,oa]of[['down',0,8],['up',4,12]]){const w=d.slice(o,o+4),bs=w.map(darkBox);const kk=bs.every(Boolean)?Math.min(1.35,Math.max(.75,ref.h/med(bs.map(q=>q.h)))):1,mt=bs.every(Boolean)?med(bs.map(q=>q.t)):0,mb=bs.every(Boolean)?med(bs.map(q=>q.b)):0;
     // 正面/背面走路按头顶对齐（GPT 的背面走路帧上下起伏，按脚底对齐会像在跳）
-    C.art[k]={walk:w.map((f,i)=>bs[i]?refit(f,{h:bs[i].h,b:bs[i].t+(mb-mt),cx:bs[i].cx},ref,kk):f),atk:rowFit(d.slice(o+4,o+8),ref)};}
+    C.art[k]={walk:w.map((f,i)=>bs[i]?refit(f,{h:bs[i].h,b:bs[i].t+(mb-mt),cx:bs[i].cx},ref,kk):f),atk:rowFit(d.slice(oa,oa+4),ref)};}
   if(C._combo)C.combo=[rowFit(C._combo.slice(0,4),ref),rowFit(C._combo.slice(4),ref)];
+  C._ref=ref;applyWalk(id);
   if(C._combo&&C._dir){C._anim=C._combo=C._dir=null;}}   // 三张图都对齐完就丢掉原始帧，省内存
+// 新的 6 帧走路表到了就替换正面 / 背面 / 侧面的走路帧（按走路基准对齐）
+function applyWalk(id){const C=CLS[id],W=C._walk,ref=C._ref;if(!W||!ref||!C.art)return;
+  C.art.walk=rowFit(W.slice(12,18),ref);if(C.art.down)C.art.down.walk=rowFit(W.slice(0,6),ref);if(C.art.up)C.art.up.walk=rowFit(W.slice(6,12),ref);if(C.art.down&&C.art.up)C._walk=null;}
 loadArt('mobs',im=>strip(im,16));
 loadArt('gear',im=>strip(im,16));
 loadArt('anime',im=>strip(im,9));
@@ -861,7 +866,7 @@ const MINI=[
  {n:'死亡射手',hpx:.6,b:'SA',pal:{W:'#c4c4c4',S:'#6a6a6a',G:'#ff3a3a'},sk:['volley','spiral']},
 ];
 const BIG_HP=5000,MINI_HP=3400,BOSS_DMG=1.35,LV_STEP=2.5;
-const BAL={bossHp:2.09,bossDmg:1.44,mobHp:1.44,mobDmg:1.25};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
+const BAL={bossHp:1.99,bossDmg:1.41,mobHp:1.41,mobDmg:1.23};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
 
 // ---------- 音频：全部用 Web Audio 现场合成（8-bit 风），无外部素材 ----------
 const AU={ctx:null,master:null,mus:null,sfx:null,noise:null,muted:false,song:null,step:0,next:0,last:{}};
@@ -1505,12 +1510,12 @@ function update(dt){
     if(pl.wp&&G.phase==='fight'&&Math.hypot(pl.wp.x-pl.x,pl.wp.y-pl.y)<3)pl.wp=null;}
   // 朝向：攻击时朝目标，否则朝移动方向；新朝向需保持 0.12 秒才翻转，防止左右抽搐
   {G.aimT-=dt;const dx=G.aimT>0?pl.aimX-pl.x:0,want=Math.abs(dx)>3?Math.sign(dx):Math.abs(mx)>.25?Math.sign(mx):pl.face;
-    if(want!==pl.face){if((pl.ft=(pl.ft||0)+dt)>.12){pl.face=want;pl.ft=0;}}else pl.ft=0;}
+    if(want!==pl.face){if((pl.ft=(pl.ft||0)+dt)>.2){pl.face=want;pl.ft=0;}}else pl.ft=0;}
   pl.moving=pl.moving?ml>.1:ml>.2;
   // 上下左右四向：竖直分量明显大于水平才切到正面 / 背面，同样保持 0.12 秒才切换
   {const vx=G.aimT>0?pl.aimX-pl.x:mx,vy=G.aimT>0?pl.aimY-pl.y:my;let wd=pl.dir||'side';
     if(Math.hypot(vx,vy)>.05){if(Math.abs(vy)>Math.abs(vx)*1.3)wd=vy>0?'down':'up';else if(Math.abs(vx)>Math.abs(vy)*1.1)wd='side';}
-    if(wd!==pl.dir){if((pl.dT=(pl.dT||0)+dt)>.12||!pl.dir){pl.dir=wd;pl.dT=0;}}else pl.dT=0;}
+    if(wd!==pl.dir){if((pl.dT=(pl.dT||0)+dt)>.25||!pl.dir){pl.dir=wd;pl.dT=0;}}else pl.dT=0;}
   pl.inv-=dt;G.sinceHurt+=dt;G.thornT-=dt;G.sealT-=dt;G.pSlowT-=dt;G.critT-=dt;G.critBuffT-=dt;
   if(st.shieldMax&&G.sinceHurt>2.5&&pl.shield<st.shieldMax)pl.shield=Math.min(st.shieldMax,pl.shield+st.shieldMax*st.shieldRegen*dt);
   if(G.adrT>0){G.adrT-=dt;pl.hp=Math.max(1,pl.hp-pl.maxHp*.04*dt);}
@@ -1585,7 +1590,7 @@ function update(dt){
   // 普攻
   if(G.phase==='fight'&&(G.atkT-=dt)<=0){const AK=G.cls==='ninja'&&nearest(pl.x,pl.y,26)?'stab':C.atk,T=AT[AK],t=T.melee?   // 忍者：贴身近战、拉开距离投手里剑
     nearest(pl.x,pl.y,T.reach*st.rangeMul+10):nearestLos(pl,T.range*st.rangeMul*1.6);
-    if(t){pl.aimX=t.x;pl.aimY=t.y;G.aimT=.5;G.cmb=G.t-(G.lastAtkT||-9)<1.2?((G.cmb||0)+1)%3:0;G.lastAtkT=G.t;G.atkFx=.25;G.atkT=st.atkCd*(st.rage&&pl.hp<pl.maxHp*.5?.7:1)/(1+.02*G.frz)/(1+.015*G.warm)/(st.adren&&pl.hp<pl.maxHp*.5?1.4:1)/(G.mad===2?1.4:1)*(G.songT>0?st.songAtk:1);G.atkN++;sfx('atk_'+G.cls);if(G.cmb===2)G.sched.push({t:.06,fn:()=>{AU.last['atk_'+G.cls]=0;sfx('atk_'+G.cls);}});if(G.cmb===2&&!T.melee)fxs('spark',pl.x+Math.cos(angTo(pl,t))*8,pl.y-2+Math.sin(angTo(pl,t))*8,16,.2,0,0,1.4);if(G.sbArm)G.sbN=Math.max(0,G.sbN-1);G.sbArm=G.sbN>0;
+    if(t){pl.aimX=t.x;pl.aimY=t.y;G.aimT=.5+Math.min(1.5,st.atkCd);G.cmb=G.t-(G.lastAtkT||-9)<1.2?((G.cmb||0)+1)%3:0;G.lastAtkT=G.t;G.atkFx=.25;G.atkT=st.atkCd*(st.rage&&pl.hp<pl.maxHp*.5?.7:1)/(1+.02*G.frz)/(1+.015*G.warm)/(st.adren&&pl.hp<pl.maxHp*.5?1.4:1)/(G.mad===2?1.4:1)*(G.songT>0?st.songAtk:1);G.atkN++;sfx('atk_'+G.cls);if(G.cmb===2)G.sched.push({t:.06,fn:()=>{AU.last['atk_'+G.cls]=0;sfx('atk_'+G.cls);}});if(G.cmb===2&&!T.melee)fxs('spark',pl.x+Math.cos(angTo(pl,t))*8,pl.y-2+Math.sin(angTo(pl,t))*8,16,.2,0,0,1.4);if(G.sbArm)G.sbN=Math.max(0,G.sbN-1);G.sbArm=G.sbN>0;
       if(st.boltEvery&&G.atkN%st.boltEvery===0)G.boltNext=true;if(st.freezeEvery&&G.atkN%st.freezeEvery===0)G.freezeNext=true;
       const base=angTo(pl,t),n=st.multishot,sp=T.spread||0;
       if(T.melee){swing(base,st.whirl&&G.atkN%4===0,AK);for(let i=0;i<st.extraHits;i++)G.sched.push({t:.09*(i+1),fn:()=>swing(base+(i%2?.35:-.35),false,AK)});}
@@ -1707,7 +1712,7 @@ function drawEntities(c){
     if(it===pl){const hi=C.img[0],hx=Math.round(pl.x-hi.width/2),hy=Math.round(pl.y-hi.height/2-2),f=pl.moving?((G.t*8)|0)%2:0;
       c.fillStyle='rgba(0,0,0,.4)';c.fillRect(hx+3,hy+hi.height-2,hi.width-6,2);
       const zs=(st.giant?1.4:1)*(G.mad===1?1.3:G.mad===2?.75:1),zw=Math.round(hi.width*zs),zh=Math.round(hi.height*zs);
-      {if(pl.inv>0)c.globalAlpha=.65;const A=C.art,V=A&&pl.dir!=='side'&&A[pl.dir],fr=A&&(V?(G.atkFx>0?V.atk:pl.moving?V.walk:[V.walk[0]]):G.atkFx>0?(G.cmb&&A.anim&&C.combo?C.combo[G.cmb-1]:A.atk):pl.moving?A.walk:A.idle);if(fr){const ak=A.anim?1/.72:1,bw=Math.round(zw*1.45*ak),bh=Math.round(zh*1.3*ak),bob=A.anim?0:pl.moving?-Math.abs(Math.sin(G.t*14))*1.6:0,br=A.anim||pl.moving?0:Math.sin(G.t*3)*.5,lean=A.anim?0:G.atkFx>0?pl.face*1.5:0;
+      {if(pl.inv>0)c.globalAlpha=.65;const A=C.art,V=A&&pl.dir!=='side'&&A[pl.dir],fr=A&&(V?(G.atkFx>0?V.atk:pl.moving?V.walk:[V.walk[0]]):G.atkFx>0?(G.cmb&&A.anim&&C.combo?C.combo[G.cmb-1]:A.atk):pl.moving?A.walk:A.idle);if(fr){const ak=A.anim?1/.72:1,bw=Math.round(zw*1.45*ak),bh=Math.round(zh*1.3*ak),bob=A.anim?0:pl.moving?-Math.abs(Math.sin(G.t*14))*1.6:0,br=0,lean=A.anim?0:G.atkFx>0?pl.face*1.5:0;
         drawSpr(fr[G.atkFx>0?Math.min(fr.length-1,((1-G.atkFx/.25)*fr.length)|0):((G.t*(pl.moving?10:3))|0)%fr.length],rp(pl.x-bw/2+lean),rp(pl.y+hi.height/2-2-bh+bob-br),bw,Math.round(bh+br),pl.face<0);}else drawSpr(C.img[f],Math.round(pl.x-zw/2),Math.round(pl.y+hi.height/2-2-zh)-f,zw,zh,pl.face<0);}
       c.globalAlpha=1;
       if(pl.frozenT>0){c.globalAlpha=.5;drawSpr(IMG.HEf[0],hx,hy,hi.width,hi.height,pl.face<0);c.globalAlpha=1;}
@@ -1718,14 +1723,20 @@ function drawEntities(c){
       const fr=e.img?(e.flash>0?e.imgF:e.img):IMG[e.flash>0?e.k+'f':e.k],im=fr&&fr[((G.t*6+e.x*.13)|0)%fr.length];
       if(e.hidden)c.globalAlpha=.25;
       c.fillStyle='rgba(0,0,0,.35)';c.fillRect(x+2,y+t.h-2-(e.boss?2:0),t.w-4,e.boss?4:2);if(e.art){   // 贴图怪物的程序动画：呼吸、走路摇摆、施法蓄力、受击压扁；有第二姿势时切换帧
-        const T=G.t+e.x*.013,cast=e.boss&&e.mode&&e.mode!=='walk',walk=!cast,big=e.boss;
+        const T=G.t+e.x*.013,cast=e.boss&&e.mode&&e.mode!=='walk',big=e.boss;
+        if(e._lx!==undefined&&Math.hypot(e.x-e._lx,e.y-e._ly)>.12)e._mvAt=G.t;e._lx=e.x;e._ly=e.y;const walk=!cast&&G.t-(e._mvAt||-9)<.15;   // 位移判定，站着不播走路帧
         const A=!e.formArt&&window.animOf&&animOf(e),hit=e.dash>0||(e.k==='SA'&&e.shotT<.45)||e.atkPose>0;
-        let im2=e.formArt?e.formArt:A?(G.t-(e.hurtAt||-9)<.2&&A.hurt?A.hurt:cast?A.cast[((T*5)|0)%2]:e.wind>0?A.wind:hit?A.atk:walk?[A.walk[0],A.idle,A.walk[1],A.idle][((T*(big?6:9))|0)%4]:A.idle)
+        if(e.boss&&e.mode!==e._pm){e._pm=e.mode;if(e.mode&&e.mode!=='walk'){e.castAt=G.t;e.castDur=Math.min(1.6,Math.max(.6,e.at||1));e.castK=window.skKind?skKind(e,e.mode):'spell';}}
+        const sp=G.t-(e.castAt||-9),sk=A&&sp<(e.castDur||.6)?sp/(e.castDur||.6):-1;   // 放技能的动作进度 0~1
+        let im2=e.formArt?e.formArt:A?(G.t-(e.hurtAt||-9)<.2&&A.hurt?A.hurt
+            :sk>=0?(e.castK==='melee'?(sk<.45?A.wind:sk<.8?A.atk:A.rec):A.cast[sk<.4?0:1])
+            :cast?A.cast[((T*4)|0)%2]:e.wind>0?A.wind:hit?A.atk
+            :walk?A.walk[((T*(big?7:9))|0)%A.walk.length]:A.idle[((T*1.6)|0)%A.idle.length])
           :(cast||e.wind>0||hit)&&e.artAtk?e.artAtk:walk&&e.art.length>1?e.art[((T*(big?4:6))|0)%2]:e.art[0];
         let rot=0,sx=1,sy=1+Math.sin(T*3)*(big?.035:.02),dy=0;
         if(e.k==='SL'&&!big){const q=Math.sin(T*8)*.07;sx+=q;sy-=q;}
         else if(walk&&!e.prop){rot=Math.sin(T*(big?5:8))*(big?.05:.08);dy=-Math.abs(Math.sin(T*(big?5:8)))*(big?1.6:1.2);}
-        if(cast){sx*=1.06;sy*=1.06;rot=Math.sin(G.t*38)*.025;}
+        if(cast){const q=1.03+.03*Math.sin(G.t*6);sx*=q;sy*=q;}
         if(e.flash>0){sx*=1.07;sy*=.93;}
         if(Math.abs(pl.x-e.x)>6)e.fl=pl.x<e.x;const ax=x+t.w/2,ay=y+t.h+dy,fl=!!e.fl;drawArt(c,im2,ax,ay,t.w,t.h,fl,rot,sx,sy);   // 朝向带死区，玩家经过时不来回翻
         if(e.flash>0){c.globalCompositeOperation='lighter';c.globalAlpha=.7;drawArt(c,im2,ax,ay,t.w,t.h,fl,rot,sx,sy);c.globalCompositeOperation='source-over';c.globalAlpha=1;}
@@ -1811,18 +1822,16 @@ function render(){
       g.fillStyle=`rgba(${base},${fired?.55*t.fx/.25:.18})`;g.strokeStyle=`rgba(${base},.8)`;g.lineWidth=1;
       if(t.t==='circle'&&FX.rune){if(!fired)runeWarn(t.x,t.y,t.r,p,t.harmless?.4:.8);else{g.globalAlpha=Math.min(1,t.fx/.25);g.drawImage(FX[t.col==='i'?'frostCircle':'quake'],t.x-t.r,t.y-t.r,t.r*2,t.r*2);g.globalAlpha=1;}}
       else if(t.t==='circle'){g.beginPath();g.arc(t.x,t.y,t.r,0,TAU);g.fill();if(!fired){g.stroke();g.fillStyle=`rgba(${base},.3)`;g.beginPath();g.arc(t.x,t.y,t.r*p,0,TAU);g.fill();}}
-      else if(t.t==='beam'){g.save();g.translate(t.x,t.y);g.rotate(t.a);g.fillRect(-400,-t.w,800,t.w*2);if(!fired)g.strokeRect(-400,-t.w,800,t.w*2);g.restore();}
+      else if(t.t==='beam'){if(!fired){g.save();g.translate(t.x,t.y);g.rotate(t.a);g.fillRect(-400,-t.w,800,t.w*2);g.strokeRect(-400,-t.w,800,t.w*2);g.restore();}}
       else if(t.t==='cone'){g.beginPath();g.moveTo(t.x,t.y);g.arc(t.x,t.y,t.len,t.a-t.ang,t.a+t.ang);g.closePath();g.fill();if(!fired)g.stroke();}
       else if(t.t==='rect'){g.fillRect(t.x,t.y,t.w,t.h);if(!fired){g.strokeRect(t.x+.5,t.y+.5,t.w-1,t.h-1);g.fillStyle=`rgba(${base},.25)`;g.fillRect(t.x,t.y,t.w,t.h*p);}}}
     if(b.aim){g.save();g.translate(b.x,b.y);g.rotate(b.aim.a);g.fillStyle='rgba(255,50,50,.22)';g.strokeStyle='rgba(255,80,80,.8)';g.fillRect(0,-9,240,18);g.strokeRect(0,-9,240,18);g.restore();}
-    if(b.sw){g.save();g.translate(b.x,b.y);g.rotate(b.sw.a);g.fillStyle=b.sw.warm>0?'rgba(255,215,90,.25)':'rgba(255,230,120,.75)';g.fillRect(0,-(b.sw.warm>0?2:5),300,b.sw.warm>0?4:10);g.restore();}
+    if(b.sw){g.save();g.translate(b.x,b.y);g.rotate(b.sw.a);if(b.sw.warm>0||!FX.beam){g.fillStyle='rgba(255,215,90,.25)';g.fillRect(0,-2,300,4);}else g.drawImage(FX.beam,0,-8,300,16);g.restore();}
   }
   g.globalCompositeOperation='lighter';
   if(b&&b.mode!=='walk'&&!b.hidden){const c={fireCone:'255,120,40',erupt:'255,120,40',submerge:'255,120,40',adrenaline:'255,120,40',frostCone:'120,200,255',frostblast:'120,200,255',
     dance:'140,230,90',pools:'140,230,90',spores:'140,230,90',polarity:'90,200,255',cross:'255,90,90',sweep:'255,220,120',doom:'150,70,255',classcall:'255,60,60',summon:'170,120,255'}[b.mode]||'255,80,80';
     const pz=.6+.4*Math.sin(G.t*14);glow(b.x,b.y,b.w*.9,`rgba(${c},${.35*pz})`);}
-  if(b)for(const t of b.tels)if(t.done&&t.t==='beam'){const a=t.fx/.4,c=t.vfx==='breath'?'255,140,40':'255,80,80';g.save();g.translate(t.x,t.y);g.rotate(t.a);
-    g.fillStyle=`rgba(${c},${.35*a})`;g.fillRect(-400,-t.w*1.6,800,t.w*3.2);g.fillStyle=`rgba(255,255,255,${.8*a})`;g.fillRect(-400,-t.w*.35,800,t.w*.7);g.restore();}
   for(const q of G.parts){g.globalAlpha=Math.max(0,q.life/q.T);if(FX.spark){const z=q.s*3;g.drawImage(FX.spark,q.x-z/2,q.y-z/2,z,z);}else{g.fillStyle=q.col;g.fillRect(q.x-q.s/2,q.y-q.s/2,q.s,q.s);}}g.globalAlpha=1;
   for(const h of G.hearts)glow(h.x,h.y,7,'rgba(255,90,90,.35)');
   if(G.sigilT>0&&FX.sigil){g.save();g.translate(pl.x,pl.y);g.rotate(G.t*3);g.globalAlpha=Math.min(1,G.sigilT);g.drawImage(FX.sigil,-18,-18,36,36);g.restore();g.globalAlpha=1;}
@@ -1836,6 +1845,7 @@ function render(){
   if(G.adrT>0)glow(pl.x,pl.y,26,'rgba(255,80,40,.3)');
   if(pl.shield>0){glow(pl.x,pl.y-2,10,'rgba(120,200,255,.18)');if(FX.shield){g.globalAlpha=.45+.1*Math.sin(G.t*4);g.drawImage(FX.shield,pl.x-13,pl.y-16,26,26);g.globalAlpha=1;}}
   for(const bo of bolts){g.globalAlpha=Math.min(1,bo.t/.12);if(FX.lightning&&!bo.fx){bo.fx=1;const q=bo.pts[bo.pts.length-1];fxs('spark',q[0],q[1],14,.2,0,0,1.5);}
+    const LT=window.raidFx&&raidFx('black_2',1);if(LT){for(let i=1;i<bo.pts.length;i++){const[a0,b0]=bo.pts[i-1],[a1,b1]=bo.pts[i],l=Math.hypot(a1-a0,b1-b0);g.save();g.translate(a0,b0);g.rotate(Math.atan2(b1-b0,a1-a0));g.drawImage(LT,0,-6,l,12);g.restore();}continue;}
     for(const[w,col]of[[3,bo.col||'rgba(90,220,255,.5)'],[1,'#f0ffff']]){g.lineWidth=w;g.strokeStyle=col;g.beginPath();bo.pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke();}}
   g.globalAlpha=1;
   for(const b of G.beams){g.globalAlpha=b.t/b.T*.85;const im=FX[b.spr||'beam'];
@@ -2213,6 +2223,6 @@ G=null;show('home');
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="src/raid_engine.js?v=v30"></script>
+<script src="src/raid_engine.js?v=v31"></script>
 </body>
 </html>
