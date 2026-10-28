@@ -54,6 +54,7 @@ function tilesOf(name){
 // fallback:[现有图集名, 帧序号]，新图还没生成时用现有美术
 const fb=ref=>Array.isArray(ref)&&ART[ref[0]]&&ART[ref[0]][ref[1]]||null;
 // 动作集：首领 <表名>z 12 帧（待机×2/走路×4/蓄力/出手/收招/施法×2/受击），小怪 <表名>x 6 帧（待机/走A/走B/蓄力/出手/受击）；新表没到就用旧表 4/3 帧凑
+window.raidSheet=sheet;   // 分件骨骼（src/rig.js）用同一个图集加载器
 window.animOf=e=>{const r=e.animRef;if(!r)return null;if(e._an&&e._an.full)return e._an;const B=e.animPer===4,n=frames([r[0]+(B?'z':'x'),r[1]],B?12:6);
   if(n&&n.length===(B?12:6))return e._an=B?{full:true,idle:[n[0],n[1]],walk:[n[2],n[3],n[4],n[5]],wind:n[6],atk:n[7],rec:n[8],cast:[n[9],n[10]],hurt:n[11]}
     :{full:true,idle:[n[0]],walk:[n[1],n[0],n[2],n[0]],wind:n[3],atk:n[4],rec:n[4],cast:[n[3],n[4]],hurt:n[5]};
@@ -88,13 +89,16 @@ if(selLevel>NLV())selLevel=1;
 // 换副本时释放上一个副本的图集与瓦片（共享的特效表保留），防止一路打下来内存越积越多
 let curRaid=null,G_VFX=[];
 function evictOthers(r){const keep=new RegExp('_'+r.id+'(_|x|z|$)');
-  for(const k in SHEET){const n=k.startsWith('t:')?k.slice(2):k;if(/^(fx_raid|bosses_fx)/.test(n)||keep.test(n))continue;delete SHEET[k];if(k.startsWith('t:'))delete ART[n];}
+  for(const k in SHEET){const n=k.startsWith('t:')?k.slice(2):k;if(/^(fx_raid|bosses_fx|righ)/.test(n)||keep.test(n))continue;delete SHEET[k];if(k.startsWith('t:'))delete ART[n];}
+  if(window.rigCache)for(const k in rigCache)if(!/^righ/.test(k)&&!keep.test(k))delete rigCache[k];
   for(const k in ART)if(/^tiles_/.test(k)&&!keep.test(k)&&!/^tiles_c\d$/.test(k))delete ART[k];}
 function preload(L){
   const v=LV[L];if(!v)return;
   const r=RAIDS[v.ri],b=v.b;
   tilesOf(r.tiles);tilesOf(tilesFor(L));sheet('props_'+r.id);for(const n of ['black_1','black_2','black_3','green'])sheet('fx_raid_'+n);
   if(b.art){sheet(b.art[0]);sheet(b.art[0]+'z');}
+  for(const x of [b].concat(b.multi||[])){const R=window.rigOf&&rigOf('boss',x.n);if(R){sheet(R.sheet);if(R.front)sheet(R.front);}}
+  for(const k in r.trash){const R=window.rigOf&&rigOf('trash',k);if(R)sheet(R.sheet);}
   for(const ph of b.ph||[])if(Array.isArray(ph.form))sheet(ph.form[0]);
   for(const a of b.adds||[])if(a.art)sheet(a.art[0]);
   for(const m of b.multi||[])if(m.art){sheet(m.art[0]);sheet(m.art[0]+'z');}
@@ -105,6 +109,7 @@ function levelSheets(L){const v=LV[L];if(!v)return{sheets:[],tiles:[]};const r=R
   if(Array.isArray(b.art)){S.add(b.art[0]);S.add(b.art[0]+'z');}for(const m of b.multi||[])if(Array.isArray(m.art)){S.add(m.art[0]);S.add(m.art[0]+'z');}
   for(const ph of b.ph||[])if(Array.isArray(ph.form))S.add(ph.form[0]);for(const a of b.adds||[])if(Array.isArray(a.art))S.add(a.art[0]);
   for(const t of Object.values(r.trash))if(Array.isArray(t.art)){S.add(t.art[0]);S.add(t.art[0]+'x');}
+  if(window.rigOf){for(const x of [b].concat(b.multi||[])){const R=rigOf('boss',x.n);if(R){S.add(R.sheet);if(R.front)S.add(R.front);}}for(const k in r.trash){const R=rigOf('trash',k);if(R)S.add(R.sheet);}}
   return{sheets:[...S],tiles:[...new Set([r.tiles,tilesFor(L)].filter(Boolean))]};}
 // 进关加载进度：图集要么加载完、要么确认不存在（404）才算就绪
 window.levelReady=L=>{const{sheets,tiles}=levelSheets(L);for(const n of sheets)sheet(n);for(const t of tiles)tilesOf(t);
@@ -163,7 +168,7 @@ window.pickTrash=()=>{
   return pool[(rand()*pool.length)|0];
 };
 window.applyTrash=(e,t)=>{
-  e.def=t;e.name=t.n||t.id;
+  e.def=t;e.name=t.n||t.id;e.rig=window.rigOf?rigOf('trash',t.id):null;e.rp=null;
   e.hp=e.max=e.hp*(t.hp||1);e.dmg*=(t.dmg||1);
   const f=frames(t.art,3);
   if(f){e.art=[f[0],f[1]];e.artAtk=f[2];e.w=e.h=t.size||18;e.animRef=t.art;e.animPer=3;}
@@ -174,7 +179,7 @@ window.applyTrash=(e,t)=>{
 // 精英 = 本关指定的小怪，血量 ×4、技能更频繁
 function makeElite(b,v){
   const r=RAIDS[v.ri],t=r.trash[v.b.elite];if(!t)return;
-  b.name=t.n||v.b.elite;b.def=t;
+  b.name=t.n||v.b.elite;b.def=t;b.rig=window.rigOf?rigOf('trash',v.b.elite):null;b.rp=null;
   const f=frames(t.art,3);
   if(f){b.art=[f[0],f[1]];b.artAtk=f[2];b.animRef=t.art;b.animPer=3;}
   b.abx=(t.ab||[]).map(a=>Object.assign({t:1},a,{cd:(a.cd||5)*.7}));
@@ -513,6 +518,7 @@ function spawnData(b,v,d){
   const f=frames(d.art,4)||(fb(d.fallback)&&[fb(d.fallback)])||(ART.bosses&&[ART.bosses[d.fallbackArt]]);
   if(f){b.art=f.length>=2?[f[0],f[1]]:[f[0]];b.artAtk=f[3]||f[2]||null;b.w=b.h=d.size||(v.last?64:54);}
   b.animRef=Array.isArray(d.art)?d.art:null;b.animPer=4;b._an=null;
+  b.rig=window.rigOf?rigOf('boss',d.n):null;b.rp=null;   // 分件骨骼（有分件图就用，没有就用逐帧图）
   b.r=Math.max(b.r||0,Math.round((b.w||54)*.36));   // 碰撞 / 近战命中半径按贴图大小
   if(d.fixed||b.spd===0){const r=R();b.x=r.cx;b.y=r.y+r.h*.45;b.w=b.h=Math.round((b.w||54)*1.4);b.r=Math.round(b.w*.36);b.stationary=true;}   // 固定首领：居中、放大
   wrapSkills(b,d.skills);
@@ -532,7 +538,7 @@ function spawnData(b,v,d){
     for(const m of d.multi){
       const e={...b,tels:b.tels,sec:true,name:m.n,x:b.x+(rand()<.5?-50:50),y:b.y+20,flash:0,poison:0,dead:false,frozenT:0,slowT:0,burnT:0,cyc:0,at:2+rand(),mode:'walk',say:null};
       e.hp=e.max=b.max*(m.hp||1);
-      const mf=frames(m.art,4);if(mf){e.art=[mf[0],mf[1]];e.artAtk=mf[3];}e.animRef=Array.isArray(m.art)?m.art:null;e.animPer=4;e._an=null;
+      const mf=frames(m.art,4);if(mf){e.art=[mf[0],mf[1]];e.artAtk=mf[3];}e.rig=window.rigOf?rigOf('boss',m.n):null;e.rp=null;e.animRef=Array.isArray(m.art)?m.art:null;e.animPer=4;e._an=null;
       wrapSkills(e,Object.assign({},d.skills,m.skills));
       e.sk=(m.sk||b.sk).filter(k=>e.skx[k]||SK[k]);if(!e.sk.length)e.sk=['slam'];
       e.ph=(m.ph||[]).map(o=>[o.at,o]);e.phi=0;e.autoSk=(m.auto||[]).map(a=>Object.assign({t:a.every||6},a));

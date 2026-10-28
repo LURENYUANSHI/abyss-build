@@ -69,9 +69,26 @@ func place(_ o:[UInt8],_ s:Int,_ b:Box,_ fx:Double,_ k:Double)->[UInt8]{var r=[U
     if ix<0||iy<0||ix>=s||iy>=s{continue};let p=(iy*s+ix)*4,q=(y*s+x)*4;r[q]=o[p];r[q+1]=o[p+1];r[q+2]=o[p+2];r[q+3]=o[p+3]}}
   return r}
 
+// 上半身（不含脚下 30%）轮廓重合度最高的横向偏移，搜索 ±s/8
+func bestShift(_ a:[UInt8],_ b:[UInt8],_ s:Int)->Int{let st=2,m=s/st,R=max(2,s/16)
+  var A=[Bool](repeating:false,count:m*m),B=A;var top=m,bot=0
+  for y in 0..<m{for x in 0..<m{let p=((y*st)*s+x*st)*4;A[y*m+x]=a[p+3]>60;B[y*m+x]=b[p+3]>60;if A[y*m+x]{top=min(top,y);bot=max(bot,y)}}}
+  if bot<=top{return 0};let y1=top+Int(Double(bot-top)*0.7)
+  var best=0,bv = -1
+  for d in -R...R{var v=0;for y in top...y1{for x in 0..<m{let x2=x-d;if x2<0||x2>=m{continue};if A[y*m+x]&&B[y*m+x2]{v+=1}}};if v>bv||(v==bv&&abs(d)<abs(best)){bv=v;best=d}}
+  return best*st}
+func bestScore(_ a:[UInt8],_ b:[UInt8],_ s:Int)->(d:Int,v:Int){let st=2,m=s/st,R=max(2,s/16)
+  var A=[Bool](repeating:false,count:m*m),B=A;var top=m,bot=0
+  for y in 0..<m{for x in 0..<m{let p=((y*st)*s+x*st)*4;A[y*m+x]=a[p+3]>60;B[y*m+x]=b[p+3]>60;if A[y*m+x]{top=min(top,y);bot=max(bot,y)}}}
+  if bot<=top{return (0,0)};var best=0,bv = -1
+  for d in -R...R{var v=0;for y in top...bot{for x in 0..<m{let x2=x-d;if x2<0||x2>=m{continue};if A[y*m+x]&&B[y*m+x2]{v+=1}}};if v>bv{bv=v;best=d}}
+  return (best,bv)}
+func mirror(_ o:[UInt8],_ s:Int)->[UInt8]{var r=[UInt8](repeating:0,count:s*s*4);for y in 0..<s{for x in 0..<s{let p=(y*s+x)*4,q=(y*s+(s-1-x))*4;r[q]=o[p];r[q+1]=o[p+1];r[q+2]=o[p+2];r[q+3]=o[p+3]}};return r}
+func shiftX(_ o:[UInt8],_ s:Int,_ dx:Int)->[UInt8]{var r=[UInt8](repeating:0,count:s*s*4)
+  for y in 0..<s{for x in 0..<s{let sx=x-dx;if sx<0||sx>=s{continue};let p=(y*s+sx)*4,q=(y*s+x)*4;r[q]=o[p];r[q+1]=o[p+1];r[q+2]=o[p+2];r[q+3]=o[p+3]}};return r}
 var report=[[String:Any]]()
 let files=try FileManager.default.contentsOfDirectory(atPath:dir).filter{$0.hasSuffix(".png")}.sorted()
-var done=0
+var done=0,flips=0
 for f in files{let name=String(f.dropLast(4));guard let K=kind(name) else{continue}
   let url=URL(fileURLWithPath:dir).appendingPathComponent(f);guard var img=load(url) else{continue}
   let s=img.h,n=img.w/s;if n<1||img.w%s != 0 {report.append(["sheet":name,"issue":"宽度不是帧高的整数倍"]);continue}
@@ -86,9 +103,17 @@ for f in files{let name=String(f.dropLast(4));guard let K=kind(name) else{contin
     let mh=ok.map{$0.h}.max()!,mw=ok.map{$0.w}.max()!,minh=ok.map{$0.h}.min()!
     if K.per>1 && Double(minh)<Double(mh)*0.6 {issues.append("第\(g)组帧高差异大（\(minh)~\(mh)）")}
     let k=min(1.0,Double(s)*0.94/Double(mh),Double(s)*0.94/Double(mw))   // 同组统一缩放（只缩不放）
-    for i in 0..<cnt where !bs[i].empty{put(&img.px,img.w,s,g+i,place(fr[i],s,bs[i],footX(fr[i],s,bs[i]),k))}}
+    var placed=[[UInt8]](repeating:[],count:cnt)
+    for i in 0..<cnt where !bs[i].empty{placed[i]=place(fr[i],s,bs[i],footX(fr[i],s,bs[i]),k)}
+    // 横向再对齐：以组内第一帧（待机）为基准，按上半身（头+躯干）轮廓重合度找最佳横移，走路换脚时身体不左右晃
+    if cnt>1, let ri=(0..<cnt).first(where:{!placed[$0].isEmpty}){let ref=placed[ri]
+      for i in 0..<cnt where i != ri && !placed[i].isEmpty{
+        let a=bestScore(ref,placed[i],s),m=mirror(placed[i],s),bm=bestScore(ref,m,s)   // 朝向和待机帧相反的帧（GPT 常把施法帧画成反向）先镜像回来
+        if Double(bm.v)>Double(a.v)*1.15{placed[i]=m;flips+=1}
+        let dx=bestShift(ref,placed[i],s);if dx != 0{placed[i]=shiftX(placed[i],s,dx)}}}
+    for i in 0..<cnt where !placed[i].isEmpty{put(&img.px,img.w,s,g+i,placed[i])}}
   if !issues.isEmpty{report.append(["sheet":name,"issues":issues])}
   if !dry{save(url,img.w,img.h,img.px)};done+=1}
 let js=try JSONSerialization.data(withJSONObject:report,options:[.prettyPrinted,.sortedKeys])
 try js.write(to:URL(fileURLWithPath:dir).appendingPathComponent("_report.json"))
-print("处理 \(done) 张图集，\(report.count) 张有问题 → \(dir)/_report.json")
+print("处理 \(done) 张图集，镜像修正 \(flips) 帧，\(report.count) 张有问题 → \(dir)/_report.json")

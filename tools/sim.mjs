@@ -59,6 +59,8 @@ vm.runInContext(readFileSync('content/raids_data.js','utf8'),ctx,{filename:'raid
 vm.runInContext(html.slice(a+8,b),ctx,{filename:'game.js'});
 vm.runInContext(readFileSync('content/skill_fx.js','utf8'),ctx,{filename:'skill_fx.js'});
 vm.runInContext(readFileSync('src/raid_engine.js','utf8'),ctx,{filename:'raid_engine.js'});
+vm.runInContext(readFileSync('content/rigs.js','utf8'),ctx,{filename:'rigs.js'});
+vm.runInContext(readFileSync('src/rig.js','utf8'),ctx,{filename:'rig.js'});
 
 // 测试辅助（在游戏上下文里执行）
 vm.runInContext(`

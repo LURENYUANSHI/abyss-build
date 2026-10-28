@@ -66,7 +66,7 @@ window.RAID_DATA={
           enrage:60,
           elite:"core_hound",
           trash:["core_hound","flamewaker","flamewaker_priest"],
-          art:["bosses_mc_1",0],
+          rig:"lucifron",art:["bosses_mc_1",0],
           size:54,
           spd:13,
           tip:"先杀两名护卫防止被支配；末日降临倒数结束必掉血，别在残血时贴脸。",
