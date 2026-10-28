@@ -296,7 +296,7 @@ function fxKey(key){const im=fxImg(key);if(!im)return null;FX['sk_'+key]=im;retu
 // 元素颜色：特效按技能元素着色
 const ECOL=[[/血/,'#ff3a4a'],[/火|炎|熔|烈焰|燃|焚|陨|地狱|岩浆|灼/,'#ff7a2a'],[/冰|霜|寒|雪|冻/,'#7ad8ff'],[/闪电|雷|电|风暴|静电/,'#9ff6ff'],[/毒|瘟疫|疫|腐|孢子|酸|软泥|枯萎/,'#7aff5a'],
   [/神圣|圣|光明|审判|阳光/,'#ffe08a'],[/奥术|法力|魔|星|能量|宇宙|虚空之/,'#c06aff'],[/暗|影|虚空|黑|死亡|灵魂|暮光|邪/,'#a14aff'],[/水|潮|漩涡/,'#4ab0ff']];
-const elemCol=n=>{for(const[re,c]of ECOL)if(re.test(n||''))return c;return '#ffd0a0';};
+const elemCol=n=>{const o=fxSpec(n).col;if(o)return o;for(const[re,c]of ECOL)if(re.test(n||''))return c;return '#ffd0a0';};   // skill_fx 里写了 col 就用技能自己的颜色
 window.elemCol=elemCol;
 // 射线到房间边界的长度，光束不画到墙外
 function rayLen(x,y,a,R){const dx=Math.cos(a),dy=Math.sin(a);let t=1e9;
@@ -311,12 +311,14 @@ function drawBeam(g,x,y,a,len,w,col,al,t){if(al<=0||len<=0)return;const f=1+.07*
 window.drawBeam=drawBeam;
 // 特效实例：beam（出现-持续-消散）/ cone（粒子喷射）
 window.vfxBeam=o=>{if(G_VFX.length<24)G_VFX.push(Object.assign({k:'beam',t:0,T:o.T||.45,len:rayLen(o.x,o.y,o.a,R())},o));};
+window.vfxErupt=o=>{if(G_VFX.length<24){G_VFX.push(Object.assign({k:'erupt',t:0,T:o.T||.6,h:o.h||46,w:o.w||9},o));for(let i=0;i<14&&G.parts.length<300;i++){const a=-Math.PI/2+(rand()-.5)*1.1,sp=60+rand()*90;G.parts.push({x:o.x+(rand()-.5)*10,y:o.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:260,life:.6,T:.6,col:o.col,s:2+rand()*1.5});}}};   // 喷发：向上的光柱 + 上抛后落下的火星
 window.vfxCone=o=>{if(G_VFX.length<24)G_VFX.push(Object.assign({k:'cone',t:0,T:o.T||.55,acc:0},o));};
 function vfxTick(dt){for(const v of G_VFX){v.t+=dt;
     if(v.k==='cone'&&v.t<v.T*.7){v.acc+=dt*90;while(v.acc>=1&&G.parts.length<300){v.acc--;const a=v.a+(rand()-.5)*2*v.ang*.9,sp=v.len*(1.6+rand()*.9);
       G.parts.push({x:v.x+Math.cos(a)*6,y:v.y+Math.sin(a)*6,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:.42,T:.42,col:v.col,s:2.4+rand()*1.6});}}}
   G_VFX=G_VFX.filter(v=>v.t<v.T);}
-function vfxDraw(g){for(const v of G_VFX){if(v.k!=='beam')continue;const p=v.t/v.T,al=p<.12?p/.12:p>.7?(1-p)/.3:1;drawBeam(g,v.x,v.y,v.a,v.len,(v.w||8)*(p<.12?.4+p/.2:1),v.col,al,G.t);}
+function vfxDraw(g){for(const v of G_VFX){if(v.k!=='erupt')continue;const p=v.t/v.T,al=p<.15?p/.15:1-(p-.15)/.85,h=v.h*(p<.2?p/.2:1);drawBeam(g,v.x,v.y,-Math.PI/2,h,v.w*(1-p*.5),v.col,al,G.t+v.x);}
+  for(const v of G_VFX){if(v.k!=='beam')continue;const p=v.t/v.T,al=p<.12?p/.12:p>.7?(1-p)/.3:1;drawBeam(g,v.x,v.y,v.a,v.len,(v.w||8)*(p<.12?.4+p/.2:1),v.col,al,G.t);}
   for(const v of G_VFX){if(v.k!=='cone')continue;const p=v.t/v.T,al=(1-p)*.35;if(al<=0)continue;   // 锥形区域一层淡淡的底光，粒子负责主体
     g.save();g.globalCompositeOperation='lighter';g.globalAlpha=al;const gr=g.createRadialGradient(v.x,v.y,0,v.x,v.y,v.len);gr.addColorStop(0,v.col);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;
     g.beginPath();g.moveTo(v.x,v.y);g.arc(v.x,v.y,v.len,v.a-v.ang,v.a+v.ang);g.closePath();g.fill();g.restore();}}
