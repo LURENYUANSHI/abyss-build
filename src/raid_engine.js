@@ -14,7 +14,7 @@ function sheet(name){
   SHEET[name]={f:null};
   const im=new Image();
   im.onload=()=>{const f=strip(im,Math.max(1,Math.round(im.width/im.height)));
-    const fx=/fx/.test(name);for(const c of f){const x=c.getContext('2d'),w=c.width;x.clearRect(0,0,w,Math.ceil(w*.025));x.clearRect(0,0,2,w);x.clearRect(w-2,0,2,w);if(fx)softEdge(c);else trimBleed(c);}   // 去掉 GPT 合图残留的格线和相邻格渗进来的碎片
+    // 图集已由 tools/artprep.swift 离线清理、对齐（去残渣/串格碎片/绿边、同组统一缩放与脚底锚点），运行时只切帧
     SHEET[name].f=f;};
   im.onerror=()=>{SHEET[name].bad=true;};
   im.src='art/'+name+'.png?v='+VERSION;
