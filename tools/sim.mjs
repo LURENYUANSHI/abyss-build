@@ -66,7 +66,7 @@ vm.runInContext(readFileSync('src/rig.js','utf8'),ctx,{filename:'rig.js'});
 // 测试辅助（在游戏上下文里执行）
 vm.runInContext(`
 var setMeta=ri=>{PROG.acc={lv:Math.min(80,Math.round(1+ri*3.5)),xp:0};PROG.inv=[];PROG.eq={};PROG.party=[];
-  for(const[slot]of SLOTS){const it=makeItem(ri);it.slot=slot;it.rar=3;it.set=ri%GSET.length;
+  for(const[slot]of SLOTS){const it=makeItem(ri);it.slot=slot;it.rar=3;it.set=[0,1,1,3,3][ri]??3;
     it.st=slot==='wpn'?{atk:.06*1.7*(1+.25*ri)}:slot==='trk'?{crit:.04*1.7*(1+.25*ri)}:{hp:.07*1.7*(1+.25*ri)};PROG.inv.push(it);PROG.eq[slot]=it.id;}};
 var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0,bt0=-1;
   while(t<T){

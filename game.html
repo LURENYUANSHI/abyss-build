@@ -279,11 +279,11 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v64"></script>
-<script src="content/boss_tune.js?v=v64"></script>
+<script src="content/raids_data.js?v=v65"></script>
+<script src="content/boss_tune.js?v=v65"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v64';
+const W=195,H=347,VERSION='v65';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -376,7 +376,7 @@ const CLS={
 };
 const CLS_IDS=Object.keys(CLS);
 // 职业平衡（随机选卡自动模拟校准）：[生命倍率, 伤害倍率]；远程靠风筝天然更安全，伤害相应压低
-const TUNE={sword:[1.509,1.264],mage:[2.859,1.621],brawler:[0.859,2.555],eng:[2.538,2.562],archer:[2.062,1.164],assassin:[2.542,1.996],ninja:[2.882,1.738],bard:[1.074,3.944],paladin:[0.394,6.661]};   // tools/sim.mjs --tune 校准
+const TUNE={sword:[1.811,1.264],mage:[2.859,1.621],brawler:[0.55,2.555],eng:[2.538,2.562],archer:[2.062,1.164],assassin:[2.542,1.996],ninja:[2.882,1.738],bard:[0.73,3.944],paladin:[0.252,6.661]};   // tools/sim.mjs --tune 校准
 for(const id in TUNE){CLS[id].hp=Math.round(CLS[id].hp*TUNE[id][0]);CLS[id].dmg*=TUNE[id][1]*(id==='assassin'?1:1.15);}   // 刺客以外的职业整体加强
 // 外部美术：GPT 生成的合图放在 art/，缺失时回退到下面的程序像素图
 const ART={};
@@ -888,7 +888,7 @@ const MINI=[
 ];
 const BIG_HP=5000,MINI_HP=3400,BOSS_DMG=1.35,LV_STEP=2.5;
 // 难度按章节查表 [首领/小怪血量, 敌人伤害]，章内越往后的首领再强最多 15%（tools/sim.mjs 校准：第 1 章胜率约 90%，往后每章约降 8~10%）
-const RC=[[.42,.62],[.5,.78],[.55,1.1],[.6,.92],[.65,1.05]];
+const RC=[[.42,.7],[.5,1.25],[.55,1.3],[.6,1.25],[.65,1.55]];
 // 一章 = 一局：玩家在章内会攒满海克斯越打越强，章内第 k 关的敌人血量按 (1+k)^1.4、伤害每关 +12% 同步变强（小怪和首领都适用）
 const RAMP=L=>{const k=LV[L].k;return{hp:Math.pow(1+k,1.4),dmg:1+.12*k};};
 const CURVE=L=>{const v=LV[L],r=RC[Math.min(v.ri,RC.length-1)],m=RAMP(L);return{hp:r[0]*m.hp,dmg:r[1]*m.dmg};};
@@ -1490,7 +1490,7 @@ function doUlt(){
     case'sword':{const tg=live();for(let i=0;i<24;i++){const e=tg[(rand()*tg.length)|0],p=e||randInRoom(10);rain.push({x:p.x,y:p.y,delay:.05+i*.04,fall:.22,d:A*2,r:16,kind:'sword'});}
       G.tempSwT=Math.max(G.tempSwT,6);break;}                                                       // 万剑归宗：剑雨 + 环绕剑阵
     case'mage':{const tg=live();for(let i=0;i<8;i++){const e=tg[(rand()*tg.length)|0],p=e||randInRoom(20);rain.push({x:p.x,y:p.y,delay:.1+i*.15,fall:.35,d:A*4,r:28,kind:'meteor'});}break;} // 星辰陨落
-    case'brawler':{const t=densest();if(t){pl.x=t.x;pl.y=t.y;clampRoom(pl,4);}pl.inv=Math.max(pl.inv,.6);fxs('quake',pl.x,pl.y,190,.6,0,0,1.15);fxs('punch',pl.x,pl.y,80,.4);fxs('explosion',pl.x,pl.y,90,.5);rings.push({x:pl.x,y:pl.y,r0:6,r1:90,t:.5,T:.5,col:'#ffb070'});
+    case'brawler':{const t=densest();if(t){const sd=pl.x<t.x?-1:1;pl.x=t.x+sd*((t.r||8)+10);pl.y=t.y+4;clampRoom(pl,4);}pl.inv=Math.max(pl.inv,.6);fxs('quake',pl.x,pl.y,190,.6,0,0,1.15);fxs('punch',pl.x,pl.y,80,.4);fxs('explosion',pl.x,pl.y,90,.5);rings.push({x:pl.x,y:pl.y,r0:6,r1:90,t:.5,T:.5,col:'#ffb070'});
       for(const e of en){const dx=e.x-pl.x,dy=e.y-pl.y,q=Math.hypot(dx,dy)||1;if(q<90+e.r){dmg(e,A*6,{src:'atk'});if(!e.boss&&!e.dead){e.frozenT=Math.max(e.frozenT,2);e.x+=dx/q*20;e.y+=dy/q*20;}}}G.shake=.7;break;} // 崩山拳
     case'eng':for(let i=0;i<3;i++)after(.15+i*.35,()=>{const t=nearest(pl.x,pl.y,400)||pl,x=t.x;G.beams.push({x:x-9,y:R.y-30,w:18,h:R.h+40,t:.35,T:.35,col:'#ffe08a'});fxs('explosion',x,t.y,40,.4);
       for(const e of en)if(!e.dead&&Math.abs(e.x-x)<9+e.r)dmg(e,A*5,{col:'#ffe08a'});G.shake=.3;});break;   // 轨道炮击：三道光柱
@@ -1843,7 +1843,7 @@ function drawEntities(c){
         const warn=!e.prop&&(e.wind>0||(e.k==='SA'&&e.shotT>0&&e.shotT<.45)||(e.boss&&e.say&&e.say.t>0));
         if(warn){c.save();c.textAlign='center';c.font='bold '+(e.boss?10:8)+'px sans-serif';c.lineWidth=2;c.strokeStyle='#000';c.fillStyle=(G.t*8|0)%2?'#ff3b3b':'#ffd34a';
           const wy=ay-t.h-3+Math.sin(G.t*12)*1;c.strokeText('!',ax,wy);c.fillText('!',ax,wy);
-          if(e.boss&&e.say&&e.say.t>0&&e.say.n&&!e.cast){c.font='bold 7px sans-serif';c.fillStyle='#ff6a6a';c.strokeText(e.say.n,ax,wy-10);c.fillText(e.say.n,ax,wy-10);}c.restore();}}else if(im)drawSpr(im,x,y,t.w,t.h,!e.boss&&pl.x<e.x);
+          if(e.boss&&e.say&&e.say.t>0&&e.say.n&&!e.cast){c.font='bold 7px sans-serif';c.fillStyle='#ff6a6a';c.strokeText(e.say.n,ax,wy-20);c.fillText(e.say.n,ax,wy-20);}c.restore();}}else if(im)drawSpr(im,x,y,t.w,t.h,!e.boss&&pl.x<e.x);
       if(e.frozenT>0&&(e.imgF||IMG[e.k+'f'])){c.globalAlpha=.45;drawSpr(e.imgF?e.imgF[0]:IMG[e.k+'f'][0],x,y,t.w,t.h,false);}
       c.globalAlpha=1;
       if(e.poison&&FX.poison)c.drawImage(FX.poison,x+t.w/2-7,y-6,6,6);else if(e.poison){c.fillStyle='#8ff07a';c.fillRect(x+2+((G.t*6+e.x)|0)%4,y-2,1,1);}
@@ -1906,7 +1906,7 @@ function render(){
   // 预警：旋转符文，内圈随蓄力扩大；范围超过贴图放大上限时改画程序圆（实线外圈 + 旋转虚线内圈），不把 64px 符文拉成马赛克
   const runeWarn=(x,y,r,p,a)=>{g.save();g.translate(x,y);g.rotate(G.t*1.5);
     if(r*2>FX.rune.width*2.2){const col=g.strokeStyle;g.globalAlpha=a*.7;g.lineWidth=2;g.beginPath();g.arc(0,0,r,0,TAU);g.stroke();g.setLineDash([6,5]);g.globalAlpha=a;g.beginPath();g.arc(0,0,Math.max(2,r*p),0,TAU);g.stroke();g.setLineDash([]);g.globalAlpha=a*.12;g.fillStyle=col;g.beginPath();g.arc(0,0,r*p,0,TAU);g.fill();}
-    else{g.globalAlpha=a*.6;g.drawImage(FX.rune,-r,-r,r*2,r*2);g.globalAlpha=a;g.drawImage(FX.rune,-r*p,-r*p,r*p*2,r*p*2);}g.restore();g.globalAlpha=1;};
+    else{g.imageSmoothingEnabled=true;g.globalAlpha=a*.6;g.drawImage(FX.rune,-r,-r,r*2,r*2);g.globalAlpha=a;g.drawImage(FX.rune,-r*p,-r*p,r*p*2,r*p*2);}g.restore();g.imageSmoothingEnabled=false;g.globalAlpha=1;};
   const glow=(x,y,r,col)=>{const[base,a]=glowKey(col),s=glowSpr(base);if(a<=0)return;const ga=g.globalAlpha;g.globalAlpha=ga*a;g.drawImage(s,x-r,y-r,r*2,r*2);g.globalAlpha=ga;};
   g.setTransform(K,0,0,K,shx*K,shy*K);g.imageSmoothingEnabled=false;g.fillStyle='#07070c';g.fillRect(-4,-4,W+8,H+8);
   g.save();g.translate(-fx,-fy);drawTiles(g,cx,cy);g.restore();g.drawImage(low,cx-fx,cy-fy);
@@ -1960,6 +1960,7 @@ function render(){
       g.save();g.globalCompositeOperation='lighter';g.lineJoin='round';for(const[w,col]of[[5,bo.col||'rgba(90,200,255,.35)'],[2.2,'rgba(160,240,255,.8)'],[1,'#ffffff']]){g.lineWidth=w;g.strokeStyle=col;g.beginPath();P.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke();}g.restore();continue;}
     for(const[w,col]of[[3,bo.col||'rgba(90,220,255,.5)'],[1,'#f0ffff']]){g.lineWidth=w;g.strokeStyle=col;g.beginPath();bo.pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke();}}
   g.globalAlpha=1;
+  g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';   // 特效贴图会被放大好几倍：平滑插值，避免像素方块
   for(const b of G.beams){g.globalAlpha=b.t/b.T*.85;const im=FX[b.spr||'beam'];
     if(im&&b.spr&&b.spr!=='beam')g.drawImage(im,b.x-b.w*.4,b.y,b.w*1.8,b.h);else if(im){g.save();g.translate(b.x+b.w/2,b.y+b.h/2);g.rotate(Math.PI/2);g.drawImage(im,-b.h/2,-b.w*1.2,b.h,b.w*2.4);g.restore();}
     else{g.fillStyle=b.col;g.fillRect(b.x,b.y,b.w,b.h);}}
@@ -1981,7 +1982,7 @@ function render(){
   if(G.holyT>0)glow(pl.x,pl.y,34,'rgba(255,232,160,.35)');
   for(const r of rings){const p=1-r.t/r.T,rr=r.r0+(r.r1-r.r0)*p,im=FX[RING_FX[r.col]||'quake'];g.globalAlpha=1-p;
     if(im&&rr*2<=im.width*2.2)g.drawImage(im,r.x-rr,r.y-rr,rr*2,rr*2);else{g.strokeStyle=r.col;g.lineWidth=2;g.beginPath();g.arc(r.x,r.y,rr,0,TAU);g.stroke();}}
-  g.globalAlpha=1;g.globalCompositeOperation='source-over';
+  g.globalAlpha=1;g.globalCompositeOperation='source-over';g.imageSmoothingEnabled=false;
   for(const o of shots){const im=o.im||PJ[shotName(o)];if(im){const z=o.im?14:12;g.save();g.translate(o.x,o.y);g.rotate(o.spin?G.t*14:(!o.im||o.im._dir)?Math.atan2(o.vy,o.vx):0);g.drawImage(im,-z/2,-z/2,z,z);g.restore();continue;}
     if(o.arrow){const l=Math.hypot(o.vx,o.vy);g.strokeStyle='#e9d6a0';g.lineWidth=1;g.beginPath();g.moveTo(o.x,o.y);g.lineTo(o.x-o.vx/l*5,o.y-o.vy/l*5);g.stroke();continue;}
     g.fillStyle=o.col||'#ff4d8a';g.fillRect(o.x-1.5,o.y-1.5,3,3);g.fillStyle='#fff';g.fillRect(o.x-.5,o.y-.5,1,1);}
@@ -2366,9 +2367,9 @@ addEventListener('pointerdown',()=>auInit(),{once:true});
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v64"></script>
-<script src="src/raid_engine.js?v=v64"></script>
-<script src="content/rigs.js?v=v64"></script>
-<script src="src/rig.js?v=v64"></script>
+<script src="content/skill_fx.js?v=v65"></script>
+<script src="src/raid_engine.js?v=v65"></script>
+<script src="content/rigs.js?v=v65"></script>
+<script src="src/rig.js?v=v65"></script>
 </body>
 </html>
