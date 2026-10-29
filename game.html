@@ -281,12 +281,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v70"></script>
-<script src="content/boss_tune.js?v=v70"></script>
-<script src="src/loop.js?v=v70"></script>
+<script src="content/raids_data.js?v=v71"></script>
+<script src="content/boss_tune.js?v=v71"></script>
+<script src="src/loop.js?v=v71"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v70';
+const W=195,H=347,VERSION='v71';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -1007,7 +1007,7 @@ function frameK(ref,f){if(!ref||!f||ref===f||!f.getContext)return 1;const a=fram
 // 脚下的椭圆影子（原来是长方条，在沙地上很显眼）
 function shadowE(c,x,y,rx,ry,a){c.save();c.globalAlpha=a;c.fillStyle='#000';c.beginPath();c.ellipse(x,y,Math.max(1,rx),ry,0,0,TAU);c.fill();c.restore();}
 // 按图里实际身高把怪缩放到 e.vis 像素高（各图留白不同，统一用这个对齐体型）；图没加载完先按 1 画
-function visK(e,t){if(!e.vis||!e.art)return 1;if(e._vk)return e._vk;const A=!e.formArt&&window.animOf&&animOf(e),f=A&&A.idle?A.idle[0]:e.art[0],h=f&&f.getContext&&frameH(f);if(!h)return 1;return e._vk=Math.max(.5,Math.min(2.2,e.vis/(t.h*h/f.height)));}
+function visK(e,t){if(!e.vis||!e.art)return 1;if(e._vk)return e._vk;const A=!e.formArt&&window.animOf&&animOf(e),f=A&&A.idle?A.idle[0]:e.art[0],h=f&&f.getContext&&frameH(f);if(!h)return 1;return e._vk=Math.max(.5,Math.min(3,e.vis/(t.h*h/f.height)));}
 function drawArt(c,im,cx,fy,w,h,flip,rot,sx,sy){c.save();c.translate(cx,fy);c.rotate(rot);c.scale(flip?-sx:sx,sy);c.drawImage(im,-w/2,-h,w,h);c.restore();}   // 以脚底为锚点
 function drawSpr(img,x,y,w,h,flip,c=g){const im=hd(img);if(!flip)return c.drawImage(im,x,y,w,h);c.save();c.translate(x+w,y);c.scale(-1,1);c.drawImage(im,0,0,w,h);c.restore();}
 const dI=(c,img,x,y)=>c.drawImage(hd(img),x,y,img.width,img.height);
@@ -2422,9 +2422,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v70"></script>
-<script src="src/raid_engine.js?v=v70"></script>
-<script src="content/rigs.js?v=v70"></script>
-<script src="src/rig.js?v=v70"></script>
+<script src="content/skill_fx.js?v=v71"></script>
+<script src="src/raid_engine.js?v=v71"></script>
+<script src="content/rigs.js?v=v71"></script>
+<script src="src/rig.js?v=v71"></script>
 </body>
 </html>

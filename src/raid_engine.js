@@ -3,12 +3,12 @@
 (function(){
 'use strict';
 const D=window.RAID_DATA;
-// 画面上的身高（像素，不含留白）：按体型排，小怪默认 20（主角约 26）、首领默认 46；绘制时按图里实际身高换算缩放（只影响画面，不改碰撞）
-const VIS={onyxian_whelp:15,corrupted_whelp:15,hivezara_wasp:13,shrieker_scarab:15,core_hound:19,zulian_tiger:20,hivezara_stinger:17,
+// 画面上的身高（像素，不含留白）：按体型排，小怪默认 20（主角约 26）、首领默认 58、本关精英 = 该小怪 ×1.7、首领带的精英小怪 ×1.35；绘制时按图里实际身高换算缩放（只影响画面，不改碰撞）
+const VIS={onyxian_whelp:15,corrupted_whelp:15,hivezara_wasp:16,qiraji_gladiator:24,shrieker_scarab:15,core_hound:19,zulian_tiger:20,hivezara_stinger:17,
   molten_giant:35,black_dragonspawn:31,death_talon_wyrmguard:31,anubisath_guardian:36,obsidian_destroyer:32,gurubashi_berserker:28,razzashi_broodwidow:24,firelord:27,
-  'mc/lucifron':40,'mc/shazzrah':40,'mc/sulfuron_harbinger':40,'mc/majordomo_executus':40,'zg/jindo_the_hexxer':38,'zg/high_priestess_arlokk':40,'zg/high_priest_venoxis':42,'aq20/ayamiss_the_hunter':42,
-  'mc/golemagg_the_incinerator':50,'mc/garr':48,'mc/ragnaros':66,'ony/onyxia':60,'bwl/razorgore_the_untamed':50,'bwl/firemaw':52,'bwl/ebonroc':52,'bwl/flamegor':52,'bwl/chromaggus':54,'bwl/nefarian':60,
-  'zg/gahzranka':50,'zg/hakkar':54,'aq20/moam':52,'aq20/buru_the_gorger':48,'aq20/kurinnaxx':48,'aq20/ossirian_the_unscarred':54};
+  'mc/lucifron':50,'mc/shazzrah':50,'mc/sulfuron_harbinger':50,'mc/majordomo_executus':50,'zg/jindo_the_hexxer':48,'zg/high_priestess_arlokk':50,'zg/high_priest_venoxis':52,'aq20/ayamiss_the_hunter':52,
+  'mc/golemagg_the_incinerator':62,'mc/garr':60,'mc/ragnaros':80,'ony/onyxia':75,'bwl/razorgore_the_untamed':62,'bwl/firemaw':65,'bwl/ebonroc':65,'bwl/flamegor':65,'bwl/chromaggus':68,'bwl/nefarian':75,
+  'zg/gahzranka':62,'zg/hakkar':68,'aq20/moam':65,'aq20/buru_the_gorger':60,'aq20/kurinnaxx':60,'aq20/ossirian_the_unscarred':68};
 if(!D||!D.raids)return;
 
 // ---------- 精灵表按需加载（art/<表名>.png，横排正方形帧） ----------
@@ -24,7 +24,7 @@ function sheet(name){
   if(s)return s.f;
   SHEET[name]={f:null};
   const im=new Image();
-  im.onload=()=>{const f=strip(im,Math.max(1,Math.round(im.width/im.height)));if(/^(bosses_|mobs_|adds_)/.test(name))f.forEach(edgeFade);
+  im.onload=()=>{const f=strip(im,Math.max(1,Math.round(im.width/im.height)));if(/^(bosses_|mobs_|adds_)/.test(name))f.forEach(c=>{trimBleed(c);edgeFade(c);});
     // 图集已由 tools/artprep.swift 离线清理、对齐（去残渣/串格碎片/绿边、同组统一缩放与脚底锚点），运行时只切帧
     if(SHEET[name])SHEET[name].f=f;};   // 加载途中换副本会被 evictOthers 清掉
   im.onerror=()=>{if(SHEET[name])SHEET[name].bad=true;};
@@ -41,7 +41,7 @@ function trimBleed(c){
   const w=c.width,h=c.height,x=c.getContext('2d',{willReadFrequently:true}),d=x.getImageData(0,0,w,h),a=d.data,r=new Array(h).fill(0);let tot=0;
   for(let y=0;y<h;y++)for(let i=0;i<w;i++)if(a[(y*w+i)*4+3]>40){r[y]++;tot++;}
   if(!tot)return;
-  let y=h-1,low=0;while(y>0&&r[y]>0)low+=r[y--];
+  let y=h-1,low=0;while(y>0&&!r[y])y--;while(y>0&&r[y]>0)low+=r[y--];   // 从最低的非空行算起（脚底一般离底边留 1~2 行）
   let gap=0;while(y>0&&r[y]===0){gap++;y--;}
   let bot=h-1;while(bot>0&&!r[bot])bot--;
   if(low&&gap>=2&&low<=tot*.15&&y>=h*.3){x.clearRect(0,y+gap+1,w,h);bot=y;}
@@ -208,7 +208,7 @@ window.applyTrash=(e,t)=>{
 // 精英 = 本关指定的小怪，血量 ×4、技能更频繁
 function makeElite(b,v){
   const r=RAIDS[v.ri],t=r.trash[v.b.elite];if(!t)return;
-  b.name=t.n||v.b.elite;b.def=t;b.elite=true;b.rig=window.rigOf?rigOf('trash',v.b.elite):null;b.rp=null;
+  b.name=t.n||v.b.elite;b.def=t;b.elite=true;b.vis=Math.round((VIS[v.b.elite]||20)*1.7);b._vk=0;b.rig=window.rigOf?rigOf('trash',v.b.elite):null;b.rp=null;
   const f=frames(t.art,3);
   if(f){b.art=[f[0],f[1]];b.artAtk=f[2];b.animRef=t.art;b.animPer=3;}
   b.abx=(t.ab||[]).map(a=>Object.assign({t:1},a,{cd:(a.cd||5)*.7}));
@@ -284,7 +284,7 @@ function mobTick(e,dt){
   }
 }
 // 复活 / 幽灵：按死者复制一只（技能、贴图、名字都保留）
-function cloneMob(e,hp,o){const s=spawnAt(e.x,e.y,e.k);Object.assign(s,{name:e.name,def:e.def,art:e.art,artAtk:e.artAtk,w:e.w,h:e.h,animRef:e.animRef,animPer:e.animPer,rig:e.rig,rp:null,dmg:e.dmg,eliteAdd:e.eliteAdd},o);
+function cloneMob(e,hp,o){const s=spawnAt(e.x,e.y,e.k);Object.assign(s,{name:e.name,def:e.def,art:e.art,artAtk:e.artAtk,w:e.w,h:e.h,animRef:e.animRef,animPer:e.animPer,rig:e.rig,rp:null,dmg:e.dmg,eliteAdd:e.eliteAdd,vis:e.vis,_vk:0},o);
   s.hp=s.max=e.max*hp;s.abx=(e.def.ab||[]).filter(x=>!/^death|packRevive/.test(x.k)).map(x=>Object.assign({},x,{t:1+rand()}));fxs('portal',s.x,s.y,20,.4);return s;}
 window.trashDeath=e=>{
   if(G.vamp)G.vampKills=(G.vampKills||0)+1;
@@ -628,7 +628,7 @@ window.raidAdds=(b,list)=>{const out=[];for(const a of [].concat(list)){if(!a||t
     // 爬向祭坛的单位从房间边缘出现，给玩家留出拦截时间
     const sp=walker?{x:rand()<.5?G.rm.x+12:G.rm.x+G.rm.w-12,y:G.rm.y+12+rand()*(G.rm.h-24)}:{x:b.x+Math.cos(ang)*(a.ring||40),y:b.y+Math.sin(ang)*(a.ring||40)};
     const e=spawnAt(sp.x,sp.y,a.base||(t&&t.base)||'SK');
-    if(t)applyTrash(e,t);e.name=a.n||e.name;e.hp=e.max*=(a.hp||1)*ADD_HP;e.eliteAdd=true;if((a.ab||[]).some(x=>x.k==='walkTo'))e.prio=true;
+    if(t)applyTrash(e,t);e.name=a.n||e.name;e.hp=e.max*=(a.hp||1)*ADD_HP;e.eliteAdd=true;if(e.vis)e.vis=Math.round(e.vis*1.35);if((a.ab||[]).some(x=>x.k==='walkTo'))e.prio=true;
     const fr=frames(a.art,1);if(fr){e.art=[fr[0]];e.w=e.h=a.size||22;}
     if(a.ab){const def={n:a.n,ab:a.ab.filter(x=>x.k!=='unkillable')};if(!t){const hp=e.hp;applyTrash(e,def);e.hp=e.max=hp;}else e.def=Object.assign({},e.def,{ab:def.ab});
       e.abx=def.ab.filter(x=>!/^death|packRevive/.test(x.k)).map(x=>Object.assign({t:2+rand()*2},x));
@@ -669,7 +669,7 @@ function spawnData(b,v,d){
   if(d.fixed)b.spd=0;
   const f=frames(d.art,4)||(fb(d.fallback)&&[fb(d.fallback)])||(ART.bosses&&[ART.bosses[d.fallbackArt]]);
   if(f){b.art=f.length>=2?[f[0],f[1]]:[f[0]];b.artAtk=f[3]||f[2]||null;b.w=b.h=d.size||(v.last?64:54);}
-  b.animRef=Array.isArray(d.art)?d.art:null;b.animPer=4;b._an=null;b.vis=VIS[d.id]||46;b._vk=0;
+  b.animRef=Array.isArray(d.art)?d.art:null;b.animPer=4;b._an=null;b.vis=VIS[d.id]||58;b._vk=0;
   b.rig=window.rigOf?rigOf('boss',d.n):null;b.rp=null;
   {const m=(d.dmgx||1)*BT[1];b.dmg*=m;b.skd*=m;}   // 单个首领的伤害倍率（平衡用）   // 分件骨骼（有分件图就用，没有就用逐帧图）
   b.r=Math.max(b.r||0,Math.round((b.w||54)*.36));   // 碰撞 / 近战命中半径按贴图大小
