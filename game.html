@@ -281,12 +281,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v85"></script>
-<script src="content/boss_tune.js?v=v85"></script>
-<script src="src/loop.js?v=v85"></script>
+<script src="content/raids_data.js?v=v86"></script>
+<script src="content/boss_tune.js?v=v86"></script>
+<script src="src/loop.js?v=v86"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v85';
+const W=195,H=347,VERSION='v86';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -488,7 +488,7 @@ loadArt('gear',im=>strip(im,16));
 loadArt('anime',im=>{const f=strip(im,9);setTimeout(()=>{if($('hub').classList.contains('on')&&HUB.v==='hero')renderHub('hero');});return f;});
 const fitBg=im=>{const c=document.createElement('canvas');c.width=585;c.height=1041;const x=c.getContext('2d');x.imageSmoothingQuality='high';
   const k=Math.max(c.width/im.width,c.height/im.height);x.drawImage(im,(c.width-im.width*k)/2,(c.height-im.height*k)/2,im.width*k,im.height*k);return c;};   // 预缩放到菜单画布（3×）
-loadArt('bg_home',fitBg,'jpg');loadArt('exw',im=>strip(im,9));for(const v of['hero','raid','bag','tal','codex','party','set'])loadArt('bg_'+v,fitBg,'jpg');loadArt('bg_map',fitBg,'jpg');
+loadArt('bg_home',fitBg,'jpg');loadArt('exw',im=>strip(im,9));for(const v of['hero','raid','bag','tal','codex','party','set'])loadArt('bg_'+v,fitBg,'jpg');loadArt('bg_hero_archer',fitBg,'jpg');loadArt('bg_map',fitBg,'jpg');
 loadArt('elites',im=>strip(im,12));
 loadArt('bosses',im=>strip(im,12));loadArt('forms',im=>strip(im,8));loadArt('props',im=>strip(im,8));
 loadArt('bossesAtk',im=>strip(im,12));loadArt('mobsAtk',im=>strip(im,16));loadArt('elitesAtk',im=>strip(im,12));loadArt('mobs2',im=>strip(im,16));
@@ -2122,7 +2122,7 @@ function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;
   else if(G&&G.state==='cutin'&&(G.cutT-=dt)<=0){$('cutin').classList.remove('on');G.state='play';doUlt();}
   if(G){render();hud();}
   const scr=G?null:SCREENS.find(k=>$(k).classList.contains('on'));mc.style.display=scr?'block':'none';
-  if(scr){mx.setTransform(MS,0,0,MS,0,0);const hb=scr==='hub'&&ART['bg_'+HUB.v];if(hb)drawHubBg(mx,now/1000,hb);else(scr==='home'?drawHome:drawMap)(mx,now/1000);}
+  if(scr){mx.setTransform(MS,0,0,MS,0,0);const hb=scr==='hub'&&(HUB.v==='hero'&&ART['bg_hero_'+selCls]||ART['bg_'+HUB.v]);if(hb)drawHubBg(mx,now/1000,hb);else(scr==='home'?drawHome:drawMap)(mx,now/1000);}
   requestAnimationFrame(frame);}
 
 // ---------- 海克斯三选一：每轮同一品质；已有流派、本职业专属更容易出 ----------
@@ -2497,7 +2497,7 @@ for(let i=0;i<300;i++){const o=makeOffer(1+i%15);console.assert(o.cards.length==
 G=null;selLevel=Math.min(PROG.un,NLV());if(PROG.hero&&CLS[PROG.hero])selCls=PROG.hero;progInit();
 // 启动加载：大厅背景、职业头像、当前职业动作图 / 立绘 / 动态立绘都到齐再进大厅（最多等 15 秒）
 {heroArt(selCls);liveLoad(selCls);const por=porImg(selCls,0),t0=performance.now(),$L=$('loadV'),nm=$L.querySelector('.hname');if(nm)nm.textContent='加载资源中…';$L.classList.add('on');
-  const need=()=>['heroes','exw',...['hero','raid','bag','tal','codex','party','set'].map(v=>'bg_'+v),...['walk_','anim_','combo_','dir_'].map(p=>p+selCls)];
+  const need=()=>['heroes','exw','bg_hero_archer',...['hero','raid','bag','tal','codex','party','set'].map(v=>'bg_'+v),...['walk_','anim_','combo_','dir_'].map(p=>p+selCls)];
   const tick=()=>{const n=need(),ok=n.filter(k=>ART[k]).length+(por.complete&&por.naturalWidth?1:0)+(liveReady(selCls)?1:0),tot=n.length+2;
     $('loadI').style.width=Math.round(ok/tot*100)+'%';$('loadT').textContent=`${ok}/${tot}`;
     if(ok>=tot||performance.now()-t0>15000){$L.classList.remove('on');if(nm)nm.textContent='载入副本中…';show('hub','hero');}else setTimeout(tick,120);};tick();}
@@ -2509,9 +2509,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v85"></script>
-<script src="src/raid_engine.js?v=v85"></script>
-<script src="content/rigs.js?v=v85"></script>
-<script src="src/rig.js?v=v85"></script>
+<script src="content/skill_fx.js?v=v86"></script>
+<script src="src/raid_engine.js?v=v86"></script>
+<script src="content/rigs.js?v=v86"></script>
+<script src="src/rig.js?v=v86"></script>
 </body>
 </html>
