@@ -14,9 +14,11 @@ if(!D||!D.raids)return;
 // ---------- 精灵表按需加载（art/<表名>.png，横排正方形帧） ----------
 const SHEET={};
 // 逐帧图里画出格子的部分（龙的吐息、长武器、特效）会被格子边一刀切掉成方块：贴边一圈按距离渐隐
-function edgeFade(c){if(!c||!c.getContext)return;const w=c.width,h=c.height,x=c.getContext('2d',{willReadFrequently:true}),d=x.getImageData(0,0,w,h),a=d.data,m=Math.max(3,Math.round(Math.min(w,h)*.1));let hit=false;
-  for(let i=0;i<w;i++)for(const y of [0,h-1])if(a[(y*w+i)*4+3]>40)hit=true;for(let j=0;j<h;j++)for(const xx of [0,w-1])if(a[(j*w+xx)*4+3]>40)hit=true;if(!hit)return;
-  for(let y=0;y<h;y++)for(let i=0;i<w;i++){const e=Math.min(i,y,w-1-i,h-1-y);if(e<m&&y<h-m)a[(y*w+i)*4+3]*=e/m;else if(e<m&&(i<m||i>=w-m))a[(y*w+i)*4+3]*=e/m;}
+// 画面被格子边切断（如龙喷息）时只把碰到的那条边淡出；脚底贴底边是正常的，不处理底边，头顶也不会被误淡化
+function edgeFade(c){if(!c||!c.getContext)return;const w=c.width,h=c.height,x=c.getContext('2d',{willReadFrequently:true}),d=x.getImageData(0,0,w,h),a=d.data,m=Math.max(3,Math.round(Math.min(w,h)*.1));
+  const touch=(x0,y0,dx,dy,n)=>{let k=0;for(let i=0;i<n;i++)if(a[((y0+dy*i)*w+x0+dx*i)*4+3]>40)k++;return k>2;};
+  const T=touch(0,0,1,0,w),L=touch(0,0,0,1,h),R=touch(w-1,0,0,1,h);if(!T&&!L&&!R)return;
+  for(let y=0;y<h;y++)for(let i=0;i<w;i++){let e=m;if(T)e=Math.min(e,y);if(L)e=Math.min(e,i);if(R)e=Math.min(e,w-1-i);if(e<m)a[(y*w+i)*4+3]*=e/m;}
   x.putImageData(d,0,0);}
 function sheet(name){
   if(!name)return null;
@@ -628,11 +630,12 @@ window.raidAdds=(b,list)=>{const out=[];for(const a of [].concat(list)){if(!a||t
     // 爬向祭坛的单位从房间边缘出现，给玩家留出拦截时间
     const sp=walker?{x:rand()<.5?G.rm.x+12:G.rm.x+G.rm.w-12,y:G.rm.y+12+rand()*(G.rm.h-24)}:{x:b.x+Math.cos(ang)*(a.ring||40),y:b.y+Math.sin(ang)*(a.ring||40)};
     const e=spawnAt(sp.x,sp.y,a.base||(t&&t.base)||'SK');
-    if(t)applyTrash(e,t);e.name=a.n||e.name;e.hp=e.max*=(a.hp||1)*ADD_HP;e.eliteAdd=true;if(e.vis)e.vis=Math.round(e.vis*1.35);if((a.ab||[]).some(x=>x.k==='walkTo'))e.prio=true;
+    if(t)applyTrash(e,t);e.name=a.n||e.name;e.hp=e.max*=(a.hp||1)*ADD_HP;e.eliteAdd=true;if((a.ab||[]).some(x=>x.k==='walkTo'))e.prio=true;
     const fr=frames(a.art,1);if(fr){e.art=[fr[0]];e.w=e.h=a.size||22;}
     if(a.ab){const def={n:a.n,ab:a.ab.filter(x=>x.k!=='unkillable')};if(!t){const hp=e.hp;applyTrash(e,def);e.hp=e.max=hp;}else e.def=Object.assign({},e.def,{ab:def.ab});
       e.abx=def.ab.filter(x=>!/^death|packRevive/.test(x.k)).map(x=>Object.assign({t:2+rand()*2},x));
       const u=a.ab.find(x=>x.k==='unkillable');if(u)e.unk={b,healAt:u.healAt||.5};}
+    e.vis=Math.round((e.vis||20)*1.35);e._vk=0;   // 护卫比同种小怪大一号
     if(a.link&&a.link.bossDmgTaken){b.link={mul:a.link.bossDmgTaken,alive:()=>en.some(q=>q.linkTo===b&&!q.dead)};e.linkTo=b;}out.push(e);}}return out;};
 // 阶段里的 adds 可以写名字（对应首领 adds 表），也可以不写而由 end:{adds:true} 表示“刷出本首领的阶段召唤物并全部击杀”
 function resolveAdds(b,o){
