@@ -2,3 +2,4 @@
 .DS_Store
 .env
 _raw/
+__pycache__/
