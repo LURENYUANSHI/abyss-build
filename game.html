@@ -434,7 +434,7 @@ let heroRaf=0;const POR={};
 function porImg(id,t){const k=id+t;if(!POR[k]){for(const o in POR)delete POR[o];   // 只留当前职业一张（解码后约 2.4MB）
   const im=new Image();im.src=`art/hero_${id}_t${t}.webp?v=${VERSION}`;POR[k]=im;}return POR[k];}
 // 动态立绘（Seedance 生成的 8 秒循环，首尾已交叉淡化）：有视频的职业在人物页播视频，其余用静态立绘
-const LIVE={},LIVE_URL={};   // 先用静态立绘（用户决定）；要开动态：LIVE={archer:'art/live/archer.mp4'}
+const LIVE={},LIVE_URL={};   // 先用静态立绘（用户决定）；要开动态就在 LIVE 里加 职业名 → art/live 下的视频路径
 function liveLoad(id){if(!LIVE[id]||LIVE_URL[id])return;LIVE_URL[id]='loading';
   fetch(LIVE[id]+'?v='+VERSION).then(r=>r.ok?r.blob():null).then(b=>{LIVE_URL[id]=b?URL.createObjectURL(b):'bad';if(b&&HUB.v==='hero'&&selCls===id&&$('hub').classList.contains('on'))renderHub('hero');}).catch(()=>{LIVE_URL[id]='bad';});}
 const liveReady=id=>!LIVE[id]||(LIVE_URL[id]&&LIVE_URL[id]!=='loading');
