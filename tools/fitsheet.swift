@@ -32,12 +32,22 @@ while g<pick.count{let idx=Array(pick[g..<min(g+per,pick.count)])
   if let nb=nb{
     let o=ob ?? (S/8,S/8,S*7/8,S-2)
     let nwid=Double(nb.2-nb.0+1),nhei=Double(nb.3-nb.1+1),ohei=Double(o.3-o.1+1)
-    let sc=min(ohei/nhei,Double(S-2)/nwid)
+    // 宽度上限按单帧最宽算（整组并集会被刀光等特效撑宽，整组缩小）；个别仍出格的帧单独平移回格内
+    let fb=idx.map{box(na,nw.width,NS,$0)}
+    let maxW=Double(fb.compactMap{$0}.map{$0.2-$0.0+1}.max() ?? Int(nwid))
+    // 身高按各帧身高的中位数对齐（个别帧头顶有特效会把并集撑高、整组变矮）；最高的一帧仍要放得进格子
+    func med(_ v:[Int])->Double{let t=v.sorted();return t.isEmpty ? 0 : Double(t[t.count/2])}
+    let oh=med((0..<idx.count).compactMap{box(oa,orig.width,S,off+g+$0)}.map{$0.3-$0.1+1}),nh=med(fb.compactMap{$0}.map{$0.3-$0.1+1})
+    let maxH=Double(fb.compactMap{$0}.map{nb.3-$0.1+1}.max() ?? Int(nhei))
+    let sc=min(oh>0&&nh>0 ? oh/nh : ohei/nhei,Double(S-2)/maxW,(Double(o.3)-1)/maxH)
     let cx=Double(o.0+o.2+1)/2,bottom=Double(o.3+1)
     for (k,i) in idx.enumerated(){let cell=off+g+k
       ctx.clear(CGRect(x:cell*S,y:0,width:S,height:S))
       guard let cut=nw.cropping(to:CGRect(x:i*NS+nb.0,y:nb.1,width:nb.2-nb.0+1,height:nb.3-nb.1+1)) else{continue}
-      let w=nwid*sc,h=nhei*sc,left=Double(cell*S)+cx-w/2,top=bottom-h
+      let w=nwid*sc,h=nhei*sc,top=bottom-h
+      var left=Double(cell*S)+cx-w/2
+      if let b=fb[k]{let l=left+Double(b.0-nb.0)*sc,r=left+Double(b.2-nb.0+1)*sc,lo=Double(cell*S)+1,hi=Double(cell*S+S)-1
+        if l<lo{left+=lo-l}else if r>hi{left-=r-hi}}
       ctx.saveGState();ctx.clip(to:CGRect(x:cell*S,y:0,width:S,height:S))
       ctx.draw(cut,in:CGRect(x:left,y:Double(S)-top-h,width:w,height:h));ctx.restoreGState()}}
   g+=per}

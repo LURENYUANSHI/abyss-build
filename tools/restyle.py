@@ -92,7 +92,8 @@ if __name__ == '__main__':
             strip = os.path.join(RAW, name + '_strip.png')
             run(f'{BIN}/procraw', raw, strip, c, r, n, n if single else 1, S)
             dst = os.path.join(ART, sheet + '.png')
-            run(f'{BIN}/fitsheet', dst, strip, dst, s, n if single else 1)
+            fp = 6 if sheet.startswith('walk_') else 4 if sheet.startswith('dir_') else n if single else 1   # 走路按正/背/侧每行、四向图按每 4 帧各自对齐原图身高
+            run(f'{BIN}/fitsheet', dst, strip, dst, s, fp)
             touched.add(dst)
             if der:
                 old, off, per, idx = der

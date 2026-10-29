@@ -46,10 +46,11 @@ def one(j, out, size, art, proc):
     dst = os.path.join(out, name + '.png')
     for att in range(3):
         try:
-            if not os.path.exists(dst):
+            if not os.path.exists(dst) or os.path.getsize(dst) < 1000:
                 url = gen(prompt, size, urls)
                 with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': UA}), timeout=120) as r:
-                    open(dst, 'wb').write(r.read())
+                    data = r.read()
+                open(dst + '.part', 'wb').write(data); os.replace(dst + '.part', dst)   # 下载中断不留空文件
             if art and proc:
                 subprocess.run([proc, dst, os.path.join(art, name + '.png')] + [str(x) for x in j[2:6]], check=True)
             print('完成', name, flush=True); return

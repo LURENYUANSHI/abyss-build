@@ -11,7 +11,9 @@ MAP.boss=MAP.boss||{};if(!MAP.boss['鲁西弗隆'])MAP.boss['鲁西弗隆']={pla
 const RIG_OFF=new Set(['玛格曼达','库林纳克斯','狩猎者阿亚米斯','哈卡','加兹兰卡','加尔','焚化者古雷曼格','拉格纳罗斯','血领主曼多基尔','克洛玛古斯','吞咽者布鲁',
   'obsidian_destroyer','gurubashi_bat_rider','hivezara_wasp','hivezara_stinger','shrieker_scarab','razzashi_broodwidow','molten_giant','blackwing_mage','blackwing_legionnaire','qiraji_gladiator']);
 // 四足 / 龙 / 虫 / 蛇的分件拼出来容易压扁成一团（第 3 轮试玩），只保留人形和漂浮体型
-window.rigOf=(kind,key)=>{if(RIG_OFF.has(key))return null;const m=MAP[kind]&&MAP[kind][key];return m&&(m.plan==='humanoid'||m.plan==='floater')?m:null;};
+// 第 1~5 章已换成坎公风格逐帧动作图；分件是从旧画风切出来的，混用会画风不一致，先整体关掉（要恢复：重切分件后改回 true）
+const RIG_ON=false;
+window.rigOf=(kind,key)=>{if(!RIG_ON||RIG_OFF.has(key))return null;const m=MAP[kind]&&MAP[kind][key];return m&&(m.plan==='humanoid'||m.plan==='floater')?m:null;};
 
 function box(c){const w=c.width,h=c.height,d=c.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h).data;let x0=w,y0=h,x1=-1,y1=-1;
   for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>60){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
