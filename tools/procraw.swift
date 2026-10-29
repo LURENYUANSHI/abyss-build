@@ -34,6 +34,9 @@ for c in 0..<used{let i=c%cols,r=c/cols;var a=[UInt8](repeating:0,count:cw*ch*4)
   var b=B();let mg=Int((Double(cw)*0.015).rounded())
   // 格子线残留：边缘一圈直接清掉
   for y in 0..<ch{for x in 0..<cw where x<mg||y<mg||x>=cw-mg||y>=ch-mg{let p=(y*cw+x)*4;a[p]=0;a[p+1]=0;a[p+2]=0;a[p+3]=0}}
+  // 特效越过格子线会被一刀切成直边（游戏里看着像方框）：贴左、右、上边的部分按距离淡出（底边是脚，不动）
+  let fm=max(2,Int(Double(cw)*0.07))
+  for y in 0..<ch{for x in 0..<cw{let e=min(x,cw-1-x,y);if e<fm{let p=(y*cw+x)*4,k=Double(e)/Double(fm);for c in 0..<4{a[p+c]=UInt8(Double(a[p+c])*k)}}}}
   for y in mg..<(ch-mg){for x in mg..<(cw-mg) where a[(y*cw+x)*4+3]>60{b.x0=min(b.x0,x);b.x1=max(b.x1,x);b.y0=min(b.y0,y);b.y1=max(b.y1,y)}}
   let ctx=CGContext(data:&a,width:cw,height:ch,bitsPerComponent:8,bytesPerRow:cw*4,space:cs,bitmapInfo:info)!
   cells.append(ctx.makeImage()!);boxes.append(b.x1<0 ? nil : b)}
