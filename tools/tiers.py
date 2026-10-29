@@ -12,7 +12,7 @@ from restyle import ART, ROOT, BIN, CLS, STYLE, SINGLE, TAIL, SIZE, frames, grid
 REF, RAW = os.path.join(ROOT, 'ref/style/tier'), os.path.join(ROOT, '_raw/tiers')
 TIER = {1: 'FINE tier gear: polished steel pieces with blue trim, cleaner well-made cloth, small blue gem accents, the weapon looks sharper and better crafted',
         2: 'EPIC tier gear: ornate purple-and-gold armor or robes with engraved patterns and softly glowing violet runes, fancier head piece, small shoulder guards, a short cape, the weapon is ornate with a violet glow',
-        3: 'LEGENDARY tier gear: radiant gold-and-orange armor or robes with flame-like trims, glowing orange gems, a majestic crowned or winged head piece, a flowing cape, the weapon is legendary with a bright golden-orange glow'}
+        3: 'LEGENDARY tier gear (holy, Guardian Tales style): radiant white-and-gold armor or robes with clean elegant gold trims, a small glowing halo or light-wing motif, sky-blue gem accents, a soft golden-white glow, the weapon is legendary with a bright white-gold glow. NO fire, NO flames, NO orange flame trims'}
 KEEP = ('Upgrade ONLY the equipment/outfit to: {t}. Keep the SAME character underneath: same face, hair, skin, body shape and chibi proportions, '
         'same class and weapon TYPE (just a fancier version), same pose, facing and motion in every cell as the first reference image. ')
 
