@@ -82,7 +82,18 @@ var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0,bt
 // 像真人一样选卡：优先选已经拿得最多的流派（凑套装加成），其次品质高的
 var smartPick=()=>{let bi=0,bs=-1;G.offer.cards.forEach((h,i)=>{const sc=(G.tags[h.tag]||0)*10+h.tier;if(sc>bs){bs=sc;bi=i;}});return bi;};
 // 整章连打：从章首关开始一路打到章末（海克斯整章保留），返回是否通关、死在哪关、各首领用时
-var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);PROG.best={};selCls=cls;selLevel=L0;startGame();const dt=1/30;let t=0,bt0=-1,curL=L0,bts=[];
+// --exw：给本职业装上专武（--star N 指定星级）
+var giveExw=cls=>{if(!globalThis.EXW_ON)return;const it={id:PROG.iid++,slot:'wpn',rar:5,ri:0,set:null,st:{atk:.35,skill:.12,crit:.05},fx:[],n:'exw',il:90,up:0,ex:cls,star:globalThis.EXW_STAR||0};PROG.inv.push(it);PROG.eq.wpn=it.id;};
+// 无尽深渊：从第一章打到死，返回到达层数、轮数
+var endlessSim=(cls,metaRi)=>{setMeta(metaRi);giveExw(cls);PROG.best={};selCls=cls;selLevel=firstL(0);ENDLESS_GO=true;startGame();const dt=1/30;let t=0;
+  while(t<30000){
+    if(G.state==='play')update(dt);
+    else if(G.state==='pick')choose(globalThis.SMART?smartPick():(rand()*G.offer.cards.length)|0);
+    else if(G.state==='cutin'){G.cutT-=dt;if(G.cutT<=0){G.state='play';doUlt();}}
+    else return{floor:G.endless?G.endless.floor:0,loop:G.endless?G.endless.loop:0,t};
+    if(G.state==='play'&&G.pickQ.length)openPick(G.pickQ.shift());t+=dt;}
+  return{floor:G.endless.floor,loop:G.endless.loop,t,timeout:1};};
+var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);giveExw(cls);PROG.best={};selCls=cls;selLevel=L0;startGame();const dt=1/30;let t=0,bt0=-1,curL=L0,bts=[];
   while(t<9000){
     if(G.state==='play'){update(dt);if(bt0<0&&G.boss&&G.cfg&&G.cfg.type==='big')bt0=t;if(G.L!==curL){bts.push(bt0<0?0:t-bt0);bt0=-1;curL=G.L;}}
     else if(G.state==='pick')choose(globalThis.SMART?smartPick():(rand()*G.offer.cards.length)|0);
@@ -94,6 +105,10 @@ var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);PROG.best={};selCls=cls;se
 
 const args=process.argv.slice(2);
 if(args.includes('--smart'))ctx.SMART=true;
+if(args.includes('--exw')){ctx.EXW_ON=true;const si=args.indexOf('--star');if(si>0)ctx.EXW_STAR=+args[si+1];}
+if(args.includes('--endless')){const ev0=e=>vm.runInContext(e,ctx),CL0=ev0('CLS_IDS'),ai=args.indexOf('--cls'),CL=ai>0?args[ai+1].split(','):CL0,mi=args.indexOf('--meta'),meta=mi>0?+args[mi+1]:2,runs=+(args[args.indexOf('--endless')+1]||2),es=ev0('endlessSim'),all=[];
+  for(const c of CL){const f=[];for(let i=0;i<runs;i++){let r;try{r=es(c,meta);}catch(e){console.error('ERR',c,e.message);r={floor:-1};}f.push(r.floor);all.push(r.floor);}f.sort((a,b)=>a-b);console.log(`无尽 ${c}: 层数 ${f.join(',')}  中位 ${f[f.length>>1]}`);}
+  all.sort((a,b)=>a-b);console.log(`无尽 全职业中位 ${all[all.length>>1]}  最少 ${all[0]}  最多 ${all[all.length-1]}`);process.exit(0);}
 if(args.includes('--run')){const ev0=e=>vm.runInContext(e,ctx),RA=ev0('RAIDS'),CL0=ev0('CLS_IDS'),ai=args.indexOf('--cls'),CL=ai>0?args[ai+1].split(','):CL0,ci=args.indexOf('--ch'),CH=ci>0?args[ci+1].split(',').map(Number):null,runSim=ev0('runSim'),setMeta0=ev0('setMeta');const runs=+(args[1]||2);const t0=Date.now();const cw={};
   const J=[];for(let ri=0;ri<RA.length;ri++){if(CH&&!CH.includes(ri))continue;setMeta0(ri);let w=0,n=0,bt=[],deaths={};const per=RA[ri].bosses.map(b=>({n:b.n,t:[],reach:0,die:0}));for(const c of CL)for(let i=0;i<runs;i++){let r;try{r=runSim(c,ri);}catch(e){console.error('ERR',c,ri,e.message);r={w:0,k:-1,bts:[]};}
       w+=r.w;n++;bt.push(...r.bts.filter(x=>x>0));r.bts.forEach((x,k)=>{if(per[k]&&x>0)per[k].t.push(x);});for(let k=0;k<=Math.min(r.k,per.length-1);k++)per[k].reach++;if(!r.w&&per[r.k]){per[r.k].die++;(per[r.k].where=per[r.k].where||[]).push(r.boss?'首领'+r.bhp+'%':'房'+r.room);}if(!r.w)deaths[r.k+1]=(deaths[r.k+1]||0)+1;(cw[c]=cw[c]||[0,0,[]]);cw[c][0]+=r.w;cw[c][1]++;cw[c][2].push(...r.bts.filter(x=>x>0));}

@@ -214,9 +214,11 @@ function onBossKill(L){const d=LV[L].b,t=(G&&G.diff)||0;taskAdd('boss',1);PROG.c
 let ENDLESS_GO=false;
 const endlessOpen=()=>(PROG.clr||{})[0]!==undefined||PROG.un>LV.findIndex(v=>v&&v.ri===0&&v.last);   // 通关第一章后开放（老存档没有 clr，按解锁进度判断）
 function startEndless(){ENDLESS_GO=true;PROG.run=null;selLevel=firstL(0);selDiff=0;enterLevel();}
-const endlessMul=()=>{const E=G&&G.endless;return E?{hp:1+.6*E.loop,dmg:1+.35*E.loop}:{hp:1,dmg:1};};
+// 按层数指数涨（海克斯一路累积，线性加难度追不上构筑成长）
+const EN_HP=1.07,EN_DMG=1.04;
+const endlessMul=()=>{const E=G&&G.endless;return E?{hp:Math.pow(EN_HP,E.floor),dmg:Math.pow(EN_DMG,E.floor)}:{hp:1,dmg:1};};
 function endlessNext(){const E=G.endless,v=LV[G.L];E.floor++;taskAdd('endless',0,E.floor);
-  if(!v.last)return G.L+1;const nr=v.ri+1<Math.min(5,RAIDS.length)?v.ri+1:0;if(!nr){E.loop++;toast(`深渊第 ${E.loop+1} 轮：敌人更强了`);}return firstL(nr);}
+  if(!v.last)return G.L+1;const nr=v.ri+1<Math.min(5,RAIDS.length)?v.ri+1:0;if(!nr){E.loop++;toast(`深渊第 ${E.loop+1} 轮`);}return firstL(nr);}
 function endlessEnd(){const E=G.endless;if(!E)return '';const f=E.floor,pf=E.pf||0,P=PROG.endless=PROG.endless||{best:0};E.pf=f;
   const nb=f>P.best;if(nb){P.best=f;P.cls=G.cls;}const dust=(f-pf)*12,marks=Math.floor(f/5)-Math.floor(pf/5);gainDust(dust);if(marks>0)PROG.marks=(PROG.marks||0)+marks;saveProg();
   return `无尽深渊：到达第 ${f} 层${nb?'（新纪录！）':`（最高 ${P.best} 层）`}　尘 +${dust}${marks>0?`　徽记 +${marks}`:''}`;}

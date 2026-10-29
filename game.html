@@ -281,12 +281,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v82"></script>
-<script src="content/boss_tune.js?v=v82"></script>
-<script src="src/loop.js?v=v82"></script>
+<script src="content/raids_data.js?v=v83"></script>
+<script src="content/boss_tune.js?v=v83"></script>
+<script src="src/loop.js?v=v83"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v82';
+const W=195,H=347,VERSION='v83';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -1060,13 +1060,13 @@ const RAR=[null,['优秀','#5ad16a',1],['精良','#4a9cff',1.3],['史诗','#b45a
 // 专武（学坎公）：每个职业一把，改变本职业技能的玩法；人物页用徽记解锁，之后与普通装备一样用尘强化 +1~+10；只有本职业装备时专武效果生效
 const EXW={
   sword:{n:'天穹圣剑',d:'剑刃风暴范围、伤害 +30%；剑气每次多 1 道',f:st=>{st.skR*=1.3;st.skillMul*=1.3;st.waveCount+=1;}},
-  mage:{n:'星界法典',d:'连锁闪电多弹射 4 次，闪电伤害 +30%',f:st=>{st.chain+=4;st.boltMul*=1.3;}},
-  brawler:{n:'崩岳拳套',d:'震地猛击范围 +30%、伤害 +20%，并留下余震',f:st=>{st.skR*=1.3;st.skillMul*=1.2;st.aftershock=true;}},
+  mage:{n:'星界法典',d:'连锁闪电多弹射 4 次，技能与闪电伤害 +35%',f:st=>{st.chain+=4;st.boltMul*=1.35;st.skillMul*=1.35;}},
+  brawler:{n:'崩岳拳套',d:'震地猛击范围 +30%、伤害 +40%，并留下余震；普攻 +15%',f:st=>{st.skR*=1.3;st.skillMul*=1.4;st.aftershock=true;st.basicMul*=1.15;}},
   eng:{n:'量子扳手炮',d:'炮台上限 +1、伤害 +30%，炮台阵亡时爆炸',f:st=>{st.turretMax+=1;st.turretMul*=1.3;st.turretBoom=true;}},
-  archer:{n:'风语长弓',d:'普攻多射 1 支箭，穿透 +1',f:st=>{st.multishot+=1;st.pierce=(st.pierce||0)+1;}},
-  assassin:{n:'暗月双刃',d:'暴击伤害 +50%，影袭伤害 +30%',f:st=>{st.critDmg+=.5;st.skillMul*=1.3;}},
+  archer:{n:'风语长弓',d:'普攻多射 1 支箭',f:st=>{st.multishot+=1;}},
+  assassin:{n:'暗月双刃',d:'暴击伤害 +20%，影袭伤害 +10%',f:st=>{st.critDmg+=.2;st.skillMul*=1.1;}},
   ninja:{n:'百鬼手里剑',d:'分身伤害 +40%，普攻多投 1 枚',f:st=>{st.cloneMul*=1.4;st.multishot+=1;}},
-  bard:{n:'终焉竖琴',d:'战歌攻击加成 +30%，治疗 +40%',f:st=>{st.songAtk*=1.3;st.songHeal*=1.4;}},
+  bard:{n:'终焉竖琴',d:'战歌攻击加成 +45%，治疗 +50%，普攻 +15%',f:st=>{st.songAtk*=1.45;st.songHeal*=1.5;st.basicMul*=1.15;}},
   paladin:{n:'审判圣锤',d:'审判更频繁，伤害 +40%、范围 +30%',f:st=>{st.judgeEvery=Math.max(2,st.judgeEvery-1);st.judgeMul*=1.4;st.judgeR*=1.3;}}};
 const EXW_COST=20;
 function exwOf(c){return PROG.inv.find(i=>i.ex===c);}
@@ -1711,7 +1711,7 @@ function update(dt){
     if(c.type==='calm'?G.calmDone:c.type==='normal'?(G.spawned>=c.quota&&!en.filter(e=>!e.dead).length&&!G.revives.length):G.bossDone){
       for(const e of en)if(!e.dead)kill(e);
       G.rm.done=true;if(st.tank&&(G.tankN=(G.tankN||0)+1)<=12){const a=Math.round(CLS[G.cls].hp*.12);pl.maxHp+=a;pl.hp+=a;num(pl.x,pl.y-20,`生命上限 +${a}`,'#7dff9a');}   // 按职业基础生命加、一章最多 12 次（海克斯整章保留，复利会无限涨）
-      {const nr=G.rooms.length-1;if(G.ri<nr&&c.type!=='calm')G.pickQ.push(c.type==='mini'?(avail(3).length?3:2):G.ri===0?1:2);if(c.type!=='calm')gainGold(c.type==='mini'?25:c.type==='big'?30:8);}G.log.push({room:`${G.L}-${G.ri+1}`,type:c.type,t:+G.roomT.toFixed(1),dps:Math.round(G.roomDmg/Math.max(1,G.roomT)),lvl:G.lvl,hp:Math.round(pl.hp)});
+      {const nr=G.rooms.length-1;if(G.ri<nr&&c.type!=='calm'&&!(G.endless&&G.ri>0&&c.type!=='mini'))G.pickQ.push(c.type==='mini'?(avail(3).length?3:2):G.ri===0?1:2);if(c.type!=='calm')gainGold(c.type==='mini'?25:c.type==='big'?30:8);}G.log.push({room:`${G.L}-${G.ri+1}`,type:c.type,t:+G.roomT.toFixed(1),dps:Math.round(G.roomDmg/Math.max(1,G.roomT)),lvl:G.lvl,hp:Math.round(pl.hp)});
       G.phase='clear';G.phaseT=1;shots=[];G.pools=[];G.turrets=[];G.arrowRains=[];G.cloneT=0;G.skT=0;
       $('banner').textContent='清除！';banner();sfx('lvl');}
   }else if(G.phase==='clear'){
@@ -2494,9 +2494,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v82"></script>
-<script src="src/raid_engine.js?v=v82"></script>
-<script src="content/rigs.js?v=v82"></script>
-<script src="src/rig.js?v=v82"></script>
+<script src="content/skill_fx.js?v=v83"></script>
+<script src="src/raid_engine.js?v=v83"></script>
+<script src="content/rigs.js?v=v83"></script>
+<script src="src/rig.js?v=v83"></script>
 </body>
 </html>
