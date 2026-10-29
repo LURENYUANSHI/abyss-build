@@ -4,7 +4,7 @@
 #   python3 -I tools/portrait.py jobs0  第一步：初始外观 _raw/portrait/jobs0.json（定长相）
 #   python3 -I tools/portrait.py pub0   把第一步结果缩小放进 ref/style/portrait/<职业>_t0.png（推到 Pages）
 #   python3 -I tools/portrait.py jobs1  第二步：三档换装，参考 = 初始立绘 + 该档游戏内小人
-#   python3 -I tools/portrait.py apply  原图 → tools/portrait.swift → art/hero_<职业>_t<档>.jpg（上彩图下透明度）
+#   python3 -I tools/portrait.py apply  原图 → tools/portrait.swift 抠图 → Pillow 转带透明 WebP → art/hero_<职业>_t<档>.webp
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from restyle import ROOT, ART, BIN, CLS, run
@@ -49,5 +49,7 @@ if __name__ == '__main__':
             for t in range(4):
                 raw = os.path.join(RAW, f'hero_{c}_t{t}.png')
                 if os.path.exists(raw) and os.path.getsize(raw) > 1000:
-                    run(f'{BIN}/portrait', raw, os.path.join(ART, f'hero_{c}_t{t}.jpg')); n += 1
+                    tmp = os.path.join(RAW, f'hero_{c}_t{t}_key.png'); run(f'{BIN}/portrait', raw, tmp)
+                    from PIL import Image
+                    Image.open(tmp).save(os.path.join(ART, f'hero_{c}_t{t}.webp'), 'WEBP', quality=86, method=6); n += 1
         print('写出', n)

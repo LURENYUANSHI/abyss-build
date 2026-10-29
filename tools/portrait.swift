@@ -1,6 +1,5 @@
-// 高清立绘后处理：绿幕抠图 → 裁到人物 → 等比缩放到 高 H、脚底贴底居中 → 输出 JPEG，上半张是彩图（底为黑），下半张是透明度灰度图
-// （本机写不了 WebP，PNG 太大；运行时把下半张的亮度拷进透明通道即可）
-// 用法：portrait <原图> <输出.jpg> [宽=640] [高=960] [质量=0.82]
+// 高清立绘后处理：绿幕抠图 → 裁到人物 → 等比缩放到 宽×高、脚底贴底居中 → 输出带透明的 PNG（再由 tools/portrait.py 用 Pillow 转 WebP）
+// 用法：portrait <原图> <输出.png> [宽=640] [高=960]
 import Foundation
 import CoreGraphics
 import ImageIO
@@ -8,7 +7,7 @@ import UniformTypeIdentifiers
 
 let A=CommandLine.arguments
 guard A.count>=3,let src=CGImageSourceCreateWithURL(URL(fileURLWithPath:A[1]) as CFURL,nil),let im=CGImageSourceCreateImageAtIndex(src,0,nil) else{print("用法：portrait 原图 输出.jpg [宽] [高] [质量]");exit(1)}
-let OW=A.count>3 ? Int(A[3])! : 640,OH=A.count>4 ? Int(A[4])! : 960,Q=A.count>5 ? Double(A[5])! : 0.82
+let OW=A.count>3 ? Int(A[3])! : 640,OH=A.count>4 ? Int(A[4])! : 960
 let W=im.width,H=im.height,cs=CGColorSpaceCreateDeviceRGB(),info=CGImageAlphaInfo.premultipliedLast.rawValue
 var a=[UInt8](repeating:0,count:W*H*4)
 CGContext(data:&a,width:W,height:H,bitsPerComponent:8,bytesPerRow:W*4,space:cs,bitmapInfo:info)!.draw(im,in:CGRect(x:0,y:0,width:W,height:H))
@@ -32,16 +31,11 @@ var x0=W,x1 = -1,y0=H,y1 = -1
 for y in 0..<H{var c=0;for x in 0..<W where a[(y*W+x)*4+3]>100{c+=1};if c>=3{y0=min(y0,y);y1=max(y1,y)}}
 for x in 0..<W{var c=0;for y in 0..<H where a[(y*W+x)*4+3]>100{c+=1};if c>=3{x0=min(x0,x);x1=max(x1,x)}}
 guard x1>x0,y1>y0 else{print("空图");exit(1)}
-// 预乘 → 直接颜色（彩图要不带透明的颜色）
-var col=[UInt8](repeating:0,count:W*H*4),alp=[UInt8](repeating:0,count:W*H*4)
-for q in 0..<W*H{let p=q*4,al=Int(a[p+3]);if al>0{for k in 0..<3{col[p+k]=UInt8(min(255,Int(a[p+k])*255/al))}};col[p+3]=255;alp[p]=UInt8(al);alp[p+1]=UInt8(al);alp[p+2]=UInt8(al);alp[p+3]=255}
-func img(_ d:inout [UInt8])->CGImage{CGContext(data:&d,width:W,height:H,bitsPerComponent:8,bytesPerRow:W*4,space:cs,bitmapInfo:CGImageAlphaInfo.noneSkipLast.rawValue)!.makeImage()!}
-let ci=img(&col).cropping(to:CGRect(x:x0,y:y0,width:x1-x0+1,height:y1-y0+1))!,ai=img(&alp).cropping(to:CGRect(x:x0,y:y0,width:x1-x0+1,height:y1-y0+1))!
 let bw=Double(x1-x0+1),bh=Double(y1-y0+1),sc=min(Double(OH)*0.97/bh,Double(OW)*0.98/bw),dw=bw*sc,dh=bh*sc,dx=(Double(OW)-dw)/2
-let out=CGContext(data:nil,width:OW,height:OH*2,bitsPerComponent:8,bytesPerRow:OW*4,space:cs,bitmapInfo:CGImageAlphaInfo.noneSkipLast.rawValue)!
-out.setFillColor(red:0,green:0,blue:0,alpha:1);out.fill(CGRect(x:0,y:0,width:OW,height:OH*2));out.interpolationQuality = .high
-// CG 原点在左下：上半张（彩图）占 y∈[OH,2OH)，下半张（透明度）占 [0,OH)；脚底贴各自半张的底边
-out.draw(ci,in:CGRect(x:dx,y:Double(OH)+1,width:dw,height:dh))
-out.draw(ai,in:CGRect(x:dx,y:1,width:dw,height:dh))
-let d=CGImageDestinationCreateWithURL(URL(fileURLWithPath:A[2]) as CFURL,UTType.jpeg.identifier as CFString,1,nil)!
-CGImageDestinationAddImage(d,out.makeImage()!,[kCGImageDestinationLossyCompressionQuality:Q] as CFDictionary);CGImageDestinationFinalize(d)
+let out=CGContext(data:nil,width:OW,height:OH,bitsPerComponent:8,bytesPerRow:OW*4,space:cs,bitmapInfo:info)!
+out.interpolationQuality = .high
+var ka=a;for p in stride(from:0,to:ka.count,by:4){let al=Int(ka[p+3]);for k in 0..<3{ka[p+k]=UInt8(Int(ka[p+k])*al/255)}}   // 上下文是预乘透明：透明处颜色必须清零，否则绿会叠回来
+let full=CGContext(data:&ka,width:W,height:H,bitsPerComponent:8,bytesPerRow:W*4,space:cs,bitmapInfo:info)!.makeImage()!
+out.draw(full.cropping(to:CGRect(x:x0,y:y0,width:x1-x0+1,height:y1-y0+1))!,in:CGRect(x:dx,y:1,width:dw,height:dh))   // CG 原点在左下：脚底贴底边
+let d=CGImageDestinationCreateWithURL(URL(fileURLWithPath:A[2]) as CFURL,UTType.png.identifier as CFString,1,nil)!
+CGImageDestinationAddImage(d,out.makeImage()!,nil);CGImageDestinationFinalize(d)
