@@ -47,7 +47,7 @@ const ctx={
   navigator:{},location:{search:'',reload(){}},
   localStorage:{getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)},
   performance:{now:()=>Date.now()},
-  setTimeout:()=>0,clearTimeout(){},setInterval:()=>0,clearInterval(){},requestAnimationFrame:()=>0,
+  setTimeout:()=>0,clearTimeout(){},setInterval:()=>0,clearInterval(){},requestAnimationFrame:()=>0,cancelAnimationFrame(){},
   Image:class{set src(v){}},Audio:class{play(){return Promise.resolve();}setAttribute(){}},
   addEventListener(){},confirm:()=>false,alert(){},
   URLSearchParams,devicePixelRatio:1,innerWidth:390,innerHeight:693,

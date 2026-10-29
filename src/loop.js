@@ -36,7 +36,7 @@ function gainDust(n){PROG.dust=(PROG.dust||0)+n;}
 
 // ---------- 装备强化 / 重铸 / 分解 ----------
 const upCost=it=>((it.up||0)+1)*5*it.rar;
-function enhanceItem(it){if((it.up||0)>=10)return toast('已强化到 +10');const c=upCost(it);if((PROG.dust||0)<c)return toast(`尘不足（需要 ${c}）`);PROG.dust-=c;it.up=(it.up||0)+1;saveProg();achCheck();}
+function enhanceItem(it){if((it.up||0)>=10)return toast('已强化到 +10');const c=upCost(it);if((PROG.dust||0)<c)return toast(`尘不足（需要 ${c}）`);PROG.dust-=c;it.up=(it.up||0)+1;taskAdd('enhance',1);saveProg();achCheck();}
 function rerollItem(it){const c=20;if((PROG.dust||0)<c)return toast(`尘不足（需要 ${c}）`);PROG.dust-=c;const fresh=makeItem(it.ri);fresh.slot=it.slot;
   const st0=it.slot==='wpn'?'atk':it.slot==='trk'?null:'hp',keep=st0&&it.st[st0];it.st={};if(keep)it.st[st0]=keep;else if(it.slot==='trk'){const k=['crit','skill','cdr'][(Math.random()*3)|0];it.st[k]=+(0.04*RAR[it.rar][2]*(1+.25*it.ri)).toFixed(3);}
   const k2=['atk','hp','crit','spd','skill'][(Math.random()*5)|0];it.st[k2]=+((it.st[k2]||0)+0.025*RAR[it.rar][2]*(1+.25*it.ri)).toFixed(3);saveProg();}
@@ -201,11 +201,39 @@ function progInit(){PROG.dust=PROG.dust||0;PROG.marks=PROG.marks??0;PROG.talent=
   if(!clsOpen(selCls))selCls=PROG.clsUnl[0];}
 // 章节通关：解锁下一档难度、徽记、精通、职业解锁、清存档点、成就
 function onChapterWin(){const ri=LV[G.L].ri,t=G.diff||0;
-  if(G.daily){const D=dailyState(),tm=(G.rt||G.t)|0;if(!D.done){D.done=true;PROG.dailyDone=(PROG.dailyDone||0)+1;gainMarks(5,'每日挑战完成');gainDust(50);}D.best=D.best?Math.min(D.best,tm):tm;}
+  if(G.daily){const D=dailyState(),tm=(G.rt||G.t)|0;if(!D.done){D.done=true;taskAdd('daily',1);PROG.dailyDone=(PROG.dailyDone||0)+1;gainMarks(5,'每日挑战完成');gainDust(50);}D.best=D.best?Math.min(D.best,tm):tm;}
   PROG.clr[ri]=Math.max(PROG.clr[ri]??-1,t);if((PROG.diff[ri]||0)===t&&t<2){PROG.diff[ri]=t+1;toast(`解锁${DIFF_T[t+1].n}难度！`);}
   gainMarks(DIFF_T[t].marks,`${RAIDS[ri].name} ${DIFF_T[t].n}通关`);PROG.mast[G.cls]=(PROG.mast[G.cls]||0)+1;
   for(const[id,g]of Object.entries(CLS_GATE))if(g===ri&&!clsOpen(id)){PROG.clsUnl.push(id);toast(`解锁新职业：${CLS[id].n}`);}
   PROG.run=null;saveProg();achCheck();}
 // 首领击杀：图鉴计数、首杀徽记（每个难度一次）、每日首杀宝箱
-function onBossKill(L){const d=LV[L].b,t=(G&&G.diff)||0;PROG.codex[d.n]=(PROG.codex[d.n]||0)+1;
+function onBossKill(L){const d=LV[L].b,t=(G&&G.diff)||0;taskAdd('boss',1);PROG.codex[d.n]=(PROG.codex[d.n]||0)+1;
   const key=L+':'+t;if(!PROG.fk[key]){PROG.fk[key]=1;if(!window.SIM)gainMarks(1+t,`首杀 ${d.n}`);}dailyChest(d.n,LV[L].ri);}
+
+// ---------- 无尽深渊：五章首尾相接一路往下打，每打通一轮敌人更强；海克斯一路保留；倒下时按层数结算（复活后再倒下只补新增层数） ----------
+let ENDLESS_GO=false;
+const endlessOpen=()=>(PROG.clr||{})[0]!==undefined||PROG.un>LV.findIndex(v=>v&&v.ri===0&&v.last);   // 通关第一章后开放（老存档没有 clr，按解锁进度判断）
+function startEndless(){ENDLESS_GO=true;PROG.run=null;selLevel=firstL(0);selDiff=0;enterLevel();}
+const endlessMul=()=>{const E=G&&G.endless;return E?{hp:1+.6*E.loop,dmg:1+.35*E.loop}:{hp:1,dmg:1};};
+function endlessNext(){const E=G.endless,v=LV[G.L];E.floor++;taskAdd('endless',0,E.floor);
+  if(!v.last)return G.L+1;const nr=v.ri+1<Math.min(5,RAIDS.length)?v.ri+1:0;if(!nr){E.loop++;toast(`深渊第 ${E.loop+1} 轮：敌人更强了`);}return firstL(nr);}
+function endlessEnd(){const E=G.endless;if(!E)return '';const f=E.floor,pf=E.pf||0,P=PROG.endless=PROG.endless||{best:0};E.pf=f;
+  const nb=f>P.best;if(nb){P.best=f;P.cls=G.cls;}const dust=(f-pf)*12,marks=Math.floor(f/5)-Math.floor(pf/5);gainDust(dust);if(marks>0)PROG.marks=(PROG.marks||0)+marks;saveProg();
+  return `无尽深渊：到达第 ${f} 层${nb?'（新纪录！）':`（最高 ${P.best} 层）`}　尘 +${dust}${marks>0?`　徽记 +${marks}`:''}`;}
+
+// ---------- 每日任务：每天 3 个（按日期固定），进度在对局里自动累计，选关页领取 ----------
+const TASKS=[{k:'kills',n:'击败 {n} 个敌人',need:300},{k:'levels',n:'完成 {n} 个关卡',need:4},{k:'boss',n:'击败 {n} 个首领',need:3},{k:'elite',n:'击败 {n} 个精英',need:3},
+  {k:'enhance',n:'强化装备 {n} 次',need:3},{k:'daily',n:'完成每日挑战',need:1},{k:'endless',n:'无尽深渊到达第 {n} 层',need:6}];
+const taskDef=k=>TASKS.find(t=>t.k===k);
+function taskState(){const t=today();if(!PROG.tasks||PROG.tasks.date!==t){const r=seeded(t*7+3),pool=TASKS.slice(),l=[];
+    while(l.length<3){const i=(r()*pool.length)|0;l.push({k:pool[i].k,got:0,claimed:false});pool.splice(i,1);}PROG.tasks={date:t,list:l,bonus:false};}return PROG.tasks;}
+function taskAdd(k,n,abs){if(window.SIM||typeof PROG==='undefined')return;for(const q of taskState().list)if(q.k===k)q.got=abs!==undefined?Math.max(q.got,abs):q.got+n;}
+function tasksHTML(){const T=taskState();return `<div class="itip" style="margin:4px 0;font-size:11px"><b>今日任务</b>　<span style="color:#9a94c0">每个：尘 +60、徽记 +1；全部完成再 +2 徽记</span>${T.list.map((q,i)=>{const d=taskDef(q.k),ok=q.got>=d.need;
+    return `<br>${d.n.replace('{n}',d.need)}　<span style="color:${ok?'#7dff8a':'#9a94c0'}">${Math.min(q.got,d.need)}/${d.need}</span>${q.claimed?' ✅':ok?` <button class="b sm" data-task="${i}">领取</button>`:''}`;}).join('')}
+    ${T.list.every(q=>q.claimed)&&!T.bonus?'<br><button class="b sm" data-task="all">领取全勤奖励</button>':''}</div>`;}
+function taskClaim(i){const T=taskState();if(i==='all'){if(T.list.every(q=>q.claimed)&&!T.bonus){T.bonus=true;gainMarks(2,'今日任务全部完成');}}
+  else{const q=T.list[+i],d=q&&taskDef(q.k);if(q&&!q.claimed&&q.got>=d.need){q.claimed=true;gainDust(60);gainMarks(1,'任务完成');}}saveProg();}
+
+// ---------- 专武升星：尘的长期去处；每星属性 +10%，3★ 对首领伤害 +10%，5★ 技能伤害 +15% ----------
+const STAR_COST=[300,600,1000,1500,2200];
+function exwStar(it){const s=it.star||0;if(s>=5)return toast('已满星');const c=STAR_COST[s];if((PROG.dust||0)<c)return toast(`尘不足（需要 ${c}）`);PROG.dust-=c;it.star=s+1;saveProg();toast(`${it.n} 升到 ${it.star}★`);}
