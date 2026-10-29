@@ -26,7 +26,7 @@ function talentApply(){st.atkMul*=1+.03*talR('atk');st.crit+=.02*talR('crit');pl
 // ---------- 职业解锁与精通 ----------
 const CLS_BASE=['sword','mage','archer'];
 const CLS_GATE={brawler:0,assassin:0,eng:1,ninja:2,bard:2,paladin:3};   // 通关第几章（0 起）解锁
-const clsOpen=id=>(PROG.clsUnl||[]).includes(id);
+const clsOpen=id=>!!CLS[id];   // 9 个职业默认全开（用户要求）；CLS_BASE / CLS_GATE 暂不使用
 const clsGateTxt=id=>`通关「${RAIDS[CLS_GATE[id]]?RAIDS[CLS_GATE[id]].name:'?'}」解锁，或 6 徽记`;
 const mastTxt=m=>m>=6?'精通 III：伤害 +5%、开局多一张银卡、生命 +10%':m>=3?'精通 II：伤害 +5%、开局多一张银卡':m>=1?'精通 I：伤害 +5%':'通关任意一章获得精通';
 
