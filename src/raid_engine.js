@@ -3,17 +3,28 @@
 (function(){
 'use strict';
 const D=window.RAID_DATA;
+// 画面上的身高（像素，不含留白）：按体型排，小怪默认 20（主角约 26）、首领默认 46；绘制时按图里实际身高换算缩放（只影响画面，不改碰撞）
+const VIS={onyxian_whelp:15,corrupted_whelp:15,hivezara_wasp:13,shrieker_scarab:15,core_hound:19,zulian_tiger:20,hivezara_stinger:17,
+  molten_giant:35,black_dragonspawn:31,death_talon_wyrmguard:31,anubisath_guardian:36,obsidian_destroyer:32,gurubashi_berserker:28,razzashi_broodwidow:24,firelord:27,
+  'mc/lucifron':40,'mc/shazzrah':40,'mc/sulfuron_harbinger':40,'mc/majordomo_executus':40,'zg/jindo_the_hexxer':38,'zg/high_priestess_arlokk':40,'zg/high_priest_venoxis':42,'aq20/ayamiss_the_hunter':42,
+  'mc/golemagg_the_incinerator':50,'mc/garr':48,'mc/ragnaros':66,'ony/onyxia':60,'bwl/razorgore_the_untamed':50,'bwl/firemaw':52,'bwl/ebonroc':52,'bwl/flamegor':52,'bwl/chromaggus':54,'bwl/nefarian':60,
+  'zg/gahzranka':50,'zg/hakkar':54,'aq20/moam':52,'aq20/buru_the_gorger':48,'aq20/kurinnaxx':48,'aq20/ossirian_the_unscarred':54};
 if(!D||!D.raids)return;
 
 // ---------- 精灵表按需加载（art/<表名>.png，横排正方形帧） ----------
 const SHEET={};
+// 逐帧图里画出格子的部分（龙的吐息、长武器、特效）会被格子边一刀切掉成方块：贴边一圈按距离渐隐
+function edgeFade(c){if(!c||!c.getContext)return;const w=c.width,h=c.height,x=c.getContext('2d',{willReadFrequently:true}),d=x.getImageData(0,0,w,h),a=d.data,m=Math.max(3,Math.round(Math.min(w,h)*.1));let hit=false;
+  for(let i=0;i<w;i++)for(const y of [0,h-1])if(a[(y*w+i)*4+3]>40)hit=true;for(let j=0;j<h;j++)for(const xx of [0,w-1])if(a[(j*w+xx)*4+3]>40)hit=true;if(!hit)return;
+  for(let y=0;y<h;y++)for(let i=0;i<w;i++){const e=Math.min(i,y,w-1-i,h-1-y);if(e<m&&y<h-m)a[(y*w+i)*4+3]*=e/m;else if(e<m&&(i<m||i>=w-m))a[(y*w+i)*4+3]*=e/m;}
+  x.putImageData(d,0,0);}
 function sheet(name){
   if(!name)return null;
   const s=SHEET[name];
   if(s)return s.f;
   SHEET[name]={f:null};
   const im=new Image();
-  im.onload=()=>{const f=strip(im,Math.max(1,Math.round(im.width/im.height)));
+  im.onload=()=>{const f=strip(im,Math.max(1,Math.round(im.width/im.height)));if(/^(bosses_|mobs_|adds_)/.test(name))f.forEach(edgeFade);
     // 图集已由 tools/artprep.swift 离线清理、对齐（去残渣/串格碎片/绿边、同组统一缩放与脚底锚点），运行时只切帧
     if(SHEET[name])SHEET[name].f=f;};   // 加载途中换副本会被 evictOthers 清掉
   im.onerror=()=>{if(SHEET[name])SHEET[name].bad=true;};
@@ -80,7 +91,7 @@ for(const r of D.raids.slice(0,OPEN_RAIDS)){
   if(!r.bosses||!r.bosses.length)continue;
   const bio=r.bio||1;
   RAIDS.push({id:r.id,name:r.name,exp:r.exp||'classic',bio,desc:r.desc||'',tiles:r.tiles,trash:r.trash||{},props:r.props||[],
-    bosses:r.bosses.map((b,k)=>Object.assign({},b,{lv:b.lv||b.n,rooms:Math.min(12,(b.rooms||3)+6),theme:bioTheme(bio),
+    bosses:r.bosses.map((b,k)=>Object.assign({},b,{lv:b.lv||b.n,rooms:3,theme:bioTheme(bio),
       art:b.art,fallbackArt:OLD[(bio-1)%OLD.length].bosses[k%3].art}))});
 }
 buildLV();
@@ -186,7 +197,7 @@ window.pickTrash=()=>{
   return pool[(rand()*pool.length)|0];
 };
 window.applyTrash=(e,t)=>{
-  e.def=t;e.name=t.n||t.id;e.rig=window.rigOf?rigOf('trash',t.id):null;e.rp=null;
+  e.def=t;e.name=t.n||t.id;e.vis=VIS[t.id]||20;e._vk=0;e.rig=window.rigOf?rigOf('trash',t.id):null;e.rp=null;
   e.hp=e.max=e.hp*(t.hp||1);e.dmg*=(t.dmg||1);
   const f=frames(t.art,3);
   if(f){e.art=[f[0],f[1]];e.artAtk=f[2];e.w=e.h=t.size||18;e.animRef=t.art;e.animPer=3;}
@@ -658,7 +669,7 @@ function spawnData(b,v,d){
   if(d.fixed)b.spd=0;
   const f=frames(d.art,4)||(fb(d.fallback)&&[fb(d.fallback)])||(ART.bosses&&[ART.bosses[d.fallbackArt]]);
   if(f){b.art=f.length>=2?[f[0],f[1]]:[f[0]];b.artAtk=f[3]||f[2]||null;b.w=b.h=d.size||(v.last?64:54);}
-  b.animRef=Array.isArray(d.art)?d.art:null;b.animPer=4;b._an=null;
+  b.animRef=Array.isArray(d.art)?d.art:null;b.animPer=4;b._an=null;b.vis=VIS[d.id]||46;b._vk=0;
   b.rig=window.rigOf?rigOf('boss',d.n):null;b.rp=null;
   {const m=(d.dmgx||1)*BT[1];b.dmg*=m;b.skd*=m;}   // 单个首领的伤害倍率（平衡用）   // 分件骨骼（有分件图就用，没有就用逐帧图）
   b.r=Math.max(b.r||0,Math.round((b.w||54)*.36));   // 碰撞 / 近战命中半径按贴图大小
@@ -742,7 +753,7 @@ window.raidTick=dt=>{
   }
   if(G.curse&&G.curse.t>0){G.curse.t-=dt;if(G.curse.t<=0&&G.curse.kind==='delayed'){pl.inv=0;hurt(G.curse.dmg);fxs('doom',pl.x,pl.y-6,30,.5);}
     // 吸血：首领回复量 = 吸走玩家血量的 3 倍（不按首领最大生命算，否则血厚的首领回得比低输出职业打得还快，永远打不死）
-    if(G.curse.kind==='bossLeech'&&G.boss&&!G.boss.dead){const dr=pl.hp>1?Math.min(pl.hp-1,pl.maxHp*.005*dt):0;pl.hp-=dr;G.boss.hp=Math.min(G.boss.max,G.boss.hp+dr*3);}
+    if(G.curse.kind==='bossLeech'&&G.boss&&!G.boss.dead){const dr=pl.hp>1?Math.min(pl.hp-1,pl.maxHp*.005*dt*(typeof dotK==="function"?dotK():1)):0;pl.hp-=dr;G.boss.hp=Math.min(G.boss.max,G.boss.hp+dr*3);}
     if(G.curse.kind==='heal'&&pl.hp>(G.curse.hp??pl.hp))pl.hp=G.curse.hp+(pl.hp-G.curse.hp)*.25;G.curse.hp=pl.hp;}
   if(G.stk)for(const k in G.stk){const s=G.stk[k];if((s.t-=dt)<=0)s.n=0;}
   if(G.bomb){const B=G.bomb;B.t-=dt;if(B.t<=0){const n=en.filter(e=>!e.dead&&!e.prop&&Math.hypot(e.x-pl.x,e.y-pl.y)<B.r).length;pl.inv=0;hurt(B.dmg*(1+B.per*n));fxs('explosion',pl.x,pl.y,B.r*2,.5);

@@ -50,6 +50,7 @@
   @keyframes pulse{50%{box-shadow:0 0 22px #b47cff}}
   #spdB{left:12px;bottom:130px;width:26px;height:26px;font-size:10px;font-weight:700;color:#ffd77a;border:1px solid rgba(232,179,58,.45);background:rgba(15,16,32,.75);pointer-events:auto;cursor:pointer}
   #pauseB{left:12px;bottom:96px;width:26px;height:26px;font-size:10px;color:#c8c0ff;border:1px solid rgba(160,140,255,.35);background:rgba(15,16,32,.75);pointer-events:auto;cursor:pointer}
+  #loopV .menu{display:flex;flex-direction:column;gap:7px;align-items:stretch;max-width:300px}.lp{text-align:left;line-height:1.45;padding:8px 10px}.lp small{color:#9a94c0}
   #lootV .menu{display:flex;flex-direction:column;gap:8px;align-items:stretch;max-width:300px}#lootV .lootc{line-height:1.5;padding:8px 10px}
   #pauseV .menu{display:flex;flex-direction:column;gap:8px;align-items:stretch;min-width:160px}
   #muteB{left:12px;bottom:28px;width:26px;height:26px;font-size:13px;color:#c8c0ff;border:1px solid rgba(160,140,255,.35);background:rgba(15,16,32,.75);pointer-events:auto;cursor:pointer}
@@ -235,8 +236,9 @@
   <div class="btn" id="pauseB">❚❚</div>
   <div class="btn" id="spdB">1x</div>
   <div class="ov" id="loadV"><div class="menu" style="min-width:200px;text-align:center"><div class="hname" style="font-size:14px">载入副本中…</div><div style="height:6px;background:#2a2244;border-radius:3px;margin-top:10px"><b id="loadI" style="display:block;height:100%;width:0;background:linear-gradient(90deg,#8a55ff,#e8b33a);border-radius:3px"></b></div><small id="loadT" style="color:#9a94c0"></small></div></div>
+  <div class="ov" id="loopV"><div class="menu" id="loopM"></div></div>
   <div class="ov" id="lootV"><div class="menu" id="lootM"></div></div>
-  <div class="ov" id="pauseV"><div class="menu"><div class="hname" style="font-size:15px">暂停</div><button class="b" id="pzGo">继续</button><button class="b ghost" id="pzSnd">音效</button><button class="b ghost" id="pzShk">震屏</button><button class="b ghost" id="pzHome">返回主界面</button></div></div>
+  <div class="ov" id="pauseV"><div class="menu"><div class="hname" style="font-size:15px">暂停</div><button class="b" id="pzGo">继续</button><button class="b ghost" id="pzSnd">音效</button><button class="b ghost" id="pzShk">震屏</button><p class="ver" style="text-align:center;color:#9a94c0;font-size:10px">版本 <span id="pzVer"></span></p><button class="b ghost" id="pzHome">返回主界面</button></div></div>
   <div id="hexV"></div>
   <div id="hint"></div>
   <div class="btn" id="skill"><b class="ic" id="skIc"></b><em id="skTx">技能</em></div>
@@ -260,7 +262,7 @@
   <div class="ov" id="hub"><div class="menu">
     <div id="acct"></div>
     <div id="hubView"></div></div></div>
-  <div id="nav"><div data-v="hero">人物</div><div data-v="raid">副本</div><div data-v="bag">背包</div><div data-v="party">组队</div><div data-v="set">设置</div></div>
+  <div id="nav"><div data-v="hero">人物</div><div data-v="raid">副本</div><div data-v="bag">背包</div><div data-v="tal">天赋</div><div data-v="codex">图鉴</div><div data-v="party">组队</div><div data-v="set">设置</div></div>
 
   <div class="ov" id="levels"><div class="menu">
     <div class="mtitle">深渊地图</div>
@@ -279,12 +281,13 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v69"></script>
-<script src="content/boss_tune.js?v=v69"></script>
+<script src="content/raids_data.js?v=v70"></script>
+<script src="content/boss_tune.js?v=v70"></script>
+<script src="src/loop.js?v=v70"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v69';
-const rand=Math.random,TAU=Math.PI*2;
+const W=195,H=347,VERSION='v70';
+let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
 
@@ -376,7 +379,7 @@ const CLS={
 };
 const CLS_IDS=Object.keys(CLS);
 // 职业平衡（随机选卡自动模拟校准）：[生命倍率, 伤害倍率]；远程靠风筝天然更安全，伤害相应压低
-const TUNE={sword:[2.6,0.898,0.64],mage:[2.6,2.351,0.516],brawler:[2.6,5.117,3.168],eng:[2.6,3.978,0.747],archer:[2.6,1.088,0.729],assassin:[2.6,2.339,0.507],ninja:[2.6,2.186,0.879],bard:[2.6,7.529,2.375],paladin:[2.6,9,5.293]};   // tools/sim.mjs --tune 校准
+const TUNE={sword:[2.6,1.427,0.408],mage:[2.6,2.694,0.408],brawler:[2.6,2.998,1],eng:[2.6,3.945,0.585],archer:[2.6,1.499,0.4],assassin:[2.6,2.619,0.4],ninja:[2.6,2.532,0.4],bard:[2.6,6,2],paladin:[2.6,5.228,1]};   // tools/sim.mjs --tune 校准
 // TUNE=[血量倍率(各职业统一，坦克靠基础血量更厚), 伤害倍率, 受到伤害倍率(按职业生存能力平衡，玩家看不到)]
 for(const id in TUNE){CLS[id].hp=Math.round(CLS[id].hp*TUNE[id][0]);CLS[id].dmg*=TUNE[id][1]*(id==='assassin'?1:1.15);CLS[id].taken=TUNE[id][2]||1;}   // 刺客以外的职业整体加强
 // 外部美术：GPT 生成的合图放在 art/，缺失时回退到下面的程序像素图
@@ -560,11 +563,14 @@ function genAtlas(th){const c=document.createElement('canvas');c.width=128;c.hei
     if(k==='ember'){for(let n=0;n<6;n++)R(n%2?'#ff8a2a':'#ffd34a',ox+6+r()*20,Y+6+r()*20,2,2);}
     if(k==='skull'){R('#e0dccb',ox+11,Y+10,10,8);R('#e0dccb',ox+13,Y+18,6,3);R('#14121c',ox+13,Y+13,2,2);R('#14121c',ox+17,Y+13,2,2);R('#9a957f',ox+11,Y+17,10,1);}}
   return c;}
-function drawTiles(c,cx,cy){const A=G.atlas,ts=A.width/4,tw=G.tw,m=G.tmap;
+// 地板：有整张无缝地面纹理（art/floor_<副本>.png）就按世界坐标连续铺，不再一格一格铺带边框的砖（满屏方块看久了眼睛累）
+function floorPat(c){const id=RAIDS[LV[G.L].ri].id,im=ART['floor_'+id];if(!im){if(!floorPat[id]){floorPat[id]=1;const x=new Image();x.onload=()=>{ART['floor_'+id]=x;};x.src='art/floor_'+id+'.png?v='+VERSION;}return null;}
+  if(!im._pat){im._pat=c.createPattern(im,'repeat');if(im._pat.setTransform)im._pat.setTransform(new DOMMatrix().scale(.5));}return im._pat;}
+function drawTiles(c,cx,cy){const A=G.atlas,ts=A.width/4,tw=G.tw,m=G.tmap,fp=floorPat(c);
   const x0=Math.max(0,Math.floor(cx/16)-1),y0=Math.max(0,Math.floor(cy/16)-1),x1=Math.min(tw-1,Math.floor((cx+W)/16)+1),y1=Math.min(G.th-1,Math.floor((cy+H)/16)+1);
   for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){const v=m[ty*tw+tx];if(!v)continue;const h=hsh(tx*31+ty*17+G.L*7);let sx,sy;
     if(v===1){const h2=hsh(tx*13+ty*71+3);if(h<.05){sx=((h*1000|0)%4)*ts;sy=3*ts;}else{sx=(h2<.08?3:(h2*7919|0)%3)*ts;sy=0;}}else if(v===2){sx=((tx*3+ty)%4)*ts;sy=ts;}else{sx=0;sy=2*ts;}
-    c.drawImage(A,sx,sy,ts,ts,tx*16,ty*16,16,16);
+    if(v===1&&fp){c.fillStyle=fp;c.fillRect(tx*16,ty*16,16,16);}else c.drawImage(A,sx,sy,ts,ts,tx*16,ty*16,16,16);
     if(v===1&&ty>0&&m[(ty-1)*tw+tx]===2){c.fillStyle='rgba(0,0,0,.35)';c.fillRect(tx*16,ty*16,16,4);}}}
 // 装饰层（透明）：火把、旗帜、环境地面细节
 function drawWorld(c,rooms,cors,th){
@@ -730,7 +736,7 @@ const UNQ={
 const ROLE_N={mphys:'近战物理',rphys:'远程物理',rmag:'远程法术',mmag:'近战法术',mheal:'近战治疗',rheal:'远程治疗'};
 const GEN=[
  ['all',1,'巨人杀手','对首领伤害<br><em>+30%</em>',()=>st.bossDmg*=1.3],
- ['all',2,'超凡邪恶','每击杀 1 个敌人<br>技能伤害 <em>+0.3%</em>',()=>st.soul=true],
+ ['all',2,'超凡邪恶','每击杀 1 个敌人<br>技能伤害 <em>+0.3%</em>（最多 300 层）',()=>st.soul=true],
  ['all',2,'玻璃大炮','伤害 <em>+40%</em>'+NEG('最大生命 -25%'),()=>{st.atkMul*=1.4;pl.maxHp=Math.round(pl.maxHp*.75);pl.hp=Math.min(pl.hp,pl.maxHp);}],
  ['all',2,'终极唤醒','大招冷却<br><em>-50%</em>',()=>st.ultCd*=.5],
  ['all',3,'疯狂科学家','每个地牢随机变大或变小<br>大：伤害 +40% · 小：攻速移速 +40%',()=>st.mad=true],
@@ -788,7 +794,7 @@ const SETS={
  '雷电':{2:['技能伤害 +50%',()=>st.skillMul*=1.5],3:['闪电伤害 ×2',()=>st.boltMul*=2]},
  '毒伤':{2:['毒伤 +50%',()=>st.poisonMul*=1.5],3:['毒伤 ×2',()=>st.poisonMul*=2]},
  '召唤':{2:['星灵 +1',()=>st.minions+=1],3:['星灵伤害 ×1.5',()=>st.minionMul*=1.5]},
- '护盾':{2:['护盾上限 +30',()=>st.shieldMax+=30],3:['破盾时无敌并震退',()=>st.shieldBreak=true]},
+ '护盾':{2:['护盾上限 +30，最大生命 +25%，受到伤害 -10%',()=>{st.shieldMax+=30;const a=Math.round(pl.maxHp*.25);pl.maxHp+=a;pl.hp+=a;st.dmgTaken*=.9;}],3:['破盾时无敌并震退',()=>st.shieldBreak=true]},
  '连击':{2:['普攻伤害 +25%',()=>st.atkMul*=1.25],3:['普攻伤害 +50%',()=>st.atkMul*=1.5]},
  '吸血':{2:['最大生命 +40',()=>{pl.maxHp+=40;pl.hp+=40;}],3:['吸血 ×2',()=>st.vamp*=2]},
  '剑阵':{2:['飞剑伤害 ×1.5',()=>st.swordDmg*=1.5],3:['环绕飞剑 +3',()=>st.swords+=3]},
@@ -804,12 +810,13 @@ Object.assign(SETS,{
  '暗影':{2:['移动速度 +15%',()=>st.speed*=1.15],3:['影袭伤害 ×2',()=>st.skillMul*=2]},
  '影遁':{2:['技能冷却 -25%',()=>st.skillCd*=.75],3:['分身 +1',()=>st.skN+=1]},
  '战歌':{2:['技能冷却 -25%',()=>st.skillCd*=.75],3:['战歌期间暴击率 +30%',()=>st.songCrit=.3]},
- '惩戒':{2:['技能冷却 -25%',()=>st.skillCd*=.75],3:['每次审判回复 3% 生命',()=>st.judgeHeal=.03]},
+ '惩戒':{2:['技能冷却 -25%，伤害 +15%',()=>{st.skillCd*=.75;st.atkMul*=1.15;st.skillMul*=1.15;}],3:['每次审判回复 3% 生命',()=>st.judgeHeal=.03]},
  '通用':{},
 });
 const isMelee=()=>!!AT[CLS[G.cls].atk].melee;
+const dotK=()=>(st.dmgTaken||1)*(isMelee()?.8:1);
 const fits=h=>(!h.cls||h.cls===G.cls)&&(h.tag==='通用'?(h.role==='all'||h.role.includes(CLS[G.cls].role)):CLS[G.cls].specs.includes(h.tag))&&(!h.only||h.only===(isMelee()?'melee':'ranged'));
-const tn=t=>(CLS[G.cls].alias||{})[t]||t;
+const tn=t=>(CLS[G?G.cls:selCls].alias||{})[t]||t;
 const tagTotal=t=>HEX.filter(h=>h.tag===t&&fits(h)).length;
 const ICON={
  bolt:'<svg viewBox="0 0 48 48" fill="none" stroke="#8ff3ff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><circle cx="9" cy="12" r="3" fill="#8ff3ff"/><circle cx="24" cy="30" r="3" fill="#8ff3ff"/><circle cx="40" cy="14" r="3" fill="#8ff3ff"/><path d="M11 15l5 4-3 2 9 7"/><path d="M26 27l4-6 2 3 6-8"/><path d="M24 34v4l-3 2 3 4" opacity=".6"/></svg>',
@@ -889,11 +896,11 @@ const MINI=[
 ];
 const BIG_HP=5000,MINI_HP=3400,BOSS_DMG=1.35,LV_STEP=2.5;
 // 难度按章节查表 [首领/小怪血量, 敌人伤害]，章内越往后的首领再强最多 15%（tools/sim.mjs 校准：第 1 章胜率约 90%，往后每章约降 8~10%）
-const RC=[[0.483,0.59],[0.575,2.869],[0.632,2.503],[0.69,2.096],[0.747,4.078]];
-// 一章 = 一局：玩家在章内会攒满海克斯越打越强，章内第 k 关的敌人血量按 (1+k)^1.4、伤害每关 +12% 同步变强（小怪和首领都适用）
-const RAMP=L=>{const k=LV[L].k;return{hp:Math.pow(1+k,1.4),dmg:1+.12*k};};
+const RC=[[0.29,0.714],[0.345,4.396],[0.379,4.018],[0.414,3.016],[0.448,3.867]];
+// 一章 = 一局：章内第 k 关的敌人血量按 (1+k)^0.9、伤害每关 +8% 变强（超凡邪恶封顶后玩家后半章成长有限，曲线不能太陡）
+const RAMP=L=>{const k=LV[L].k;return{hp:Math.pow(1+k,.9),dmg:1+.08*k};};
 const CURVE=L=>{const v=LV[L],r=RC[Math.min(v.ri,RC.length-1)],m=RAMP(L);return{hp:r[0]*m.hp,dmg:r[1]*m.dmg};};
-const BAL={bossHp:3.84,bossDmg:1.2,mobHp:1.45,mobDmg:1.25};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
+const BAL={bossHp:1.344,bossDmg:1.2,mobHp:1.45,mobDmg:1.25};   // 全局难度旋钮（tools/sim.mjs --tune 自动校准）
 
 // ---------- 音频：全部用 Web Audio 现场合成（8-bit 风），无外部素材 ----------
 const AU={ctx:null,master:null,mus:null,sfx:null,noise:null,muted:false,song:null,step:0,next:0,last:{}};
@@ -999,6 +1006,8 @@ function frameH(f){if(f._bh===undefined){f._bh=0;try{const w=f.width,h=f.height,
 function frameK(ref,f){if(!ref||!f||ref===f||!f.getContext)return 1;const a=frameH(ref),b=frameH(f);return a&&b?Math.max(.85,Math.min(1.15,a/b)):1;}
 // 脚下的椭圆影子（原来是长方条，在沙地上很显眼）
 function shadowE(c,x,y,rx,ry,a){c.save();c.globalAlpha=a;c.fillStyle='#000';c.beginPath();c.ellipse(x,y,Math.max(1,rx),ry,0,0,TAU);c.fill();c.restore();}
+// 按图里实际身高把怪缩放到 e.vis 像素高（各图留白不同，统一用这个对齐体型）；图没加载完先按 1 画
+function visK(e,t){if(!e.vis||!e.art)return 1;if(e._vk)return e._vk;const A=!e.formArt&&window.animOf&&animOf(e),f=A&&A.idle?A.idle[0]:e.art[0],h=f&&f.getContext&&frameH(f);if(!h)return 1;return e._vk=Math.max(.5,Math.min(2.2,e.vis/(t.h*h/f.height)));}
 function drawArt(c,im,cx,fy,w,h,flip,rot,sx,sy){c.save();c.translate(cx,fy);c.rotate(rot);c.scale(flip?-sx:sx,sy);c.drawImage(im,-w/2,-h,w,h);c.restore();}   // 以脚底为锚点
 function drawSpr(img,x,y,w,h,flip,c=g){const im=hd(img);if(!flip)return c.drawImage(im,x,y,w,h);c.save();c.translate(x+w,y);c.scale(-1,1);c.drawImage(im,0,0,w,h);c.restore();}
 const dI=(c,img,x,y)=>c.drawImage(hd(img),x,y,img.width,img.height);
@@ -1011,8 +1020,7 @@ let PROG={un:1,best:{}};try{PROG=Object.assign(PROG,JSON.parse(localStorage.getI
 PROG.un=Math.max(PROG.un,START_L);
 const saveProg=()=>{try{localStorage.setItem('abyss-prog',JSON.stringify(PROG));}catch(e){}};
 // ---------- 账号等级 / 装备 / 背包（局外养成，存档在 PROG） ----------
-PROG.acc=PROG.acc||{lv:1,xp:0};PROG.eq=PROG.eq||{};{const best={};for(const it of PROG.inv||[]){const b=best[it.slot];if(!b||it.il>b.il||(it.il===b.il&&it.rar>b.rar))best[it.slot]=it;}for(const k in best)if(!(PROG.inv||[]).some(x=>x.id===PROG.eq[k]))PROG.eq[k]=best[k].id;}   // 老存档：空部位补穿最好的，不覆盖手动穿的
-for(const it of PROG.inv||[])if(!it.fx){it.fx=[];if(it.rar>=3)it.fx.push((Math.random()*13)|0);if(it.rar>=4)it.fx.push(((it.fx[0]||0)+1+((Math.random()*12)|0))%13);}PROG.inv=PROG.inv||[];PROG.eq=PROG.eq||{};PROG.party=PROG.party||[];PROG.iid=PROG.iid||1;
+PROG.acc=PROG.acc||{lv:1,xp:0};PROG.eq=PROG.eq||{};for(const it of PROG.inv||[])if(!it.fx){it.fx=[];if(it.rar>=3)it.fx.push((Math.random()*13)|0);if(it.rar>=4)it.fx.push(((it.fx[0]||0)+1+((Math.random()*12)|0))%13);}PROG.inv=PROG.inv||[];PROG.eq=PROG.eq||{};PROG.party=PROG.party||[];PROG.iid=PROG.iid||1;
 const SLOTS=[['wpn','武器'],['head','头部'],['chest','胸甲'],['legs','腿甲'],['trk','饰品']];
 const RAR=[null,['优秀','#5ad16a',1],['精良','#4a9cff',1.3],['史诗','#b45aff',1.7],['传说','#ff9a2a',2.2]];
 const ST_N={atk:['攻击',1],hp:['生命',1],crit:['暴击',1],spd:['移速',1],skill:['技能伤害',1],cdr:['技能冷却',1]};
@@ -1039,35 +1047,36 @@ const GSET=[
  {n:'深渊',b2:['技能伤害 +15%',(st)=>st.skillMul*=1.15],b4:['技能冷却 -25%，施法射出追踪飞弹',(st)=>{st.skillCd*=.75;st.missiles=true;}]}];
 const accNeed=lv=>300+lv*20;   // 打完经典旧世全部首领首通约到 60 级
 const RAID_REQ=r=>({classic:1,tbc:60,wotlk:70})[r.exp]||1;   // 资料片门槛   // 资料片副本需要账号等级
-function makeItem(ri){const tier=ri,rr=rand(),rar=rr<.04+tier*.01?4:rr<.22+tier*.02?3:rr<.6?2:1,[slot,sn]=SLOTS[(rand()*5)|0],m=RAR[rar][2]*(1+.25*tier);
+function makeItem(ri){const tier=ri,D=G?diffOf():DIFF_T[0],rr=rand()*(1-D.rar),rar=rr<.04+tier*.01?4:rr<.22+tier*.02?3:rr<.6?2:1,[slot,sn]=SLOTS[(rand()*5)|0],m=RAR[rar][2]*(1+.25*tier);
   const st={};if(slot==='wpn')st.atk=+(0.06*m).toFixed(3);else if(slot==='trk')st[['crit','skill','cdr'][(rand()*3)|0]]=+(0.04*m).toFixed(3);else st.hp=+(0.07*m).toFixed(3);
   if(rar>=2){const k=['atk','hp','crit','spd','skill'][(rand()*5)|0];st[k]=+((st[k]||0)+0.025*m).toFixed(3);}
   const set=rar>=3?[0,1,1,3,3][ri]??3:null,fx=[];if(rar>=3)fx.push((rand()*GEFX.length)|0);if(rar>=4){let k;do k=(rand()*GEFX.length)|0;while(fx.includes(k));fx.push(k);}
-  return{id:PROG.iid++,slot,rar,ri,set,st,fx,n:(set!==null?GSET[set].n+'之':['坚固的','锋利的','闪耀的','古老的'][(rand()*4)|0])+sn,il:60+ri*3+rar};}
+  return{id:PROG.iid++,slot,rar,ri,set,st,fx,n:(set!==null?GSET[set].n+'之':['坚固的','锋利的','闪耀的','古老的'][(rand()*4)|0])+sn,il:60+ri*3+rar+D.il,up:0};}
 function gearStats(){const t={atk:0,hp:0,crit:0,spd:0,skill:0,cdr:0},sets={};
-  for(const[slot]of SLOTS){const it=PROG.inv.find(i=>i.id===PROG.eq[slot]);if(!it)continue;for(const k in it.st)t[k]+=it.st[k];if(it.set!==null)sets[it.set]=Math.min(4,(sets[it.set]||0)+1);}
+  for(const[slot]of SLOTS){const it=PROG.inv.find(i=>i.id===PROG.eq[slot]);if(!it)continue;for(const k in it.st)t[k]+=it.st[k]*(1+.08*(it.up||0));if(it.set!==null)sets[it.set]=Math.min(4,(sets[it.set]||0)+1);}
   return{t,sets};}
 // 开局与每关重置海克斯时都调用：装备属性 + 套装 + 账号等级成长
 function metaApply(){const{t,sets}=gearStats(),a=PROG.acc.lv-1;st.atkMul*=1+t.atk+a*.008;pl.maxHp=Math.round(pl.maxHp*1.2*(1+t.hp+a*.008));pl.hp=Math.min(pl.hp,pl.maxHp);
   st.crit+=t.crit;st.speed*=1+t.spd;st.skillMul*=1+t.skill;st.skillCd*=1-Math.min(.4,t.cdr);
   for(const k in sets){const S=GSET[k];if(sets[k]>=2)S.b2[1](st,pl);if(sets[k]>=4)S.b4[1](st,pl);}
-  for(const id of Object.values(PROG.eq)){const it=PROG.inv.find(x=>x.id===id);for(const k of(it&&it.fx)||[])if(GEFX[k])GEFX[k][1](st,pl);}}   // 装备特效
+  for(const id of Object.values(PROG.eq)){const it=PROG.inv.find(x=>x.id===id);for(const k of(it&&it.fx)||[])if(GEFX[k])GEFX[k][1](st,pl);}   // 装备特效
+  talentApply();}
 const power=()=>{const{t}=gearStats();return Math.round(100*(1+PROG.acc.lv*.03)*(1+t.atk)*(1+t.hp)*(1+t.crit)*(1+t.skill)*(1+t.spd)*(1+t.cdr));};
 // 关卡通关：账号经验 + 掉落装备
 function rewardLevel(L){const ri=LV[L].ri,A=PROG.acc;A.xp+=PROG.best[L]?120:600+ri*30;let up=0;while(A.xp>=accNeed(A.lv)&&A.lv<80){A.xp-=accNeed(A.lv);A.lv++;up++;}saveProg();
   return up?`<br>账号升级！Lv.${A.lv}`:'';}
 // 装备进背包；背包满时自动分解最差的非套装、未穿戴装备
-function addItem(it){PROG.inv.push(it);{const cur=PROG.inv.find(x=>x.id===PROG.eq[it.slot]);if(!cur||it.il>cur.il||(it.il===cur.il&&it.rar>cur.rar))PROG.eq[it.slot]=it.id;}   // 更好的自动换上
-  let salv='';if(PROG.inv.length>60){const eqd=Object.values(PROG.eq),c=PROG.inv.filter(x=>!eqd.includes(x.id)&&x.set===null&&x!==it).sort((a,b)=>a.rar-b.rar||a.il-b.il)[0];
+function addItem(it){PROG.inv.push(it);let salv='';if(PROG.inv.length>60){const eqd=Object.values(PROG.eq),c=PROG.inv.filter(x=>!eqd.includes(x.id)&&x.set===null&&x!==it).sort((a,b)=>a.rar-b.rar||a.il-b.il)[0];
     if(c){PROG.inv=PROG.inv.filter(x=>x!==c);PROG.dust=(PROG.dust||0)+c.rar*5;salv=`<br>背包已满，自动分解 ${c.n}`;}}saveProg();return salv;}
 const itemTag=it=>`<b style="color:${RAR[it.rar][1]}">${it.n}</b>`;
 // 通关三选一：暂停在选装备界面，选完再继续（模拟器里直接拿第一件）
 function lootPick(ri,then){const items=[makeItem(ri),makeItem(ri),makeItem(ri)];
   if(window.SIM){then(items[0],addItem(items[0]));return;}
-  G.state='loot';const M=$('lootM');M.innerHTML='<div class="hname" style="font-size:15px">通关奖励 · 三选一</div>'+items.map((it,i)=>`<button class="b ghost lootc" data-i="${i}" style="text-align:left;border-color:${RAR[it.rar][1]}">
+  G.state='loot';const M=$('lootM');M.innerHTML='<div class="hname" style="font-size:15px">通关奖励 · 三选一</div>'+chestHTML()+items.map((it,i)=>`<button class="b ghost lootc" data-i="${i}" style="text-align:left;border-color:${RAR[it.rar][1]}">
     ${itemTag(it)} <span style="color:#9a94c0">${RAR[it.rar][0]} · ${SLOTS.find(x=>x[0]===it.slot)[1]} · 装等 ${it.il}</span><br><span style="font-size:11px">${statLine(it.st)}</span>
     ${it.set!==null?`<br><span style="font-size:11px;color:#ffd27a">套装 · ${GSET[it.set].n}</span>`:''}${(it.fx||[]).map(k=>`<br><span style="font-size:11px;color:#7dffcf">特效 · ${GEFX[k][0]}</span>`).join('')}</button>`).join('');
   $('lootV').classList.add('on');
+  {const ca=$('chestAd');if(ca)ca.onclick=()=>showAd(()=>{chestClaim(true);ca.parentNode.innerHTML='宝箱奖励已翻倍领取';});}
   M.querySelectorAll('.lootc').forEach(b=>b.onclick=()=>{const it=items[+b.dataset.i];$('lootV').classList.remove('on');G.state='play';then(it,addItem(it));});}
 // 精英怪随机掉装备：浮字 + 提示条，结算时汇总
 function eliteDrop(e){const it=makeItem(LV[G.L].ri),salv=addItem(it);(G.runLoot=G.runLoot||[]).push(it);
@@ -1099,11 +1108,13 @@ function baseStats(c){const a=AT[c.atk];return{
 function reset(){
   const C=CLS[selCls];st=baseStats(C);
   pl={x:0,y:0,hp:C.hp,maxHp:C.hp,shield:0,inv:0,face:1,moving:false,ax:0,ay:0,frozenT:0,path:null};   // 英雄用原逐帧图：分件版 Q 版大头比例对不上、侧面偏瘦（第 2、3 轮试玩）
-  G={state:'play',cls:selCls,t:0,kills:0,lvl:1,pm:1.45,xp:0,need:12,energy:0,ultT:ULT_CD,skillT:1,atkT:0,atkN:0,shake:0,flash:0,hurtT:0,
+  G={state:'play',cls:selCls,diff:selDiff,gold:0,mods:{hp:1,taken:1},order:[],stars:{},route:{},greed:0,chest:null,daily:null,t:0,kills:0,lvl:1,pm:1.45,xp:0,need:12,energy:0,ultT:ULT_CD,skillT:1,atkT:0,atkN:0,shake:0,flash:0,hurtT:0,
      sinceHurt:9,thornT:0,tempSwT:0,owned:new Set(),tags:{},revived:false,offer:null,rer:[0,0,0],booms:[],mcd:[],
      boss:null,pickQ:[],pickDown:'',frz:0,frzT:0,critT:0,critBuffT:0,songT:0,skT:0,skTick:0,after:0,cloneT:0,clones:0,
      turrets:[],arrowRains:[],pools:[],sched:[],beams:[],slashes:[],holyT:0,hearts:[],parts:[],amb:[],judges:[],fxs:[],etels:[],revives:[],doomT:0,sigilT:0,souls:0,warm:0,rushT:0,atkFx:0,sbN:0,sbArm:false,mad:0,castN:0,pickN:0,fireT:6,frostT:5,sealT:0,adrT:0,pSlowT:0,dmgAcc:0,dpsHist:[],dpsT:.5,dps:0,cam:{x:0,y:0},log:[]};
   metaApply();pl.hp=pl.maxHp;
+  if(DAILY_GO){G.daily=DAILY_GO;rand=seeded(DAILY_GO.seed);DAILY_GO=null;}else rand=Math.random;   // 每日挑战：全服同一套随机
+  resumeApply();
   newLevel(selLevel,START_R);alliesInit();   // 所有角色开局 1 级、没有海克斯
 }
 // 海克斯只在本关有效：进入下一关时清空，属性回到职业基础值（等级成长保留）
@@ -1114,7 +1125,7 @@ function newLevel(L,ri=0){
   G.lvStart=G.t;
   G.roster=buildRoster(L);
   G.L=L;Object.assign(G,genLevel(L));
-  if(!G.runHex){G.runHex=1;G.pickQ.push(1,2);}   // 每章开局送两个海克斯（银 + 金）；海克斯整章保留，所以之后的关卡不再送
+  if(!G.runHex){G.runHex=1;G.pickQ.push(1,2);if(talR('card'))G.pickQ.push(1);if(((PROG.mast||{})[G.cls]||0)>=3)G.pickQ.push(1);}   // 每章开局送两个海克斯（银 + 金）；海克斯整章保留，所以之后的关卡不再送
   ri=Math.min(ri,G.rooms.length-1);const R=G.rooms[ri];for(let i=0;i<ri;i++)G.rooms[i].done=G.rooms[i].seen=true;
   pl.x=R.cx;pl.y=R.y+R.h-26;G.cam.x=R.cx-W/2;G.cam.y=R.y+R.h/2-H*.56;
   $('lvName').textContent=LV[L].b.lv;
@@ -1123,18 +1134,21 @@ function newLevel(L,ri=0){
 // 每个地牢：普通房间定额刷怪；第 3 间精英首领，第 6 间大首领
 function startFight(i){
   const R=G.rm=G.rooms[i];G.ri=i;R.seen=true;OBS=R.obs;
+  {const rt=G.route&&G.route[i];if(rt&&R.type!=='big'){R.type=rt==='elite'?'mini':rt==='battle'?'normal':'calm';R.calm=rt;}}G.calmDone=false;
   const L=G.L,p=G.p=raidFrac(L)*LV_STEP*2+i*5/Math.max(1,G.rooms.length-1),type=R.type;   // 海克斯在本章内一直保留，难度按关内房间 + 每关固定台阶增长
   G.hpMul=hpCurve(p)*CH_HP(L)*DIFF.hp*BAL.mobHp*(.6+.4*RC[Math.min(LV[L].ri,RC.length-1)][0])*RAMP(L).hp;G.dmgMul=(1+p*.04)*CH_DMG(L)*DIFF.dmg*BAL.mobDmg*CURVE(L).dmg;G.xpMul=3+p*.4;
-  G.cfg={type,quota:Math.min(60,Math.round((type==='normal'?16+tierOf(L)*1.5+i*2:6+tierOf(L))*DIFF.quota)),rate:(type==='normal'?1.4+tierOf(L)*.1+i*.12:.5)*DIFF.rate,waveT:14,bossDelay:1.2};
+  {const D=diffOf(),A=(G.daily&&G.daily.affix)||{};G.hpMul*=D.hp*(A.hp||1);G.dmgMul*=D.dmg*(A.dmg||1);}
+  G.cfg={type,calm:R.calm,quota:Math.min(60,Math.round((type==='normal'?16+tierOf(L)*1.5+i*2:6+tierOf(L))*DIFF.quota)),rate:(type==='normal'?1.4+tierOf(L)*.1+i*.12:.5)*DIFF.rate,waveT:14,bossDelay:1.2};
   G.spawned=0;G.spawnAcc=-1;G.phase='fight';pl.wp=null;G.boss=null;G.bossDone=false;G.cutinDone=false;G.warm=0;
   if(st.mad){G.mad=rand()<.5?1:2;num(pl.x,pl.y-18,G.mad===1?'变大':'变小','#c8a0ff');}   // 每个房间都会变，只飘字不弹提示
   en=[];proj=[];bolts=[];rings=[];rain=[];nums=[];shots=[];G.pools=[];G.booms=[];G.turrets=[];G.arrowRains=[];G.cloneT=0;G.skT=0;G.sched=[];G.hearts=[];G.parts=[];G.judges=[];G.fxs=[];G.etels=[];G.revives=[];G.orbT=6;G.beams=[];G.slashes=[];
   G.roomT=0;G.roomDmg=0;G.vents=[];
-  {const ch=chOf(L),n=type==='big'?0:type==='mini'?1:1+(i>=2)+(raidFrac(L)>.4&&i>=4);   // 章节机关：越往后越多
+  {const ch=chOf(L),n=type==='big'||type==='calm'?0:type==='mini'?1:1+(i>=2)+(raidFrac(L)>.4&&i>=4);   // 章节机关：越往后越多
     const mk=window.raidMech?raidMech(L):['vent','EGG','GRV','RFT'][ch-1];   // 团本自己的机关；没有就不放
     if(mk)for(let k=0;k<n;k++){const q=randInRoom(26);if(mk==='vent')G.vents.push({x:q.x,y:q.y,t:2+k*2.5+rand()*2,fx:0});else spawnAt(q.x,q.y,mk);}}
   if(type==='big'&&pl.hp<pl.maxHp){const a=pl.maxHp-pl.hp;pl.hp=pl.maxHp;num(pl.x,pl.y-14,'首领前休整 +'+Math.round(a),'#7dff8a',true);fxs('heal',pl.x,pl.y-4,26,.6,0,0,1.3);}
   else if(type==='mini'&&pl.hp<pl.maxHp){pl.hp+=Math.round((pl.maxHp-pl.hp)*.5);}
+  if(type==='calm'){G.cfg.quota=0;G.cfg.rate=0;G.vents=[];enterCalm(R.calm);}
   G.decor=window.raidDecor?raidDecor(L,type):[];
   for(const d of G.decor){const fw=d.s*.55,fh=d.s*.28;OBS.push({kind:'decor',x:d.x-fw/2,y:d.y-fh,w:fw,h:fh,hp:1e9,flash:0,dead:false,d});}   // 装饰也挡路，不能穿过去
   $('stageT').textContent=`${rNo(L)}-${kOf(L)}`;
@@ -1257,7 +1271,7 @@ function spawnBoss(big){
   const X=big&&BOSS_X[d.n];if(X){b.ph=X.ph||[];b.phi=0;if(X.sk)b.sk=X.sk.slice();
     if(X.breaths){const br=shuffle(['fireCone','frostCone','timeCone','acidCone']).slice(0,2);b.sk=[br[0],'affliction',br[1],'multi'];}
     if(X.start)b.hp=b.max*X.start;if(X.essence){b.essence=true;setTimeout(()=>toast('红龙精华：大招冷却减半'),2600);}}
-  en.push(b);G.boss=b;sfx('boss');music('boss');$('banner').textContent=chief?`章节首领 · ${d.n}`:big?`首领 · ${d.n}`:`精英 · ${d.n}`;banner();if(d.tip)G.sched.push({t:1.3,fn:()=>{if(G.boss===b)toast(d.tip);}});   // 按游戏时间排，倍速下也不会在首领死后才弹
+  en.push(b);G.boss=b;sfx('boss');music('boss');$('banner').textContent=chief?`章节首领 · ${d.n}`:big?`首领 · ${d.n}`:`精英 · ${d.n}`;banner();
   if(X&&X.open){b.mode=X.open;b.say={n:skName(b,X.open),t:1.6};skOf(b,X.open).start(b,1);}
 }
 function bossAI(b,dt){
@@ -1336,9 +1350,9 @@ function dmg(e,d,o={}){if(!e.dead&&!e.inv)sfx('hit');if(window.dmgMulX&&!e.dead)
   if(G.songT>0&&st.epicSong)d*=1.5;
   if(G.adrT>0)d*=2;
   if(o.src==='atk'&&G.sbN>0&&!o.splash)d*=1.6;
-  if(st.soul&&o.src!=='atk')d*=1+.003*G.souls;   // 超凡邪恶只加技能伤害
+  if(st.soul&&o.src!=='atk')d*=1+.003*Math.min(300,G.souls);   // 超凡邪恶只加技能伤害，最多 300 层（+90%），整章不清零会无限叠
   if(st.execDmg&&e.hp<e.max*.5)d*=1.4;if(st.rush&&G.rushT>0)d*=1.4;if(st.highHp&&pl.hp>pl.maxHp*.8)d*=1.3;if(G.mad===1)d*=1.4;
-  e.hp-=d;if(e.unk&&e.unk.b&&!e.unk.b.dead)e.hp=Math.max(1,e.hp);e.flash=.08;if(d>e.max*.08&&G.t-(e.hurtAt||-9)>1.2)e.hurtAt=G.t;G.dmgAcc+=d;G.roomDmg+=d;num(e.x,e.y-6,Math.round(d),crit?'#ffd34a':o.col||'#fff',crit);
+  e.hp-=d;if(e===G.boss)G.bDmg=(G.bDmg||0)+d;if(e.unk&&e.unk.b&&!e.unk.b.dead)e.hp=Math.max(1,e.hp);e.flash=.08;if(d>e.max*.08&&G.t-(e.hurtAt||-9)>1.2)e.hurtAt=G.t;G.dmgAcc+=d;G.roomDmg+=d;num(e.x,e.y-6,Math.round(d),crit?'#ffd34a':o.col||'#fff',crit);
   if(o.poison)e.poison=Math.min(st.poisonCap,e.poison+o.poison);
   // 吸血有上限：每秒最多回 3% 最大生命（吸血按伤害算，伤害一高回血就失控，坦克只能靠“多受伤害”去平衡）
   if(o.src==='atk'&&st.vamp){const h=Math.min(d*st.vamp,G.vampB||0);G.vampB=(G.vampB||0)-h;pl.hp=Math.min(pl.maxHp,pl.hp+h);}
@@ -1347,7 +1361,8 @@ function dmg(e,d,o={}){if(!e.dead&&!e.inv)sfx('hit');if(window.dmgMulX&&!e.dead)
   if(e.hp<=0)kill(e);
 }
 function kill(e){if(e.silent)return;
-  e.dead=true;G.kills++;sfx('kill');
+  e.dead=true;G.kills++;sfx('kill');gainGold(e.boss?(e.elite?12:0):e.eliteAdd?3:1);
+  if(e===G.boss&&G.cfg&&G.cfg.type==='big')onBossKill(G.L);
   // 掉装备：精英房首领 40%，首领身边精英 8%，普通小怪 0.3%
   if((e.elite&&rand()<.4)||(e.eliteAdd&&rand()<.08)||(!e.boss&&!e.eliteAdd&&!e.small&&rand()<.003))eliteDrop(e);
   if(!e.boss&&e.def&&window.trashDeath)trashDeath(e);
@@ -1526,6 +1541,7 @@ function danger(x,y){
 }
 function autoDir(){
   const R=G.rm,C=CLS[G.cls];
+  if(G.gaze)return[0,0];   // 凝视期间动一下就挨重击：原地不动比躲技能更重要
   if(danger(pl.x,pl.y)){let best=null,bd=1e9;
     for(let i=0;i<7;i++)for(let j=0;j<9;j++){const x=R.x+8+(R.w-16)*i/6,y=R.y+8+(R.h-16)*j/8;if(solidAt(x,y)||danger(x,y))continue;
       const d=(x-pl.x)**2+(y-pl.y)**2;if(d<bd){bd=d;best={x,y};}}
@@ -1620,7 +1636,8 @@ function update(dt){
   pl.inv-=dt;G.sinceHurt+=dt;G.thornT-=dt;G.sealT-=dt;G.blindT=(G.blindT||0)-dt;G.pSlowT-=dt;G.critT-=dt;G.critBuffT-=dt;
   if(st.shieldMax&&G.sinceHurt>2.5&&pl.shield<st.shieldMax)pl.shield=Math.min(st.shieldMax,pl.shield+st.shieldMax*st.shieldRegen*dt);
   if(G.adrT>0){G.adrT-=dt;pl.hp=Math.max(1,pl.hp-pl.maxHp*.04*dt);}
-  if(G.dotT>0){G.dotT-=dt;pl.hp=Math.max(1,pl.hp-G.dotD*dt);}G.vulnT-=dt;
+  // 持续伤害按最大生命百分比算，也要乘职业受伤倍率和近战减伤（否则贴身的近战被灼烧烧死，受伤倍率怎么调都没用）
+  if(G.dotT>0){G.dotT-=dt;pl.hp=Math.max(1,pl.hp-G.dotD*dt*dotK());}G.vulnT-=dt;
   if(G.noHealT>0){G.noHealT-=dt;if(pl.hp>G.hpCap)pl.hp=G.hpCap;else G.hpCap=pl.hp;}   // 坏死光环：期间生命只降不升
   if((G.frzT-=dt)<=0)G.frz=0;
   if(G.songT>0){G.songT-=dt;if(st.epicSong)pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.02*st.songHeal*dt);}
@@ -1632,7 +1649,7 @@ function update(dt){
   // —— 房间流程：战斗 → 清空 → 开门 → 沿走廊自动走到下一个房间 ——
   const c=G.cfg;
   if(G.phase==='fight'){
-    if(c.type!=='normal'&&!G.boss&&!G.bossDone&&(c.bossDelay-=dt)<=0)spawnBoss(c.type==='big');
+    if(c.type!=='normal'&&c.type!=='calm'&&!G.boss&&!G.bossDone&&(c.bossDelay-=dt)<=0)spawnBoss(c.type==='big');
     if(G.spawned<c.quota){
       G.spawnAcc+=dt*c.rate;
       while(G.spawnAcc>=1&&G.spawned<c.quota&&en.length<300){G.spawnAcc--;spawnInRoom();G.spawned++;}
@@ -1640,14 +1657,15 @@ function update(dt){
         for(let i=0;i<n;i++){const a=rand()*TAU,r=50+rand()*30;const e=spawnAt(pl.x+Math.cos(a)*r,pl.y+Math.sin(a)*r);rings.push({x:e.x,y:e.y,r0:1,r1:8,t:.3,T:.3,col:'#c99bff'});}
         G.spawned+=n;if(n){$('banner').textContent='怪潮来袭';banner();}}}
     if(c.type==='normal'&&G.roomT>150&&G.spawned>=c.quota)for(const e of en)e.dead=true;
-    if(c.type==='normal'?(G.spawned>=c.quota&&!en.filter(e=>!e.dead).length&&!G.revives.length):G.bossDone){
+    if(c.type==='calm'?G.calmDone:c.type==='normal'?(G.spawned>=c.quota&&!en.filter(e=>!e.dead).length&&!G.revives.length):G.bossDone){
       for(const e of en)if(!e.dead)kill(e);
       G.rm.done=true;if(st.tank&&(G.tankN=(G.tankN||0)+1)<=12){const a=Math.round(CLS[G.cls].hp*.12);pl.maxHp+=a;pl.hp+=a;num(pl.x,pl.y-20,`生命上限 +${a}`,'#7dff9a');}   // 按职业基础生命加、一章最多 12 次（海克斯整章保留，复利会无限涨）
-      {const nr=G.rooms.length-1;if(G.ri<nr)G.pickQ.push(G.ri===nr-1?3:G.ri===0?1:G.ri<nr/2?(rand()<.5?1:2):2);}G.log.push({room:`${G.L}-${G.ri+1}`,type:c.type,t:+G.roomT.toFixed(1),dps:Math.round(G.roomDmg/Math.max(1,G.roomT)),lvl:G.lvl,hp:Math.round(pl.hp)});
+      {const nr=G.rooms.length-1;if(G.ri<nr&&c.type!=='calm')G.pickQ.push(c.type==='mini'?(avail(3).length?3:2):G.ri===0?1:2);if(c.type!=='calm')gainGold(c.type==='mini'?25:c.type==='big'?30:8);}G.log.push({room:`${G.L}-${G.ri+1}`,type:c.type,t:+G.roomT.toFixed(1),dps:Math.round(G.roomDmg/Math.max(1,G.roomT)),lvl:G.lvl,hp:Math.round(pl.hp)});
       G.phase='clear';G.phaseT=1;shots=[];G.pools=[];G.turrets=[];G.arrowRains=[];G.cloneT=0;G.skT=0;
       $('banner').textContent='清除！';banner();sfx('lvl');}
   }else if(G.phase==='clear'){
     if((G.phaseT-=dt)<=0&&G.state==='play'&&!G.hearts.length){
+      if(G.ri<G.rooms.length-2&&!(G.route&&G.route[G.ri+1])){openRoute(G.ri+1);return;}
       if(G.ri<G.rooms.length-1){const a=G.rm,b=G.rooms[G.ri+1];pl.path=[...a.exit,...b.entry];pl.wp=null;OBS=a.obs.concat(b.obs);G.phase='walk';G.phaseT=8;sfx('door');}
       else levelDone();}
   }else if(G.phase==='walk'){
@@ -1741,6 +1759,9 @@ function update(dt){
   if(st.frostNova&&G.phase==='fight'&&(G.frostT-=dt)<=0){G.frostT=5;rings.push({x:pl.x,y:pl.y,r0:4,r1:35,t:.35,T:.35,col:'#9fe8ff'});
     for(const e of en)if(!e.dead&&Math.hypot(e.x-pl.x,e.y-pl.y)<35+e.r){if(!e.boss)e.frozenT=Math.max(e.frozenT,1);dmg(e,atkBase()*.5,{col:'#9fe8ff'});}}
   if(G.phase==='fight'&&G.skillT<=0&&nearest(pl.x,pl.y,110))castSkill();
+  // 首领战下限 ~22 秒：第 8 秒按实际输出估算，剩余撑不到就按比例抬高血量（最多 3 倍）；构筑再强也不会被秒
+  {const b=G.boss;if(b&&!b.dead&&G.cfg&&G.cfg.type==='big'){if(b!==G.bTrk){G.bTrk=b;G.bDmg=0;G.bT=0;G.bChk=0;}G.bT+=dt;
+    if(!G.bChk&&G.bT>=8){G.bChk=1;const dps=G.bDmg/G.bT,left=b.hp/Math.max(1,dps),need=22-G.bT;if(left<need){const k=Math.min(3,need/Math.max(1,left));b.max*=k;b.hp*=k;}}}}
   if(G.phase==='fight'&&G.ultT<=0&&(G.boss||en.filter(e=>Math.hypot(e.x-pl.x,e.y-pl.y)<60).length>=8))castUlt();
 
   G.tempSwT-=dt;
@@ -1827,7 +1848,7 @@ function drawEntities(c){
     else{const e=it,t=e.img?e:ET[e.k],x=rp(e.x-t.w/2),y=rp(e.y-t.h/2);
       const fr=e.img?(e.flash>0?e.imgF:e.img):IMG[e.flash>0?e.k+'f':e.k],im=fr&&fr[((G.t*6+e.x*.13)|0)%fr.length];
       if(e.hidden)c.globalAlpha=.25;
-      shadowE(c,x+t.w/2,y+t.h-1-(e.boss?2:0),(t.w-4)/2,e.boss?3:1.6,.35);if(e.art){   // 贴图怪物的程序动画：呼吸、走路摇摆、施法蓄力、受击压扁；有第二姿势时切换帧
+      const vk=visK(e,t);shadowE(c,x+t.w/2,y+t.h-1-(e.boss?2:0),(t.w*vk-4)/2,e.boss?3:1.6,.35);if(e.art){   // 贴图怪物的程序动画：呼吸、走路摇摆、施法蓄力、受击压扁；有第二姿势时切换帧
         const T=e.ac||0,cast=e.boss&&e.mode&&e.mode!=='walk',big=e.boss,walk=!cast&&e._wk;   // 动画状态由 update 阶段的 animTick 算好，这里只读
         const A=!e.formArt&&window.animOf&&animOf(e),hit=e.dash>0||(e.k==='SA'&&e.shotT<.45)||e.atkPose>0,full=A&&A.full;
         const sp=G.t-(e.castAt||-9),sk=A&&sp<(e.castDur||.6)?sp/(e.castDur||.6):-1;   // 放技能的动作进度 0~1
@@ -1839,15 +1860,15 @@ function drawEntities(c){
         let rot=0,sx=1,sy=1,dy=0;
         if(!full){sy=1+Math.sin(T*3)*(big?.035:.02);   // 只有旧的 1~3 帧图才用程序动画凑动作；完整动作帧不叠加任何整体变形
           if(e.k==='SL'&&!big){const q=Math.sin(T*8)*.07;sx+=q;sy-=q;}
-          else if(walk&&!e.prop){rot=Math.sin(T*(big?5:8))*(big?.05:.08);dy=-Math.abs(Math.sin(T*(big?5:8)))*(big?1.6:1.2);}
+          else if(walk&&!e.prop){rot=Math.sin(T*(big?5:8))*(big?.05:.08);if(e.k!=='BT')dy=-Math.abs(Math.sin(T*(big?5:8)))*(big?1.6:1.2);}   // 快速的地面单位（猎豹、恶犬等用 BT）不上下跳，否则看着像在飞
           if(cast){const q=1.03+.03*Math.sin(T*6);sx*=q;sy*=q;}
           if(e.flash>0){sx*=1.07;sy*=.93;}}
-        const ax=x+t.w/2,ay=y+t.h+dy,fl=!!e.fl,rigd=e.rig&&window.drawRig&&!e.formArt&&drawRig(c,e,ax,ay,t.h*1.05,fl);if(!rigd){const k=walk&&A&&A.idle?frameK(A.idle[0],im2):1;drawArt(c,im2,ax,ay,t.w,t.h,fl,rot,sx*k,sy*k);}
-        if(e.flash>0&&!rigd){c.globalCompositeOperation='lighter';c.globalAlpha=.7;drawArt(c,im2,ax,ay,t.w,t.h,fl,rot,sx,sy);c.globalCompositeOperation='source-over';c.globalAlpha=1;}
+        const ax=x+t.w/2,ay=y+t.h+dy,fl=!!e.fl,rigd=e.rig&&window.drawRig&&!e.formArt&&drawRig(c,e,ax,ay,t.h*vk*1.05,fl);if(!rigd){const k=walk&&A&&A.idle?frameK(A.idle[0],im2):1;drawArt(c,im2,ax,ay,t.w*vk,t.h*vk,fl,rot,sx*k,sy*k);}
+        if(e.flash>0&&!rigd){c.globalCompositeOperation='lighter';c.globalAlpha=.7;drawArt(c,im2,ax,ay,t.w*vk,t.h*vk,fl,rot,sx,sy);c.globalCompositeOperation='source-over';c.globalAlpha=1;}
         // 预警：蓄力 / 瞄准时头顶红色感叹号；首领施法时显示技能名
         const warn=!e.prop&&(e.wind>0||(e.k==='SA'&&e.shotT>0&&e.shotT<.45)||(e.boss&&e.say&&e.say.t>0));
         if(warn){c.save();c.textAlign='center';c.font='bold '+(e.boss?10:8)+'px sans-serif';c.lineWidth=2;c.strokeStyle='#000';c.fillStyle=(G.t*8|0)%2?'#ff3b3b':'#ffd34a';
-          const wy=ay-t.h-3+Math.sin(G.t*12)*1;c.strokeText('!',ax,wy);c.fillText('!',ax,wy);
+          const wy=ay-t.h*vk-3+Math.sin(G.t*12)*1;c.strokeText('!',ax,wy);c.fillText('!',ax,wy);
           if(e.boss&&e.say&&e.say.t>0&&e.say.n&&!e.cast){c.font='bold 7px sans-serif';c.fillStyle='#ff6a6a';(G.sayQ=G.sayQ||[]).push({n:e.say.n,x:ax,y:wy-26});}c.restore();}}else if(im)drawSpr(im,x,y,t.w,t.h,!e.boss&&pl.x<e.x);
       if(e.frozenT>0&&(e.imgF||IMG[e.k+'f'])){c.globalAlpha=.45;drawSpr(e.imgF?e.imgF[0]:IMG[e.k+'f'][0],x,y,t.w,t.h,false);}
       c.globalAlpha=1;
@@ -2023,7 +2044,7 @@ function hud(){
   hS('enI','width',pc(G.energy));hS('xpI','width',pc(Math.min(100,G.xp/G.need*100)));
   hT('lvT',`英雄 Lv.${PROG.acc.lv}  DPS ${Math.round(G.dps)}`);
   const c=G.cfg;hT('killT',`地牢 ${G.ri+1}/${G.rooms.length} · `+(c.type==='normal'?`剩余 ${c.quota-G.spawned+en.length}`:c.type==='mini'?'精英':(isChief(G.L)?'尾王':'首领')));
-  const bf=[];if(st.soul)bf.push(`超凡邪恶 ${G.souls}`);if(st.warmup&&G.warm)bf.push(`热身 ${G.warm}`);if(G.rushT>0&&st.rush)bf.push('兴奋起来');if(st.basics)bf.push('回归基本功');if(G.sealT>0)bf.push(`封印 ${Math.ceil(G.sealT)}s`);if(G.adrT>0)bf.push(`燃烧刺激 ${Math.ceil(G.adrT)}s`);if(G.critBuffT>0)bf.push(`孢子之力 ${Math.ceil(G.critBuffT)}s`);
+  const bf=[`金币 ${G.gold||0}`];if(st.soul)bf.push(`超凡邪恶 ${Math.min(300,G.souls)}`);if(st.warmup&&G.warm)bf.push(`热身 ${G.warm}`);if(G.rushT>0&&st.rush)bf.push('兴奋起来');if(st.basics)bf.push('回归基本功');if(G.sealT>0)bf.push(`封印 ${Math.ceil(G.sealT)}s`);if(G.adrT>0)bf.push(`燃烧刺激 ${Math.ceil(G.adrT)}s`);if(G.critBuffT>0)bf.push(`孢子之力 ${Math.ceil(G.critBuffT)}s`);
   if(G.songT>0)bf.push(`战歌 ${Math.ceil(G.songT)}s`);if(pl.frozenT>0)bf.push('冻结');if(G.pSlowT>0)bf.push('减速');hT('buffT',bf.join(' · '));
   hP('skill','--cd',String(Math.max(0,G.skillT/st.skillCd*100)));hC('skill','seal',G.sealT>0);
   hC('bossBar','on',!!G.boss&&G.state!=='pick');
@@ -2045,7 +2066,7 @@ function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;
   requestAnimationFrame(frame);}
 
 // ---------- 海克斯三选一：每轮同一品质；已有流派、本职业专属更容易出 ----------
-function avail(t,ex=[]){return HEX.filter(h=>h.tier===t&&fits(h)&&(!h.req||h.req())&&!G.owned.has(h.id)&&!ex.includes(h.id));}
+function avail(t,ex=[]){return HEX.filter(h=>h.tier===t&&fits(h)&&hexOpen(h)&&(!h.req||h.req())&&!G.owned.has(h.id)&&!ex.includes(h.id));}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=(rand()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
 function pickW(list,n){const out=[],a=list.slice();
   while(out.length<n&&a.length){const w=a.map(h=>h.tag==='通用'?.5:(1+(G.tags[h.tag]||0)*1.5)*(h.cls?2:1));let r=rand()*w.reduce((x,y)=>x+y,0),i=0;
@@ -2058,13 +2079,15 @@ function rollTier(lvl){
   let r=rand()*ok.reduce((s,t)=>s+w[t-1],0);for(const t of ok)if((r-=w[t-1])<=0)return t;return ok[ok.length-1];
 }
 function makeOffer(lvl,tier){if(!tier||avail(tier).length<3)tier=rollTier(lvl);let cards=tier?pickW(avail(tier),3):[];
+  {const ups=shuffle(upgradable());const nUp=cards.length<3?3-cards.length:rand()<.3?1:0;for(let i=0;i<nUp&&ups.length;i++){const h=ups.pop();const c=Object.assign({},h,{up:true});if(cards.length<3)cards.push(c);else cards[2]=c;}}
   if(cards.length<3){const ex=cards.map(h=>h.id);cards=cards.concat(pickW([1,2,3].flatMap(t=>avail(t,ex)),3-cards.length));}   // 本品质不够 3 张时用其他品质补满
   return{tier:tier||(cards[0]&&cards[0].tier),cards};}
 function levelUp(){fxs('levelup',pl.x,pl.y-2,26,.6,0,0,1.5);G.xp-=G.need;G.lvl++;G.pm=1+.06*(G.lvl-1);pl.maxHp+=8;pl.hp+=8;G.need=Math.round(6+6*G.lvl+1.2*G.lvl*G.lvl);
   num(pl.x,pl.y-16,'LV UP','#5ad1ff',true);rings.push({x:pl.x,y:pl.y,r0:4,r1:18,t:.4,T:.4,col:'#5ad1ff'});}
 function openPick(bonus){G.pickN++;
   const o=makeOffer(G.lvl,bonus);o.bonus=bonus;
-  if(!o.tier){st.atkMul*=1.005;if(!G.hexFull){G.hexFull=1;toast('海克斯已全部获得');}return;}   // 拿满后的选卡只给极小加成，否则连乘几十次会滚雪球
+  if(!o.cards.length){st.atkMul*=1.005;return;}   // 新卡和可升星的都没有了：只给极小加成（连乘几十次会滚雪球）
+  if(!o.tier)o.tier=o.cards[0].tier;
   G.offer=o;G.rer=[0,0,0];G.state='pick';sfx('lvl');G.pickDown='';joy.x=joy.y=0;renderPick();$('pick').classList.add('on');
 }
 function synHTML(tag,h0={}){
@@ -2083,7 +2106,7 @@ function renderPick(){
   $('pick').innerHTML=`<div class="head"><div class="lv">海克斯 · 第 ${G.pickN} 次</div><h1>选择海克斯</h1>
     <p><b class="tag ${tc}" style="padding:1px 8px">${tnm}</b></p></div>
     <div class="cards">${G.offer.cards.map((h,i)=>{const[hn,hc]=TIER[h.tier];return`<div class="col"><div class="cw t${h.tier}" data-i="${i}"><div class="card cut"><div class="inner cut">
-      <div class="icon">${iconOf(h.tag)}</div><div class="t">${h.n}</div><div class="tag ${hc}">${hn}</div><div class="div"></div>
+      <div class="icon">${iconOf(h.tag)}</div><div class="t">${h.n}${h.up?` <span style="color:#ffd77a">★${(G.stars[h.id]||1)+1}</span>`:''}</div><div class="tag ${hc}">${h.up?'升星':hn}</div><div class="div"></div>
       <div class="d">${h.d}</div>${synHTML(h.tag,h)}</div></div></div>
       <div class="reroll${G.rer[i]?' used':''}" data-r="${i}"><svg viewBox="0 0 12 12"><rect x=".5" y="2" width="11" height="8" rx="1" fill="none" stroke="currentColor"/><path d="M5 4.2v3.6L8 6z" fill="currentColor"/></svg>${G.rer[i]?'已刷新':'刷新'}</div></div>`;}).join('')}</div>
     <div class="build"><div class="chips">${chipsHTML()}</div></div>`;
@@ -2099,9 +2122,7 @@ function toggleHexV(){const v=$('hexV');
 function choose(i){
   if(G.state!=='pick')return;
   const h=G.offer.cards[i];if(!h)return;
-  h.a();G.owned.add(h.id);$('hexN').textContent=G.owned.size;
-  const c=G.tags[h.tag]=(G.tags[h.tag]||0)+1,s=(SETS[h.tag]||{})[c];
-  if(s){s[1]();toast(`流派激活 · ${tn(h.tag)} ${c} 件：${s[0]}`);}
+  applyHex(hexById(h.id));$('hexN').textContent=G.owned.size;
   $('pick').classList.remove('on');G.state='play';sfx('pick');
 }
 function reroll(i){
@@ -2117,28 +2138,30 @@ function endPanel(title){const s=(G.rt||G.t)|0;
   
   $('deadP').innerHTML=`<h2>${title}</h2><div class="stat"><div>到达<b>${rNo(G.L)}-${kOf(G.L)}</b></div><div>时间<b>${String(s/60|0).padStart(2,'0')}:${String(s%60).padStart(2,'0')}</b></div><div>击杀<b>${G.kills}</b></div><div>英雄等级<b>${PROG.acc.lv}</b></div></div>
     <p>${CLS[G.cls].n} · ${LV[G.L].b.lv}</p><div class="chips">${chipsHTML()}</div>
-    ${title==='你倒下了'&&!G.revived?'<button class="b" id="rev">看广告复活</button>':''}${G.state==='win'&&G.L<NLV()?'<button class="b" id="next">下一关</button>':''}<button class="b ghost" id="again">再来一次</button><button class="b ghost sm" id="home2">返回主页</button><p class="ver">${VERSION}</p>`;
+    ${title==='你倒下了'&&!G.revived?`<button class="b" id="rev">${talR('rev')?'复活（天赋）':'看广告复活'}</button>`:''}${title==='你倒下了'&&PROG.run&&PROG.run.ri===LV[G.L].ri?'<button class="b ghost" id="resume">从存档点继续</button>':''}${G.state==='win'&&G.L<NLV()?'<button class="b" id="next">下一关</button>':''}<button class="b ghost" id="again">再来一次</button><button class="b ghost sm" id="home2">返回主页</button><p class="ver">${VERSION}</p>`;
   $('dead').classList.add('on');
 }
 function die(){G.state='dead';music(null);sfx('dead');endPanel('你倒下了');}
 function levelDone(){const up=rewardLevel(G.L),lt=(G.t-G.lvStart)|0,b=PROG.best[G.L];if(!b||lt<b.t)PROG.best[G.L]={t:lt,c:G.cls};PROG.un=Math.max(PROG.un,Math.min(NLV(),G.L+1));saveProg();
-  lootPick(LV[G.L].ri,(it,salv)=>{const extra=(G.runLoot||[]).length?`<br>战斗掉落：${G.runLoot.map(itemTag).join('、')}`:'';G.lastLoot=`获得装备：${itemTag(it)}${extra}${up}${salv}`;G.runLoot=[];toast(G.lastLoot.replace(/<br>/g,'；').replace(/<[^>]+>/g,''));
+  for(let i=0;i<(G.greed||0);i++){const x=makeItem(LV[G.L].ri);addItem(x);(G.runLoot=G.runLoot||[]).push(x);}
+  checkpointAfter(G.L);
+  lootPick(LV[G.L].ri,(it,salv)=>{chestClaim(false);const extra=(G.runLoot||[]).length?`<br>战斗掉落：${G.runLoot.map(itemTag).join('、')}`:'';G.lastLoot=`获得装备：${itemTag(it)}${extra}${up}${salv}`;G.runLoot=[];toast(G.lastLoot.replace(/<br>/g,'；').replace(/<[^>]+>/g,''));
     if(!isChief(G.L)){G.phase='trans';G.phaseT=.6;$('fade').classList.add('on');toast(`${rNo(G.L)}-${kOf(G.L)} 完成 · 进入下一关`);}else win();});}
-function win(){G.state='win';music(null);sfx('lvl');endPanel(`${RAIDS[LV[G.L].ri].name} 通关`);}
+function win(){G.state='win';onChapterWin();music(null);sfx('lvl');endPanel(`${RAIDS[LV[G.L].ri].name} 通关`);}
 function toast(t){const now=performance.now();toast.last=toast.last||{};if(now-(toast.last[t]||-1e9)<6000)return;toast.last[t]=now;const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2400);}
 function banner(){const e=$('banner');e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1300);}
 
 // ---------- 选角 ----------
 function renderClasses(){
-  $('classes').innerHTML=CLS_IDS.map(id=>`<div class="cls${id===selCls?' on':''}" data-c="${id}"><canvas data-p="${id}"></canvas>${CLS[id].n}</div>`).join('');
+  $('classes').innerHTML=CLS_IDS.map(id=>`<div class="cls${id===selCls?' on':''}" data-c="${id}" style="${clsOpen(id)?'':'opacity:.4'}"><canvas data-p="${id}"></canvas>${clsOpen(id)?CLS[id].n:'🔒'+CLS[id].n}</div>`).join('');
   for(const cv of document.querySelectorAll('[data-p]')){const c=CLS[cv.dataset.p],im=c.port||c.img[0];cv.width=im.width;cv.height=im.height;cv.getContext('2d').drawImage(im,0,0);}
   const c=CLS[selCls],al=c.alias||{},ex=c.specs.map(t=>al[t]||t).join(' · ');
   $('cinfo').innerHTML=`<b>${c.n}</b> · ${ROLE_N[c.role]}　生命 ${c.hp} · 移速 ${c.spd} · ${AT[c.atk].melee?'近战':'远程'} · ${{slash:'挥剑 + 剑气',orb:'法球',fist:'范围挥拳 + 吸血',bullet:'速射子弹',arrow:'长弓',stab:'双刺',shuriken:'弹射手里剑',note:'追踪音符',hammer:'圣锤 + 审判'}[c.atk]}<br>技能 <em>${c.sk}</em>：${c.skD}<br>大招 <em>${c.ult}</em>　流派：<em>${ex}</em>`;
 }
-document.addEventListener('click',e=>{const d=e.target.closest('#classes [data-c]');if(d){selCls=d.dataset.c;PROG.hero=selCls;saveProg();if($('hub').classList.contains('on'))renderHub('hero');else renderClasses();}});
+document.addEventListener('click',e=>{const d=e.target.closest('#classes [data-c]');if(d&&!clsOpen(d.dataset.c)){const id=d.dataset.c;if((PROG.marks||0)>=6&&confirm(`${clsGateTxt(id)}\n现在花 6 徽记解锁「${CLS[id].n}」？`)){PROG.marks-=6;PROG.clsUnl.push(id);saveProg();achCheck();}else toast(clsGateTxt(id));renderHub('hero');return;}if(d){selCls=d.dataset.c;PROG.hero=selCls;saveProg();if($('hub').classList.contains('on'))renderHub('hero');else renderClasses();}});
 $('ver').textContent=VERSION;
 const SCREENS=['home','hub','levels','start'];
-function show(id,view){for(const k of SCREENS)$(k).classList.toggle('on',k===id);$('nav').classList.toggle('on',id==='hub'||id==='levels');if(id==='hub')renderHub(view||HUB.v);if(id==='levels')HUB.v='raid';navSel();$('banner').classList.remove('show');$('toast').classList.remove('show');if(id==='levels')renderLevels();if(id==='start'){$('startTitle').textContent=`${rNo(selLevel)}-${kOf(selLevel)} · ${LV[selLevel].b.lv}`;renderClasses();}}
+function show(id,view){if(id==='hub'&&window.verCheck&&verCheck.pending){location.reload();return;}for(const k of SCREENS)$(k).classList.toggle('on',k===id);$('nav').classList.toggle('on',id==='hub'||id==='levels');if(id==='hub')renderHub(view||HUB.v);if(id==='levels')HUB.v='raid';navSel();$('banner').classList.remove('show');$('toast').classList.remove('show');if(id==='levels')renderLevels();if(id==='start'){$('startTitle').textContent=`${rNo(selLevel)}-${kOf(selLevel)} · ${LV[selLevel].b.lv}`;renderClasses();}}
 // ---------- 深渊地图：4 个章节地貌自下而上，12 个关卡节点沿小路分布 ----------
 const NODES_OLD=[[35,236],[95,224],[158,206],[128,178],[66,166],[44,154],[72,124],[132,110],[162,90],[112,72],[58,58],[97,38]];
 const BANDS=[[188,262],[134,188],[80,134],[0,80]];
@@ -2231,15 +2254,25 @@ function renderLevels(){
     return `<div class="nd${last?' chief':''}${lock?' lock':''}${clr?' clr':''}${L===PROG.un&&!clr?' cur':''}${L===selLevel?' sel':''}${pt?' pt':''}" data-l="${L}" style="left:${x*2}px;top:${y*2}px${pt?`;background-image:url(${pt})`:''}">${pt?`<i>${k+1}</i>`:lock?'':last?'☠':k+1}</div>`;}).join('');
   if(miss&&(renderLevels.tries=(renderLevels.tries||0)+1)<8)setTimeout(()=>{if($('levels').classList.contains('on'))renderLevels();},700);else if(!miss)renderLevels.tries=0;
   const L=selLevel,v=LV[L],r=RAIDS[v.ri],lvLock=PROG.acc.lv<RAID_REQ(r),lock=L>PROG.un||lvLock,b=PROG.best[L];
-  $('lvInfo').innerHTML=`<b>${rNo(L)}-${kOf(L)} ${v.b.lv}</b><br>${EXP[r.exp][0]} · ${r.name}　${r.desc||''}<br>${v.last?'尾王':'首领'}：<em>${v.b.n}</em>　地牢 ${v.b.rooms||6} 间<br>${lvLock?`🔒 需要账号等级 ${RAID_REQ(r)}`:lock?'🔒 通关上一关解锁':b?`最佳 ${fmtT(b.t)} · ${CLS[b.c].n}`:'未通关'}
-    <br><small style="color:#9a94c0">每次出发从本章第一关开始，海克斯整章保留</small><button class="b" id="lvGo"${firstL(v.ri)>PROG.un?' disabled':''}>从章首出发</button>`;
+  const ri=v.ri,dmax=(PROG.diff||{})[ri]||0;if(selDiff>dmax)selDiff=dmax;const run=PROG.run&&PROG.run.ri===ri?PROG.run:null,D=dailyInfo(),dd=dailyState();
+  $('lvInfo').innerHTML=`<b>${rNo(L)}-${kOf(L)} ${v.b.n}</b>　<span style="color:#9a94c0">${r.name}</span><br>
+    <span style="color:#ffb070;font-size:11px">技能：${bossSkillList(v.b).join('、')||'—'}</span><br><span style="color:#c8c0ff;font-size:11px">机制：${v.b.tip||'—'}</span><br>
+    ${lvLock?`🔒 需要账号等级 ${RAID_REQ(r)}`:lock?'🔒 通关上一关解锁':b?`最佳 ${fmtT(b.t)} · ${CLS[b.c].n}`:'未通关'}<br>
+    <div style="display:flex;gap:4px;margin:4px 0">${DIFF_T.map((T,k)=>`<button class="b ${k===selDiff?'':'ghost'} sm" data-diff="${k}"${k>dmax?' disabled':''}>${k>dmax?'🔒':''}${T.n}</button>`).join('')}</div>
+    ${run?`<button class="b" id="lvResume">从存档点继续（第 ${LV[run.L].k+1} 关）</button>`:''}
+    <button class="b${run?' ghost':''}" id="lvGo"${firstL(ri)>PROG.un?' disabled':''}>从章首出发</button>
+    <button class="b ghost sm" id="lvDaily">每日挑战：${RAIDS[D.ri].name} · ${D.affix.n}（${D.affix.d}）${dd.done?' ✅':''}${dd.best?` 最佳 ${fmtT(dd.best)}`:''}</button>`;
   setTimeout(()=>{const o=document.querySelector('.rtab.on');if(o)o.scrollIntoView({inline:'center',block:'nearest'});});
 }
 $('raidTabs').addEventListener('click',e=>{const d=e.target.closest('[data-r]');if(!d||d.classList.contains('lock'))return;selRaid=+d.dataset.r;const f=firstL(selRaid);selLevel=Math.min(Math.max(f,PROG.un>=f?Math.min(PROG.un,f+RAIDS[selRaid].bosses.length-1):f),NLV());renderLevels();});
 const CH_DESC=['火山熔岩','龙巢峡谷','亡灵要塞','虚空神殿'];
 const fmtT=t=>String(t/60|0).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
 $('nodes').addEventListener('click',e=>{const d=e.target.closest('[data-l]');if(!d||d.classList.contains('lock'))return;selLevel=+d.dataset.l;renderLevels();});
-$('lvInfo').addEventListener('click',e=>{if(e.target.id==='lvGo'&&!e.target.disabled){$('nav').classList.remove('on');selLevel=firstL(LV[selLevel].ri);enterLevel();}});   // 一章 = 一局：出发总是从章首开始，海克斯整章保留
+$('lvInfo').addEventListener('click',e=>{const t=e.target;
+  if(t.dataset.diff!==undefined&&!t.disabled){selDiff=+t.dataset.diff;renderLevels();return;}
+  if(t.id==='lvResume'){$('nav').classList.remove('on');startResume();return;}
+  if(t.id==='lvDaily'){$('nav').classList.remove('on');startDaily();return;}
+  if(t.id==='lvGo'&&!t.disabled){if(PROG.run&&PROG.run.ri===LV[selLevel].ri&&!confirm('重新出发会放弃当前存档点，确定？'))return;PROG.run=null;saveProg();$('nav').classList.remove('on');selLevel=firstL(LV[selLevel].ri);enterLevel();}});   // 一章 = 一局：出发总是从章首开始，海克斯整章保留
 $('toLevels').onclick=()=>{auInit();selLevel=Math.min(PROG.un,NLV());if(PROG.hero&&CLS[PROG.hero])selCls=PROG.hero;show('hub','hero');};$('lvBack').onclick=()=>show('hub','hero');
 // ---------- 主界面（人物 / 副本 / 背包 / 组队 / 设置） ----------
 const HUB={v:'hero',sel:null};
@@ -2256,6 +2289,7 @@ function renderHub(v){HUB.v=v;const A=PROG.acc,C=CLS[selCls];
   if(v==='hero'){const{t,sets}=gearStats();
     V.innerHTML=`<div class="hero"><canvas class="art" id="heroArt"></canvas>${SLOTS.map(([k,n],i)=>{const pos=[[8,30],[8,110],[8,190],['r8',30],['r8',110]][i];return `<div class="slot" data-slot="${k}" style="${typeof pos[0]==='string'?'right:8px':'left:'+pos[0]+'px'};top:${pos[1]}px;border-color:${(PROG.inv.find(x=>x.id===PROG.eq[k])||{}).rar?RAR[PROG.inv.find(x=>x.id===PROG.eq[k]).rar][1]:'#3a3260'}"><small>${n}</small></div>`;}).join('')}</div>
       <div class="hname">${C.n}<span style="font-size:11px;color:#9a94c0;letter-spacing:1px">　${ROLE_N[C.role]}</span></div>
+      <p style="text-align:center;color:#ffd77a;font-size:11px;margin:2px 0">${mastTxt((PROG.mast||{})[selCls]||0)}　·　尘 ${PROG.dust||0}　徽记 ${PROG.marks||0}</p>
       <div class="classes" id="classes" style="margin-top:8px"></div>
       <div class="stats"><div>生命<em>${Math.round(C.hp*(1+t.hp+(A.lv-1)*.008))}</em></div><div>攻击<em>+${Math.round((t.atk+(A.lv-1)*.008)*100)}%</em></div><div>暴击<em>+${Math.round(t.crit*100)}%</em></div><div>技能伤害<em>+${Math.round(t.skill*100)}%</em></div><div>移速<em>+${Math.round(t.spd*100)}%</em></div><div>技能冷却<em>-${Math.round(Math.min(.4,t.cdr)*100)}%</em></div></div>
       <div class="sets">${GSET.map((S,k)=>sets[k]?`<b>${S.n}套装 ${sets[k]}/4</b><br><span class="${sets[k]>=2?'':'off'}">(2) ${S.b2[0]}</span><br><span class="${sets[k]>=4?'':'off'}">(4) ${S.b4[0]}</span>`:'').filter(Boolean).join('<br>')||'<span class="off">穿戴同一副本的史诗 / 传说装备可激活套装（最多 4 件）</span>'}</div>
@@ -2263,8 +2297,14 @@ function renderHub(v){HUB.v=v;const A=PROG.acc,C=CLS[selCls];
     renderClasses();SLOTS.forEach(([k])=>{const it=PROG.inv.find(x=>x.id===PROG.eq[k]),el=V.querySelector(`[data-slot="${k}"]`);if(it)el.prepend(itemIcon(it));});
     const cv=$('heroArt'),an=ART.anime&&ART.anime[CLS_IDS.indexOf(selCls)];if(an){cv.width=cv.height=an.width;cv.getContext('2d').drawImage(an,0,0);cv.style.imageRendering='auto';}}
   else if(v==='bag'){const items=PROG.inv.slice().sort((a,b)=>b.rar-a.rar||b.il-a.il),eqIds=Object.values(PROG.eq);
-    V.innerHTML=`<div style="margin-bottom:8px">背包 ${PROG.inv.length}/60　<span style="color:#9a94c0">点击装备查看 / 穿戴；每通关一关三选一，精英怪随机掉落</span></div><div class="bag">${items.map(it=>`<div class="it${eqIds.includes(it.id)?' eq':''}" data-id="${it.id}" style="border-color:${RAR[it.rar][1]}"></div>`).join('')||'<span style="grid-column:1/-1;color:#6a6490">还没有装备，去副本里打首领吧</span>'}</div><div id="itip"></div>`;
+    V.innerHTML=`<div style="margin-bottom:8px">背包 ${PROG.inv.length}/60　<span style="color:#c8c0ff">尘 ${PROG.dust||0}　徽记 ${PROG.marks||0}</span><button class="b ghost sm" id="bestEq" style="float:right">一键穿推荐</button><br><span style="color:#9a94c0;font-size:11px">↑ 表示比身上的更好；尘用来强化 / 重铸，分解装备获得</span></div><div class="bag">${items.map(it=>`<div class="it${eqIds.includes(it.id)?' eq':''}" data-id="${it.id}" style="border-color:${RAR[it.rar][1]}">${!eqIds.includes(it.id)&&isUpgrade(it)?'<i style="position:absolute;right:1px;top:-2px;color:#7dff8a;font-style:normal;font-weight:900">↑</i>':''}${it.up?`<i style="position:absolute;left:1px;bottom:-2px;color:#ffd77a;font-style:normal;font-size:9px">+${it.up}</i>`:''}</div>`).join('')||'<span style="grid-column:1/-1;color:#6a6490">还没有装备，去副本里打首领吧</span>'}</div><div id="itip"></div>`;
     V.querySelectorAll('.it').forEach(el=>el.append(itemIcon(PROG.inv.find(x=>x.id===+el.dataset.id))));if(HUB.sel)showItem(HUB.sel);}
+  else if(v==='tal'){const lock=HEX.filter(h=>h.tier===3&&fitsFor(h,selCls)&&!hexOpen(h));
+    V.innerHTML=`<div class="hname" style="font-size:15px">天赋　<span style="color:#ffd77a">可用 ${talPts()} 点</span></div><p style="text-align:center;color:#9a94c0;font-size:11px">账号每升 1 级获得 1 点，可以随时加减</p>
+      ${TALENTS.map(T=>`<div class="itip" style="margin:4px 0;display:flex;align-items:center;gap:6px"><div style="flex:1"><b>${T.n}</b> ${talR(T.id)}/${T.max}<br><small style="color:#9a94c0">${T.d}</small></div><button class="b ghost sm" data-tal="${T.id}" data-d="-">－</button><button class="b sm" data-tal="${T.id}" data-d="+">＋</button></div>`).join('')}
+      <div class="hname" style="font-size:15px;margin-top:10px">卡池解锁　<span style="color:#ffd77a">徽记 ${PROG.marks||0}</span></div><p style="text-align:center;color:#9a94c0;font-size:11px">棱彩海克斯要先用徽记解锁才会出现（${CLS[selCls].n}）</p>
+      ${lock.map(h=>`<div class="itip" style="margin:4px 0;display:flex;align-items:center;gap:6px"><div style="flex:1"><b>${h.n}</b> <small style="color:#9a94c0">${tn(h.tag)}</small><br><small>${h.d}</small></div><button class="b sm" data-unl="${h.id}">2 徽记</button></div>`).join('')||'<p style="text-align:center;color:#7dff8a">本职业的棱彩海克斯已全部解锁</p>'}`;}
+  else if(v==='codex'){V.innerHTML=`<div class="hname" style="font-size:15px">首领图鉴</div><p style="text-align:center;color:#9a94c0;font-size:11px">出发前先看机制：局内不会再提示</p>${codexHTML()}<div class="hname" style="font-size:15px;margin-top:10px">成就</div>${achHTML()}`;}
   else if(v==='party'){V.innerHTML=`<div class="hname" style="font-size:15px">组队</div><p style="text-align:center;color:#9a94c0">打不过的副本可以带 AI 队友（最多 2 名），他们使用各自职业的技能自动战斗。</p>
       <div class="party">${[0,1].map(i=>{const c=PROG.party[i];return `<div class="pm" data-pi="${i}">${c?`<div><canvas data-pc="${c}"></canvas><br>${CLS[c].n}<br><small style="color:#ff8a8a">点击移除</small></div>`:'<div>＋<br>添加队友</div>'}</div>`;}).join('')}</div>
       <div id="partyPick"></div><p style="text-align:center;color:#6a6490;font-size:11px">在线多人组队需要服务器，当前为 AI 队友版本</p>`;
@@ -2279,9 +2319,13 @@ function showItem(id){HUB.sel=id;const it=PROG.inv.find(x=>x.id===id);if(!it)ret
   $('itip').innerHTML=`<div class="itip"><b style="color:${RAR[it.rar][1]}">${it.n}</b>　<span style="color:#9a94c0">${RAR[it.rar][0]} · ${SLOTS.find(s=>s[0]===it.slot)[1]} · 物品等级 ${it.il}</span><br>${statLine(it.st)}
     ${(it.fx||[]).map(k=>`<br><span style="color:#7dffcf">特效 · ${GEFX[k][0]}</span>`).join('')}
     ${it.set!==null?`<br><span style="color:#ffd77a">${GSET[it.set].n}套装：(2) ${GSET[it.set].b2[0]}　(4) ${GSET[it.set].b4[0]}</span>`:''}<br>
-    <button class="b" data-act="${on?'off':'on'}">${on?'卸下':'穿戴'}</button><button class="b ghost" data-act="del">分解</button></div>`;}
+    ${it.up?`<br><span style="color:#ffd77a">强化 +${it.up}（属性 +${it.up*8}%）</span>`:''}<br>
+    <button class="b" data-act="${on?'off':'on'}">${on?'卸下':'穿戴'}</button><button class="b ghost" data-act="up">强化（${upCost(it)} 尘）</button><button class="b ghost" data-act="rr">重铸（20 尘）</button><button class="b ghost" data-act="del">分解（+${it.rar*5+(it.up||0)*2} 尘）</button></div>`;}
 $('hubView').addEventListener('click',e=>{const V=$('hubView');
   if(e.target.id==='toRaid'){show('levels');return;}
+  if(e.target.id==='bestEq'){const b=bestPerSlot();for(const k in b)PROG.eq[k]=b[k].id;saveProg();achCheck();renderHub('bag');return;}
+  {const t=e.target.closest('[data-tal]');if(t){const T=TALENTS.find(x=>x.id===t.dataset.tal),r=talR(T.id);if(t.dataset.d==='+'){if(talPts()<1||r>=T.max)return;PROG.talent[T.id]=r+1;}else if(r>0)PROG.talent[T.id]=r-1;saveProg();achCheck();renderHub('tal');return;}}
+  {const t=e.target.closest('[data-unl]');if(t){unlockHex(t.dataset.unl);renderHub('tal');return;}}
   if(e.target.id==='toHome'){show('hub','hero');return;}
   if(e.target.id==='sndB2'){toggleMute();renderHub('set');return;}
   if(e.target.id==='shkB2'){SHAKE=!SHAKE;try{localStorage.setItem('abyss-shake',SHAKE?'1':'0');}catch(_){}renderHub('set');return;}
@@ -2290,7 +2334,7 @@ $('hubView').addEventListener('click',e=>{const V=$('hubView');
   const it=e.target.closest('.it');if(it){showItem(+it.dataset.id);return;}
   const act=e.target.dataset.act;if(act&&HUB.sel){const x=PROG.inv.find(q=>q.id===HUB.sel);
     if(act==='on')PROG.eq[x.slot]=x.id;if(act==='off')delete PROG.eq[x.slot];
-    if(act==='del'){if(PROG.eq[x.slot]===x.id)delete PROG.eq[x.slot];PROG.inv=PROG.inv.filter(q=>q!==x);HUB.sel=null;}
+    if(act==='del'){salvageItem(x);HUB.sel=null;}if(act==='up')enhanceItem(x);if(act==='rr')rerollItem(x);
     saveProg();renderHub('bag');return;}
   const pm=e.target.closest('[data-pi]');if(pm){const i=+pm.dataset.pi;if(PROG.party[i]){PROG.party.splice(i,1);saveProg();renderHub('party');return;}
     $('partyPick').innerHTML=`<div class="classes">${CLS_IDS.filter(c=>c!==selCls&&!PROG.party.includes(c)).map(c=>`<div class="cls" data-addp="${c}">${CLS[c].n}</div>`).join('')}</div>`;return;}
@@ -2325,7 +2369,8 @@ $('dead').addEventListener('click',e=>{
   if(e.target.id==='again'){$('dead').classList.remove('on');enterLevel();}
   if(e.target.id==='next'){$('dead').classList.remove('on');selLevel=G.L+1;enterLevel();}
   if(e.target.id==='home2'){$('dead').classList.remove('on');G=null;music(null);show('hub','hero');}
-  if(e.target.id==='rev')showAd(()=>{G.revived=true;pl.hp=pl.maxHp;music(G.boss?'boss':'normal');pl.inv=2;$('dead').classList.remove('on');G.state='play';nova(80,atkBase()*3);if(avail(3).length>=1){openPick(3);toast('复活奖励：棱彩海克斯三选一');}else{st.atkMul*=1.15;toast('复活奖励：攻击 +15%（棱彩海克斯已拿满）');}});
+  if(e.target.id==='resume'){$('dead').classList.remove('on');G=null;startResume();return;}
+  if(e.target.id==='rev')(talR('rev')?f=>f():showAd)(()=>{G.revived=true;pl.hp=pl.maxHp;music(G.boss?'boss':'normal');pl.inv=2;$('dead').classList.remove('on');G.state='play';nova(80,atkBase()*3);if(avail(3).length>=1){openPick(3);toast('复活奖励：棱彩海克斯三选一');}else{st.atkMul*=1.15;toast('复活奖励：攻击 +15%（棱彩海克斯已拿满）');}});
 });
 // 图标直接用 CSS 雪碧图定位，不经过画布 toDataURL（手机上画布内存紧张时会变空白）
 function setIcons(){const i=CLS_IDS.indexOf(selCls);if(i<0)return;
@@ -2345,7 +2390,7 @@ function enterLevel(){if(!window.levelReady)return startGame();const L=selLevel,
 $('spdB').textContent=GSPD+'x';$('spdB').onclick=()=>{GSPD=GSPD===1?1.5:GSPD===1.5?2:1;$('spdB').textContent=GSPD+'x';try{localStorage.setItem('abyss-speed',GSPD);}catch(_){}};   // 倍速
 // 关卡内暂停：继续 / 音效 / 震屏 / 返回主界面（放弃本关）
 const pzLabel=()=>{$('pzSnd').textContent='音效：'+(AU.muted?'关':'开');$('pzShk').textContent='震屏：'+(SHAKE?'开':'关');};
-$('pauseB').onclick=()=>{if(!G||G.state!=='play')return;G.state='pause';pzLabel();$('pauseV').classList.add('on');};
+$('pauseB').onclick=()=>{if(!G||G.state!=='play')return;$('pzVer').textContent=VERSION;G.state='pause';pzLabel();$('pauseV').classList.add('on');};
 $('pzGo').onclick=()=>{$('pauseV').classList.remove('on');if(G&&G.state==='pause')G.state='play';};
 $('pzSnd').onclick=()=>{toggleMute();pzLabel();};
 $('pzShk').onclick=()=>{SHAKE=!SHAKE;try{localStorage.setItem('abyss-shake',SHAKE?'1':'0');}catch(_){}pzLabel();};
@@ -2368,15 +2413,18 @@ for(const d of BIG.concat(MINI))console.assert(d.sk.every(s=>SK[s]),'boss skill'
 console.assert(new Set(BIG.concat(MINI).map(d=>d.sk.slice().sort().join())).size===24,'unique boss kits');
 selCls='mage';reset();
 for(let i=0;i<300;i++){const o=makeOffer(1+i%15);console.assert(o.cards.length===3&&o.cards.every(h=>h.tier===o.tier)&&new Set(o.cards.map(h=>h.id)).size===3,'offer',o);}
-G=null;selLevel=Math.min(PROG.un,NLV());if(PROG.hero&&CLS[PROG.hero])selCls=PROG.hero;show('hub','hero');
+G=null;selLevel=Math.min(PROG.un,NLV());if(PROG.hero&&CLS[PROG.hero])selCls=PROG.hero;progInit();show('hub','hero');
 // 直接进大厅（去掉旧标题页）；音效要等第一次点击才能开
 addEventListener('pointerdown',()=>auInit(),{once:true});
+// 新版本检查：切回前台 / 每 5 分钟看一次线上 VERSION，不在局内就直接刷新，在局内等回到大厅
+function verCheck(){fetch('game.html?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/VERSION='(v\d+)'/);if(m&&m[1]!==VERSION){if(!G)location.reload();else verCheck.pending=true;}}).catch(()=>{});}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck();});setInterval(verCheck,300000);
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v69"></script>
-<script src="src/raid_engine.js?v=v69"></script>
-<script src="content/rigs.js?v=v69"></script>
-<script src="src/rig.js?v=v69"></script>
+<script src="content/skill_fx.js?v=v70"></script>
+<script src="src/raid_engine.js?v=v70"></script>
+<script src="content/rigs.js?v=v70"></script>
+<script src="src/rig.js?v=v70"></script>
 </body>
 </html>

@@ -57,6 +57,7 @@ vm.createContext(ctx);
 const html=readFileSync('game.html','utf8'),a=html.lastIndexOf('<script>'),b=html.indexOf('</script>',a);
 vm.runInContext(readFileSync('content/raids_data.js','utf8'),ctx,{filename:'raids_data.js'});
 vm.runInContext(readFileSync('content/boss_tune.js','utf8'),ctx,{filename:'boss_tune.js'});
+vm.runInContext(readFileSync('src/loop.js','utf8'),ctx,{filename:'loop.js'});
 vm.runInContext(html.slice(a+8,b),ctx,{filename:'game.js'});
 vm.runInContext(readFileSync('content/skill_fx.js','utf8'),ctx,{filename:'skill_fx.js'});
 vm.runInContext(readFileSync('src/raid_engine.js','utf8'),ctx,{filename:'raid_engine.js'});
@@ -78,11 +79,13 @@ var lvSim=(cls,L,T)=>{selCls=cls;selLevel=L;startGame();const dt=1/30;let t=0,bt
     else return{w:G.state==='win'?1:0,bossT:G.state==='win'&&bt0>=0?t-bt0:0,t,ri:G.ri,boss:G.rooms&&G.ri===G.rooms.length-1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode};
     if(G.state==='play'&&G.pickQ.length)openPick(G.pickQ.shift());t+=dt;}
   return{w:0,t,ri:G.ri,timeout:1,bhp:G.boss?Math.round(G.boss.hp/G.boss.max*100):-1,binv:G.boss&&G.boss.inv,bmode:G.boss&&G.boss.mode,ens:en.filter(e=>!e.dead).length};};
+// 像真人一样选卡：优先选已经拿得最多的流派（凑套装加成），其次品质高的
+var smartPick=()=>{let bi=0,bs=-1;G.offer.cards.forEach((h,i)=>{const sc=(G.tags[h.tag]||0)*10+h.tier;if(sc>bs){bs=sc;bi=i;}});return bi;};
 // 整章连打：从章首关开始一路打到章末（海克斯整章保留），返回是否通关、死在哪关、各首领用时
 var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);PROG.best={};selCls=cls;selLevel=L0;startGame();const dt=1/30;let t=0,bt0=-1,curL=L0,bts=[];
   while(t<9000){
     if(G.state==='play'){update(dt);if(bt0<0&&G.boss&&G.cfg&&G.cfg.type==='big')bt0=t;if(G.L!==curL){bts.push(bt0<0?0:t-bt0);bt0=-1;curL=G.L;}}
-    else if(G.state==='pick')choose((rand()*G.offer.cards.length)|0);
+    else if(G.state==='pick')choose(globalThis.SMART?smartPick():(rand()*G.offer.cards.length)|0);
     else if(G.state==='cutin'){G.cutT-=dt;if(G.cutT<=0){G.state='play';doUlt();}}
     else{if(G.state==='win')bts.push(bt0<0?0:t-bt0);return{w:G.state==='win'?1:0,L:G.L,k:G.L-L0,bts,t,room:G.ri,boss:!!(G.cfg&&G.cfg.type==='big'),bhp:G.boss&&G.boss.max?Math.round(G.boss.hp/G.boss.max*100):-1};}
     if(G.state==='play'&&G.pickQ.length)openPick(G.pickQ.shift());t+=dt;}
@@ -90,6 +93,7 @@ var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);PROG.best={};selCls=cls;se
 `,ctx);
 
 const args=process.argv.slice(2);
+if(args.includes('--smart'))ctx.SMART=true;
 if(args.includes('--run')){const ev0=e=>vm.runInContext(e,ctx),RA=ev0('RAIDS'),CL0=ev0('CLS_IDS'),ai=args.indexOf('--cls'),CL=ai>0?args[ai+1].split(','):CL0,ci=args.indexOf('--ch'),CH=ci>0?args[ci+1].split(',').map(Number):null,runSim=ev0('runSim'),setMeta0=ev0('setMeta');const runs=+(args[1]||2);const t0=Date.now();const cw={};
   const J=[];for(let ri=0;ri<RA.length;ri++){if(CH&&!CH.includes(ri))continue;setMeta0(ri);let w=0,n=0,bt=[],deaths={};const per=RA[ri].bosses.map(b=>({n:b.n,t:[],reach:0,die:0}));for(const c of CL)for(let i=0;i<runs;i++){let r;try{r=runSim(c,ri);}catch(e){console.error('ERR',c,ri,e.message);r={w:0,k:-1,bts:[]};}
       w+=r.w;n++;bt.push(...r.bts.filter(x=>x>0));r.bts.forEach((x,k)=>{if(per[k]&&x>0)per[k].t.push(x);});for(let k=0;k<=Math.min(r.k,per.length-1);k++)per[k].reach++;if(!r.w&&per[r.k]){per[r.k].die++;(per[r.k].where=per[r.k].where||[]).push(r.boss?'首领'+r.bhp+'%':'房'+r.room);}if(!r.w)deaths[r.k+1]=(deaths[r.k+1]||0)+1;(cw[c]=cw[c]||[0,0,[]]);cw[c][0]+=r.w;cw[c][1]++;cw[c][2].push(...r.bts.filter(x=>x>0));}

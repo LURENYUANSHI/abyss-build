@@ -11,5 +11,5 @@ for(let k=0;k<=rounds;k++){
   const avg=Object.values(cl).reduce((a,b)=>a+b,0)/Object.keys(cl).length;
   let s=fs.readFileSync('game.html','utf8');const m=s.match(/const TUNE=\{([^}]*)\};/);
   const T=Object.fromEntries([...m[1].matchAll(/(\w+):\[([\d.]+),([\d.]+),([\d.]+)\]/g)].map(x=>[x[1],[+x[2],+x[3],+x[4]]]));
-  for(const c in T){if(!(c in tm))continue;const dm=clamp(T[c][1]*Math.pow((tm[c]||TIME)/TIME,.6),.5,9),tk=clamp(T[c][2]*Math.exp(-1.2*(avg-cl[c])),.25,6);T[c]=[T[c][0],+dm.toFixed(3),+tk.toFixed(3)];}
+  for(const c in T){if(!(c in tm))continue;const dm=clamp(T[c][1]*Math.pow((tm[c]||TIME)/TIME,.6)*(['paladin','brawler'].includes(c)&&cl[c]>avg+.1?.9:1),.5,6),tk=clamp(T[c][2]*Math.exp(-1.2*(avg-cl[c])),.4,['paladin','brawler'].includes(c)?1:2);T[c]=[T[c][0],+dm.toFixed(3),+tk.toFixed(3)];}
   s=s.replace(m[0],'const TUNE={'+Object.entries(T).map(([c,v])=>`${c}:[${v[0]},${v[1]},${v[2]}]`).join(',')+'};');fs.writeFileSync('game.html',s);console.log('TUNE',JSON.stringify(T));}
