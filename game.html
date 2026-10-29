@@ -279,11 +279,11 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v68"></script>
-<script src="content/boss_tune.js?v=v68"></script>
+<script src="content/raids_data.js?v=v69"></script>
+<script src="content/boss_tune.js?v=v69"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v68';
+const W=195,H=347,VERSION='v69';
 const rand=Math.random,TAU=Math.PI*2;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -376,8 +376,9 @@ const CLS={
 };
 const CLS_IDS=Object.keys(CLS);
 // 职业平衡（随机选卡自动模拟校准）：[生命倍率, 伤害倍率]；远程靠风筝天然更安全，伤害相应压低
-const TUNE={sword:[3.267,1.235],mage:[4.005,2.123],brawler:[0.8,4.978],eng:[3.12,4.011],archer:[3.827,1.17],assassin:[5,1.976],ninja:[3.884,2.416],bard:[0.8,6.393],paladin:[0.8,9]};   // tools/sim.mjs --tune 校准
-for(const id in TUNE){CLS[id].hp=Math.round(CLS[id].hp*TUNE[id][0]);CLS[id].dmg*=TUNE[id][1]*(id==='assassin'?1:1.15);}   // 刺客以外的职业整体加强
+const TUNE={sword:[2.6,0.898,0.64],mage:[2.6,2.351,0.516],brawler:[2.6,5.117,3.168],eng:[2.6,3.978,0.747],archer:[2.6,1.088,0.729],assassin:[2.6,2.339,0.507],ninja:[2.6,2.186,0.879],bard:[2.6,7.529,2.375],paladin:[2.6,9,5.293]};   // tools/sim.mjs --tune 校准
+// TUNE=[血量倍率(各职业统一，坦克靠基础血量更厚), 伤害倍率, 受到伤害倍率(按职业生存能力平衡，玩家看不到)]
+for(const id in TUNE){CLS[id].hp=Math.round(CLS[id].hp*TUNE[id][0]);CLS[id].dmg*=TUNE[id][1]*(id==='assassin'?1:1.15);CLS[id].taken=TUNE[id][2]||1;}   // 刺客以外的职业整体加强
 // 外部美术：GPT 生成的合图放在 art/，缺失时回退到下面的程序像素图
 const ART={};
 function loadArt(name,fn,ext='png'){const im=new Image();im.onload=()=>{ART[name]=fn(im);};im.src='art/'+name+'.'+ext;}
@@ -888,7 +889,7 @@ const MINI=[
 ];
 const BIG_HP=5000,MINI_HP=3400,BOSS_DMG=1.35,LV_STEP=2.5;
 // 难度按章节查表 [首领/小怪血量, 敌人伤害]，章内越往后的首领再强最多 15%（tools/sim.mjs 校准：第 1 章胜率约 90%，往后每章约降 8~10%）
-const RC=[[0.483,0.564],[0.575,2.934],[0.632,2.404],[0.69,2.427],[0.747,4.078]];
+const RC=[[0.483,0.59],[0.575,2.869],[0.632,2.503],[0.69,2.096],[0.747,4.078]];
 // 一章 = 一局：玩家在章内会攒满海克斯越打越强，章内第 k 关的敌人血量按 (1+k)^1.4、伤害每关 +12% 同步变强（小怪和首领都适用）
 const RAMP=L=>{const k=LV[L].k;return{hp:Math.pow(1+k,1.4),dmg:1+.12*k};};
 const CURVE=L=>{const v=LV[L],r=RC[Math.min(v.ri,RC.length-1)],m=RAMP(L);return{hp:r[0]*m.hp,dmg:r[1]*m.dmg};};
@@ -1092,7 +1093,7 @@ function baseStats(c){const a=AT[c.atk];return{
   slow:0,slowBonus:1,frostNova:false,shatter:false,
   turretMax:2,turretMul:1,turretBoom:false,aftershock:false,rhythm:false,cloneMul:.7,epicSong:false,faith:0,heaven:false,
   extraHits:a.hits?a.hits-1:0,arcMul:1,whirl:false,killSword:false,waveEvery:3,waveMul:1,waveCount:1,judgeEvery:4,judgeMul:1,judgeR:1,judgeHeal:0,
-  basicMul:1,dmgTaken:1,missiles:false,spellblade:false,manaShield:false,windHeal:false,boltEvery:0,ignite:false,freezeEvery:0,warmup:false,heavyHit:false,soul:false,basics:false,mad:false,recast:false,orbital:false,
+  basicMul:1,dmgTaken:c.taken||1,missiles:false,spellblade:false,manaShield:false,windHeal:false,boltEvery:0,ignite:false,freezeEvery:0,warmup:false,heavyHit:false,soul:false,basics:false,mad:false,recast:false,orbital:false,
   tank:false,counter:false,giant:false,execDmg:false,rush:false,killCd:false,killHealPct:0,skillHeal:false,highHp:false,adren:false,ultCd:5,regen:0,turretRate:1,smoke:false,songCrit:0,songHeal:1,songAtk:.625,
   speed:c.spd,ultMul:1};}
 function reset(){
@@ -1339,7 +1340,8 @@ function dmg(e,d,o={}){if(!e.dead&&!e.inv)sfx('hit');if(window.dmgMulX&&!e.dead)
   if(st.execDmg&&e.hp<e.max*.5)d*=1.4;if(st.rush&&G.rushT>0)d*=1.4;if(st.highHp&&pl.hp>pl.maxHp*.8)d*=1.3;if(G.mad===1)d*=1.4;
   e.hp-=d;if(e.unk&&e.unk.b&&!e.unk.b.dead)e.hp=Math.max(1,e.hp);e.flash=.08;if(d>e.max*.08&&G.t-(e.hurtAt||-9)>1.2)e.hurtAt=G.t;G.dmgAcc+=d;G.roomDmg+=d;num(e.x,e.y-6,Math.round(d),crit?'#ffd34a':o.col||'#fff',crit);
   if(o.poison)e.poison=Math.min(st.poisonCap,e.poison+o.poison);
-  if(o.src==='atk'&&st.vamp)pl.hp=Math.min(pl.maxHp,pl.hp+d*st.vamp);
+  // 吸血有上限：每秒最多回 3% 最大生命（吸血按伤害算，伤害一高回血就失控，坦克只能靠“多受伤害”去平衡）
+  if(o.src==='atk'&&st.vamp){const h=Math.min(d*st.vamp,G.vampB||0);G.vampB=(G.vampB||0)-h;pl.hp=Math.min(pl.maxHp,pl.hp+h);}
   if(crit&&st.critSplash&&!o.splash)for(const x of en)if(x!==e&&!x.dead&&Math.hypot(x.x-e.x,x.y-e.y)<14)dmg(x,d*.5/G.pm,{nocrit:true,splash:true,col:'#ffd34a'});
   if(st.execute&&o.src==='atk'&&!e.boss&&e.hp>0&&e.hp<e.max*st.execute){e.hp=0;num(e.x,e.y-12,'斩','#ff6a6a',true);}
   if(e.hp<=0)kill(e);
@@ -1623,6 +1625,7 @@ function update(dt){
   if((G.frzT-=dt)<=0)G.frz=0;
   if(G.songT>0){G.songT-=dt;if(st.epicSong)pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.02*st.songHeal*dt);}
   if(st.regen)pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*st.regen*dt);
+  G.vampB=Math.min(pl.maxHp*.06,(G.vampB||0)+pl.maxHp*.03*dt);
   // DPS 统计（最近 3 秒）
   if((G.dpsT-=dt)<=0){G.dpsT=.5;G.dpsHist.push(G.dmgAcc);G.dmgAcc=0;if(G.dpsHist.length>6)G.dpsHist.shift();G.dps=G.dpsHist.reduce((a,b)=>a+b,0)/(G.dpsHist.length*.5);}
 
@@ -2371,9 +2374,9 @@ addEventListener('pointerdown',()=>auInit(),{once:true});
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v68"></script>
-<script src="src/raid_engine.js?v=v68"></script>
-<script src="content/rigs.js?v=v68"></script>
-<script src="src/rig.js?v=v68"></script>
+<script src="content/skill_fx.js?v=v69"></script>
+<script src="src/raid_engine.js?v=v69"></script>
+<script src="content/rigs.js?v=v69"></script>
+<script src="src/rig.js?v=v69"></script>
 </body>
 </html>
