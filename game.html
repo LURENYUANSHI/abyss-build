@@ -176,7 +176,7 @@
   #acct .axp{flex:1;min-width:0;font-size:12px;white-space:nowrap}#acct .axp i{display:block;height:5px;background:#2a2244;margin-top:4px}#acct .axp b{display:block;height:100%;background:linear-gradient(90deg,#8a55ff,#e8b33a)}
   #acct .pw{font-size:11px;color:#ffd77a;text-align:right}
   #hubView{position:absolute;left:0;right:0;top:54px;bottom:52px;overflow-y:auto;padding:10px 12px 14px;box-sizing:border-box;color:#d8d4f0;font-size:12px}
-  .hero{position:relative;height:300px}.hero canvas.art{position:absolute;left:50%;top:0;width:260px;height:260px;margin-left:-130px;filter:drop-shadow(0 0 12px rgba(140,90,255,.6))}
+  .hero{position:relative;height:370px}.hero canvas.art{position:absolute;left:50%;top:-6px;width:248px;height:372px;margin-left:-124px}
   .hero .slot{position:absolute;width:46px;height:46px;border:2px solid #3a3260;background:rgba(14,12,30,.85);border-radius:6px;display:grid;place-items:center;cursor:pointer}
   .hero .slot canvas,.bag canvas{width:36px;height:36px;image-rendering:pixelated}.slot small{position:absolute;bottom:-14px;font-size:9px;color:#8a84b0;white-space:nowrap}
   .hname{text-align:center;font-size:18px;font-weight:900;letter-spacing:4px;color:#fff;margin-top:6px}
@@ -281,12 +281,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v73"></script>
-<script src="content/boss_tune.js?v=v73"></script>
-<script src="src/loop.js?v=v73"></script>
+<script src="content/raids_data.js?v=v75"></script>
+<script src="content/boss_tune.js?v=v75"></script>
+<script src="src/loop.js?v=v75"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v73';
+const W=195,H=347,VERSION='v75';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -423,6 +423,48 @@ for(const id of CLS_IDS)loadArt('combo_'+id,im=>{CLS[id]._combo=strip(im,8);norm
 for(const id of CLS_IDS)loadArt('anim_'+id,im=>{CLS[id]._anim=strip(im,8);normAnim(id);return 1;});
 for(const id of CLS_IDS)loadArt('dir_'+id,im=>{CLS[id]._dir=strip(im,16);normAnim(id);return 1;});   // 帧序：正面走路 4、背面走路 4、正面攻击 4、背面攻击 4
 for(const id of CLS_IDS)loadArt('walk_'+id,im=>{CLS[id]._walk=strip(im,18);applyWalk(id);return 1;});   // 6 帧走路：正面 / 背面 / 侧面各一行
+// 外观分档：身上 5 件装备的平均品质 → 0 初始 / 1 精良 / 2 史诗 / 3 传说，换整套动作图（只加载当前职业的当前档）
+const TIER_N=['初始','精良','史诗','传说'],TIER_AT={};let tierWant='';
+function gearTier(){let s=0;for(const[k]of SLOTS){const it=PROG.inv.find(i=>i.id===PROG.eq[k]);s+=it?it.rar:0;}const a=s/SLOTS.length;return a>=3.6?3:a>=3?2:a>=2?1:0;}
+function slotRar(k){const it=PROG.inv.find(i=>i.id===PROG.eq[k]);return it?it.rar:0;}
+function wpnRar(){return slotRar('wpn');}
+function heroTier(id,t){const C=CLS[id];tierWant=id+t;
+  // 原始帧对齐完会被释放（省内存），所以缓存的是处理好的 art / combo / _ref
+  const done=()=>C.art&&C._anim===null&&C._walk===null,snap=()=>({art:C.art,combo:C.combo,_ref:C._ref});
+  if(!C._base){if(!done()){setTimeout(()=>tierWant===id+t&&heroTier(id,t),300);return;}C._base=snap();C._tier=0;}
+  if(C._tier===t)return;
+  const set=o=>{Object.assign(C,o);C._tier=t;};
+  if(!t)return set(C._base);
+  if(TIER_AT[id+t])return set(TIER_AT[id+t]);
+  const o={};let n=0;
+  for(const[p,k,f]of[['anim',8,'_anim'],['dir',16,'_dir'],['combo',8,'_combo'],['walk',18,'_walk']]){const im=new Image();
+    im.onload=()=>{o[f]=strip(im,k);if(++n<4)return;if(tierWant!==id+t)return;
+      const keep=snap();Object.assign(C,o);normAnim(id);applyWalk(id);TIER_AT[id+t]=snap();
+      if(!(C.art&&C.art.down&&C.art.up)){Object.assign(C,keep);return;}C._tier=t;};
+    im.src=`art/${p}_${id}_t${t}.png?v=${VERSION}`;}}
+// 人物页：高清立绘（按外观档，art/hero_<职业>_t<档>.webp），整张图做平滑形变——呼吸、上身和衣摆随风轻摆、脚底不动；
+// 不切帧，所以不会抽。点一下有个小幅弹动；背后按武器品质发光、冒光点
+let heroRaf=0;const POR={};
+function porImg(id,t){const k=id+t;if(!POR[k]){const im=new Image();im.src=`art/hero_${id}_t${t}.webp?v=${VERSION}`;POR[k]=im;}return POR[k];}
+function heroAnim(){const cv=$('heroArt');if(!cv)return;for(const k of['head','chest','legs']){const r=slotRar(k);porImg(selCls,r>=4?3:r>=3?2:r>=2?1:0);}const DW=320,DH=480;cv.width=DW;cv.height=DH;const g=cv.getContext('2d');
+  const S={t:0,kick:0,parts:[]};cv.onclick=()=>{S.kick=1;};cancelAnimationFrame(heroRaf);let last=performance.now();
+  const loop=now=>{if(!document.body.contains(cv))return;const dt=Math.min(.05,(now-last)/1000);last=now;S.t+=dt;S.kick=Math.max(0,S.kick-dt*1.6);
+    const wr=wpnRar(),col=wr?RAR[wr][1]:'#8a6cff',ok=i=>i.complete&&i.naturalWidth,base=porImg(selCls,0),im=ok(base)?base:null;
+    // 分部位：头部 / 上身 / 腿部各取对应部位装备那一档的立绘（4 档同姿势同构图），交界处 5% 柔和过渡；没加载好的档先用初始档
+    const pt=k=>{const r=slotRar(k),t=r>=4?3:r>=3?2:r>=2?1:0,i=porImg(selCls,t);return ok(i)?i:base;},P=[pt('head'),pt('chest'),pt('legs')],cut=[.26,.58];
+    g.clearRect(0,0,DW,DH);
+    const gr=g.createRadialGradient(DW/2,DH*.55,10,DW/2,DH*.55,DW*.62);gr.addColorStop(0,col+(wr>=3?'88':'55'));gr.addColorStop(1,col+'00');
+    g.globalAlpha=.85+.15*Math.sin(S.t*1.7)+.3*S.kick;g.fillStyle=gr;g.fillRect(0,0,DW,DH);g.globalAlpha=1;
+    if(im){const iw=im.naturalWidth,ih=im.naturalHeight,sc=Math.min(DH/ih,DW/iw),w=iw*sc,x0=(DW-w)/2,N=64,br=1+.012*Math.sin(S.t*2.2)+.025*S.kick*Math.sin(S.t*18);
+      for(let i=0;i<N;i++){const v=i/N,sy=ih*v,sh=ih/N,up=Math.pow(1-v,1.7);   // v：0 头顶 → 1 脚底；越往上摆得越多
+        const dx=(Math.sin(S.t*1.3+v*2.6)*4.5+Math.sin(S.t*3.1+v*6)*1.2)*up,yt=DH-(DH-sy*sc)*br,yb=DH-(DH-(sy+sh)*sc)*br;
+        const b=v<cut[0]?0:v<cut[1]?1:2,e=b<2?cut[b]-v:9,f=b>0?v-cut[b-1]:9;   // 离上下边界的距离
+        const nb=e<.05?b+1:f<.05?b-1:b,mix=nb===b?0:.5-.5*Math.min(e,f)/.05;
+        g.drawImage(P[b],0,sy,iw,sh+.6,x0+dx,yt,w,yb-yt+.6);if(mix>0&&P[nb]!==P[b]){g.globalAlpha=mix;g.drawImage(P[nb],0,sy,iw,sh+.6,x0+dx,yt,w,yb-yt+.6);g.globalAlpha=1;}}}
+    if(wr>=2&&Math.random()<dt*wr*6)S.parts.push({x:DW*.2+Math.random()*DW*.6,y:DH*.92,v:30+Math.random()*40,l:2});
+    g.fillStyle=col;for(const p of S.parts){p.y-=p.v*dt;p.x+=Math.sin(S.t*3+p.y*.05)*.3;p.l-=dt;g.globalAlpha=Math.max(0,p.l/2);g.beginPath();g.arc(p.x,p.y,2,0,TAU);g.fill();}
+    g.globalAlpha=1;S.parts=S.parts.filter(p=>p.l>0);
+    heroRaf=requestAnimationFrame(loop);};heroRaf=requestAnimationFrame(loop);}
 // GPT 各帧里角色位置/大小有漂移：按深色描边像素测出角色的高度、脚底、重心，
 // 走路帧逐帧对齐，攻击 / 连击按整行对齐到走路帧的尺寸与基线，避免切换动作时人物跳动
 function darkBox(cv){const w=cv.width,h=cv.height,d=cv.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h).data;let t=h,b=-1,sx=0,n=0;   // 返回 h 高度、b 脚底、t 头顶、cx 重心
@@ -450,7 +492,7 @@ loadArt('gear',im=>strip(im,16));
 loadArt('anime',im=>{const f=strip(im,9);setTimeout(()=>{if($('hub').classList.contains('on')&&HUB.v==='hero')renderHub('hero');});return f;});
 const fitBg=im=>{const c=document.createElement('canvas');c.width=585;c.height=1041;const x=c.getContext('2d');x.imageSmoothingQuality='high';
   const k=Math.max(c.width/im.width,c.height/im.height);x.drawImage(im,(c.width-im.width*k)/2,(c.height-im.height*k)/2,im.width*k,im.height*k);return c;};   // 预缩放到菜单画布（3×）
-loadArt('bg_home',fitBg,'jpg');loadArt('bg_map',fitBg,'jpg');
+loadArt('bg_home',fitBg,'jpg');for(const v of['hero','raid','bag','tal','codex','party','set'])loadArt('bg_'+v,fitBg,'jpg');loadArt('bg_map',fitBg,'jpg');
 loadArt('elites',im=>strip(im,12));
 loadArt('bosses',im=>strip(im,12));loadArt('forms',im=>strip(im,8));loadArt('props',im=>strip(im,8));
 loadArt('bossesAtk',im=>strip(im,12));loadArt('mobsAtk',im=>strip(im,16));loadArt('elitesAtk',im=>strip(im,12));loadArt('mobs2',im=>strip(im,16));
@@ -1836,6 +1878,7 @@ function drawEntities(c){
   items.sort((a,b)=>a[0]-b[0]);
   for(const[,it]of items){
     if(it===pl){const hi=C.img[0],hx=Math.round(pl.x-hi.width/2),hy=Math.round(pl.y-hi.height/2-2),f=pl.moving?((G.t*8)|0)%2:0;
+      if(G.wr===undefined)G.wr=wpnRar();if(G.wr>=3){c.save();c.globalAlpha=.3+.12*Math.sin(G.t*4);c.fillStyle=RAR[G.wr][1];c.beginPath();c.ellipse(hx+hi.width/2,hy+hi.height-1,9,3.2,0,0,TAU);c.fill();c.restore();}
       shadowE(c,hx+hi.width/2,hy+hi.height-1,(hi.width-6)/2,1.6,.4);
       const zs=(st.giant?1.4:1)*(G.mad===1?1.3:G.mad===2?.75:1),zw=Math.round(hi.width*zs),zh=Math.round(hi.height*zs);
       {if(pl.inv>0)c.globalAlpha=.65;const rigd=window.drawRig&&drawRig(c,pl,rp(pl.x),rp(pl.y+hi.height/2-2),Math.round(zh*1.3),pl.face<0);const A=!rigd&&C.art,V=A&&pl.dir!=='side'&&A[pl.dir],fr=A&&(V?(G.atkFx>0?V.atk:pl.moving?V.walk:[V.walk[0]]):G.atkFx>0?(G.cmb&&A.anim&&C.combo?C.combo[G.cmb-1]:A.atk):pl.moving?A.walk:A.idle);if(fr){const ak=A.anim?1/.72:1,bw=Math.round(zw*1.45*ak),bh=Math.round(zh*1.3*ak),bob=A.anim?0:pl.moving?-Math.abs(Math.sin(G.t*14))*1.6:0,br=0,lean=A.anim?0:G.atkFx>0?pl.face*1.5:0;
@@ -2062,7 +2105,7 @@ function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;
   else if(G&&G.state==='cutin'&&(G.cutT-=dt)<=0){$('cutin').classList.remove('on');G.state='play';doUlt();}
   if(G){render();hud();}
   const scr=G?null:SCREENS.find(k=>$(k).classList.contains('on'));mc.style.display=scr?'block':'none';
-  if(scr){mx.setTransform(MS,0,0,MS,0,0);(scr==='home'?drawHome:drawMap)(mx,now/1000);}
+  if(scr){mx.setTransform(MS,0,0,MS,0,0);const hb=scr==='hub'&&ART['bg_'+HUB.v];if(hb)drawHubBg(mx,now/1000,hb);else(scr==='home'?drawHome:drawMap)(mx,now/1000);}
   requestAnimationFrame(frame);}
 
 // ---------- 海克斯三选一：每轮同一品质；已有流派、本职业专属更容易出 ----------
@@ -2218,6 +2261,10 @@ function mapOverlay(c,t,R){
   for(let n=0;n<N.length-1;n++){const[a,b]=[N[n],N[n+1]],d=Math.hypot(b[0]-a[0],b[1]-a[1]);
     for(let s2=0;s2<d;s2+=3){const k=s2/d;R(f+n+1<=PROG.un?'#e8d8a0':'#6a6070',a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,1,1);}}
 }
+// 大厅各页面（人物 / 副本 / 背包 / 天赋 / 图鉴 / 组队 / 设置）各自的背景，加一点上飘的火星
+function drawHubBg(c,t,im){c.drawImage(im,0,0,W,H);if(!FX.spark)return;c.globalCompositeOperation='lighter';
+  for(let i=0;i<12;i++){const ex=hsh(i+40)*W,ey=H-((t*12+hsh(i)*300)%300),z=2+hsh(i+9)*3;c.globalAlpha=.5;c.drawImage(FX.spark,ex-z/2,ey-z/2,z,z);}
+  c.globalAlpha=1;c.globalCompositeOperation='source-over';}
 function drawHome(c,t){
   const R=(col,x,y,w,h)=>{c.fillStyle=col;c.fillRect(x|0,y|0,w,h);};
   if(ART.bg_home){c.drawImage(ART.bg_home,0,0,W,H);c.globalCompositeOperation='lighter';
@@ -2283,19 +2330,20 @@ const WPN_ICON={sword:0,mage:1,brawler:2,eng:3,archer:4,assassin:5,ninja:6,bard:
 function itemIcon(it,size=36){const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');const g=ART.gear;
   if(g){x.drawImage(g[it?it.slot==='wpn'?WPN_ICON[selCls]:SLOT_ICON[it.slot]:13],0,0,size,size);}else{x.fillStyle='#3a3260';x.fillRect(4,4,size-8,size-8);}return c;}
 function statLine(st){return Object.entries(st).map(([k,v])=>`${ST_N[k][0]} ${k==='cdr'?'-':'+'}${(v*100).toFixed(1)}%`).join('　');}
-function renderHub(v){HUB.v=v;const A=PROG.acc,C=CLS[selCls];
+function renderHub(v){HUB.v=v;heroTier(selCls,gearTier());const A=PROG.acc,C=CLS[selCls];
   $('acct').innerHTML=`<div class="lv">${A.lv}</div><div class="axp">账号等级 Lv.${A.lv}　<span style="color:#9a94c0">${A.xp}/${accNeed(A.lv)}</span><i><b style="width:${Math.min(100,A.xp/accNeed(A.lv)*100)}%"></b></i></div><div class="pw">战力<br><b style="font-size:15px">${power()}</b></div>`;
   const V=$('hubView');
   if(v==='hero'){const{t,sets}=gearStats();
     V.innerHTML=`<div class="hero"><canvas class="art" id="heroArt"></canvas>${SLOTS.map(([k,n],i)=>{const pos=[[8,30],[8,110],[8,190],['r8',30],['r8',110]][i];return `<div class="slot" data-slot="${k}" style="${typeof pos[0]==='string'?'right:8px':'left:'+pos[0]+'px'};top:${pos[1]}px;border-color:${(PROG.inv.find(x=>x.id===PROG.eq[k])||{}).rar?RAR[PROG.inv.find(x=>x.id===PROG.eq[k]).rar][1]:'#3a3260'}"><small>${n}</small></div>`;}).join('')}</div>
       <div class="hname">${C.n}<span style="font-size:11px;color:#9a94c0;letter-spacing:1px">　${ROLE_N[C.role]}</span></div>
+      <p style="text-align:center;font-size:11px;margin:0;color:${gearTier()?RAR[gearTier()+1][1]:'#9a94c0'}">外观：${TIER_N[gearTier()]}${gearTier()<3?`<span style="color:#9a94c0">（全身平均品质到「${RAR[gearTier()+2][0]}」换下一套）</span>`:''}</p>
       <p style="text-align:center;color:#ffd77a;font-size:11px;margin:2px 0">${mastTxt((PROG.mast||{})[selCls]||0)}　·　尘 ${PROG.dust||0}　徽记 ${PROG.marks||0}</p>
       <div class="classes" id="classes" style="margin-top:8px"></div>
       <div class="stats"><div>生命<em>${Math.round(C.hp*(1+t.hp+(A.lv-1)*.008))}</em></div><div>攻击<em>+${Math.round((t.atk+(A.lv-1)*.008)*100)}%</em></div><div>暴击<em>+${Math.round(t.crit*100)}%</em></div><div>技能伤害<em>+${Math.round(t.skill*100)}%</em></div><div>移速<em>+${Math.round(t.spd*100)}%</em></div><div>技能冷却<em>-${Math.round(Math.min(.4,t.cdr)*100)}%</em></div></div>
       <div class="sets">${GSET.map((S,k)=>sets[k]?`<b>${S.n}套装 ${sets[k]}/4</b><br><span class="${sets[k]>=2?'':'off'}">(2) ${S.b2[0]}</span><br><span class="${sets[k]>=4?'':'off'}">(4) ${S.b4[0]}</span>`:'').filter(Boolean).join('<br>')||'<span class="off">穿戴同一副本的史诗 / 传说装备可激活套装（最多 4 件）</span>'}</div>
       <button class="bigbtn" id="toRaid">进入副本</button>`;
     renderClasses();SLOTS.forEach(([k])=>{const it=PROG.inv.find(x=>x.id===PROG.eq[k]),el=V.querySelector(`[data-slot="${k}"]`);if(it)el.prepend(itemIcon(it));});
-    const cv=$('heroArt'),an=ART.anime&&ART.anime[CLS_IDS.indexOf(selCls)];if(an){cv.width=cv.height=an.width;cv.getContext('2d').drawImage(an,0,0);cv.style.imageRendering='auto';}}
+    heroAnim();}
   else if(v==='bag'){const items=PROG.inv.slice().sort((a,b)=>b.rar-a.rar||b.il-a.il),eqIds=Object.values(PROG.eq);
     V.innerHTML=`<div style="margin-bottom:8px">背包 ${PROG.inv.length}/60　<span style="color:#c8c0ff">尘 ${PROG.dust||0}　徽记 ${PROG.marks||0}</span><button class="b ghost sm" id="bestEq" style="float:right">一键穿推荐</button><br><span style="color:#9a94c0;font-size:11px">↑ 表示比身上的更好；尘用来强化 / 重铸，分解装备获得</span></div><div class="bag">${items.map(it=>`<div class="it${eqIds.includes(it.id)?' eq':''}" data-id="${it.id}" style="border-color:${RAR[it.rar][1]}">${!eqIds.includes(it.id)&&isUpgrade(it)?'<i style="position:absolute;right:1px;top:-2px;color:#7dff8a;font-style:normal;font-weight:900">↑</i>':''}${it.up?`<i style="position:absolute;left:1px;bottom:-2px;color:#ffd77a;font-style:normal;font-size:9px">+${it.up}</i>`:''}</div>`).join('')||'<span style="grid-column:1/-1;color:#6a6490">还没有装备，去副本里打首领吧</span>'}</div><div id="itip"></div>`;
     V.querySelectorAll('.it').forEach(el=>el.append(itemIcon(PROG.inv.find(x=>x.id===+el.dataset.id))));if(HUB.sel)showItem(HUB.sel);}
@@ -2378,7 +2426,9 @@ function setIcons(){const i=CLS_IDS.indexOf(selCls);if(i<0)return;
 function startGame(){for(const k of SCREENS)$(k).classList.remove('on');$('nav').classList.remove('on');reset();$('hexN').textContent=G.owned.size;$('hexV').classList.remove('on');
   const C=CLS[selCls],a=$('ava'),ac=a.getContext('2d');if(C.port){a.width=a.height=64;ac.clearRect(0,0,64,64);ac.drawImage(C.port,0,0,64,64);}else{a.width=16;a.height=14;ac.clearRect(0,0,16,14);ac.drawImage(C.img[0],0,0);}
   const p=$('por'),pc=p.getContext('2d'),an=ART.anime&&ART.anime[CLS_IDS.indexOf(selCls)];p.style.imageRendering=an?'auto':'';   // 大招特写：动漫立绘（非像素）
-  if(an){p.width=p.height=an.width;pc.clearRect(0,0,p.width,p.height);pc.drawImage(an,0,0);}else if(C.port){p.width=p.height=64;pc.drawImage(C.port,0,0,64,64);}else{p.width=18;p.height=18;pc.clearRect(0,0,18,18);pc.drawImage(C.bust,2,1);}
+  const pi=[porImg(selCls,gearTier()),porImg(selCls,0)].find(i=>i.complete&&i.naturalWidth);   // 有高清立绘就取上半身（头到腰）
+  if(pi){p.width=p.height=320;p.style.imageRendering='auto';pc.clearRect(0,0,320,320);pc.drawImage(pi,0,0,pi.naturalWidth,pi.naturalWidth,0,0,320,320);}
+  else if(an){p.width=p.height=an.width;pc.clearRect(0,0,p.width,p.height);pc.drawImage(an,0,0);}else if(C.port){p.width=p.height=64;pc.drawImage(C.port,0,0,64,64);}else{p.width=18;p.height=18;pc.clearRect(0,0,18,18);pc.drawImage(C.bust,2,1);}
   $('cutSub').textContent=`${C.n} · 终极技能`;$('cutName').textContent=C.ult;$('skTx').textContent=C.sk.slice(0,2);setIcons();
   auInit();music('normal');}
 $('go').onclick=()=>enterLevel();
@@ -2422,9 +2472,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v73"></script>
-<script src="src/raid_engine.js?v=v73"></script>
-<script src="content/rigs.js?v=v73"></script>
-<script src="src/rig.js?v=v73"></script>
+<script src="content/skill_fx.js?v=v75"></script>
+<script src="src/raid_engine.js?v=v75"></script>
+<script src="content/rigs.js?v=v75"></script>
+<script src="src/rig.js?v=v75"></script>
 </body>
 </html>
