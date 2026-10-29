@@ -35,7 +35,8 @@ if __name__ == '__main__':
     cmd = sys.argv[1]
     os.makedirs(REF, exist_ok=True); os.makedirs(RAW, exist_ok=True)
     if cmd == 'refs':
-        for i, c in enumerate(CLS):
+        # anime.png 按游戏里 CLS 的定义顺序排，和 CLS 元组顺序不同
+        for i, c in enumerate(('sword', 'mage', 'brawler', 'eng', 'archer', 'assassin', 'ninja', 'bard', 'paladin')):
             run(f'{BIN}/gridref', os.path.join(ART, 'anime.png'), os.path.join(REF, c + '.png'), i, 1, 1, 2)
     elif cmd in ('jobs0', 'jobs1'):
         J = jobs([0] if cmd == 'jobs0' else [1, 2, 3])
