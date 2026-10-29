@@ -42,7 +42,7 @@ def gen(prompt, size, urls=None):
 def one(j, out, size, art, proc):
     # j: [name, kind, cols, rows, used, per, prompt, 参考图相对路径(可选)]（与 ChatGPT 页面任务同格式）
     name, prompt = j[0], j[6]
-    urls = [SITE + j[7]] if len(j) > 7 else None
+    urls = [SITE + u for u in (j[7] if isinstance(j[7], list) else [j[7]])] if len(j) > 7 else None   # 可以给多张参考图
     dst = os.path.join(out, name + '.png')
     for att in range(3):
         try:
