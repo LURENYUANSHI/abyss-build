@@ -94,7 +94,10 @@ var endlessSim=(cls,metaRi)=>{setMeta(metaRi);giveExw(cls);PROG.best={};selCls=c
     if(G.state==='play'&&G.pickQ.length)openPick(G.pickQ.shift());t+=dt;}
   return{floor:G.endless.floor,loop:G.endless.loop,t,timeout:1};};
 var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);giveExw(cls);PROG.best={};selCls=cls;selLevel=L0;startGame();const dt=1/30;let t=0,bt0=-1,curL=L0,bts=[];
+  let lastHit=0,hsum=-1,stuckN=0;
   while(t<9000){
+    // 卡位检测：战斗中有活敌人，却 15 秒没有任何一方掉血（主角或怪被卡在墙角 / 够不着）
+    if(G.state==='play'&&G.phase==='fight'){const alive=en.filter(e=>!e.dead&&!e.prop),hs=alive.reduce((a,e)=>a+e.hp,0)+pl.hp;if(!alive.length||hs!==hsum){hsum=hs;lastHit=t;}else if(t-lastHit>15){stuckN++;(globalThis.STUCK=globalThis.STUCK||[]).push({cls,L:G.L,room:G.ri,boss:!!G.boss,px:Math.round(pl.x),py:Math.round(pl.y),ens:alive.slice(0,3).map(e=>(e.name||e.k)+'@'+Math.round(e.x)+','+Math.round(e.y)+(e.inv?'(无敌)':'')+(e.hidden?'(隐身)':''))});lastHit=t;}}
     if(G.state==='play'){update(dt);if(bt0<0&&G.boss&&G.cfg&&G.cfg.type==='big')bt0=t;if(G.L!==curL){bts.push(bt0<0?0:t-bt0);bt0=-1;curL=G.L;}}
     else if(G.state==='pick')choose(globalThis.SMART?smartPick():(rand()*G.offer.cards.length)|0);
     else if(G.state==='cutin'){G.cutT-=dt;if(G.cutT<=0){G.state='play';doUlt();}}
@@ -105,6 +108,7 @@ var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);giveExw(cls);PROG.best={};
 
 const args=process.argv.slice(2);
 if(args.includes('--smart'))ctx.SMART=true;
+process.on('exit',()=>{const S=ctx.STUCK||[];if(args.includes('--stuck')){console.log(`卡位 ${S.length} 次`);for(const x of S.slice(0,15))console.log(JSON.stringify(x));}});
 if(args.includes('--exw')){ctx.EXW_ON=true;const si=args.indexOf('--star');if(si>0)ctx.EXW_STAR=+args[si+1];}
 if(args.includes('--endless')){const ev0=e=>vm.runInContext(e,ctx),CL0=ev0('CLS_IDS'),ai=args.indexOf('--cls'),CL=ai>0?args[ai+1].split(','):CL0,mi=args.indexOf('--meta'),meta=mi>0?+args[mi+1]:2,runs=+(args[args.indexOf('--endless')+1]||2),es=ev0('endlessSim'),all=[];
   for(const c of CL){const f=[];for(let i=0;i<runs;i++){let r;try{r=es(c,meta);}catch(e){console.error('ERR',c,e.message);r={floor:-1};}f.push(r.floor);all.push(r.floor);}f.sort((a,b)=>a-b);console.log(`无尽 ${c}: 层数 ${f.join(',')}  中位 ${f[f.length>>1]}`);}

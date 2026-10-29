@@ -461,7 +461,9 @@ const ENG={
   },
   stacks(b,p){addStack(p.kind||'vuln',p.max||5,p.decay||8);return .6;},
   playerBomb(b,p){G.bomb={t:p.t||8,r:p.r||40,dmg:(p.dmg||1)*b.skd,per:p.perEnemy??.5,after:p.after};toast('你成为了炸弹！远离其他敌人');return .8;},
-  castBar(b,p,f){const th=p.then||{e:'tel',t:'circle',at:'boss',r:80,T:.4,dmg:1.6};castOn(b,{n:p.say||'读条',T:(p.T||2)*f,need:p.need||0,then:()=>runSkill(b,th)});if(th.at==='boss'&&th.r&&th.dmg)b.cast.flee=th.r;return (p.T||2)*f+.2;},
+  // 自爆（迦顿大灾变）：爆炸结算后首领死亡，否则无敌阶段永远不结束
+  castBar(b,p,f){const th=p.then||{e:'tel',t:'circle',at:'boss',r:80,T:.4,dmg:1.6};castOn(b,{n:p.say||'读条',T:(p.T||2)*f,need:p.need||0,then:()=>{runSkill(b,th);
+    if(p.selfDestruct)G.sched.push({t:(th.T||.6)+.1,fn:()=>{if(b.dead)return;b.inv=false;b.hp=0;kill(b);}});}});if(th.at==='boss'&&th.r&&th.dmg)b.cast.flee=th.r;return (p.T||2)*f+.2;},
   frenzy(b,p){b.frenzyT=p.perm?1e9:(p.t||8);b.frenzySpd=p.spd||1.5;toast(`${b.name} 狂乱！`);return .5;},
   followAura(b,p,f){b.aura={r:p.r||40,t:(p.t||6),dmg:(p.dmg||.35)*b.skd,tick:p.tick||.5,k:0,warm:.8*f,spd:p.spd??.6};return .8*f;},
   teleportPlayer(b,p){const s=spot(b,p.to==='boss'?'boss':p.to==='random'?'random':'corner',p);fxs('portal',pl.x,pl.y,22,.4);pl.x=s.x;pl.y=s.y+(p.to==='boss'?14:0);clampRoom(pl,4);if(p.root)pl.frozenT=Math.max(pl.frozenT,p.root);
@@ -776,7 +778,6 @@ window.raidTick=dt=>{
   if(G.felRage&&(G.felRage.t-=dt)<=0)G.felRage=null;
   if(G.realm&&(G.realm.t-=dt)<=0)G.realm=null;
   if(G.vamp){G.vamp.t-=dt;if(G.vamp.t<=0){if((G.vampKills||0)<2&&G.boss)ENG.mindControl(G.boss,{t:3});G.vamp=null;}}
-  if(G.cutter){const C=G.cutter,r=R(),c={x:r.cx,y:r.y+r.h/2};for(const d of[0,Math.PI])drawBeam(g,c.x,c.y,C.a+d,rayLen(c.x,c.y,C.a+d,r),C.w*.9,'#c06aff',.95,G.t+d);}
   if(G.absorb){const A=G.absorb;A.t-=dt;A.got=A.hp0-A.b.hp;if(A.got>=A.need){toast('吸收盾已打破！');G.absorb=null;}else if(A.t<=0){runSkill(A.b,A.fail||{e:'tel',t:'circle',at:'player',r:60,T:.6,dmg:2});G.absorb=null;}}
   if(B&&B.chess&&!en.some(e=>e.chess&&!e.dead)){}
   for(const e of en){if(e.dead||!e.boss)continue;
@@ -835,7 +836,7 @@ window.raidDraw=g=>{
     g.restore();}
   if(G.beams3)for(const c of G.beams3.cols){const a=Math.atan2(G.beams3.b.y-c.y,G.beams3.b.x-c.x),l=Math.hypot(G.beams3.b.x-c.x,G.beams3.b.y-c.y);drawBeam(g,c.x,c.y,a,l,5,c.c,.9,G.t+c.x);fxAt(g,RF('black_2',11),c.x,c.y,22);}
   if(G.orbs)for(const o of G.orbs){if(fxAt(g,RF('black_2',9),o.x,o.y,o.r*1.4,.9))continue;if(PJ.orb)g.drawImage(PJ.orb,o.x-o.r*.6,o.y-o.r*.6,o.r*1.2,o.r*1.2);}
-  if(G.cutter){const C=G.cutter,r=R(),c={x:r.cx,y:r.y+r.h/2};g.save();g.translate(c.x,c.y);g.rotate(C.a);const ct=RF('black_3',3)||FX.beam;if(ct)g.drawImage(ct,-300,-C.w*1.5,600,C.w*3);g.restore();}
+  if(G.cutter){const C=G.cutter,r=R(),c={x:r.cx,y:r.y+r.h/2};for(const d of[0,Math.PI])drawBeam(g,c.x,c.y,C.a+d,rayLen(c.x,c.y,C.a+d,r),C.w*.9,'#c06aff',.95,G.t+d);}   // 程序光束（原来在更新阶段画、被清屏冲掉，只剩一张方形特效被拉成 600 宽的方框）
   for(const e of en)if(e.cannons&&!e.dead)for(const c of e.cannons){if(IT.turret)g.drawImage(IT.turret,c.x-9,c.y-12,18,18);g.strokeStyle='rgba(255,215,90,.6)';g.beginPath();g.arc(c.x,c.y,12,0,TAU);g.stroke();}
   if(G.absorb){g.font='bold 7px sans-serif';g.fillStyle='#ffb84a';g.fillText(`吸收盾 ${Math.min(100,Math.round(G.absorb.got/G.absorb.need*100))}% · ${Math.ceil(G.absorb.t)}s`,pl.x,pl.y-26);}
   if(G.mcT>0&&fxAt(g,RF('black_1',2),pl.x,pl.y-22,18*pulse)){}
