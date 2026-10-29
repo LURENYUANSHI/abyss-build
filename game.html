@@ -175,7 +175,7 @@
   #acct .lv{width:38px;height:38px;border-radius:50%;border:2px solid #e8b33a;display:grid;place-items:center;font-weight:900;color:#ffd77a;background:#1a1230}
   #acct .axp{flex:1;min-width:0;font-size:12px;white-space:nowrap}#acct .axp i{display:block;height:5px;background:#2a2244;margin-top:4px}#acct .axp b{display:block;height:100%;background:linear-gradient(90deg,#8a55ff,#e8b33a)}
   #acct .pw{font-size:11px;color:#ffd77a;text-align:right}
-  #hubView{position:absolute;left:0;right:0;top:54px;bottom:52px;overflow-y:auto;padding:10px 12px 14px;box-sizing:border-box;color:#d8d4f0;font-size:12px}
+  #hubView{position:absolute;left:0;right:0;top:54px;bottom:52px;overflow-y:auto;padding:10px 12px 14px;box-sizing:border-box;color:#d8d4f0;font-size:12px;text-shadow:0 1px 2px #000,0 0 3px rgba(0,0,0,.8)}
   .hero{position:relative;height:370px}.hero canvas.art{position:absolute;left:50%;top:-6px;width:248px;height:372px;margin-left:-124px}
   .hero .slot{position:absolute;width:46px;height:46px;border:2px solid #3a3260;background:rgba(14,12,30,.85);border-radius:6px;display:grid;place-items:center;cursor:pointer}
   .hero .slot canvas,.bag canvas{width:36px;height:36px;image-rendering:pixelated}.slot small{position:absolute;bottom:-14px;font-size:9px;color:#8a84b0;white-space:nowrap}
@@ -281,12 +281,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v75"></script>
-<script src="content/boss_tune.js?v=v75"></script>
-<script src="src/loop.js?v=v75"></script>
+<script src="content/raids_data.js?v=v76"></script>
+<script src="content/boss_tune.js?v=v76"></script>
+<script src="src/loop.js?v=v76"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v75';
+const W=195,H=347,VERSION='v76';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -2261,8 +2261,10 @@ function mapOverlay(c,t,R){
   for(let n=0;n<N.length-1;n++){const[a,b]=[N[n],N[n+1]],d=Math.hypot(b[0]-a[0],b[1]-a[1]);
     for(let s2=0;s2<d;s2+=3){const k=s2/d;R(f+n+1<=PROG.un?'#e8d8a0':'#6a6070',a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,1,1);}}
 }
-// 大厅各页面（人物 / 副本 / 背包 / 天赋 / 图鉴 / 组队 / 设置）各自的背景，加一点上飘的火星
-function drawHubBg(c,t,im){c.drawImage(im,0,0,W,H);if(!FX.spark)return;c.globalCompositeOperation='lighter';
+// 大厅各页面（人物 / 副本 / 背包 / 天赋 / 图鉴 / 组队 / 设置）各自的背景，加一点上飘的光点
+function drawHubBg(c,t,im){c.drawImage(im,0,0,W,H);
+  {const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(12,10,30,.12)');g.addColorStop(.35,'rgba(12,10,30,.32)');g.addColorStop(1,'rgba(12,10,30,.5)');c.fillStyle=g;c.fillRect(0,0,W,H);}   // 背景是明亮的坎公风，压一层暗让浅色字看得清
+  if(!FX.spark)return;c.globalCompositeOperation='lighter';
   for(let i=0;i<12;i++){const ex=hsh(i+40)*W,ey=H-((t*12+hsh(i)*300)%300),z=2+hsh(i+9)*3;c.globalAlpha=.5;c.drawImage(FX.spark,ex-z/2,ey-z/2,z,z);}
   c.globalAlpha=1;c.globalCompositeOperation='source-over';}
 function drawHome(c,t){
@@ -2472,9 +2474,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v75"></script>
-<script src="src/raid_engine.js?v=v75"></script>
-<script src="content/rigs.js?v=v75"></script>
-<script src="src/rig.js?v=v75"></script>
+<script src="content/skill_fx.js?v=v76"></script>
+<script src="src/raid_engine.js?v=v76"></script>
+<script src="content/rigs.js?v=v76"></script>
+<script src="src/rig.js?v=v76"></script>
 </body>
 </html>
