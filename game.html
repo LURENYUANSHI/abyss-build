@@ -1915,7 +1915,7 @@ function drawEntities(c){
           else if(walk&&!e.prop){rot=Math.sin(T*(big?5:8))*(big?.05:.08);if(e.k!=='BT')dy=-Math.abs(Math.sin(T*(big?5:8)))*(big?1.6:1.2);}   // 快速的地面单位（猎豹、恶犬等用 BT）不上下跳，否则看着像在飞
           if(cast){const q=1.03+.03*Math.sin(T*6);sx*=q;sy*=q;}
           if(e.flash>0){sx*=1.07;sy*=.93;}}
-        const ax=x+t.w/2,ay=y+t.h+dy,fl=!!e.fl,rigd=e.rig&&window.drawRig&&!e.formArt&&drawRig(c,e,ax,ay,t.h*vk*1.05,fl);if(!rigd){const k=walk&&A&&A.idle?frameK(A.idle[0],im2):1;drawArt(c,im2,ax,ay,t.w*vk,t.h*vk,fl,rot,sx*k,sy*k);}
+        const ax=x+t.w/2,ay=y+t.h+dy,fl=!!e.fl,rigd=e.rig&&window.drawRig&&!e.formArt&&drawRig(c,e,ax,ay,t.h*vk*1.05,fl);if(!rigd){const k=walk&&A&&A.idle&&!A.full?frameK(A.idle[0],im2):1;/* 完整动作图各帧已对齐，逐帧缩放反而忽大忽小 */drawArt(c,im2,ax,ay,t.w*vk,t.h*vk,fl,rot,sx*k,sy*k);}
         if(e.flash>0&&!rigd){c.globalCompositeOperation='lighter';c.globalAlpha=.7;drawArt(c,im2,ax,ay,t.w*vk,t.h*vk,fl,rot,sx,sy);c.globalCompositeOperation='source-over';c.globalAlpha=1;}
         // 预警：蓄力 / 瞄准时头顶红色感叹号；首领施法时显示技能名
         const warn=!e.prop&&(e.wind>0||(e.k==='SA'&&e.shotT>0&&e.shotT<.45)||(e.boss&&e.say&&e.say.t>0));
