@@ -281,12 +281,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v84"></script>
-<script src="content/boss_tune.js?v=v84"></script>
-<script src="src/loop.js?v=v84"></script>
+<script src="content/raids_data.js?v=v85"></script>
+<script src="content/boss_tune.js?v=v85"></script>
+<script src="src/loop.js?v=v85"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v84';
+const W=195,H=347,VERSION='v85';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -434,7 +434,7 @@ let heroRaf=0;const POR={};
 function porImg(id,t){const k=id+t;if(!POR[k]){for(const o in POR)delete POR[o];   // 只留当前职业一张（解码后约 2.4MB）
   const im=new Image();im.src=`art/hero_${id}_t${t}.webp?v=${VERSION}`;POR[k]=im;}return POR[k];}
 // 动态立绘（Seedance 生成的 8 秒循环，首尾已交叉淡化）：有视频的职业在人物页播视频，其余用静态立绘
-const LIVE={},LIVE_URL={};   // 先用静态立绘（用户决定）；要开动态就在 LIVE 里加 职业名 → art/live 下的视频路径
+const LIVE={archer:'art/live/archer.mp4'},LIVE_URL={};   // 目前只给射手开动态立绘（用户决定），其他职业用静态立绘
 function liveLoad(id){if(!LIVE[id]||LIVE_URL[id])return;LIVE_URL[id]='loading';
   fetch(LIVE[id]+'?v='+VERSION).then(r=>r.ok?r.blob():null).then(b=>{LIVE_URL[id]=b?URL.createObjectURL(b):'bad';if(b&&HUB.v==='hero'&&selCls===id&&$('hub').classList.contains('on'))renderHub('hero');}).catch(()=>{LIVE_URL[id]='bad';});}
 const liveReady=id=>!LIVE[id]||(LIVE_URL[id]&&LIVE_URL[id]!=='loading');
@@ -2509,9 +2509,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v84"></script>
-<script src="src/raid_engine.js?v=v84"></script>
-<script src="content/rigs.js?v=v84"></script>
-<script src="src/rig.js?v=v84"></script>
+<script src="content/skill_fx.js?v=v85"></script>
+<script src="src/raid_engine.js?v=v85"></script>
+<script src="content/rigs.js?v=v85"></script>
+<script src="src/rig.js?v=v85"></script>
 </body>
 </html>
