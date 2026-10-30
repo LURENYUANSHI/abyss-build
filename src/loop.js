@@ -7,7 +7,7 @@
 const IC={gold:0,dust:1,mark:2,battle:3,elite:4,shop:5,event:6,rest:7,hex:8,refresh:9,del:10,up:11,ad:12,hp:13,chest:14,lock:15,hero:16,raid:17,bag:18,tal:19,codex:20,party:21,set:22,trophy:23,endless:24};
 const icon=(n,c='')=>`<i class="ic ${c}" style="background-position:${IC[n]/24*100}% 0"></i>`;
 // 文字里的货币前面自动加图标；按钮按开头的字配图标。处理过的包在 .icw 里，重复调用不会重复加
-const IC_WORD={'金币':'gold','徽记':'mark','尘':'dust','战力':'trophy'},IC_BTN=[[/^(刷新|再来一次|重新)/,'refresh'],[/^看广告/,'ad'],[/^删除|^分解/,'del'],[/^(随机)?升星|^强化/,'up'],[/^离开|^返回/,'hero'],[/^复活|^休息|^疗伤/,'hp'],[/^从章首|^进入副本|^从存档/,'raid'],[/^无尽/,'endless'],[/^每日挑战|^领取/,'trophy'],[/^解锁|^🔒/,'lock'],[/^一键穿|^穿戴|^装备专武/,'bag'],[/^献祭|^打开|^赌/,'event'],[/^清空存档/,'del'],[/^重铸/,'refresh'],[/^重置/,'refresh'],[/^学习/,'up'],[/^带上场/,'battle'],[/^(白银|黄金|棱彩)/,'hex']];
+const IC_WORD={'金币':'gold','徽记':'mark','尘':'dust','战力':'trophy'},IC_BTN=[[/^(刷新|再来一次|重新)/,'refresh'],[/^看广告/,'ad'],[/^删除|^分解/,'del'],[/^(随机)?升星|^强化/,'up'],[/^离开|^返回/,'hero'],[/^复活|^休息|^疗伤/,'hp'],[/^从章首|^进入副本|^从存档/,'raid'],[/^无尽/,'endless'],[/^每日挑战|^领取/,'trophy'],[/^解锁|^🔒/,'lock'],[/^一键穿|^穿戴|^装备专武/,'bag'],[/^献祭|^打开|^赌/,'event'],[/^清空存档/,'del'],[/^重铸/,'refresh'],[/^扫荡/,'battle'],[/^重置/,'refresh'],[/^学习/,'up'],[/^带上场/,'battle'],[/^(白银|黄金|棱彩)/,'hex']];
 function iconText(root){if(!root||!root.querySelectorAll)return;
   const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement&&!n.parentElement.closest('.icw,script,style,canvas,textarea,#hexV .icon')&&/金币|徽记|尘|战力|\d\s?金(?!币)/.test(n.nodeValue)?1:2}),list=[];
   while(tw.nextNode())list.push(tw.currentNode);
@@ -289,7 +289,7 @@ const AFFIX=[{n:'强敌',d:'敌人血量 +40%',hp:1.4},{n:'狂暴',d:'敌人伤�
 function dailyInfo(){const s=today(),open=RAIDS.map((r,i)=>i).filter(i=>firstL(i)<=PROG.un);return{seed:s,ri:open[s%open.length]||0,affix:AFFIX[s%AFFIX.length]};}
 // 可复现的随机数（每日挑战全服同一套随机）
 function seeded(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-let DAILY_GO=null;
+let DAILY_GO=null,AUTO_GO=false;
 function startDaily(){const D=dailyInfo();DAILY_GO=D;PROG.run=null;selLevel=firstL(D.ri);selDiff=0;enterLevel();}
 // 每个首领每天第一次击杀：尘 + 徽记，结算时可看广告翻倍
 function dailyChest(name,ri){if(window.SIM)return;const D=dailyState();if(D.kills[name])return;D.kills[name]=1;G.chest=G.chest||{dust:0,marks:0};G.chest.dust+=10+5*ri;G.chest.marks+=1;saveProg();}
