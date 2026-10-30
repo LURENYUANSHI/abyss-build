@@ -3,19 +3,32 @@
 // 在 game.html 主脚本之前加载：这里只放定义，运行时才访问 PROG / G / st / pl 等全局。
 
 // ---------- 难度阶梯 ----------
+// ---------- 界面图标（art/ui_icons.png，25 格横排） ----------
+const IC={gold:0,dust:1,mark:2,battle:3,elite:4,shop:5,event:6,rest:7,hex:8,refresh:9,del:10,up:11,ad:12,hp:13,chest:14,lock:15,hero:16,raid:17,bag:18,tal:19,codex:20,party:21,set:22,trophy:23,endless:24};
+const icon=(n,c='')=>`<i class="ic ${c}" style="background-position:${IC[n]/24*100}% 0"></i>`;
+// 文字里的货币前面自动加图标；按钮按开头的字配图标。处理过的包在 .icw 里，重复调用不会重复加
+const IC_WORD={'金币':'gold','徽记':'mark','尘':'dust','战力':'trophy'},IC_BTN=[[/^(刷新|再来一次|重新)/,'refresh'],[/^看广告/,'ad'],[/^删除|^分解/,'del'],[/^(随机)?升星|^强化/,'up'],[/^离开|^返回/,'hero'],[/^复活|^休息|^疗伤/,'hp'],[/^从章首|^进入副本|^从存档/,'raid'],[/^无尽/,'endless'],[/^每日挑战|^领取/,'trophy'],[/^解锁|^🔒/,'lock'],[/^一键穿|^穿戴|^装备专武/,'bag'],[/^献祭|^打开|^赌/,'event'],[/^清空存档/,'del'],[/^重铸/,'refresh'],[/^(白银|黄金|棱彩)/,'hex']];
+function iconText(root){if(!root||!root.querySelectorAll)return;
+  const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement&&!n.parentElement.closest('.icw,script,style,canvas,textarea,#hexV .icon')&&/金币|徽记|尘|战力|\d\s?金(?!币)/.test(n.nodeValue)?1:2}),list=[];
+  while(tw.nextNode())list.push(tw.currentNode);
+  for(const n of list){const f=document.createDocumentFragment();let last=0;const v=n.nodeValue,re=/(金币|徽记|尘|战力)|(\d\s?)(金)(?!币)/g;let m;
+    while((m=re.exec(v))){const w=m[1]||m[3],at=m.index+(m[1]?0:m[2].length);f.append(v.slice(last,at));const sp=document.createElement('span');sp.className='icw';sp.innerHTML=icon(IC_WORD[w]||'gold')+w;f.append(sp);last=at+w.length;}
+    f.append(v.slice(last));n.replaceWith(f);}
+  for(const b of root.querySelectorAll('button,.b')){if(b.dataset.ic||(b.firstElementChild&&b.firstElementChild.classList.contains('ic')&&!b.firstElementChild.closest('.icw')))continue;const t=(b.innerText||'').trim();const hit=IC_BTN.find(([r])=>r.test(t));b.dataset.ic=1;
+    if(hit){if(hit[1]==='lock')for(const n of b.childNodes)if(n.nodeType===3)n.nodeValue=n.nodeValue.replace('🔒','');b.insertAdjacentHTML('afterbegin',icon(hit[1]));}}}
 const DIFF_T=[{n:'普通',hp:1,dmg:1,il:0,rar:0,marks:3},{n:'英雄',hp:1.9,dmg:1.4,il:8,rar:.12,marks:5},{n:'史诗',hp:3.4,dmg:1.9,il:16,rar:.24,marks:8}];
 let selDiff=0;
 const diffOf=()=>DIFF_T[(G&&G.diff)||0];
 
 // ---------- 天赋树（账号每升 1 级给 1 点） ----------
 const TALENTS=[
-  {id:'hp',n:'坚韧',d:'最大生命 +4%',max:5},
-  {id:'atk',n:'锋锐',d:'伤害 +3%',max:5},
-  {id:'crit',n:'致命',d:'暴击率 +2%',max:3},
-  {id:'gold',n:'贪财',d:'局内金币 +15%',max:3},
-  {id:'shop',n:'讨价还价',d:'商店价格 -10%',max:3},
-  {id:'card',n:'预备构筑',d:'每章开局多选一次银卡',max:1},
-  {id:'rev',n:'再起',d:'每局一次免广告复活',max:1},
+  {id:'hp',ic:'hp',n:'坚韧',d:'最大生命 +4%',max:5},
+  {id:'atk',ic:'battle',n:'锋锐',d:'伤害 +3%',max:5},
+  {id:'crit',ic:'up',n:'致命',d:'暴击率 +2%',max:3},
+  {id:'gold',ic:'gold',n:'贪财',d:'局内金币 +15%',max:3},
+  {id:'shop',ic:'shop',n:'讨价还价',d:'商店价格 -10%',max:3},
+  {id:'card',ic:'hex',n:'预备构筑',d:'每章开局多选一次银卡',max:1},
+  {id:'rev',ic:'hp',n:'再起',d:'每局一次免广告复活',max:1},
 ];
 const talR=id=>((PROG.talent||{})[id]||0);
 const talSpent=()=>Object.values(PROG.talent||{}).reduce((a,b)=>a+b,0);
@@ -76,12 +89,12 @@ function applyMods(){const M=G.mods||{};if(M.hp&&M.hp!==1)pl.maxHp=Math.round(pl
 function gainGold(n){if(!G)return;const k=(1+.15*talR('gold'))*(G.daily&&G.daily.affix.gold||1);G.gold=(G.gold||0)+Math.round(n*k);}
 
 // ---------- 路线选择（清完房间后选下一间） ----------
-const ROUTE={battle:['⚔','战斗','普通战斗，清完选海克斯'],elite:['☠','精英','更难，必出金卡 / 棱彩卡，金币更多'],shop:['$','商店','用金币买卡、升星、删卡'],event:['?','事件','有代价的强力选择'],rest:['☕','休息','回血或恢复血量上限']};
+const ROUTE={battle:['battle','战斗','普通战斗，清完选海克斯'],elite:['elite','精英','更难，必出金卡 / 棱彩卡，金币更多'],shop:['shop','商店','用金币买卡、升星、删卡'],event:['event','事件','有代价的强力选择'],rest:['rest','休息','回血或恢复血量上限']};
 function routeOptions(){const pool=['elite','shop','event','rest'],o=['battle'];if(G.daily&&G.daily.affix.elite)o.push('elite');
   while(o.length<3){const k=pool[(rand()*pool.length)|0];if(!o.includes(k))o.push(k);}return o;}
 function openRoute(next){const o=routeOptions();G.route=G.route||{};
   if(window.SIM){G.route[next]=o[(rand()*o.length)|0];return;}
-  G.state='route';loopUI(`<div class="hname" style="font-size:15px">选择下一个房间</div>${o.map(k=>`<button class="b ghost lp" data-r="${k}"><b style="font-size:16px">${ROUTE[k][0]}</b> ${ROUTE[k][1]}<br><small>${ROUTE[k][2]}</small></button>`).join('')}`,
+  G.state='route';loopUI(`<div class="hname" style="font-size:15px">选择下一个房间</div>${o.map(k=>`<button class="b ghost lp" data-r="${k}">${icon(ROUTE[k][0],"lg")}<b>${ROUTE[k][1]}</b><br><small>${ROUTE[k][2]}</small></button>`).join('')}`,
     e=>{const r=e.target.closest('[data-r]');if(!r)return;G.route[next]=r.dataset.r;loopClose();});}
 
 // 进入非战斗房间：商店 / 事件 / 休息
@@ -154,7 +167,7 @@ function bossSkillList(d){return (d.sk||[]).filter((k,i,a)=>a.indexOf(k)===i).ma
 function codexHTML(){const raw=window.RAID_DATA?RAID_DATA.raids:[];let h='';
   RAIDS.forEach((r,ri)=>{const d=raw.find(x=>x.id===r.id);if(!d)return;h+=`<div class="hname" style="font-size:13px;margin-top:8px">${r.name}　<small style="color:#ffd77a">套装：${GSET[[0,1,1,3,3][ri]??3].n}</small></div>`;
     d.bosses.forEach((b,k)=>{const L=firstL(ri)+k,kills=((PROG.codex||{})[b.n]||0),pt=bossPortrait(L);
-      h+=`<div class="itip" style="margin:4px 0;display:flex;gap:6px"><div data-boss-portrait="${L}"${b.variants?' title="随机首领"':''} style="flex:0 0 40px;height:40px;display:grid;place-items:center;color:#e9c581;font-size:22px;border-radius:6px;background:#1a1430 center/cover${pt?` url(${pt})`:''}">${b.variants?'？':''}</div><div style="flex:1;font-size:11px">
+      h+=`<div class="itip" style="margin:4px 0;display:flex;gap:6px"><div data-boss-portrait="${L}"${b.variants?' title="随机首领"':''} style="flex:0 0 40px;height:40px;display:grid;place-items:center;color:#e9c581;font-size:22px;border-radius:6px;background:#1a1430 center/cover${pt?` url(${pt})`:''}">${b.variants?'？':pt?'':icon('elite','lg')}</div><div style="flex:1;font-size:11px">
         <b>${b.n}</b>　<span style="color:#9a94c0">击杀 ${kills}${(PROG.fk||{})[L+':2']?' · 史诗已通':(PROG.fk||{})[L+':1']?' · 英雄已通':''}</span><br>
         <span style="color:#ffb070">技能：${bossSkillList(b).join('、')||'—'}</span><br><span style="color:#c8c0ff">机制：${b.tip||'—'}</span></div></div>`;});});
   return h;}

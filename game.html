@@ -182,6 +182,12 @@
   .nd.cur{animation:pulse 1s infinite}.nd.sel{outline:2px solid #fff;outline-offset:2px}
   .nd.pt{width:30px;height:30px;margin:-17px 0 0 -17px;background-size:cover;background-position:center}.nd.pt.chief{width:40px;height:40px;margin:-22px 0 0 -22px}
   .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(.7) brightness(.8)}
+  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v91) 0 0/2500% 100% no-repeat;flex:none}
+  .ic.lg{width:30px;height:30px;vertical-align:middle;margin-right:8px}.icw{white-space:nowrap}
+  #nav div .ic{width:22px;height:22px;margin:0 0 1px}#nav div{line-height:1.1;font-size:11px!important;letter-spacing:1px!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center}
+  #nav div:not(.on) .ic{filter:saturate(.55) brightness(.85)}
+  #loopV .lp{display:flex;align-items:center;flex-wrap:wrap}#loopV .lp small{flex-basis:100%;padding-left:38px}
+  .bag-empty{text-align:center;padding:40px 0;color:#d8d0ea}.bag-empty .ic{width:64px;height:64px;display:block;margin:0 auto 8px}
   #nav{box-sizing:border-box;position:absolute;left:0;right:0;bottom:0;height:52px;z-index:40;display:none;background:linear-gradient(180deg,rgba(14,10,30,.96),rgba(6,5,14,.99));border-top:1px solid rgba(170,140,255,.45)}
   #nav.on{display:flex}#nav div{flex:1;display:grid;place-items:center;font-size:12px;letter-spacing:2px;color:#9a94c0;cursor:pointer}#nav div.on{color:#fff;text-shadow:0 0 8px #b48cff;background:rgba(90,60,180,.25)}
   #acct{position:absolute;left:0;right:0;top:0;height:54px;z-index:3;display:flex;align-items:center;gap:8px;padding:0 12px;background:linear-gradient(180deg,rgba(7,7,14,.95),rgba(7,7,14,.6))}
@@ -320,7 +326,7 @@
   <div class="ov" id="hub"><div class="menu">
     <div id="acct"></div>
     <div id="hubView"></div><div id="heroAction"><button class="bigbtn" id="toRaid">进入副本</button></div></div></div>
-  <div id="nav"><div data-v="hero">人物</div><div data-v="raid">副本</div><div data-v="bag">背包</div><div data-v="tal">天赋</div><div data-v="codex">图鉴</div><div data-v="party">组队</div><div data-v="set">设置</div></div>
+  <div id="nav"><div data-v="hero"><i class="ic" style="background-position:66.667% 0"></i>人物</div><div data-v="raid"><i class="ic" style="background-position:70.833% 0"></i>副本</div><div data-v="bag"><i class="ic" style="background-position:75% 0"></i>背包</div><div data-v="tal"><i class="ic" style="background-position:79.167% 0"></i>天赋</div><div data-v="codex"><i class="ic" style="background-position:83.333% 0"></i>图鉴</div><div data-v="party"><i class="ic" style="background-position:87.5% 0"></i>组队</div><div data-v="set"><i class="ic" style="background-position:91.667% 0"></i>设置</div></div>
 
   <div class="ov" id="levels"><div class="menu">
     <div class="mtitle">深渊地图</div>
@@ -339,12 +345,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v90"></script>
-<script src="content/boss_tune.js?v=v90"></script>
-<script src="src/loop.js?v=v90"></script>
+<script src="content/raids_data.js?v=v91"></script>
+<script src="content/boss_tune.js?v=v91"></script>
+<script src="src/loop.js?v=v91"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v90';
+const W=195,H=347,VERSION='v91';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -2302,7 +2308,7 @@ const PORT={};
 function bossPortrait(L){if(PORT[L])return PORT[L];const b=LV[L]&&LV[L].b;if(!b||!Array.isArray(b.art)||!window.formOf)return null;
   const f=formOf([b.art[0],b.art[1]*4]);if(!f)return null;const c=document.createElement('canvas');c.width=c.height=48;const x=c.getContext('2d');
   x.drawImage(f,f.width*.1,f.height*.02,f.width*.8,f.height*.8,0,0,48,48);return PORT[L]=c.toDataURL();}
-function refreshBossPortraits(){document.querySelectorAll('[data-boss-portrait]').forEach(el=>{const pt=bossPortrait(+el.dataset.bossPortrait);if(pt)el.style.backgroundImage=`url(${pt})`;});}
+function refreshBossPortraits(){document.querySelectorAll('[data-boss-portrait]').forEach(el=>{const pt=bossPortrait(+el.dataset.bossPortrait);if(pt){el.style.backgroundImage=`url(${pt})`;const ph=el.querySelector('.ic');if(ph)ph.remove();}});}
 function drawMap(c,t){
   const R=(col,x,y,w,h)=>{c.fillStyle=col;c.fillRect(x|0,y|0,w,h);};
   const MB=raidMap(selRaid)||ART.bg_map;if(MB){c.drawImage(MB,0,0,W,H);if($('levels').classList.contains('on'))mapOverlay(c,t,R);return;}
@@ -2432,13 +2438,13 @@ function renderHub(v){HUB.v=v;heroArt(selCls);liveLoad(selCls);const A=PROG.acc,
     renderClasses();SLOTS.forEach(([k])=>{const it=PROG.inv.find(x=>x.id===PROG.eq[k]),el=V.querySelector(`[data-slot="${k}"]`);if(it)el.prepend(itemIcon(it));});
     heroAnim();}
   else if(v==='bag'){const items=PROG.inv.slice().sort((a,b)=>b.rar-a.rar||b.il-a.il),eqIds=Object.values(PROG.eq);
-    V.innerHTML=`<div style="margin-bottom:8px">背包 ${PROG.inv.length}/60　<span style="color:#c8c0ff">尘 ${PROG.dust||0}　徽记 ${PROG.marks||0}</span><button class="b ghost sm" id="bestEq" style="float:right">一键穿推荐</button><br><span style="color:#9a94c0;font-size:11px">↑ 表示比身上的更好；尘用来强化 / 重铸，分解装备获得</span></div><div class="bag">${items.map(it=>`<div class="it${eqIds.includes(it.id)?' eq':''}" data-id="${it.id}" style="border-color:${RAR[it.rar][1]}">${!eqIds.includes(it.id)&&isUpgrade(it)?'<i style="position:absolute;right:1px;top:-2px;color:#7dff8a;font-style:normal;font-weight:900">↑</i>':''}${it.up?`<i style="position:absolute;left:1px;bottom:-2px;color:#ffd77a;font-style:normal;font-size:9px">+${it.up}</i>`:''}</div>`).join('')||'<span style="grid-column:1/-1;color:#6a6490">还没有装备，去副本里打首领吧</span>'}</div><div id="itip"></div>`;
+    V.innerHTML=`<div style="margin-bottom:8px">背包 ${PROG.inv.length}/60　<span style="color:#c8c0ff">尘 ${PROG.dust||0}　徽记 ${PROG.marks||0}</span><button class="b ghost sm" id="bestEq" style="float:right">一键穿推荐</button><br><span style="color:#9a94c0;font-size:11px">↑ 表示比身上的更好；尘用来强化 / 重铸，分解装备获得</span></div><div class="bag">${items.map(it=>`<div class="it${eqIds.includes(it.id)?' eq':''}" data-id="${it.id}" style="border-color:${RAR[it.rar][1]}">${!eqIds.includes(it.id)&&isUpgrade(it)?'<i style="position:absolute;right:1px;top:-2px;color:#7dff8a;font-style:normal;font-weight:900">↑</i>':''}${it.up?`<i style="position:absolute;left:1px;bottom:-2px;color:#ffd77a;font-style:normal;font-size:9px">+${it.up}</i>`:''}</div>`).join('')||`<div class="bag-empty" style="grid-column:1/-1">${icon('chest')}背包还是空的<br><small>打首领、精英会掉装备</small></div>`}</div><div id="itip"></div>`;
     V.querySelectorAll('.it').forEach(el=>el.append(itemIcon(PROG.inv.find(x=>x.id===+el.dataset.id))));if(HUB.sel)showItem(HUB.sel);}
   else if(v==='tal'){const lock=HEX.filter(h=>h.tier===3&&fitsFor(h,selCls)&&!hexOpen(h));
     V.innerHTML=`<div class="hname" style="font-size:15px">天赋　<span style="color:#ffd77a">可用 ${talPts()} 点</span></div><p style="text-align:center;color:#9a94c0;font-size:11px">账号每升 1 级获得 1 点，可以随时加减</p>
-      ${TALENTS.map(T=>`<div class="itip" style="margin:4px 0;display:flex;align-items:center;gap:6px"><div style="flex:1"><b>${T.n}</b> ${talR(T.id)}/${T.max}<br><small style="color:#9a94c0">${T.d}</small></div><button class="b ghost sm" data-tal="${T.id}" data-d="-">－</button><button class="b sm" data-tal="${T.id}" data-d="+">＋</button></div>`).join('')}
+      ${TALENTS.map(T=>`<div class="itip" style="margin:4px 0;display:flex;align-items:center;gap:6px">${icon(T.ic,"lg")}<div style="flex:1"><b>${T.n}</b> ${talR(T.id)}/${T.max}<br><small style="color:#9a94c0">${T.d}</small></div><button class="b ghost sm" data-tal="${T.id}" data-d="-">－</button><button class="b sm" data-tal="${T.id}" data-d="+">＋</button></div>`).join('')}
       <div class="hname" style="font-size:15px;margin-top:10px">卡池解锁　<span style="color:#ffd77a">徽记 ${PROG.marks||0}</span></div><p style="text-align:center;color:#9a94c0;font-size:11px">棱彩海克斯要先用徽记解锁才会出现（${CLS[selCls].n}）</p>
-      ${lock.map(h=>`<div class="itip" style="margin:4px 0;display:flex;align-items:center;gap:6px"><div style="flex:1"><b>${h.n}</b> <small style="color:#9a94c0">${tn(h.tag)}</small><br><small>${h.d}</small></div><button class="b sm" data-unl="${h.id}">2 徽记</button></div>`).join('')||'<p style="text-align:center;color:#7dff8a">本职业的棱彩海克斯已全部解锁</p>'}`;}
+      ${lock.map(h=>`<div class="itip" style="margin:4px 0;display:flex;align-items:center;gap:6px">${icon("hex","lg")}<div style="flex:1"><b>${h.n}</b> <small style="color:#9a94c0">${tn(h.tag)}</small><br><small>${h.d}</small></div><button class="b sm" data-unl="${h.id}">2 徽记</button></div>`).join('')||'<p style="text-align:center;color:#7dff8a">本职业的棱彩海克斯已全部解锁</p>'}`;}
   else if(v==='codex'){V.innerHTML=`<div class="hname" style="font-size:15px">首领图鉴</div><p style="text-align:center;color:#9a94c0;font-size:11px">出发前先看机制：局内不会再提示</p>${codexHTML()}<div class="hname" style="font-size:15px;margin-top:10px">成就</div>${achHTML()}`;}
   else if(v==='party'){V.innerHTML=`<div class="hname" style="font-size:15px">组队</div><p style="text-align:center;color:#9a94c0">打不过的副本可以带 AI 队友（最多 2 名），他们使用各自职业的技能自动战斗。</p>
       <div class="party">${[0,1].map(i=>{const c=PROG.party[i];return `<div class="pm" data-pi="${i}">${c?`<div><canvas data-pc="${c}"></canvas><br>${CLS[c].n}<br><small style="color:#ff8a8a">点击移除</small></div>`:'<div>＋<br>添加队友</div>'}</div>`;}).join('')}</div>
@@ -2564,6 +2570,9 @@ G=null;selLevel=Math.min(PROG.un,NLV());if(PROG.hero&&CLS[PROG.hero])selCls=PROG
   const tick=()=>{const n=need(),ok=n.filter(k=>ART[k]).length+(por.complete&&por.naturalWidth?1:0)+(liveReady(selCls)?1:0),tot=n.length+2;
     $('loadI').style.width=Math.round(ok/tot*100)+'%';$('loadT').textContent=`${ok}/${tot}`;
     if(ok>=tot||performance.now()-t0>15000){$L.classList.remove('on');if(nm)nm.textContent='载入副本中…';show('hub','hero');}else setTimeout(tick,120);};tick();}
+// 界面图标：这些容器内容一变就给货币文字、按钮补图标（iconText 幂等，处理过的不会再处理）
+if(typeof MutationObserver!=='undefined'&&!window.SIM){const roots=['hub','levels','loopV','dead','pick','lootV','itip','acct','pauseV'].map(id=>$(id)).filter(Boolean),mo=new MutationObserver(ms=>{const seen=new Set();for(const m of ms){const r=m.target.closest?m.target:m.target.parentElement;if(r&&!seen.has(r)&&!r.closest('.icw')){seen.add(r);iconText(r);}}});
+  for(const r of roots){iconText(r);mo.observe(r,{childList:true,subtree:true});}}
 // 直接进大厅（去掉旧标题页）；音效要等第一次点击才能开
 addEventListener('pointerdown',()=>auInit(),{once:true});
 // 新版本检查：切回前台 / 每 5 分钟看一次线上 VERSION，不在局内就直接刷新，在局内等回到大厅
@@ -2572,9 +2581,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v90"></script>
-<script src="src/raid_engine.js?v=v90"></script>
-<script src="content/rigs.js?v=v90"></script>
-<script src="src/rig.js?v=v90"></script>
+<script src="content/skill_fx.js?v=v91"></script>
+<script src="src/raid_engine.js?v=v91"></script>
+<script src="content/rigs.js?v=v91"></script>
+<script src="src/rig.js?v=v91"></script>
 </body>
 </html>
