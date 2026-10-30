@@ -154,7 +154,7 @@ function bossSkillList(d){return (d.sk||[]).filter((k,i,a)=>a.indexOf(k)===i).ma
 function codexHTML(){const raw=window.RAID_DATA?RAID_DATA.raids:[];let h='';
   RAIDS.forEach((r,ri)=>{const d=raw.find(x=>x.id===r.id);if(!d)return;h+=`<div class="hname" style="font-size:13px;margin-top:8px">${r.name}　<small style="color:#ffd77a">套装：${GSET[[0,1,1,3,3][ri]??3].n}</small></div>`;
     d.bosses.forEach((b,k)=>{const L=firstL(ri)+k,kills=((PROG.codex||{})[b.n]||0),pt=bossPortrait(L);
-      h+=`<div class="itip" style="margin:4px 0;display:flex;gap:6px"><div style="flex:0 0 40px;height:40px;border-radius:6px;background:#1a1430 center/cover${pt?` url(${pt})`:''}"></div><div style="flex:1;font-size:11px">
+      h+=`<div class="itip" style="margin:4px 0;display:flex;gap:6px"><div data-boss-portrait="${L}"${b.variants?' title="随机首领"':''} style="flex:0 0 40px;height:40px;display:grid;place-items:center;color:#e9c581;font-size:22px;border-radius:6px;background:#1a1430 center/cover${pt?` url(${pt})`:''}">${b.variants?'？':''}</div><div style="flex:1;font-size:11px">
         <b>${b.n}</b>　<span style="color:#9a94c0">击杀 ${kills}${(PROG.fk||{})[L+':2']?' · 史诗已通':(PROG.fk||{})[L+':1']?' · 英雄已通':''}</span><br>
         <span style="color:#ffb070">技能：${bossSkillList(b).join('、')||'—'}</span><br><span style="color:#c8c0ff">机制：${b.tip||'—'}</span></div></div>`;});});
   return h;}

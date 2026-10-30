@@ -169,7 +169,7 @@
   .nd.cur{animation:pulse 1s infinite}.nd.sel{outline:2px solid #fff;outline-offset:2px}
   .nd.pt{width:30px;height:30px;margin:-17px 0 0 -17px;background-size:cover;background-position:center}.nd.pt.chief{width:40px;height:40px;margin:-22px 0 0 -22px}
   .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(.7) brightness(.8)}
-  #nav{position:absolute;left:0;right:0;bottom:0;height:52px;z-index:40;display:none;background:linear-gradient(180deg,rgba(14,10,30,.96),rgba(6,5,14,.99));border-top:1px solid rgba(170,140,255,.45)}
+  #nav{box-sizing:border-box;position:absolute;left:0;right:0;bottom:0;height:52px;z-index:40;display:none;background:linear-gradient(180deg,rgba(14,10,30,.96),rgba(6,5,14,.99));border-top:1px solid rgba(170,140,255,.45)}
   #nav.on{display:flex}#nav div{flex:1;display:grid;place-items:center;font-size:12px;letter-spacing:2px;color:#9a94c0;cursor:pointer}#nav div.on{color:#fff;text-shadow:0 0 8px #b48cff;background:rgba(90,60,180,.25)}
   #acct{position:absolute;left:0;right:0;top:0;height:54px;z-index:3;display:flex;align-items:center;gap:8px;padding:0 12px;background:linear-gradient(180deg,rgba(7,7,14,.95),rgba(7,7,14,.6))}
   #acct .lv{width:38px;height:38px;border-radius:50%;border:2px solid #e8b33a;display:grid;place-items:center;font-weight:900;color:#ffd77a;background:#1a1230}
@@ -210,6 +210,51 @@
   .lv1{height:64px;border:1px solid rgba(160,140,255,.3);background:rgba(15,16,32,.85);text-align:left;padding:6px 9px;box-sizing:border-box;cursor:pointer;position:relative;border-left:3px solid var(--c)}
   .lv1 b{font-size:11px;color:#fff;letter-spacing:1px}.lv1 small{display:block;font-size:10px;color:#9da0bd;line-height:1.5}
   .lv1.lock{opacity:.35;cursor:default}.lv1.clr::after{content:"✓";position:absolute;right:8px;top:6px;color:#ffd77a;font-size:12px}
+
+  /* 大厅：插画留在背景，内容有独立的阅读底层。 */
+  html:has(#hub.on,#home.on,#levels.on,#start.on,#loadV.on),html:has(#hub.on,#home.on,#levels.on,#start.on,#loadV.on) body{touch-action:auto}
+  #loadV{z-index:45;background:#080b17f5}
+  #loadV .menu{inset:auto 24px;top:50%;transform:translateY(-50%);padding:24px 18px;box-sizing:border-box;background:#141427;border:1px solid #625177;border-radius:10px;color:#ddd5ec}
+  #hub .menu::before{content:"";position:absolute;inset:54px 0 52px;background:rgba(6,8,20,.72);pointer-events:none}
+  #phone:has(#hub.on,#home.on,#levels.on,#loadV.on)>:is(.hud,#lvT,#buffT,#mm,#bossBar,#joy,.btn,#hint,#banner){visibility:hidden}
+  #hub[data-view="hero"] .menu::before{background:linear-gradient(180deg,rgba(6,8,20,.12),rgba(6,8,20,.2) 38%,rgba(6,8,20,.94) 64%)}
+  #hubView{scrollbar-width:thin;scrollbar-color:#776392 transparent;overscroll-behavior:contain;line-height:1.6;text-shadow:none;color:#e2dff0}
+  #hubView [style*="color:#9a94c0"],#hubView [style*="color:#6a6490"],#hubView .off{color:#bbb6ce!important}
+  #hubView .itip{background:rgba(12,13,29,.94);border-color:#514663;border-radius:8px}
+  #hubView .b:disabled{opacity:.45;cursor:not-allowed}
+  #hubView .party .pm{background:rgba(14,15,32,.88);border-color:#9583b7;color:#eee8ff}
+  #hubView .hname{letter-spacing:2px}
+  #hub[data-view="hero"] #hubView{bottom:112px;padding:8px 12px}
+  .hero-page{display:flex;flex-direction:column;gap:6px;min-height:100%;box-sizing:border-box}
+  #hubView .hero{flex:1 0 180px;height:auto;min-height:180px}
+  #hubView .hero .art{top:auto;bottom:0;left:50%;margin:0;transform:translateX(-50%);height:100%;width:auto;aspect-ratio:2/3;max-width:72%;object-fit:contain}
+  #hubView .hero .slot{width:40px;height:40px;box-shadow:0 3px 12px #0006;border-radius:8px;background:rgba(13,15,31,.92)}
+  #hubView .hero .slot canvas{width:32px;height:32px}
+  #hubView .slot small{bottom:2px;left:0;right:0;text-align:center;font-size:10px;color:#d4cce6;line-height:12px}
+  #hubView .slot:has(canvas) small{bottom:-17px;background:#101020;border-radius:3px}
+  .hero-identity{text-align:center;flex:none}.hero-identity .hname{margin:0;line-height:24px}
+  .hero-identity .role{font-size:11px;color:#c3bcd7;font-weight:500;letter-spacing:1px;margin-left:8px}
+  .hero-identity p{margin:0;color:#e1c994;font-size:10px;line-height:16px}
+  .class-picker{position:relative;flex:none;padding:0 22px}
+  #heroClasses{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;scroll-snap-type:x proximity}
+  #heroClasses::-webkit-scrollbar{display:none}
+  #heroClasses .cls{flex:0 0 54px;height:56px;box-sizing:border-box;gap:1px;border-radius:6px;font-size:10px;line-height:14px;scroll-snap-align:center;padding:3px 0;color:#d6cfe8}
+  #heroClasses .cls canvas{width:28px;height:30px;object-fit:contain}
+  #heroClasses .cls.on{border-color:#e9c581;background:linear-gradient(180deg,#50416b,#292238);box-shadow:inset 0 0 10px #e9c58122;color:#fff}
+  .class-arrow{position:absolute;top:0;bottom:0;width:18px;padding:0;min-width:0;border:0;background:#19172acc;color:#e9d6ad;font-size:18px;cursor:pointer}
+  .class-arrow.prev{left:0}.class-arrow.next{right:0}
+  #hubView .hero-page .stats{flex:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px 10px;margin:0;padding:6px 8px;border-radius:7px;font-size:11px;background:#101222e8}
+  .hero-more{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:none}
+  .hero-more details{min-width:0;border:1px solid #675673;border-radius:6px;background:#151326f5}
+  .hero-more details[open]{grid-column:1/-1}
+  .hero-more summary{padding:6px 8px;cursor:pointer;font-size:11px;color:#e4d5f5;min-height:18px}
+  .hero-more .detail-body{padding:0 10px 10px;font-size:11px;color:#ddd5ec;line-height:1.7}
+  .hero-more .detail-body .b{margin-top:6px}
+  .hero-more .sets{border:0;background:none;margin:0;padding:0 10px 10px}
+  #heroAction{position:absolute;bottom:52px;left:0;right:0;height:60px;box-sizing:border-box;padding:7px 12px 9px;display:none;background:linear-gradient(180deg,#10101be6,#090b16)}
+  #hub[data-view="hero"] #heroAction{display:block}
+  #heroAction .bigbtn{margin:0;padding:9px 0;border-radius:6px;font-size:15px;font-weight:700;background:linear-gradient(100deg,#6940aa,#4c307e);border-color:#c2a178}
+  .cls{font-family:inherit}.cls:focus-visible,summary:focus-visible,.class-arrow:focus-visible{outline:2px solid #ffe0a0;outline-offset:-2px}
 </style>
 </head>
 <body>
@@ -261,7 +306,7 @@
 
   <div class="ov" id="hub"><div class="menu">
     <div id="acct"></div>
-    <div id="hubView"></div></div></div>
+    <div id="hubView"></div><div id="heroAction"><button class="bigbtn" id="toRaid">进入副本</button></div></div></div>
   <div id="nav"><div data-v="hero">人物</div><div data-v="raid">副本</div><div data-v="bag">背包</div><div data-v="tal">天赋</div><div data-v="codex">图鉴</div><div data-v="party">组队</div><div data-v="set">设置</div></div>
 
   <div class="ov" id="levels"><div class="menu">
@@ -281,12 +326,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v88"></script>
-<script src="content/boss_tune.js?v=v88"></script>
-<script src="src/loop.js?v=v88"></script>
+<script src="content/raids_data.js?v=v89"></script>
+<script src="content/boss_tune.js?v=v89"></script>
+<script src="src/loop.js?v=v89"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v88';
+const W=195,H=347,VERSION='v89';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -2214,12 +2259,14 @@ function banner(){const e=$('banner');e.classList.add('show');clearTimeout(e._t)
 
 // ---------- 选角 ----------
 function renderClasses(){
-  $('classes').innerHTML=CLS_IDS.map(id=>`<div class="cls${id===selCls?' on':''}" data-c="${id}" style="${clsOpen(id)?'':'opacity:.4'}"><canvas data-p="${id}"></canvas>${clsOpen(id)?CLS[id].n:'🔒'+CLS[id].n}</div>`).join('');
-  for(const cv of document.querySelectorAll('[data-p]')){const c=CLS[cv.dataset.p],im=c.port||c.img[0];cv.width=im.width;cv.height=im.height;cv.getContext('2d').drawImage(im,0,0);}
+  const list=$('hub').classList.contains('on')?$('heroClasses'):$('classes');if(!list)return;
+  list.innerHTML=CLS_IDS.map(id=>`<button type="button" class="cls${id===selCls?' on':''}" data-c="${id}" aria-pressed="${id===selCls}" style="${clsOpen(id)?'':'opacity:.4'}"><canvas data-p="${id}"></canvas>${clsOpen(id)?CLS[id].n:'🔒'+CLS[id].n}</button>`).join('');
+  if(list.id==='heroClasses')list.querySelector('[aria-pressed="true"]').scrollIntoView({block:'nearest',inline:'center'});
+  for(const cv of list.querySelectorAll('[data-p]')){const c=CLS[cv.dataset.p],im=c.port||c.img[0];cv.width=im.width;cv.height=im.height;cv.getContext('2d').drawImage(im,0,0);}
   const c=CLS[selCls],al=c.alias||{},ex=c.specs.map(t=>al[t]||t).join(' · ');
   $('cinfo').innerHTML=`<b>${c.n}</b> · ${ROLE_N[c.role]}　生命 ${c.hp} · 移速 ${c.spd} · ${AT[c.atk].melee?'近战':'远程'} · ${{slash:'挥剑 + 剑气',orb:'法球',fist:'范围挥拳 + 吸血',bullet:'速射子弹',arrow:'长弓',stab:'双刺',shuriken:'弹射手里剑',note:'追踪音符',hammer:'圣锤 + 审判'}[c.atk]}<br>技能 <em>${c.sk}</em>：${c.skD}<br>大招 <em>${c.ult}</em>　流派：<em>${ex}</em>`;
 }
-document.addEventListener('click',e=>{const d=e.target.closest('#classes [data-c]');if(d&&!clsOpen(d.dataset.c)){const id=d.dataset.c;if((PROG.marks||0)>=6&&confirm(`${clsGateTxt(id)}\n现在花 6 徽记解锁「${CLS[id].n}」？`)){PROG.marks-=6;PROG.clsUnl.push(id);saveProg();achCheck();}else toast(clsGateTxt(id));renderHub('hero');return;}if(d){selCls=d.dataset.c;PROG.hero=selCls;saveProg();if($('hub').classList.contains('on'))renderHub('hero');else renderClasses();}});
+document.addEventListener('click',e=>{const d=e.target.closest('#classes [data-c],#heroClasses [data-c]');if(d&&!clsOpen(d.dataset.c)){const id=d.dataset.c;if((PROG.marks||0)>=6&&confirm(`${clsGateTxt(id)}\n现在花 6 徽记解锁「${CLS[id].n}」？`)){PROG.marks-=6;PROG.clsUnl.push(id);saveProg();achCheck();}else toast(clsGateTxt(id));renderHub('hero');return;}if(d){selCls=d.dataset.c;PROG.hero=selCls;saveProg();if($('hub').classList.contains('on'))renderHub('hero');else renderClasses();}});
 $('ver').textContent=VERSION;
 const SCREENS=['home','hub','levels','start'];
 function show(id,view){if(id==='hub'&&window.verCheck&&verCheck.pending){location.reload();return;}for(const k of SCREENS)$(k).classList.toggle('on',k===id);$('nav').classList.toggle('on',id==='hub'||id==='levels');if(id==='hub')renderHub(view||HUB.v);if(id==='levels')HUB.v='raid';navSel();$('banner').classList.remove('show');$('toast').classList.remove('show');if(id==='levels')renderLevels();if(id==='start'){$('startTitle').textContent=`${rNo(selLevel)}-${kOf(selLevel)} · ${LV[selLevel].b.lv}`;renderClasses();}}
@@ -2242,6 +2289,7 @@ const PORT={};
 function bossPortrait(L){if(PORT[L])return PORT[L];const b=LV[L]&&LV[L].b;if(!b||!Array.isArray(b.art)||!window.formOf)return null;
   const f=formOf([b.art[0],b.art[1]*4]);if(!f)return null;const c=document.createElement('canvas');c.width=c.height=48;const x=c.getContext('2d');
   x.drawImage(f,f.width*.1,f.height*.02,f.width*.8,f.height*.8,0,0,48,48);return PORT[L]=c.toDataURL();}
+function refreshBossPortraits(){document.querySelectorAll('[data-boss-portrait]').forEach(el=>{const pt=bossPortrait(+el.dataset.bossPortrait);if(pt)el.style.backgroundImage=`url(${pt})`;});}
 function drawMap(c,t){
   const R=(col,x,y,w,h)=>{c.fillStyle=col;c.fillRect(x|0,y|0,w,h);};
   const MB=raidMap(selRaid)||ART.bg_map;if(MB){c.drawImage(MB,0,0,W,H);if($('levels').classList.contains('on'))mapOverlay(c,t,R);return;}
@@ -2345,7 +2393,7 @@ $('lvInfo').addEventListener('click',e=>{const t=e.target;
   if(t.id==='lvGo'&&!t.disabled){if(PROG.run&&PROG.run.ri===LV[selLevel].ri&&!confirm('重新出发会放弃当前存档点，确定？'))return;PROG.run=null;saveProg();$('nav').classList.remove('on');selLevel=firstL(LV[selLevel].ri);enterLevel();}});   // 一章 = 一局：出发总是从章首开始，海克斯整章保留
 $('toLevels').onclick=()=>{auInit();selLevel=Math.min(PROG.un,NLV());if(PROG.hero&&CLS[PROG.hero])selCls=PROG.hero;show('hub','hero');};$('lvBack').onclick=()=>show('hub','hero');
 // ---------- 主界面（人物 / 副本 / 背包 / 组队 / 设置） ----------
-const HUB={v:'hero',sel:null};
+const HUB={v:'hero',sel:null,scroll:{}};
 const navSel=()=>document.querySelectorAll('#nav div').forEach(d=>d.classList.toggle('on',d.dataset.v===HUB.v&&($('hub').classList.contains('on')||d.dataset.v==='raid')));
 $('nav').addEventListener('click',e=>{const d=e.target.closest('[data-v]');if(!d)return;HUB.v=d.dataset.v;HUB.sel=null;if(HUB.v==='raid')show('levels');else show('hub',HUB.v);});
 // 装备图标：GPT 装备图（gear.png 16 格）里按部位 / 职业武器取图
@@ -2356,17 +2404,18 @@ function itemIcon(it,size=36){const c=document.createElement('canvas');c.width=c
 function statLine(st){return Object.entries(st).map(([k,v])=>`${ST_N[k][0]} ${k==='cdr'?'-':'+'}${(v*100).toFixed(1)}%`).join('　');}
 function renderHub(v){HUB.v=v;heroArt(selCls);liveLoad(selCls);const A=PROG.acc,C=CLS[selCls];
   $('acct').innerHTML=`<div class="lv">${A.lv}</div><div class="axp">账号等级 Lv.${A.lv}　<span style="color:#9a94c0">${A.xp}/${accNeed(A.lv)}</span><i><b style="width:${Math.min(100,A.xp/accNeed(A.lv)*100)}%"></b></i></div><div class="pw">战力<br><b style="font-size:15px">${power()}</b></div>`;
-  const V=$('hubView');
+  const V=$('hubView'),previous=V.dataset.view;if(previous)HUB.scroll[previous]=V.scrollTop;V.dataset.view=v;$('hub').dataset.view=v;
   if(v==='hero'){const{t,sets}=gearStats();
-    V.innerHTML=`<div class="hero"><canvas class="art" id="heroArt"></canvas>${SLOTS.map(([k,n],i)=>{const pos=[[8,30],[8,110],[8,190],['r8',30],['r8',110]][i];return `<div class="slot" data-slot="${k}" style="${typeof pos[0]==='string'?'right:8px':'left:'+pos[0]+'px'};top:${pos[1]}px;border-color:${(PROG.inv.find(x=>x.id===PROG.eq[k])||{}).rar?RAR[PROG.inv.find(x=>x.id===PROG.eq[k]).rar][1]:'#3a3260'}"><small>${n}</small></div>`;}).join('')}</div>
-      <div class="hname">${C.n}<span style="font-size:11px;color:#9a94c0;letter-spacing:1px">　${ROLE_N[C.role]}</span></div>
-      <p style="text-align:center;color:#ffd77a;font-size:11px;margin:2px 0">${mastTxt((PROG.mast||{})[selCls]||0)}　·　尘 ${PROG.dust||0}　徽记 ${PROG.marks||0}</p>
-      ${(()=>{const E=EXW[selCls],w=exwOf(selCls);return `<div class="exw" style="margin:6px auto 0;max-width:330px;padding:6px 10px;border:1px solid #ff6ad5;border-radius:6px;background:rgba(40,10,40,.55);font-size:11px;text-align:center">
-        <b style="color:#ff9ae6">专武「${E.n}」${w?` +${w.up||0} ${'★'.repeat(w.star||0)}${'☆'.repeat(5-(w.star||0))}`:''}</b>　${E.d}<br>${w?(PROG.eq.wpn===w.id?'<span style="color:#7dff8a">已装备</span>':'<button class="b sm" id="exwOn">装备专武</button>')+((w.star||0)<5?` <button class="b ghost sm" id="exwStar">升星（尘 ${STAR_COST[w.star||0]}）</button><br><span style="color:#9a94c0">每星属性 +10%；3★ 对首领伤害 +10%；5★ 技能伤害 +15%</span>`:''):`<button class="b sm" id="exwGet"${(PROG.marks||0)<EXW_COST?' disabled':''}>解锁（徽记 ×${EXW_COST}）</button>`}</div>`;})()}
-      <div class="classes" id="classes" style="margin-top:8px"></div>
+    V.innerHTML=`<div class="hero-page"><div class="hero"><canvas class="art" id="heroArt"></canvas>${SLOTS.map(([k,n],i)=>{const pos=[[8,12],[8,74],[8,136],['r8',12],['r8',74]][i];return `<div class="slot" data-slot="${k}" style="${typeof pos[0]==='string'?'right:8px':'left:'+pos[0]+'px'};top:${pos[1]}px;border-color:${(PROG.inv.find(x=>x.id===PROG.eq[k])||{}).rar?RAR[PROG.inv.find(x=>x.id===PROG.eq[k]).rar][1]:'#3a3260'}"><small>${n}</small></div>`;}).join('')}</div>
+      <div class="hero-identity"><div class="hname">${C.n}<span class="role">${ROLE_N[C.role]}</span></div>
+      <p>${mastTxt((PROG.mast||{})[selCls]||0)} · 尘 ${PROG.dust||0} · 徽记 ${PROG.marks||0}</p></div>
+      <div class="class-picker"><button class="class-arrow prev" data-class-step="-1" aria-label="向前查看职业">‹</button><div class="classes" id="heroClasses" aria-label="选择职业"></div><button class="class-arrow next" data-class-step="1" aria-label="向后查看职业">›</button></div>
       <div class="stats"><div>生命<em>${Math.round(C.hp*(1+t.hp+(A.lv-1)*.008))}</em></div><div>攻击<em>+${Math.round((t.atk+(A.lv-1)*.008)*100)}%</em></div><div>暴击<em>+${Math.round(t.crit*100)}%</em></div><div>技能伤害<em>+${Math.round(t.skill*100)}%</em></div><div>移速<em>+${Math.round(t.spd*100)}%</em></div><div>技能冷却<em>-${Math.round(Math.min(.4,t.cdr)*100)}%</em></div></div>
-      <div class="sets">${GSET.map((S,k)=>sets[k]?`<b>${S.n}套装 ${sets[k]}/4</b><br><span class="${sets[k]>=2?'':'off'}">(2) ${S.b2[0]}</span><br><span class="${sets[k]>=4?'':'off'}">(4) ${S.b4[0]}</span>`:'').filter(Boolean).join('<br>')||'<span class="off">穿戴同一副本的史诗 / 传说装备可激活套装（最多 4 件）</span>'}</div>
-      <button class="bigbtn" id="toRaid">进入副本</button>`;
+      <div class="hero-more">
+      ${(()=>{const E=EXW[selCls],w=exwOf(selCls);return `<details class="exw"><summary>专武 · ${E.n}</summary><div class="detail-body">
+        <b style="color:#ff9ae6">专武「${E.n}」${w?` +${w.up||0} ${'★'.repeat(w.star||0)}${'☆'.repeat(5-(w.star||0))}`:''}</b>　${E.d}<br>${w?(PROG.eq.wpn===w.id?'<span style="color:#7dff8a">已装备</span>':'<button class="b sm" id="exwOn">装备专武</button>')+((w.star||0)<5?` <button class="b ghost sm" id="exwStar">升星（尘 ${STAR_COST[w.star||0]}）</button><br><span style="color:#9a94c0">每星属性 +10%；3★ 对首领伤害 +10%；5★ 技能伤害 +15%</span>`:''):`<button class="b sm" id="exwGet"${(PROG.marks||0)<EXW_COST?' disabled':''}>解锁（徽记 ×${EXW_COST}）</button>`}</div></details>`;})()}
+
+      <details><summary>套装效果${Object.values(sets).some(n=>n)?" · 已穿戴":" · 未激活"}</summary><div class="detail-body sets">${GSET.map((S,k)=>sets[k]?`<b>${S.n}套装 ${sets[k]}/4</b><br><span class="${sets[k]>=2?'':'off'}">(2) ${S.b2[0]}</span><br><span class="${sets[k]>=4?'':'off'}">(4) ${S.b4[0]}</span>`:'').filter(Boolean).join('<br>')||'<span class="off">穿戴同一副本的史诗 / 传说装备可激活套装（最多 4 件）</span>'}</div></details></div></div>`;
     renderClasses();SLOTS.forEach(([k])=>{const it=PROG.inv.find(x=>x.id===PROG.eq[k]),el=V.querySelector(`[data-slot="${k}"]`);if(it)el.prepend(itemIcon(it));});
     heroAnim();}
   else if(v==='bag'){const items=PROG.inv.slice().sort((a,b)=>b.rar-a.rar||b.il-a.il),eqIds=Object.values(PROG.eq);
@@ -2387,7 +2436,7 @@ function renderHub(v){HUB.v=v;heroArt(selCls);liveLoad(selCls);const A=PROG.acc,
       <div>镜头震动<em><button class="b ghost sm" id="shkB2">${SHAKE?'开':'关'}</button></em></div>
       <div>版本<em>${VERSION}</em></div></div>
       <button class="bigbtn" id="resetAll" style="background:#5a1a2a">清空存档</button>`;}
-  navSel();}
+  V.scrollTop=HUB.scroll[v]||0;navSel();}
 function showItem(id){HUB.sel=id;const it=PROG.inv.find(x=>x.id===id);if(!it)return;const on=PROG.eq[it.slot]===it.id;
   $('itip').innerHTML=`<div class="itip"><b style="color:${RAR[it.rar][1]}">${it.n}</b>　<span style="color:#9a94c0">${RAR[it.rar][0]} · ${SLOTS.find(s=>s[0]===it.slot)[1]} · 物品等级 ${it.il}</span><br>${statLine(it.st)}
     ${(it.fx||[]).map(k=>`<br><span style="color:#7dffcf">特效 · ${GEFX[k][0]}</span>`).join('')}
@@ -2395,8 +2444,9 @@ function showItem(id){HUB.sel=id;const it=PROG.inv.find(x=>x.id===id);if(!it)ret
     ${it.set!==null?`<br><span style="color:#ffd77a">${GSET[it.set].n}套装：(2) ${GSET[it.set].b2[0]}　(4) ${GSET[it.set].b4[0]}</span>`:''}<br>
     ${it.up?`<br><span style="color:#ffd77a">强化 +${it.up}（属性 +${it.up*8}%）</span>`:''}<br>
     <button class="b" data-act="${on?'off':'on'}">${on?'卸下':'穿戴'}</button><button class="b ghost" data-act="up">强化（${upCost(it)} 尘）</button>${it.ex?'':`<button class="b ghost" data-act="rr">重铸（20 尘）</button><button class="b ghost" data-act="del">分解（+${it.rar*5+(it.up||0)*2} 尘）</button>`}</div>`;}
+$('toRaid').onclick=()=>show('levels');
 $('hubView').addEventListener('click',e=>{const V=$('hubView');
-  if(e.target.id==='toRaid'){show('levels');return;}
+  const step=e.target.closest('[data-class-step]');if(step){$('heroClasses').scrollBy({left:+step.dataset.classStep*177,behavior:'smooth'});return;}
   if(e.target.id==='exwGet'){if(exwUnlock(selCls)){toast('获得专武「'+EXW[selCls].n+'」');achCheck&&achCheck();}renderHub('hero');return;}
   if(e.target.id==='exwStar'){const w=exwOf(selCls);if(w)exwStar(w);renderHub('hero');return;}
   if(e.target.id==='exwOn'){const w=exwOf(selCls);if(w){PROG.eq.wpn=w.id;saveProg();}renderHub('hero');return;}
@@ -2509,9 +2559,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v88"></script>
-<script src="src/raid_engine.js?v=v88"></script>
-<script src="content/rigs.js?v=v88"></script>
-<script src="src/rig.js?v=v88"></script>
+<script src="content/skill_fx.js?v=v89"></script>
+<script src="src/raid_engine.js?v=v89"></script>
+<script src="content/rigs.js?v=v89"></script>
+<script src="src/rig.js?v=v89"></script>
 </body>
 </html>

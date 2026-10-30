@@ -30,7 +30,7 @@ function sheet(name){
       // 读过像素的画布会被浏览器降级成软件画布（内存双份、绘制慢）：处理完复制到一张干净画布，身高先算好缓存
       const n=document.createElement('canvas');n.width=c.width;n.height=c.height;n.getContext('2d').drawImage(c,0,0);n.isArt=true;if(window.frameH)n._bh=frameH(c);f[i]=n;});
     // 图集已由 tools/artprep.swift 离线清理、对齐（去残渣/串格碎片/绿边、同组统一缩放与脚底锚点），运行时只切帧
-    if(SHEET[name])SHEET[name].f=f;};   // 加载途中换副本会被 evictOthers 清掉
+    if(SHEET[name]){SHEET[name].f=f;if(window.refreshBossPortraits)refreshBossPortraits();}};   // 加载途中换副本会被 evictOthers 清掉
   im.onerror=()=>{if(SHEET[name])SHEET[name].bad=true;};
   im.src='art/'+name+'.png?v='+VERSION;
   return null;
