@@ -182,7 +182,7 @@
   .nd.cur{animation:pulse 1s infinite}.nd.sel{outline:2px solid #fff;outline-offset:2px}
   .nd.pt{width:30px;height:30px;margin:-17px 0 0 -17px;background-size:cover;background-position:center}.nd.pt.chief{width:40px;height:40px;margin:-22px 0 0 -22px}
   .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(.7) brightness(.8)}
-  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v96) 0 0/2500% 100% no-repeat;flex:none}
+  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v97) 0 0/2500% 100% no-repeat;flex:none}
   .btn .ic{width:auto;height:auto;margin:0;vertical-align:baseline;background-size:cover}   /* 战斗技能按钮也叫 .ic，别被界面小图标的尺寸覆盖 */
   .boss-gd summary{list-style:none;cursor:pointer}.boss-gd summary::-webkit-details-marker{display:none}.gd-list{margin-top:6px;border-top:1px solid #3d3560;padding-top:4px}
   .gd{padding:5px 2px;border-bottom:1px dashed #2f2a48;font-size:11px;line-height:1.55}.gd b{color:#ffb070}.gd.ph b{color:#c8a8ff}.gd.add b{color:#8fd7ff}.gd .how{color:#9fffb0}
@@ -194,6 +194,20 @@
   .tut-glow{animation:tutGlow .9s infinite}@keyframes tutGlow{50%{box-shadow:0 0 0 6px #ffd77a99,0 0 22px #ffd77a}}
   #atkB em{font-style:normal}#atkB.down{transform:scale(.92);filter:brightness(1.3)}
   #joy{opacity:.55!important}#joy.act{opacity:1!important}
+  .hero-identity{display:flex;align-items:baseline;justify-content:center;gap:10px}.hero-name{font-size:24px;font-weight:900;letter-spacing:4px;color:#fff;text-shadow:0 2px 6px #000}
+  .role-chip{font-size:11px;padding:2px 10px;border-radius:10px;background:#3a2f5c;border:1px solid #7a68a8;color:#e6defb}
+  .hero-tiles,.hero-acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .hero-tile{display:flex;align-items:center;gap:2px;padding:6px 8px;border-radius:10px;background:#151326f0;border:1px solid #514663}.hero-tile small{display:block;font-size:10px;color:#b9b2d0}.hero-tile b{font-size:16px;color:#ffe9b0}
+  .hero-act{position:relative;height:46px;display:flex;align-items:center;justify-content:center;gap:2px;border-radius:10px;border:1px solid #7a68a8;background:linear-gradient(180deg,#2a2448,#18152c);color:#f0eaff;font:700 13px inherit;letter-spacing:2px;cursor:pointer;box-shadow:0 2px 0 #0b0918}
+  .hero-act .dot{position:absolute;right:8px;top:8px;width:7px;height:7px;border-radius:50%;background:#7dff8a}
+  .hero-pop{display:none;position:absolute;left:282px;right:10px;top:8px;bottom:8px;z-index:5;overflow-y:auto;padding:14px 16px;border-radius:12px;background:#120f24f7;border:1px solid #7a68a8;box-shadow:0 8px 30px #000c;font-size:12px;line-height:1.7}
+  .hero-pop.on{display:block}.pop-t{display:block;font-size:15px;color:#ffd7a0;margin-bottom:4px}.hero-pop .sub{color:#b9b2d0;font-size:11px}
+  .pop-x{position:absolute;right:8px;top:8px;width:28px;height:28px;border-radius:50%;border:1px solid #7a68a8;background:#221c3c;color:#fff;cursor:pointer}
+  .pop-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}.pop-stats em{float:right;font-style:normal;color:#ffe9b0}
+  .lv-head b{font-size:17px}.lv-head small{margin-left:8px;color:#b9b2d0}.lv-state{font-size:12px;color:#d8d0ea;margin:2px 0 6px}
+  .lv-diff{display:flex;gap:6px;margin-bottom:6px}.lvinfo .lv-go{display:block;width:100%;margin:6px 0 0;padding:10px 0;font-size:15px}
+  .lv-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px;margin-top:10px}.lv-acts .hero-act{height:52px;flex-direction:column;font-size:11px;letter-spacing:1px;gap:0}.lv-acts .hero-act .ic.lg{width:24px;height:24px;margin:0}
+  .lvinfo .lv-pop{left:6px;right:6px;top:6px;bottom:6px}.lvinfo{overflow:visible}
   .tt{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.tt-col{background:#120f24ee;border:1px solid #3d3560;border-top:3px solid var(--c);border-radius:8px;padding:4px 3px}
   .tt-h{text-align:center;font-weight:700;color:var(--c);font-size:12px;margin-bottom:2px}.tt-h small{color:#d8d0ea;font-weight:400}
   .tt-row{display:flex;gap:3px;margin:3px 0}.tt-n{flex:1;min-width:0;height:36px;border-radius:6px;border:1px solid #4a4266;background:#1d1a33;color:#bdb6d6;font-size:10px;line-height:1.15;padding:2px;font-family:inherit;cursor:pointer}
@@ -369,12 +383,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v96"></script>
-<script src="content/boss_tune.js?v=v96"></script>
-<script src="src/loop.js?v=v96"></script>
+<script src="content/raids_data.js?v=v97"></script>
+<script src="content/boss_tune.js?v=v97"></script>
+<script src="src/loop.js?v=v97"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=347,H=195,VERSION='v96';
+const W=347,H=195,VERSION='v97';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -2434,22 +2448,28 @@ function renderLevels(){
   if(miss&&(renderLevels.tries=(renderLevels.tries||0)+1)<8)setTimeout(()=>{if($('levels').classList.contains('on'))renderLevels();},700);else if(!miss)renderLevels.tries=0;
   const L=selLevel,v=LV[L],r=RAIDS[v.ri],lvLock=PROG.acc.lv<RAID_REQ(r),lock=L>PROG.un||lvLock,b=PROG.best[L];
   const ri=v.ri,dmax=(PROG.diff||{})[ri]||0;if(selDiff>dmax)selDiff=dmax;const run=PROG.run&&PROG.run.ri===ri?PROG.run:null,D=dailyInfo(),dd=dailyState();
-  $('lvInfo').innerHTML=`<b>${rNo(L)}-${kOf(L)} ${v.b.n}</b>　<span style="color:#9a94c0">${r.name}</span><br>
-    <span style="color:#ffb070;font-size:11px">技能：${bossSkillList(v.b).join('、')||'—'}</span><br><span style="color:#c8c0ff;font-size:11px">机制：${v.b.tip||'—'}</span><br>
-    ${lvLock?`🔒 需要账号等级 ${RAID_REQ(r)}`:lock?'🔒 通关上一关解锁':b?`最佳 ${fmtT(b.t)} · ${CLS[b.c].n}`:'未通关'}<br>
-    <div style="display:flex;gap:4px;margin:4px 0">${DIFF_T.map((T,k)=>`<button class="b ${k===selDiff?'':'ghost'} sm" data-diff="${k}"${k>dmax?' disabled':''}>${k>dmax?'🔒':''}${T.n}</button>`).join('')}</div>
-    ${run?`<button class="b" id="lvResume">从存档点继续（第 ${LV[run.L].k+1} 关）</button>`:''}
-    ${(PROG.clr||{})[ri]!==undefined?'<button class="b ghost sm" id="lvSweep">扫荡本章（自动战斗）</button>':''}
-    <button class="b${run?' ghost':''}" id="lvGo"${firstL(ri)>PROG.un?' disabled':''}>从章首出发</button>
-    <button class="b ghost sm" id="lvEndless"${endlessOpen()?'':' disabled'}>${endlessOpen()?`无尽深渊：五章连打，每轮更强 · 最高 ${(PROG.endless||{}).best||0} 层`:'🔒 无尽深渊（通关第一章开放）'}</button>
-    <button class="b ghost sm" id="lvDaily">每日挑战：${RAIDS[D.ri].name} · ${D.affix.n}（${D.affix.d}）${dd.done?' ✅':''}${dd.best?` 最佳 ${fmtT(dd.best)}`:''}</button>${tasksHTML()}`;
+  // 一级只放：首领名、状态、难度、出发；攻略 / 扫荡 / 无尽 / 每日 / 任务 是图标入口，点开二级面板
+  const T=taskState(),taskDot=T.list.some(q=>!q.claimed&&q.got>=taskDef(q.k).need)||(T.list.every(q=>q.claimed)&&!T.bonus),cleared=(PROG.clr||{})[ri]!==undefined,lp=HUB.lvPop;
+  const POP={guide:()=>`<b class="pop-t">${v.b.n} · 攻略</b><div class="gd-list">${bossGuide(v.b)||v.b.tip||''}</div>`,
+    endless:()=>`<b class="pop-t">无尽深渊</b><p>五章首尾相接一路往下打，每层敌人更强，海克斯一路保留；倒下时按层数给尘和徽记。</p><p class="sub">最高 ${(PROG.endless||{}).best||0} 层</p>${endlessOpen()?'<button class="b" id="lvEndless">进入无尽深渊</button>':'<p class="sub">通关第一章后开放</p>'}`,
+    daily:()=>`<b class="pop-t">每日挑战 · ${RAIDS[D.ri].name}</b><p>今日词缀：${D.affix.n}（${D.affix.d}）</p><p class="sub">${dd.done?'今天已完成 ✅':'完成奖励：徽记 +5、尘 +50'}${dd.best?` · 最佳 ${fmtT(dd.best)}`:''}</p><button class="b" id="lvDaily">开始挑战</button>`,
+    task:()=>tasksHTML(),
+    sweep:()=>`<b class="pop-t">扫荡 · ${r.name}</b><p>已通关的章节可以交给自动战斗，从章首打到章末，奖励照常。</p><button class="b" id="lvSweep">开始扫荡</button>`};
+  $('lvInfo').innerHTML=`<div class="lv-head"><b>${rNo(L)}-${kOf(L)} ${v.b.n}</b><small>${r.name}</small></div>
+    <div class="lv-state">${lvLock?`${icon('lock')}需要账号等级 ${RAID_REQ(r)}`:lock?`${icon('lock')}通关上一关解锁`:b?`${icon('trophy')}最佳 ${fmtT(b.t)} · ${CLS[b.c].n}`:'未通关'}</div>
+    <div class="lv-diff">${DIFF_T.map((T,k)=>`<button class="b ${k===selDiff?'':'ghost'} sm" data-diff="${k}"${k>dmax?' disabled':''}>${k>dmax?'🔒':''}${T.n}</button>`).join('')}</div>
+    ${run?`<button class="b lv-go" id="lvResume">从存档点继续（第 ${LV[run.L].k+1} 关）</button>`:''}
+    <button class="b lv-go${run?' ghost':''}" id="lvGo"${firstL(ri)>PROG.un?' disabled':''}>从章首出发</button>
+    <div class="lv-acts"><button class="hero-act" data-lvpop="guide">${icon('codex','lg')}攻略</button>${cleared?`<button class="hero-act" data-lvpop="sweep">${icon('battle','lg')}扫荡</button>`:''}<button class="hero-act" data-lvpop="endless">${icon('endless','lg')}无尽</button><button class="hero-act" data-lvpop="daily">${icon('trophy','lg')}每日${dd.done?'':'<i class="dot"></i>'}</button><button class="hero-act" data-lvpop="task">${icon('chest','lg')}任务${taskDot?'<i class="dot"></i>':''}</button></div>
+    ${lp&&POP[lp]?`<div class="hero-pop on lv-pop"><button class="pop-x" data-lvpop="">✕</button>${POP[lp]()}</div>`:''}`;
   setTimeout(()=>{const o=document.querySelector('.rtab.on');if(o)o.scrollIntoView({inline:'center',block:'nearest'});});
 }
 $('raidTabs').addEventListener('click',e=>{const d=e.target.closest('[data-r]');if(!d||d.classList.contains('lock'))return;selRaid=+d.dataset.r;const f=firstL(selRaid);selLevel=Math.min(Math.max(f,PROG.un>=f?Math.min(PROG.un,f+RAIDS[selRaid].bosses.length-1):f),NLV());renderLevels();});
 const CH_DESC=['火山熔岩','龙巢峡谷','亡灵要塞','虚空神殿'];
 const fmtT=t=>String(t/60|0).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
-$('nodes').addEventListener('click',e=>{const d=e.target.closest('[data-l]');if(!d||d.classList.contains('lock'))return;selLevel=+d.dataset.l;renderLevels();});
+$('nodes').addEventListener('click',e=>{const d=e.target.closest('[data-l]');if(!d||d.classList.contains('lock'))return;selLevel=+d.dataset.l;if(HUB.lvPop==='guide')HUB.lvPop=null;renderLevels();});
 $('lvInfo').addEventListener('click',e=>{const t=e.target;
+  {const pb=t.closest('[data-lvpop]');if(pb){HUB.lvPop=pb.dataset.lvpop===HUB.lvPop?null:pb.dataset.lvpop||null;renderLevels();return;}}
   if(t.dataset.diff!==undefined&&!t.disabled){selDiff=+t.dataset.diff;renderLevels();return;}
   if(t.id==='lvResume'){$('nav').classList.remove('on');startResume();return;}
   if(t.id==='lvSweep'){$('nav').classList.remove('on');AUTO_GO=true;PROG.run=null;saveProg();selLevel=firstL(LV[selLevel].ri);enterLevel();return;}
@@ -2468,20 +2488,21 @@ function itemIcon(it,size=36){const c=document.createElement('canvas');c.width=c
   if(it&&it.ex&&ART.exw){x.drawImage(ART.exw[CLS_IDS.indexOf(it.ex)],0,0,size,size);}
   else if(g){x.drawImage(g[it?it.slot==='wpn'?WPN_ICON[selCls]:SLOT_ICON[it.slot]:13],0,0,size,size);}else{x.fillStyle='#3a3260';x.fillRect(4,4,size-8,size-8);}return c;}
 function statLine(st){return Object.entries(st).map(([k,v])=>`${ST_N[k][0]} ${k==='cdr'?'-':'+'}${(v*100).toFixed(1)}%`).join('　');}
-function renderHub(v){HUB.v=v;heroArt(selCls);liveLoad(selCls);const A=PROG.acc,C=CLS[selCls];
+function heroPop(k){const P=$('heroPop');if(!P)return;HUB.pop=k||null;if(!k||!HUB.popHTML){P.classList.remove('on');return;}P.innerHTML=`<button class="pop-x" data-pop="">✕</button>`+HUB.popHTML[k]();P.classList.add('on');}
+function renderHub(v){if(v!=='hero'||HUB.popCls!==selCls)HUB.pop=null;HUB.popCls=selCls;HUB.v=v;heroArt(selCls);liveLoad(selCls);const A=PROG.acc,C=CLS[selCls];
   $('acct').innerHTML=`<div class="lv">${A.lv}</div><div class="axp">账号等级 Lv.${A.lv}　<span style="color:#9a94c0">${A.xp}/${accNeed(A.lv)}</span><i><b style="width:${Math.min(100,A.xp/accNeed(A.lv)*100)}%"></b></i></div><div class="pw">战力<br><b style="font-size:15px">${power()}</b></div>`;
   const V=$('hubView'),previous=V.dataset.view;if(previous)HUB.scroll[previous]=V.scrollTop;V.dataset.view=v;$('hub').dataset.view=v;
   if(v==='hero'){const{t,sets}=gearStats();
     V.innerHTML=`<div class="hero-page"><div class="hero"><canvas class="art" id="heroArt"></canvas>${SLOTS.map(([k,n],i)=>{const pos=[[8,12],[8,74],[8,136],['r8',12],['r8',74]][i];return `<div class="slot" data-slot="${k}" style="${typeof pos[0]==='string'?'right:8px':'left:'+pos[0]+'px'};top:${pos[1]}px;border-color:${(PROG.inv.find(x=>x.id===PROG.eq[k])||{}).rar?RAR[PROG.inv.find(x=>x.id===PROG.eq[k]).rar][1]:'#3a3260'}"><small>${n}</small></div>`;}).join('')}</div>
-      <div class="hero-identity"><div class="hname">${C.n}<span class="role">${ROLE_N[C.role]}</span></div>
-      <p>${mastTxt((PROG.mast||{})[selCls]||0)} · 尘 ${PROG.dust||0} · 徽记 ${PROG.marks||0}</p></div>
+      <div class="hero-identity"><div class="hero-name">${C.n}</div><span class="role-chip">${ROLE_N[C.role]}</span></div>
       <div class="class-picker"><button class="class-arrow prev" data-class-step="-1" aria-label="向前查看职业">‹</button><div class="classes" id="heroClasses" aria-label="选择职业"></div><button class="class-arrow next" data-class-step="1" aria-label="向后查看职业">›</button></div>
-      <div class="stats"><div>生命<em>${Math.round(C.hp*(1+t.hp+(A.lv-1)*.008))}</em></div><div>攻击<em>+${Math.round((t.atk+(A.lv-1)*.008)*100)}%</em></div><div>暴击<em>+${Math.round(t.crit*100)}%</em></div><div>技能伤害<em>+${Math.round(t.skill*100)}%</em></div><div>移速<em>+${Math.round(t.spd*100)}%</em></div><div>技能冷却<em>-${Math.round(Math.min(.4,t.cdr)*100)}%</em></div></div>
-      <div class="hero-more">
-      ${(()=>{const E=EXW[selCls],w=exwOf(selCls);return `<details class="exw"><summary>专武 · ${E.n}</summary><div class="detail-body">
-        <b style="color:#ff9ae6">专武「${E.n}」${w?` +${w.up||0} ${'★'.repeat(w.star||0)}${'☆'.repeat(5-(w.star||0))}`:''}</b>　${E.d}<br>${w?(PROG.eq.wpn===w.id?'<span style="color:#7dff8a">已装备</span>':'<button class="b sm" id="exwOn">装备专武</button>')+((w.star||0)<5?` <button class="b ghost sm" id="exwStar">升星（尘 ${STAR_COST[w.star||0]}）</button><br><span style="color:#9a94c0">每星属性 +10%；3★ 对首领伤害 +10%；5★ 技能伤害 +15%</span>`:''):`<button class="b sm" id="exwGet"${(PROG.marks||0)<EXW_COST?' disabled':''}>解锁（徽记 ×${EXW_COST}）</button>`}</div></details>`;})()}
-
-      <details><summary>套装效果${Object.values(sets).some(n=>n)?" · 已穿戴":" · 未激活"}</summary><div class="detail-body sets">${GSET.map((S,k)=>sets[k]?`<b>${S.n}套装 ${sets[k]}/4</b><br><span class="${sets[k]>=2?'':'off'}">(2) ${S.b2[0]}</span><br><span class="${sets[k]>=4?'':'off'}">(4) ${S.b4[0]}</span>`:'').filter(Boolean).join('<br>')||'<span class="off">穿戴同一副本的史诗 / 传说装备可激活套装（最多 4 件）</span>'}</div></details></div></div>`;
+      <div class="hero-tiles"><div class="hero-tile">${icon('hp','lg')}<div><small>生命</small><b>${Math.round(C.hp*(1+t.hp+(A.lv-1)*.008))}</b></div></div><div class="hero-tile">${icon('battle','lg')}<div><small>攻击</small><b>+${Math.round((t.atk+(A.lv-1)*.008)*100)}%</b></div></div><div class="hero-tile">${icon('up','lg')}<div><small>暴击</small><b>+${Math.round(t.crit*100)}%</b></div></div></div>
+      <div class="hero-acts"><button class="hero-act" data-pop="exw">${icon('trophy','lg')}专武</button><button class="hero-act" data-pop="set">${icon('chest','lg')}套装${Object.values(sets).some(n=>n)?'<i class="dot"></i>':''}</button><button class="hero-act" data-pop="stat">${icon('tal','lg')}属性</button></div>
+      <div class="hero-pop" id="heroPop"></div></div>`;
+    HUB.popHTML={exw:()=>{const E=EXW[selCls],w=exwOf(selCls);return `<b class="pop-t">专武「${E.n}」${w?` +${w.up||0} ${'★'.repeat(w.star||0)}${'☆'.repeat(5-(w.star||0))}`:''}</b><p>${E.d}</p>${w?(PROG.eq.wpn===w.id?'<p style="color:#7dff8a">已装备</p>':'<button class="b sm" id="exwOn">装备专武</button>')+((w.star||0)<5?` <button class="b ghost sm" id="exwStar">升星（尘 ${STAR_COST[w.star||0]}）</button><p class="sub">每星属性 +10%；3★ 对首领伤害 +10%；5★ 技能伤害 +15%</p>`:''):`<button class="b sm" id="exwGet"${(PROG.marks||0)<EXW_COST?' disabled':''}>解锁（徽记 ×${EXW_COST}）</button><p class="sub">当前徽记 ${PROG.marks||0}</p>`}`;},
+      set:()=>`<b class="pop-t">套装效果</b>${GSET.map((S,k)=>sets[k]?`<p><b>${S.n}套装 ${sets[k]}/4</b><br><span class="${sets[k]>=2?'':'off'}">(2) ${S.b2[0]}</span><br><span class="${sets[k]>=4?'':'off'}">(4) ${S.b4[0]}</span></p>`:'').filter(Boolean).join('')||'<p class="sub">穿戴同一副本的史诗 / 传说装备可激活套装（最多 4 件）</p>'}`,
+      stat:()=>`<b class="pop-t">全部属性</b><div class="pop-stats"><div>生命<em>${Math.round(C.hp*(1+t.hp+(A.lv-1)*.008))}</em></div><div>攻击<em>+${Math.round((t.atk+(A.lv-1)*.008)*100)}%</em></div><div>暴击<em>+${Math.round(t.crit*100)}%</em></div><div>技能伤害<em>+${Math.round(t.skill*100)}%</em></div><div>移速<em>+${Math.round(t.spd*100)}%</em></div><div>技能冷却<em>-${Math.round(Math.min(.4,t.cdr)*100)}%</em></div></div><p class="sub">${mastTxt((PROG.mast||{})[selCls]||0)}</p>`};
+    if(HUB.pop)heroPop(HUB.pop);
     renderClasses();SLOTS.forEach(([k])=>{const it=PROG.inv.find(x=>x.id===PROG.eq[k]),el=V.querySelector(`[data-slot="${k}"]`);if(it)el.prepend(itemIcon(it));});
     heroAnim();}
   else if(v==='bag'){const items=PROG.inv.slice().sort((a,b)=>b.rar-a.rar||b.il-a.il),eqIds=Object.values(PROG.eq);
@@ -2515,6 +2536,7 @@ function showItem(id){HUB.sel=id;const it=PROG.inv.find(x=>x.id===id);if(!it)ret
     <button class="b" data-act="${on?'off':'on'}">${on?'卸下':'穿戴'}</button><button class="b ghost" data-act="up">强化（${upCost(it)} 尘）</button>${it.ex?'':`<button class="b ghost" data-act="rr">重铸（20 尘）</button><button class="b ghost" data-act="del">分解（+${it.rar*5+(it.up||0)*2} 尘）</button>`}</div>`;}
 $('toRaid').onclick=()=>show('levels');
 $('hubView').addEventListener('click',e=>{const V=$('hubView');
+  {const pb=e.target.closest('[data-pop]');if(pb){heroPop(pb.dataset.pop===HUB.pop?null:pb.dataset.pop);return;}}
   const step=e.target.closest('[data-class-step]');if(step){$('heroClasses').scrollBy({left:+step.dataset.classStep*177,behavior:'smooth'});return;}
   if(e.target.id==='exwGet'){if(exwUnlock(selCls)){toast('获得专武「'+EXW[selCls].n+'」');achCheck&&achCheck();}renderHub('hero');return;}
   if(e.target.id==='exwStar'){const w=exwOf(selCls);if(w)exwStar(w);renderHub('hero');return;}
@@ -2639,9 +2661,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v96"></script>
-<script src="src/raid_engine.js?v=v96"></script>
-<script src="content/rigs.js?v=v96"></script>
-<script src="src/rig.js?v=v96"></script>
+<script src="content/skill_fx.js?v=v97"></script>
+<script src="src/raid_engine.js?v=v97"></script>
+<script src="content/rigs.js?v=v97"></script>
+<script src="src/rig.js?v=v97"></script>
 </body>
 </html>
