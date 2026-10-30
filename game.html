@@ -182,12 +182,16 @@
   .nd.cur{animation:pulse 1s infinite}.nd.sel{outline:2px solid #fff;outline-offset:2px}
   .nd.pt{width:30px;height:30px;margin:-17px 0 0 -17px;background-size:cover;background-position:center}.nd.pt.chief{width:40px;height:40px;margin:-22px 0 0 -22px}
   .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(.7) brightness(.8)}
-  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v94) 0 0/2500% 100% no-repeat;flex:none}
+  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v95) 0 0/2500% 100% no-repeat;flex:none}
   .btn .ic{width:auto;height:auto;margin:0;vertical-align:baseline;background-size:cover}   /* 战斗技能按钮也叫 .ic，别被界面小图标的尺寸覆盖 */
   .boss-gd summary{list-style:none;cursor:pointer}.boss-gd summary::-webkit-details-marker{display:none}.gd-list{margin-top:6px;border-top:1px solid #3d3560;padding-top:4px}
   .gd{padding:5px 2px;border-bottom:1px dashed #2f2a48;font-size:11px;line-height:1.55}.gd b{color:#ffb070}.gd.ph b{color:#c8a8ff}.gd.add b{color:#8fd7ff}.gd .how{color:#9fffb0}
   /* 普攻键：按住连续攻击最近的敌人 */
   #atkB{right:20px;bottom:20px;width:76px;height:76px;pointer-events:auto;cursor:pointer;opacity:.95;border:3px solid #ffd77a;color:#fff3c8;font-size:13px;font-weight:900;letter-spacing:2px;background:radial-gradient(circle at 40% 35%,#8a5a20,#3a2410 70%);box-shadow:0 3px 0 #1a0f05,0 4px 14px #000a}
+  #tutT{position:absolute;left:50%;top:56px;transform:translateX(-50%);z-index:8;display:none;max-width:440px;padding:8px 16px;border-radius:10px;background:#120f24ee;border:2px solid #ffd77a;color:#fff;font-size:13px;line-height:1.5;text-align:center;box-shadow:0 4px 16px #000a;pointer-events:none}
+  #tutT.on{display:block;animation:tutIn .3s}#tutT small{display:block;color:#ffd77a;font-size:10px;letter-spacing:2px}
+  @keyframes tutIn{from{opacity:0;transform:translate(-50%,-6px)}}
+  .tut-glow{animation:tutGlow .9s infinite}@keyframes tutGlow{50%{box-shadow:0 0 0 6px #ffd77a99,0 0 22px #ffd77a}}
   #atkB em{font-style:normal}#atkB.down{transform:scale(.92);filter:brightness(1.3)}
   #joy{opacity:.55!important}#joy.act{opacity:1!important}
   .tt{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.tt-col{background:#120f24ee;border:1px solid #3d3560;border-top:3px solid var(--c);border-radius:8px;padding:4px 3px}
@@ -322,6 +326,7 @@
   <div class="ov" id="pauseV"><div class="menu"><div class="hname" style="font-size:15px">暂停</div><button class="b" id="pzGo">继续</button><button class="b ghost" id="pzSnd">音效</button><button class="b ghost" id="pzShk">震屏</button><p class="ver" style="text-align:center;color:#9a94c0;font-size:10px">版本 <span id="pzVer"></span></p><button class="b ghost" id="pzHome">返回主界面</button></div></div>
   <div id="hexV"></div>
   <div id="hint"></div>
+  <div id="tutT"></div>
   <div class="btn" id="skill"><b class="ic" id="skIc"></b><em id="skTx">技能</em></div>
   <div class="btn" id="atkB"><em>普攻</em></div>
   <div class="btn" id="skill2"><em id="sk2Tx">天赋</em></div>
@@ -364,12 +369,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v94"></script>
-<script src="content/boss_tune.js?v=v94"></script>
-<script src="src/loop.js?v=v94"></script>
+<script src="content/raids_data.js?v=v95"></script>
+<script src="content/boss_tune.js?v=v95"></script>
+<script src="src/loop.js?v=v95"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=347,H=195,VERSION='v94';
+const W=347,H=195,VERSION='v95';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -1904,7 +1909,7 @@ function update(dt){
   if(st.windHeal&&G.phase==='fight'&&(G.windT=(G.windT||8)-dt)<=0){G.windT=8;const a=Math.round(pl.maxHp*.08);pl.hp=Math.min(pl.maxHp,pl.hp+a);num(pl.x,pl.y-12,'+'+a,'#7dff8a',true);burst(pl.x,pl.y,10,'#9fffd0',40,.5);}
   if(st.orbital&&G.phase==='fight'&&(G.orbT-=dt)<=0){G.orbT=6;const t=nearest(pl.x,pl.y,400);if(t){const R=G.rm;G.beams.push({x:t.x-7,y:R.y-30,w:14,h:R.h+40,t:.35,T:.35,col:'#ff6a6a'});
     for(const e of en)if(!e.dead&&Math.abs(e.x-t.x)<7+e.r)dmg(e,atkBase()*3,{col:'#ff8a8a'});}}
-  G.skillT-=dt;G.sk2T=(G.sk2T||0)-dt;G.ultT-=dt;if(G.boss&&G.boss.essence&&!G.boss.dead)G.ultT-=dt;G.energy=clamp((1-G.ultT/st.ultCd)*100,0,100);
+  tutTick();G.skillT-=dt;G.sk2T=(G.sk2T||0)-dt;G.ultT-=dt;if(G.boss&&G.boss.essence&&!G.boss.dead)G.ultT-=dt;G.energy=clamp((1-G.ultT/st.ultCd)*100,0,100);
   if(G.skT>0){G.skT-=dt;if((G.skTick-=dt)<=0){G.skTick=.15;const r=40*st.skR;for(const e of en)if(!e.dead&&Math.hypot(e.x-pl.x,e.y-pl.y)<r+e.r)dmg(e,atkBase()*st.skillMul*.8,{col:'#e9fdff'});}}
   if(G.after>0&&(G.after-=dt)<=0)slam();
   for(const a of G.arrowRains){a.t-=dt;if((a.pulse-=dt)<=0){a.pulse=.2;for(const e of en)if(!e.dead&&Math.hypot(e.x-a.x,e.y-a.y)<a.r+e.r)dmg(e,atkBase()*st.skillMul*.9,{col:'#c8f0a0'});}}
@@ -2634,9 +2639,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v94"></script>
-<script src="src/raid_engine.js?v=v94"></script>
-<script src="content/rigs.js?v=v94"></script>
-<script src="src/rig.js?v=v94"></script>
+<script src="content/skill_fx.js?v=v95"></script>
+<script src="src/raid_engine.js?v=v95"></script>
+<script src="content/rigs.js?v=v95"></script>
+<script src="src/rig.js?v=v95"></script>
 </body>
 </html>

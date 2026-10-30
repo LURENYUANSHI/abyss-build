@@ -342,3 +342,22 @@ function taskClaim(i){const T=taskState();if(i==='all'){if(T.list.every(q=>q.cla
 // ---------- 专武升星：尘的长期去处；每星属性 +10%，3★ 对首领伤害 +10%，5★ 技能伤害 +15% ----------
 const STAR_COST=[300,600,1000,1500,2200];
 function exwStar(it){const s=it.star||0;if(s>=5)return toast('已满星');const c=STAR_COST[s];if((PROG.dust||0)<c)return toast(`尘不足（需要 ${c}）`);PROG.dust-=c;it.star=s+1;saveProg();toast(`${it.n} 升到 ${it.star}★`);}
+
+// ---------- 新手教程（第一章）：手动操作分步提示，做到了才进下一步；第一章通关后不再出现 ----------
+const TUT=[
+  {t:'拖动<b>左半边屏幕</b>移动角色',done:S=>Math.hypot(pl.x-S.x0,pl.y-S.y0)>40},
+  {t:'按住右下角<b>【普攻】</b>，打倒一个敌人',el:'atkB',done:S=>G.kills>S.k0},
+  {t:'点<b>【技能】</b>释放技能',el:'skill',when:()=>G.skillT<=0&&nearest(pl.x,pl.y,110),done:S=>G.skillT>0},
+  {t:'大招充满了！点<b>【大招】</b>',el:'ult',when:()=>G.ultT<=0,done:S=>G.ultT>0},
+  {t:'首领战：<b style="color:#ff7a7a">红色区域</b>是首领的技能，及时躲开；<b style="color:#7fe6ff">蓝色虚线圈</b>是你自己的技能范围',when:()=>G.boss&&G.cfg&&G.cfg.type==='big',done:S=>G.t-S.t0>7},
+  {t:'每个首领的详细攻略都在<b>【图鉴】</b>里，出发前可以先看',when:()=>G.bossDone,done:S=>G.t-S.t0>5}];
+let TUTS=null;
+function tutTick(){const el=$('tutT');if(!el||window.SIM)return;const i=PROG.tut||0,on=G&&G.state==='play'&&!G.auto&&!ttUnlocked()&&i<TUT.length;
+  const T=on&&TUT[i];
+  if(T&&TUTS&&TUTS.i===i&&T.done(TUTS)){PROG.tut=i+1;saveProg();TUTS=null;el.classList.remove('on');return;}   // 出现过的步骤，就算触发条件消失（如技能进冷却）也要判完成
+  const show=T&&(!T.when||T.when());
+  for(const id of['atkB','skill','ult'])$(id)&&$(id).classList.toggle('tut-glow',!!(show&&T.el===id));
+  if(!show){el.classList.remove('on');return;}   // 大招特写等期间暂时隐藏，但记住这一步已经出现过
+  if(!TUTS||TUTS.i!==i)TUTS={i,x0:pl.x,y0:pl.y,k0:G.kills,t0:G.t};
+  if(el.dataset.i!==String(i)){el.innerHTML=`<small>新手教程 ${i+1}/${TUT.length}</small>${T.t}`;el.dataset.i=i;}el.classList.add('on');
+}
