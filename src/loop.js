@@ -56,10 +56,11 @@ const TT={mage:[
     {id:'i9',t:4,n:'寒冰箭',d:'法球伤害 +15%，减速效果加倍',f:()=>{st.atkMul*=1.15;st.slow*=2;}}]}]};
 const TT_MAX=14,ttOf=c=>TT[c]||null,ttMine=c=>(PROG.tt=PROG.tt||{})[c]=(PROG.tt[c]||{});
 const ttSpent=(c,tree)=>{const m=ttMine(c),T=ttOf(c);if(!T)return 0;return(tree===undefined?T:[T[tree]]).reduce((a,tr)=>a+tr.nodes.filter(n=>m[n.id]).length,0);};
-const ttPts=c=>Math.min(TT_MAX,Math.floor(PROG.acc.lv/2))-ttSpent(c);
+const ttUnlocked=()=>(PROG.clr||{})[0]!==undefined||PROG.un>LV.findIndex(v=>v&&v.ri===0&&v.last);   // 第一章（新手教程）通关后开放全部天赋树
+const ttPts=c=>ttUnlocked()?Math.min(TT_MAX,Math.floor(PROG.acc.lv/2))-ttSpent(c):0;
 const ttOpen=(c,tree,n)=>ttSpent(c,tree)>=n.t*2;
 function ttLearn(c,tree,id){const T=ttOf(c),n=T&&T[tree].nodes.find(x=>x.id===id),m=ttMine(c);if(!n||m[id])return;
-  if(ttPts(c)<1)return toast('天赋点不足（账号每 2 级 1 点）');if(!ttOpen(c,tree,n))return toast(`该系再投入 ${n.t*2-ttSpent(c,tree)} 点才能解锁这一层`);
+  if(!ttUnlocked())return toast('通关第一章后开放天赋树');if(ttPts(c)<1)return toast('天赋点不足（账号每 2 级 1 点）');if(!ttOpen(c,tree,n))return toast(`该系再投入 ${n.t*2-ttSpent(c,tree)} 点才能解锁这一层`);
   m[id]=1;if(n.sk&&!(PROG.tsk||{})[c])(PROG.tsk=PROG.tsk||{})[c]=n.sk;saveProg();}
 function ttReset(c){PROG.tt[c]={};if(PROG.tsk)delete PROG.tsk[c];saveProg();}
 const ttSkill=c=>{const s=(PROG.tsk||{})[c],T=ttOf(c);if(!s||!T)return null;for(const tr of T)for(const n of tr.nodes)if(n.sk===s&&ttMine(c)[n.id])return n;return null;};
@@ -195,12 +196,70 @@ function startResume(){const R=PROG.run;if(!R)return;RESUME=R;selCls=R.cls;selLe
 
 // ---------- 首领图鉴 ----------
 function bossSkillList(d){return (d.sk||[]).filter((k,i,a)=>a.indexOf(k)===i).map(k=>(d.skills&&d.skills[k]&&d.skills[k].say)||SKN[k]||k);}
+// ---------- 首领攻略（局外图鉴）：按技能数据逐条生成“会发生什么 / 该怎么做” ----------
+const G_DMG=d=>d>=2.5?'<b style="color:#ff6a6a">致命</b>':d>=1.4?'<b style="color:#ff9a4a">高伤害</b>':d>0?'中等伤害':'无伤害';
+const G_EFF={stun:'并眩晕你',knock:'并把你击退',slow:'并减速你',dot:'并附加持续伤害',silence:'并封住你的技能',fear:'并让你恐惧乱跑',freeze:'并冻住你',blind:'并让你伤害减半（致盲）',dispel:'并驱散你身上的增益'};
+const G_AT={boss:'以首领为中心',player:'在你脚下',random:'在场地随机位置',fixed:'在场地固定区域'};
+const G_BUILTIN={shadowflame:['首领朝你喷出一道大扇形暗影烈焰','看到首领转身蓄力就绕到它侧面或身后'],erupt:['地面随机喷发熔岩柱','留意地面发光的裂缝，别站在上面'],charge:['首领锁定你的方向后直线冲锋','看到它停顿瞄准，立刻横向走开'],
+  roar:['全场咆哮，让你恐惧乱跑几秒','恐惧前保持血量健康，别站在危险区附近'],wrath:['首领以自身为中心击退并重击','别贴着首领站，远程在外圈输出'],volley:['向四周发射一圈弹幕','从弹幕之间的空隙侧向穿过去'],
+  slam:['首领重砸地面，周围大范围伤害','看到举手蓄力就跑出近身范围'],blink:['首领瞬移到你身边','它会突然贴脸，提前留好位移和大招'],adrenaline:['让你中毒，几秒后对周围造成大伤害','中招后立刻远离小怪和危险区，等爆炸结束'],
+  fireCone:['首领朝你喷火，扇形范围','绕到首领侧后方'],affliction:['给你叠加各色减益（减速、持续伤害等）','注意血量，减益多时先拉开距离'],whelps:['召唤一群雏龙','用范围技能清掉，别让它们围住你'],
+  ring:['首领周围出现一圈伤害环','站在环内贴近首领，或者站到环外很远处'],frostCone:['首领朝你喷出冰霜扇形','绕到侧后方，被冻住会很危险'],acidCone:['首领朝你喷出酸液扇形','绕到侧后方']};
+function skillGuide(k,p){
+  if(!p)return G_BUILTIN[k]||['首领的招牌技能','留意首领的蓄力动作和地上的红色预警'];
+  const T=p.T?` ${(+p.T).toFixed(1)} 秒后`:'',D=G_DMG(p.dmg||0),E=G_EFF[p.eff]?'，'+G_EFF[p.eff]:'';
+  switch(p.e){
+    case'tel':{const at=G_AT[p.at]||'',n=p.n>1?` ${p.n} 个`:'';
+      if((p.t||'circle')==='circle')return[`${at}出现${n}红色圆圈（半径约 ${p.r||40}），${T}爆炸，${D}${E}`,p.at==='boss'?'看到红圈立刻跑出首领身边，等爆炸后再回来输出':p.at==='player'?'脚下出现红圈马上移动，别站着不动':'找红圈之间的空地站'];
+      if(p.t==='cone')return[`首领向你的方向张开扇形预警，${T}喷发，${D}${E}`,'绕到首领侧面或身后，别站在它正面'];
+      if(p.t==='beam')return[`首领射出一道长光束，${T}命中，${D}${E}`,'光束沿直线打，横向侧移出去'];
+      return[`${at}出现长方形预警区，${T}生效，${D}${E}`,'从预警区横向走出去'];}
+    case'special':{const n=p.name;
+      if(n==='hitTel')return[`${G_AT[p.at]||''}出现${p.t==='rect'?'大片长方形':'圆形'}预警，${T}生效${E}${p.dmg?'，'+D:''}`,p.eff==='slow'?'被减速后很难躲后续技能，提前走出预警区':'走出预警区'];
+      if(n==='classCall')return['每隔一段时间点名一个职业，给该职业加一个惩罚','被点到时注意血量，别贪输出'];
+      if(n==='vanish')return['首领隐身消失几秒，随后出现在你身边重击','它消失后不停走动，别站在原地'];
+      if(n==='channelBeam')return['首领持续引导一道光束追着你','绕着它跑，别被光束连续打中'];
+      if(n==='leech'||n==='siphon')return['首领吸取你的生命来回血','尽快打断或打出爆发，别让它回满'];
+      if(n==='randomBreath')return['首领随机切换不同属性的吐息','看吐息颜色预判，绕到侧后方'];
+      if(n==='fixate')return['首领锁定追击你','边跑边打，别让它贴脸'];
+      if(n==='dot'||n==='touchDot')return['给你附加持续伤害','注意血量，必要时先拉开距离回血'];
+      if(n==='airborne')return['首领飞到空中一段时间，期间无法被近身攻击','躲开空中落下的攻击，等它落地再输出'];
+      if(n==='pads')return['场地上出现机关地块','按地块效果走位：伤害块别踩，增益块去踩'];
+      if(n==='aspectCycle')return['首领循环切换几种形态，每种形态技能不同','看它的颜色/形态切换应对'];
+      if(n==='auraStacks')return['靠近首领会叠加伤害层数','别一直贴身，层数高了先拉开'];
+      if(n==='essenceOfRed')return['战斗中会获得强大的增益','趁增益期间全力输出'];
+      return['特殊机制','留意首领身边的变化'];}
+    case'curse':return[p.kind==='delayed'?`给你挂上诅咒，${p.t||6} 秒后爆发，${D}`:p.kind==='cd'?`诅咒你 ${p.t||6} 秒，技能冷却变慢`:`给你挂上诅咒 ${p.t||6} 秒`,p.kind==='delayed'?'爆发前回满血，或留好护盾和减伤':'诅咒期间少用技能，先走位'];
+    case'frenzy':return[`首领狂乱 ${p.perm?'直到战斗结束':(p.t||8)+' 秒'}，攻击和移动更快`,'狂乱期间拉开距离风筝，留好大招'];
+    case'followAura':return[`首领身边出现跟着它走的灼烧光环（半径约 ${p.r||40}），持续 ${p.t||6} 秒`,'光环期间远离首领，远程输出'];
+    case'bossShield':return[`首领获得 ${p.kind==='reflect'?'魔法反射':p.kind==='immune'?'无敌':`${Math.round((p.pct||.5)*100)}% 减伤`}，持续 ${p.t||8} 秒`,p.kind==='reflect'?'反射期间停止技能输出，避免伤到自己':'这段时间先清小怪或走位，等护盾消失再爆发'];
+    case'summon':return[`召唤 ${p.n||2} 个援军${p.at==='corners'?'（从场地四角出现）':''}`,'优先清掉援军，别让它们围住你'];
+    case'shots':return[p.p==='volley'?'向四周发射一圈弹幕':p.p==='aimed'?'朝你发射追踪弹':'发射弹幕',p.p==='aimed'?'弹出手后侧向走位躲开':'从弹幕之间的空隙穿过'];
+    case'castBar':return[`读条 ${p.T||2} 秒`+(p.then&&p.then.r>=100?`，读完后大范围爆炸（${G_DMG(p.then.dmg||0)}）`:''),p.need&&p.need<999?`读条期间连续攻击 ${p.need} 次打断它`:(p.selfDestruct?'无法打断：读条时跑到离它最远的角落，爆炸后首领会倒下':'无法打断：读条结束前跑出范围')];
+    case'teleportPlayer':return['把你传送到场地另一处，落点留下毒池','落地后马上走出毒池'];
+    case'healTarget':return[`读条治疗自己或队友（回复 ${Math.round((p.pct||.08)*100)}% 生命）`,`读条期间连续攻击 ${p.need||4} 次打断`];
+    case'totem':return[p.effect==='healBoss'?'放下治疗图腾，持续给首领回血':p.effect==='mc'?'放下控制图腾，会心灵控制你':'放下图腾','优先打掉图腾，再回头打首领'];
+    case'playerBomb':return[`你变成活体炸弹，${p.t||8} 秒后爆炸，身边每多一个敌人伤害更高`,'远离所有小怪，跑到空地等它爆炸'];
+    case'stacks':return[`攻击会给你叠加易伤，最多 ${p.max||10} 层`,'层数高时拉开距离，等层数消退再打'];
+    case'trail':return['首领走过的地方留下毒云',"别走首领刚走过的路，绕开地上的毒云"];
+    case'gaze':return[`首领盯住你 ${p.t||2} 秒`,'凝视期间<b>不要移动</b>，一动就会受到重击'];
+    case'mindControl':return[`心灵控制你 ${p.t||4} 秒`,'控制期间无法操作，控制前保持血量健康'];
+    case'decimate':return[`对你造成当前生命 ${Math.round((p.p||.5)*100)}% 的伤害`,'不会直接打死你，之后马上回血'];
+    case'energyBar':return['首领积攒能量，能量满时全场爆炸，能量越高伤害越大','趁能量涨满之前全力输出，或打掉给它充能的单位'];
+    default:return[SKN[k]||k,'留意首领的蓄力动作和地上的红色预警'];}}
+function bossGuide(b){const rows=[];const seen=new Set();
+  for(const k of b.sk||[]){if(seen.has(k))continue;seen.add(k);const p=(b.skills||{})[k],[what,how]=skillGuide(k,p),name=(p&&p.say)||SKN[k]||k;
+    rows.push(`<div class="gd"><b>${name}</b><div>${what}</div><div class="how">👉 ${how}</div></div>`);}
+  for(const ph of b.ph||[]){const when=ph.at!==undefined?`血量降到 ${Math.round(ph.at*100)}% 时`:ph.every?`每 ${ph.every} 秒`:ph.t?`开战 ${ph.t} 秒时`:'战斗中',gs=ph.go&&(b.skills||{})[ph.go]?skillGuide(ph.go,b.skills[ph.go]):null;
+    rows.push(`<div class="gd ph"><b>阶段：${ph.msg||'转阶段'}</b><div>${when}触发${ph.inv?'，首领进入无敌':''}${ph.adds?`，召唤「${ph.adds}」`:''}${ph.sk?`，换一套技能（${ph.sk.map(k=>((b.skills||{})[k]||{}).say||SKN[k]||k).join('、')}）`:''}${ph.dur?`，持续 ${ph.dur} 秒`:''}${gs?`；${gs[0]}`:''}</div>${gs?`<div class="how">👉 ${gs[1]}</div>`:ph.inv?`<div class="how">👉 无敌期间${ph.adds?'先清援军，':''}躲技能，${ph.end&&ph.end.adds?'清完援军后结束':'等它结束'}</div>`:''}</div>`);}
+  for(const a of b.adds||[])rows.push(`<div class="gd add"><b>随从：${a.n}</b><div>${a.at==='start'?'开战时出现':'战斗中出现'}${a.count>1?` ${a.count} 个`:''}${a.link&&a.link.bossDmgTaken?'，随从活着时首领受到的伤害降低':''}</div><div class="how">👉 ${a.link?'先清随从再打首领':'能顺手清就清，别被它拖住'}</div></div>`);
+  return rows.join('');}
 function codexHTML(){const raw=window.RAID_DATA?RAID_DATA.raids:[];let h='';
   RAIDS.forEach((r,ri)=>{const d=raw.find(x=>x.id===r.id);if(!d)return;h+=`<div class="hname" style="font-size:13px;margin-top:8px">${r.name}　<small style="color:#ffd77a">套装：${GSET[[0,1,1,3,3][ri]??3].n}</small></div>`;
     d.bosses.forEach((b,k)=>{const L=firstL(ri)+k,kills=((PROG.codex||{})[b.n]||0),pt=bossPortrait(L);
-      h+=`<div class="itip" style="margin:4px 0;display:flex;gap:6px"><div data-boss-portrait="${L}"${b.variants?' title="随机首领"':''} style="flex:0 0 40px;height:40px;display:grid;place-items:center;color:#e9c581;font-size:22px;border-radius:6px;background:#1a1430 center/cover${pt?` url(${pt})`:''}">${b.variants?'？':pt?'':icon('elite','lg')}</div><div style="flex:1;font-size:11px">
-        <b>${b.n}</b>　<span style="color:#9a94c0">击杀 ${kills}${(PROG.fk||{})[L+':2']?' · 史诗已通':(PROG.fk||{})[L+':1']?' · 英雄已通':''}</span><br>
-        <span style="color:#ffb070">技能：${bossSkillList(b).join('、')||'—'}</span><br><span style="color:#c8c0ff">机制：${b.tip||'—'}</span></div></div>`;});});
+      h+=`<details class="itip boss-gd"><summary style="display:flex;gap:6px;align-items:center"><div data-boss-portrait="${L}"${b.variants?' title="随机首领"':''} style="flex:0 0 40px;height:40px;display:grid;place-items:center;color:#e9c581;font-size:22px;border-radius:6px;background:#1a1430 center/cover${pt?` url(${pt})`:''}">${b.variants?'？':pt?'':icon('elite','lg')}</div><div style="flex:1;font-size:11px">
+        <b>${b.n}</b>　<span style="color:#9a94c0">击杀 ${kills}${(PROG.fk||{})[L+':2']?' · 史诗已通':(PROG.fk||{})[L+':1']?' · 英雄已通':''}</span><br><span style="color:#c8c0ff">${b.tip||''}</span><br><small style="color:#ffd77a">点开看详细攻略 ▾</small></div></summary>
+        <div class="gd-list">${bossGuide(b)}</div></details>`;});});
   return h;}
 
 // ---------- 成就 ----------

@@ -3,6 +3,8 @@
 (function(){
 'use strict';
 const D=window.RAID_DATA;
+// 首领 / 小怪机制的文字提示只在局外图鉴（攻略）里看，局内不弹（用户要求）；红圈、光束、读条等画面预警照旧
+const toast=()=>{};
 // 画面上的身高（像素，不含留白）：按体型排，小怪默认 20（主角约 26）、首领默认 58、本关精英 = 该小怪 ×1.7、首领带的精英小怪 ×1.35；绘制时按图里实际身高换算缩放（只影响画面，不改碰撞）
 const VIS={onyxian_whelp:15,corrupted_whelp:15,hivezara_wasp:16,qiraji_gladiator:24,shrieker_scarab:15,core_hound:19,zulian_tiger:20,hivezara_stinger:17,
   molten_giant:35,black_dragonspawn:31,death_talon_wyrmguard:31,anubisath_guardian:36,obsidian_destroyer:32,gurubashi_berserker:28,razzashi_broodwidow:24,firelord:27,
@@ -808,7 +810,7 @@ window.raidDraw=g=>{
     if(e.dead)continue;
     if(e.totem)fxAt(g,RF('black_1',5),e.x,e.y-8,26,.7);
     if(e.cast){const w=30,p=1-e.cast.t/e.cast.T,y=e.y-e.h/2-14;fxAt(g,RF('black_2',8),e.x,y+2,40,.9);g.fillStyle='rgba(0,0,0,.7)';g.fillRect(e.x-w/2,y,w,4);g.fillStyle=e.cast.need?'#9fe8ff':'#ffb84a';g.fillRect(e.x-w/2,y,w*p,4);
-      g.font='bold 6px sans-serif';g.fillStyle='#fff';g.fillText(e.cast.n+(e.cast.need?` 打断 ${e.cast.hits}/${e.cast.need}`:''),e.x,y-2);}
+      g.font='bold 6px sans-serif';g.fillStyle='#fff';if(e.cast.need)g.fillText(`打断 ${e.cast.hits}/${e.cast.need}`,e.x,y-2);}
     if(e.aura&&e.aura.warm<=0){const r=e.aura.r;if(FX.whirl&&r*2<=FX.whirl.width*2.2){g.globalAlpha=.6;g.drawImage(FX.whirl,e.x-r,e.y-r,r*2,r*2);g.globalAlpha=1;}else{g.save();g.globalAlpha=.18;g.fillStyle='#ff7a3a';g.beginPath();g.arc(e.x,e.y,r,0,TAU);g.fill();g.globalAlpha=.6;g.strokeStyle='#ffb070';g.lineWidth=2;g.setLineDash([6,5]);g.lineDashOffset=-G.t*20;g.stroke();g.restore();}}
     else if(e.aura){g.strokeStyle='rgba(255,60,60,.8)';g.beginPath();g.arc(e.x,e.y,e.aura.r,0,TAU);g.stroke();}
     if(e.shield&&fxAt(g,RF('black_1',e.shield.kind==='reflect'?4:3),e.x,e.y-e.h*.2,e.w*1.4,.55)){}

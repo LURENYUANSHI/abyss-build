@@ -108,6 +108,8 @@ var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);giveExw(cls);PROG.best={};
 
 const args=process.argv.slice(2);
 if(args.includes('--smart'))ctx.SMART=true;
+// --guide：打印首领攻略纯文本（检查图鉴内容）
+if(args.includes('--guide')){const gi=args.indexOf('--guide'),want=(args[gi+1]||'').split(',');for(const r of ctx.RAID_DATA.raids.slice(0,5))for(const b of r.bosses)if(!want[0]||want.includes(b.n))console.log('【'+b.n+'】\n'+vm.runInContext('bossGuide',ctx)(b).replace(/<\/div><div class="how">/g,'\n    ').replace(/<div class="gd[^"]*"><b>/g,'  · ').replace(/<\/b><div>/g,'：').replace(/<[^>]+>/g,'').trim()+'\n');process.exit(0);}
 // --tt：法师点满火焰 + 奥术一半，带烈焰风暴（测天赋树）
 if(args.includes('--tt'))vm.runInContext(`PROG.tt={mage:{f1:1,f2:1,f3:1,f4:1,f5:1,f6:1,f7:1,f8:1,f9:1,a1:1,a2:1,a3:1,a4:1,a6:1}};PROG.tsk={mage:'flamestrike'};globalThis.SK2N=0;const _c2=castSkill2;castSkill2=function(){const b=G.sk2T;_c2();if(G.sk2T>b)globalThis.SK2N++;};`,ctx);
 process.on('exit',()=>{if(args.includes('--tt'))console.log('天赋技能释放次数',ctx.SK2N);const S=ctx.STUCK||[];if(args.includes('--stuck')){console.log(`卡位 ${S.length} 次`);for(const x of S.slice(0,15))console.log(JSON.stringify(x));}});

@@ -182,8 +182,10 @@
   .nd.cur{animation:pulse 1s infinite}.nd.sel{outline:2px solid #fff;outline-offset:2px}
   .nd.pt{width:30px;height:30px;margin:-17px 0 0 -17px;background-size:cover;background-position:center}.nd.pt.chief{width:40px;height:40px;margin:-22px 0 0 -22px}
   .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(.7) brightness(.8)}
-  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v92) 0 0/2500% 100% no-repeat;flex:none}
+  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v93) 0 0/2500% 100% no-repeat;flex:none}
   .btn .ic{width:auto;height:auto;margin:0;vertical-align:baseline;background-size:cover}   /* 战斗技能按钮也叫 .ic，别被界面小图标的尺寸覆盖 */
+  .boss-gd summary{list-style:none;cursor:pointer}.boss-gd summary::-webkit-details-marker{display:none}.gd-list{margin-top:6px;border-top:1px solid #3d3560;padding-top:4px}
+  .gd{padding:5px 2px;border-bottom:1px dashed #2f2a48;font-size:11px;line-height:1.55}.gd b{color:#ffb070}.gd.ph b{color:#c8a8ff}.gd.add b{color:#8fd7ff}.gd .how{color:#9fffb0}
   .tt{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.tt-col{background:#120f24ee;border:1px solid #3d3560;border-top:3px solid var(--c);border-radius:8px;padding:4px 3px}
   .tt-h{text-align:center;font-weight:700;color:var(--c);font-size:12px;margin-bottom:2px}.tt-h small{color:#d8d0ea;font-weight:400}
   .tt-row{display:flex;gap:3px;margin:3px 0}.tt-n{flex:1;min-width:0;height:36px;border-radius:6px;border:1px solid #4a4266;background:#1d1a33;color:#bdb6d6;font-size:10px;line-height:1.15;padding:2px;font-family:inherit;cursor:pointer}
@@ -353,12 +355,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v92"></script>
-<script src="content/boss_tune.js?v=v92"></script>
-<script src="src/loop.js?v=v92"></script>
+<script src="content/raids_data.js?v=v93"></script>
+<script src="content/boss_tune.js?v=v93"></script>
+<script src="src/loop.js?v=v93"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v92';
+const W=195,H=347,VERSION='v93';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -2011,7 +2013,7 @@ function drawEntities(c){
         const warn=!e.prop&&(e.wind>0||(e.k==='SA'&&e.shotT>0&&e.shotT<.45)||(e.boss&&e.say&&e.say.t>0));
         if(warn){c.save();c.textAlign='center';c.font='bold '+(e.boss?10:8)+'px sans-serif';c.lineWidth=2;c.strokeStyle='#000';c.fillStyle=(G.t*8|0)%2?'#ff3b3b':'#ffd34a';
           const wy=ay-t.h*vk-3+Math.sin(G.t*12)*1;c.strokeText('!',ax,wy);c.fillText('!',ax,wy);
-          if(e.boss&&e.say&&e.say.t>0&&e.say.n&&!e.cast){c.font='bold 7px sans-serif';c.fillStyle='#ff6a6a';(G.sayQ=G.sayQ||[]).push({n:e.say.n,x:ax,y:wy-26});}c.restore();}}else if(im)drawSpr(im,x,y,t.w,t.h,!e.boss&&pl.x<e.x);
+          if(false&&e.boss&&e.say&&e.say.t>0&&e.say.n&&!e.cast){c.font='bold 7px sans-serif';c.fillStyle='#ff6a6a';(G.sayQ=G.sayQ||[]).push({n:e.say.n,x:ax,y:wy-26});}c.restore();}}else if(im)drawSpr(im,x,y,t.w,t.h,!e.boss&&pl.x<e.x);
       if(e.frozenT>0&&(e.imgF||IMG[e.k+'f'])){c.globalAlpha=.45;drawSpr(e.imgF?e.imgF[0]:IMG[e.k+'f'][0],x,y,t.w,t.h,false);}
       c.globalAlpha=1;
       if(e.poison&&FX.poison)c.drawImage(FX.poison,x+t.w/2-7,y-6,6,6);else if(e.poison){c.fillStyle='#8ff07a';c.fillRect(x+2+((G.t*6+e.x)|0)%4,y-2,1,1);}
@@ -2462,7 +2464,7 @@ function renderHub(v){HUB.v=v;heroArt(selCls);liveLoad(selCls);const A=PROG.acc,
   else if(v==='tal'){const lock=HEX.filter(h=>h.tier===3&&fitsFor(h,selCls)&&!hexOpen(h));
     const T=ttOf(selCls),m=ttMine(selCls),sel=HUB.ttSel&&T&&T.flatMap((tr,ti)=>tr.nodes.map(n=>[ti,n])).find(x=>x[1].id===HUB.ttSel);
     V.innerHTML=`<div class="hname" style="font-size:15px">${CLS[selCls].n}天赋　<span style="color:#ffd77a">剩余 ${ttPts(selCls)} 点</span></div><p class="tt-tip">账号每 2 级 1 点，最多 ${TT_MAX} 点：一系点满，再点另一系一半。某系投入的点数够了才解锁下一层。重置免费</p>
-      ${T?`<div class="tt">${T.map((tr,ti)=>`<div class="tt-col" style="--c:${tr.c}"><div class="tt-h">${tr.n} <small>${ttSpent(selCls,ti)}</small></div>${[0,1,2,3,4].map(t=>`<div class="tt-row">${tr.nodes.filter(n=>n.t===t).map(n=>`<button class="tt-n${m[n.id]?' on':''}${ttOpen(selCls,ti,n)?'':' lk'}${n.sk?' sk':''}${HUB.ttSel===n.id?' sel':''}" data-tt="${n.id}">${n.n}</button>`).join('')}</div>`).join('')}</div>`).join('')}</div>
+      ${!ttUnlocked()?`<div class="bag-empty">${icon('lock')}通关第一章「${RAIDS[0].name}」后开放全部天赋树</div>`:T?`<div class="tt">${T.map((tr,ti)=>`<div class="tt-col" style="--c:${tr.c}"><div class="tt-h">${tr.n} <small>${ttSpent(selCls,ti)}</small></div>${[0,1,2,3,4].map(t=>`<div class="tt-row">${tr.nodes.filter(n=>n.t===t).map(n=>`<button class="tt-n${m[n.id]?' on':''}${ttOpen(selCls,ti,n)?'':' lk'}${n.sk?' sk':''}${HUB.ttSel===n.id?' sel':''}" data-tt="${n.id}">${n.n}</button>`).join('')}</div>`).join('')}</div>`).join('')}</div>
       ${sel?`<div class="itip tt-d"><b style="color:${T[sel[0]].c}">${sel[1].n}</b>　<small>${T[sel[0]].n}系 · 第 ${sel[1].t+1} 层${sel[1].t?`（该系需 ${sel[1].t*2} 点）`:''}</small><br>${sel[1].d}<br>${m[sel[1].id]?(sel[1].sk?((PROG.tsk||{})[selCls]===sel[1].sk?'<span style="color:#7dff8a">已带上场</span>':`<button class="b sm" data-tsk="${sel[1].sk}">带上场</button>`):'<span style="color:#7dff8a">已学会</span>'):`<button class="b sm" data-ttl="${sel[0]}:${sel[1].id}">学习（1 点）</button>`}</div>`:'<p class="tt-tip">点一个天赋查看效果；虚线框是天赋技能（战斗中第二个技能按钮），三系里选一个带上场</p>'}
       <button class="b ghost sm" id="ttReset">重置天赋</button>`:'<p class="tt-tip">这个职业的天赋树还在制作中，目前只有法师</p>'}
       <div class="hname" style="font-size:15px;margin-top:10px">卡池解锁　<span style="color:#ffd77a">徽记 ${PROG.marks||0}</span></div><p style="text-align:center;color:#9a94c0;font-size:11px">棱彩海克斯要先用徽记解锁才会出现（${CLS[selCls].n}）</p>
@@ -2606,9 +2608,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v92"></script>
-<script src="src/raid_engine.js?v=v92"></script>
-<script src="content/rigs.js?v=v92"></script>
-<script src="src/rig.js?v=v92"></script>
+<script src="content/skill_fx.js?v=v93"></script>
+<script src="src/raid_engine.js?v=v93"></script>
+<script src="content/rigs.js?v=v93"></script>
+<script src="src/rig.js?v=v93"></script>
 </body>
 </html>
