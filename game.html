@@ -8,7 +8,7 @@
 <style>
   html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
   body{display:flex;align-items:center;justify-content:center;font-family:"Noto Sans SC",sans-serif}
-  #phone{position:relative;width:694px;height:390px;overflow:hidden;background:#07070c;flex:none;transform-origin:center}
+  #phone{position:absolute;left:50%;top:50%;width:694px;height:390px;overflow:hidden;background:#07070c;flex:none;transform-origin:center}
   #g{position:absolute;left:0;top:0;width:694px;height:390px}
 
   /* HUD */
@@ -182,7 +182,7 @@
   .nd.cur{animation:pulse 1s infinite}.nd.sel{outline:2px solid #fff;outline-offset:2px}
   .nd.pt{width:30px;height:30px;margin:-17px 0 0 -17px;background-size:cover;background-position:center}.nd.pt.chief{width:40px;height:40px;margin:-22px 0 0 -22px}
   .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(.7) brightness(.8)}
-  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v95) 0 0/2500% 100% no-repeat;flex:none}
+  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v96) 0 0/2500% 100% no-repeat;flex:none}
   .btn .ic{width:auto;height:auto;margin:0;vertical-align:baseline;background-size:cover}   /* 战斗技能按钮也叫 .ic，别被界面小图标的尺寸覆盖 */
   .boss-gd summary{list-style:none;cursor:pointer}.boss-gd summary::-webkit-details-marker{display:none}.gd-list{margin-top:6px;border-top:1px solid #3d3560;padding-top:4px}
   .gd{padding:5px 2px;border-bottom:1px dashed #2f2a48;font-size:11px;line-height:1.55}.gd b{color:#ffb070}.gd.ph b{color:#c8a8ff}.gd.add b{color:#8fd7ff}.gd .how{color:#9fffb0}
@@ -369,12 +369,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v95"></script>
-<script src="content/boss_tune.js?v=v95"></script>
-<script src="src/loop.js?v=v95"></script>
+<script src="content/raids_data.js?v=v96"></script>
+<script src="content/boss_tune.js?v=v96"></script>
+<script src="src/loop.js?v=v96"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=347,H=195,VERSION='v95';
+const W=347,H=195,VERSION='v96';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -2609,7 +2609,7 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys[k]=true;
 addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
 $('muteB').classList.toggle('off',AU.muted);
-let ROT=false;const fit=()=>{ROT=innerHeight>innerWidth;phone.style.transform=ROT?`rotate(90deg) scale(${Math.min(innerHeight/694,innerWidth/390)})`:`scale(${Math.min(innerWidth/694,innerHeight/390)})`;};fit();addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,200));
+let ROT=false;const fit=()=>{ROT=innerHeight>innerWidth;phone.style.transform=ROT?`translate(-50%,-50%) rotate(90deg) scale(${Math.min(innerHeight/694,innerWidth/390)})`:`translate(-50%,-50%) scale(${Math.min(innerWidth/694,innerHeight/390)})`;};fit();addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,200));
 
 // self-check：每个流派 2 稀有 / 2 史诗 / 1 传说；每个职业 3 张专属；每轮三张同品质且不重复；首领技能都存在且组合不重复
 for(const t of ['暴击','雷电','毒伤','召唤','护盾','连击','吸血','剑阵','火焰','冰霜'])for(const ty of ['melee','ranged'])console.assert([2,2,1].every((n,i)=>HEX.filter(h=>h.tag===t&&!h.cls&&(!h.only||h.only===ty)&&h.tier===i+1).length===n),'tag tiers',t,ty);
@@ -2639,9 +2639,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v95"></script>
-<script src="src/raid_engine.js?v=v95"></script>
-<script src="content/rigs.js?v=v95"></script>
-<script src="src/rig.js?v=v95"></script>
+<script src="content/skill_fx.js?v=v96"></script>
+<script src="src/raid_engine.js?v=v96"></script>
+<script src="content/rigs.js?v=v96"></script>
+<script src="src/rig.js?v=v96"></script>
 </body>
 </html>
