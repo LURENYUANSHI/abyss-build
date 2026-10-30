@@ -182,7 +182,7 @@
   .nd.cur{animation:pulse 1s infinite}.nd.sel{outline:2px solid #fff;outline-offset:2px}
   .nd.pt{width:30px;height:30px;margin:-17px 0 0 -17px;background-size:cover;background-position:center}.nd.pt.chief{width:40px;height:40px;margin:-22px 0 0 -22px}
   .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(.7) brightness(.8)}
-  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v97) 0 0/2500% 100% no-repeat;flex:none}
+  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v98) 0 0/2500% 100% no-repeat;flex:none}
   .btn .ic{width:auto;height:auto;margin:0;vertical-align:baseline;background-size:cover}   /* 战斗技能按钮也叫 .ic，别被界面小图标的尺寸覆盖 */
   .boss-gd summary{list-style:none;cursor:pointer}.boss-gd summary::-webkit-details-marker{display:none}.gd-list{margin-top:6px;border-top:1px solid #3d3560;padding-top:4px}
   .gd{padding:5px 2px;border-bottom:1px dashed #2f2a48;font-size:11px;line-height:1.55}.gd b{color:#ffb070}.gd.ph b{color:#c8a8ff}.gd.add b{color:#8fd7ff}.gd .how{color:#9fffb0}
@@ -383,12 +383,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v97"></script>
-<script src="content/boss_tune.js?v=v97"></script>
-<script src="src/loop.js?v=v97"></script>
+<script src="content/raids_data.js?v=v98"></script>
+<script src="content/boss_tune.js?v=v98"></script>
+<script src="src/loop.js?v=v98"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=347,H=195,VERSION='v97';
+const W=347,H=195,VERSION='v98';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -1501,7 +1501,7 @@ function num(x,y,v,col,big){if(nums.length>=90)return;const nv=+v;let k=0;
   for(const n of nums)if(n.t>.45&&Math.abs(n.x0-x)<12&&Math.abs(n.y0-y)<6)k++;nums.push({x:x-6+rand()*12,y:y-Math.min(k,4)*9,x0:x,y0:y,s:String(v),col,big,t:.7});}
 function dmg(e,d,o={}){if(!e.dead&&!e.inv)sfx('hit');if(window.dmgMulX&&!e.dead){d*=dmgMulX(e,o);if(!d)return;}
   if(e.dead||e.inv)return;let crit=false;
-  const cc=st.crit+(G.critBuffT>0?.5:0)+(G.songT>0?st.songCrit:0)+(G.critT>0&&o.src==='atk'?1:0);
+  const cc=st.crit+(G.critBuffT>0?.5:0)+(G.songT>0?st.songCrit:0)+(G.critT>0&&o.src==='atk'?1:0)+(o.crit?1:0);
   if(o.forceCrit||(!o.nocrit&&rand()<cc)){d*=st.critDmg;crit=true;}
   d*=G.pm;
   if(e.poison)d*=st.corrode;
@@ -1633,13 +1633,30 @@ function slam(){const A=atkBase()*st.skillMul,r=55*st.skR;pzone(pl.x,pl.y,r,.45)
   for(const e of en){const dx=e.x-pl.x,dy=e.y-pl.y,q=Math.hypot(dx,dy)||1;if(q<r+e.r){dmg(e,A*3);if(!e.boss){e.frozenT=Math.max(e.frozenT,1);e.x+=dx/q*15;e.y+=dy/q*15;}}}}
 // 天赋技能（第二个技能按钮）：冷却随技能冷却加成一起缩短
 const pzone=(x,y,r,T)=>(G.pz=G.pz||[]).push({x,y,r,t:T,T});   // 玩家技能范围圈
-function castSkill2(){const S=G.tsk;if(!S||G.state!=='play'||G.phase!=='fight'||G.sealT>0)return;const A=atkBase()*st.skillMul,k=st.skillCd/CLS[G.cls].skCd,cd=c=>{G.sk2T=G.sk2Max=c*k;};
-  if(S.sk==='missiles'){if(!nearest(pl.x,pl.y,160))return;cd(7);for(let i=0;i<5;i++)G.sched.push({t:i*.14,fn:()=>{const t=nearest(pl.x,pl.y,170);if(!t)return;fxs('lightning',t.x,t.y-6,18,.2,0,0,1.1);rings.push({x:t.x,y:t.y,r0:2,r1:12,t:.2,T:.2,col:'#d2a8ff'});dmg(t,A*1.1,{col:'#d2a8ff'});}});}
-  else if(S.sk==='flamestrike'){let best=null,bn=0;for(const e of en){if(e.dead||e.prop||Math.hypot(e.x-pl.x,e.y-pl.y)>150)continue;const n=en.filter(q=>!q.dead&&Math.hypot(q.x-e.x,q.y-e.y)<36).length;if(n>bn){bn=n;best=e;}}
-    if(!best)return;cd(9);const x=best.x,y=best.y;pzone(x,y,36,.6);rings.push({x,y,r0:36,r1:36,t:.5,T:.5,col:'#ff8a3a'});
-    G.sched.push({t:.5,fn:()=>{fxs('explosion',x,y,80,.4);for(const e of en)if(!e.dead&&Math.hypot(e.x-x,e.y-y)<36+(e.r||0)){dmg(e,A*3.5,{col:'#ff9a4a'});e.burnT=3;e.burnD=atkBase()*Math.max(st.burn,.3)*st.burnMul;}}});}
-  else if(S.sk==='frostnova'){if(!nearest(pl.x,pl.y,60))return;cd(8);pzone(pl.x,pl.y,55,.45);fxs('frostCircle',pl.x,pl.y,110,.45);rings.push({x:pl.x,y:pl.y,r0:4,r1:55,t:.35,T:.35,col:'#9fe8ff'});
-    for(const e of en)if(!e.dead&&Math.hypot(e.x-pl.x,e.y-pl.y)<55+(e.r||0)){dmg(e,A*1.8,{col:'#9fe8ff'});if(!e.boss)e.frozenT=Math.max(e.frozenT||0,2);else e.slowT=2;}}
+function tskHit(e,A,P){if(e.dead)return;dmg(e,A*P.mul,{col:P.col,crit:P.crit});const f=P.eff;
+  if(f==='burn'){e.burnT=3;e.burnD=atkBase()*Math.max(st.burn,.3)*st.burnMul;}
+  else if(f==='freeze'||f==='stun'){if(!e.boss)e.frozenT=Math.max(e.frozenT||0,f==='freeze'?2:1.2);else e.slowT=2;}
+  else if(f==='poison')e.poison=Math.min(st.poisonCap,(e.poison||0)+5);
+  else if(f==='knock'&&!e.boss){const a=angTo(pl,e);e.x+=Math.cos(a)*22;e.y+=Math.sin(a)*22;}
+  else if(f==='vamp')pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*.02);}
+function castSkill2(){const S=G.tsk,P=S&&TSK[S.sk];if(!P||G.state!=='play'||G.phase!=='fight'||G.sealT>0||G.sk2T>0)return;
+  const A=atkBase()*st.skillMul,cd=()=>{G.sk2T=G.sk2Max=P.cd*st.skillCd/CLS[G.cls].skCd;},live=e=>!e.dead&&!e.prop;
+  switch(P.type){
+    case'nova':{if(!nearest(pl.x,pl.y,P.r))return;cd();pzone(pl.x,pl.y,P.r,.45);fxs(P.fx||'explosion',pl.x,pl.y,P.r*2,.45);rings.push({x:pl.x,y:pl.y,r0:4,r1:P.r,t:.35,T:.35,col:P.col});
+      for(const e of en)if(live(e)&&Math.hypot(e.x-pl.x,e.y-pl.y)<P.r+(e.r||0))tskHit(e,A,P);break;}
+    case'strike':{let best=null,bn=0;for(const e of en){if(!live(e)||Math.hypot(e.x-pl.x,e.y-pl.y)>150)continue;const n=en.filter(q=>live(q)&&Math.hypot(q.x-e.x,q.y-e.y)<P.r).length;if(n>bn){bn=n;best=e;}}
+      if(!best)return;cd();const x=best.x,y=best.y;pzone(x,y,P.r,.6);rings.push({x,y,r0:P.r,r1:P.r,t:.5,T:.5,col:P.col});
+      G.sched.push({t:.5,fn:()=>{fxs('explosion',x,y,P.r*2.2,.4);for(const e of en)if(live(e)&&Math.hypot(e.x-x,e.y-y)<P.r+(e.r||0))tskHit(e,A,P);}});break;}
+    case'volley':{const R=P.rng||170;if(!nearest(pl.x,pl.y,R))return;cd();for(let i=0;i<P.n;i++)G.sched.push({t:i*P.gap,fn:()=>{const t=nearest(pl.x,pl.y,R+10);if(!t)return;fxs(P.fx||'spark',t.x,t.y-6,18,.2,0,0,1.1);rings.push({x:t.x,y:t.y,r0:2,r1:12,t:.2,T:.2,col:P.col});tskHit(t,A,P);}});break;}
+    case'line':{const t=nearest(pl.x,pl.y,P.len);if(!t)return;cd();const a=angTo(pl,t),cx=Math.cos(a),cy=Math.sin(a);
+      for(let d=10;d<P.len;d+=16)rings.push({x:pl.x+cx*d,y:pl.y+cy*d,r0:2,r1:P.w,t:.3,T:.3,col:P.col});fxs('slash',pl.x+cx*30,pl.y+cy*30,40,.3,a);
+      for(const e of en){if(!live(e))continue;const dx=e.x-pl.x,dy=e.y-pl.y,along=dx*cx+dy*cy,off=Math.abs(-dx*cy+dy*cx);if(along>0&&along<P.len&&off<P.w+(e.r||0))tskHit(e,A,P);}break;}
+    case'blink':{const t=nearest(pl.x,pl.y,140);if(!t)return;cd();const a=angTo(t,pl);fxs('xslash',pl.x,pl.y,24,.25);pl.x=t.x-Math.cos(a)*14;pl.y=t.y-Math.sin(a)*14;clampRoom(pl,6);pl.inv=Math.max(pl.inv,.4);
+      fxs('xslash',t.x,t.y,34,.3);tskHit(t,A,Object.assign({},P,{crit:true}));break;}
+    case'rage':{cd();G.critBuffT=Math.max(G.critBuffT||0,P.t);pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*(P.heal||0));fxs('heal',pl.x,pl.y-6,26,.6);rings.push({x:pl.x,y:pl.y,r0:4,r1:30,t:.4,T:.4,col:P.col});break;}
+    case'haste':{cd();G.songT=Math.max(G.songT||0,P.t);pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*(P.heal||0));fxs('sound',pl.x,pl.y,50,.5,0,0,1.6);fxs('heal',pl.x,pl.y-6,24,.6);break;}
+    case'guard':{cd();pl.shield=Math.max(pl.shield||0,pl.maxHp*P.shield);if(P.heal)pl.hp=Math.min(pl.maxHp,pl.hp+pl.maxHp*P.heal);if(P.haste)G.songT=Math.max(G.songT||0,P.haste);rings.push({x:pl.x,y:pl.y,r0:20,r1:6,t:.4,T:.4,col:P.col});fxs('heal',pl.x,pl.y-6,26,.6);break;}
+    default:return;}
   pl.castAt=G.t;pl.castDur=.5;}
 function castSkill(){
   if(G.state!=='play'||G.phase!=='fight'||G.skillT>0||G.sealT>0)return;
@@ -2661,9 +2678,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v97"></script>
-<script src="src/raid_engine.js?v=v97"></script>
-<script src="content/rigs.js?v=v97"></script>
-<script src="src/rig.js?v=v97"></script>
+<script src="content/skill_fx.js?v=v98"></script>
+<script src="src/raid_engine.js?v=v98"></script>
+<script src="content/rigs.js?v=v98"></script>
+<script src="src/rig.js?v=v98"></script>
 </body>
 </html>
