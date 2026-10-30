@@ -108,7 +108,9 @@ var runSim=(cls,ri)=>{const L0=firstL(ri);setMeta(ri);giveExw(cls);PROG.best={};
 
 const args=process.argv.slice(2);
 if(args.includes('--smart'))ctx.SMART=true;
-process.on('exit',()=>{const S=ctx.STUCK||[];if(args.includes('--stuck')){console.log(`卡位 ${S.length} 次`);for(const x of S.slice(0,15))console.log(JSON.stringify(x));}});
+// --tt：法师点满火焰 + 奥术一半，带烈焰风暴（测天赋树）
+if(args.includes('--tt'))vm.runInContext(`PROG.tt={mage:{f1:1,f2:1,f3:1,f4:1,f5:1,f6:1,f7:1,f8:1,f9:1,a1:1,a2:1,a3:1,a4:1,a6:1}};PROG.tsk={mage:'flamestrike'};globalThis.SK2N=0;const _c2=castSkill2;castSkill2=function(){const b=G.sk2T;_c2();if(G.sk2T>b)globalThis.SK2N++;};`,ctx);
+process.on('exit',()=>{if(args.includes('--tt'))console.log('天赋技能释放次数',ctx.SK2N);const S=ctx.STUCK||[];if(args.includes('--stuck')){console.log(`卡位 ${S.length} 次`);for(const x of S.slice(0,15))console.log(JSON.stringify(x));}});
 if(args.includes('--exw')){ctx.EXW_ON=true;const si=args.indexOf('--star');if(si>0)ctx.EXW_STAR=+args[si+1];}
 if(args.includes('--endless')){const ev0=e=>vm.runInContext(e,ctx),CL0=ev0('CLS_IDS'),ai=args.indexOf('--cls'),CL=ai>0?args[ai+1].split(','):CL0,mi=args.indexOf('--meta'),meta=mi>0?+args[mi+1]:2,runs=+(args[args.indexOf('--endless')+1]||2),es=ev0('endlessSim'),all=[];
   for(const c of CL){const f=[];for(let i=0;i<runs;i++){let r;try{r=es(c,meta);}catch(e){console.error('ERR',c,e.message);r={floor:-1};}f.push(r.floor);all.push(r.floor);}f.sort((a,b)=>a-b);console.log(`无尽 ${c}: 层数 ${f.join(',')}  中位 ${f[f.length>>1]}`);}

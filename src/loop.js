@@ -7,7 +7,7 @@
 const IC={gold:0,dust:1,mark:2,battle:3,elite:4,shop:5,event:6,rest:7,hex:8,refresh:9,del:10,up:11,ad:12,hp:13,chest:14,lock:15,hero:16,raid:17,bag:18,tal:19,codex:20,party:21,set:22,trophy:23,endless:24};
 const icon=(n,c='')=>`<i class="ic ${c}" style="background-position:${IC[n]/24*100}% 0"></i>`;
 // 文字里的货币前面自动加图标；按钮按开头的字配图标。处理过的包在 .icw 里，重复调用不会重复加
-const IC_WORD={'金币':'gold','徽记':'mark','尘':'dust','战力':'trophy'},IC_BTN=[[/^(刷新|再来一次|重新)/,'refresh'],[/^看广告/,'ad'],[/^删除|^分解/,'del'],[/^(随机)?升星|^强化/,'up'],[/^离开|^返回/,'hero'],[/^复活|^休息|^疗伤/,'hp'],[/^从章首|^进入副本|^从存档/,'raid'],[/^无尽/,'endless'],[/^每日挑战|^领取/,'trophy'],[/^解锁|^🔒/,'lock'],[/^一键穿|^穿戴|^装备专武/,'bag'],[/^献祭|^打开|^赌/,'event'],[/^清空存档/,'del'],[/^重铸/,'refresh'],[/^(白银|黄金|棱彩)/,'hex']];
+const IC_WORD={'金币':'gold','徽记':'mark','尘':'dust','战力':'trophy'},IC_BTN=[[/^(刷新|再来一次|重新)/,'refresh'],[/^看广告/,'ad'],[/^删除|^分解/,'del'],[/^(随机)?升星|^强化/,'up'],[/^离开|^返回/,'hero'],[/^复活|^休息|^疗伤/,'hp'],[/^从章首|^进入副本|^从存档/,'raid'],[/^无尽/,'endless'],[/^每日挑战|^领取/,'trophy'],[/^解锁|^🔒/,'lock'],[/^一键穿|^穿戴|^装备专武/,'bag'],[/^献祭|^打开|^赌/,'event'],[/^清空存档/,'del'],[/^重铸/,'refresh'],[/^重置/,'refresh'],[/^学习/,'up'],[/^带上场/,'battle'],[/^(白银|黄金|棱彩)/,'hex']];
 function iconText(root){if(!root||!root.querySelectorAll)return;
   const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement&&!n.parentElement.closest('.icw,script,style,canvas,textarea,#hexV .icon')&&/金币|徽记|尘|战力|\d\s?金(?!币)/.test(n.nodeValue)?1:2}),list=[];
   while(tw.nextNode())list.push(tw.currentNode);
@@ -21,19 +21,50 @@ let selDiff=0;
 const diffOf=()=>DIFF_T[(G&&G.diff)||0];
 
 // ---------- 天赋树（账号每升 1 级给 1 点） ----------
-const TALENTS=[
-  {id:'hp',ic:'hp',n:'坚韧',d:'最大生命 +4%',max:5},
-  {id:'atk',ic:'battle',n:'锋锐',d:'伤害 +3%',max:5},
-  {id:'crit',ic:'up',n:'致命',d:'暴击率 +2%',max:3},
-  {id:'gold',ic:'gold',n:'贪财',d:'局内金币 +15%',max:3},
-  {id:'shop',ic:'shop',n:'讨价还价',d:'商店价格 -10%',max:3},
-  {id:'card',ic:'hex',n:'预备构筑',d:'每章开局多选一次银卡',max:1},
-  {id:'rev',ic:'hp',n:'再起',d:'每局一次免广告复活',max:1},
-];
-const talR=id=>((PROG.talent||{})[id]||0);
-const talSpent=()=>Object.values(PROG.talent||{}).reduce((a,b)=>a+b,0);
-const talPts=()=>Math.max(0,PROG.acc.lv-1-talSpent());
-function talentApply(){st.atkMul*=1+.03*talR('atk');st.crit+=.02*talR('crit');pl.maxHp=Math.round(pl.maxHp*(1+.04*talR('hp')));
+// ---------- 天赋树（仿魔兽 60 级三系天赋，每个职业自己的三系）：每个天赋 1 点；某系投入 2×层数 点才解锁该系下一层 ----------
+// 天赋点：账号每 2 级 1 点，上限 14 = 一系点满（9）+ 另一系一半。每系第 3 层有一个天赋技能，三系里选一个带上场（第二个技能按钮）
+const TT={mage:[
+  {n:'奥术',c:'#b48cff',nodes:[
+    {id:'a1',t:0,n:'奥术专注',d:'普攻伤害 +8%',f:()=>st.atkMul*=1.08},
+    {id:'a2',t:0,n:'奥术心智',d:'最大生命 +8%',f:()=>pl.maxHp=Math.round(pl.maxHp*1.08)},
+    {id:'a3',t:1,n:'奥术专精',d:'技能冷却 -10%',f:()=>st.skillCd*=.9},
+    {id:'a4',t:1,n:'魔法吸收',d:'受到伤害 -6%',f:()=>st.dmgTaken*=.94},
+    {id:'a5',t:2,n:'奥术飞弹',d:'天赋技能：连续射出 5 枚奥术飞弹，追踪最近的敌人',sk:'missiles'},
+    {id:'a6',t:2,n:'奥术冥想',d:'每秒回复 0.8% 生命',f:()=>st.regen+=.008},
+    {id:'a7',t:3,n:'气定神闲',d:'技能伤害 +20%',f:()=>st.skillMul*=1.2},
+    {id:'a8',t:3,n:'法术迅捷',d:'攻击速度 +10%',f:()=>st.atkCd*=.9},
+    {id:'a9',t:4,n:'奥术强化',d:'法球伤害 +20%，爆炸范围 +30%',f:()=>{st.atkMul*=1.2;st.boomMul*=1.3;}}]},
+  {n:'火焰',c:'#ff8a3a',nodes:[
+    {id:'f1',t:0,n:'强化火球',d:'普攻点燃敌人（每秒 15% 普攻伤害）',f:()=>st.burn+=.15},
+    {id:'f2',t:0,n:'灼烧',d:'暴击伤害 +30%',f:()=>st.critDmg+=.3},
+    {id:'f3',t:1,n:'冲击',d:'暴击率 +5%',f:()=>st.crit+=.05},
+    {id:'f4',t:1,n:'点燃',d:'燃烧伤害 +40%',f:()=>st.burnMul*=1.4},
+    {id:'f5',t:2,n:'烈焰风暴',d:'天赋技能：在敌人最密集处降下烈焰，大范围伤害并点燃',sk:'flamestrike'},
+    {id:'f6',t:2,n:'燃烧之魂',d:'最大生命 +6%，受到伤害 -4%',f:()=>{pl.maxHp=Math.round(pl.maxHp*1.06);st.dmgTaken*=.96;}},
+    {id:'f7',t:3,n:'火焰强化',d:'普攻与技能伤害 +10%',f:()=>{st.atkMul*=1.1;st.skillMul*=1.1;}},
+    {id:'f8',t:3,n:'冲击波',d:'每 6 秒自动释放火焰新星',f:()=>st.fireNova=true},
+    {id:'f9',t:4,n:'燃烧',d:'燃烧伤害 ×2，暴击率 +10%',f:()=>{st.burnMul*=2;st.crit+=.1;}}]},
+  {n:'冰霜',c:'#6fd0ff',nodes:[
+    {id:'i1',t:0,n:'冰霜导能',d:'普攻减速敌人',f:()=>st.slow+=.3},
+    {id:'i2',t:0,n:'霜甲术',d:'受到伤害 -8%',f:()=>st.dmgTaken*=.92},
+    {id:'i3',t:1,n:'刺骨寒冰',d:'对减速的敌人伤害 +20%',f:()=>st.slowBonus*=1.2},
+    {id:'i4',t:1,n:'寒冰护体',d:'最大生命 +10%',f:()=>pl.maxHp=Math.round(pl.maxHp*1.1)},
+    {id:'i5',t:2,n:'冰霜新星',d:'天赋技能：冻结身边的敌人 2 秒并造成伤害',sk:'frostnova'},
+    {id:'i6',t:2,n:'冰冷血脉',d:'技能冷却 -12%',f:()=>st.skillCd*=.88},
+    {id:'i7',t:3,n:'碎冰',d:'冻结的敌人受到更多伤害',f:()=>st.shatter=true},
+    {id:'i8',t:3,n:'极寒',d:'每 5 次普攻冻结一名敌人',f:()=>{st.freezeEvery=st.freezeEvery?Math.max(2,st.freezeEvery-1):5;}},
+    {id:'i9',t:4,n:'寒冰箭',d:'法球伤害 +15%，减速效果加倍',f:()=>{st.atkMul*=1.15;st.slow*=2;}}]}]};
+const TT_MAX=14,ttOf=c=>TT[c]||null,ttMine=c=>(PROG.tt=PROG.tt||{})[c]=(PROG.tt[c]||{});
+const ttSpent=(c,tree)=>{const m=ttMine(c),T=ttOf(c);if(!T)return 0;return(tree===undefined?T:[T[tree]]).reduce((a,tr)=>a+tr.nodes.filter(n=>m[n.id]).length,0);};
+const ttPts=c=>Math.min(TT_MAX,Math.floor(PROG.acc.lv/2))-ttSpent(c);
+const ttOpen=(c,tree,n)=>ttSpent(c,tree)>=n.t*2;
+function ttLearn(c,tree,id){const T=ttOf(c),n=T&&T[tree].nodes.find(x=>x.id===id),m=ttMine(c);if(!n||m[id])return;
+  if(ttPts(c)<1)return toast('天赋点不足（账号每 2 级 1 点）');if(!ttOpen(c,tree,n))return toast(`该系再投入 ${n.t*2-ttSpent(c,tree)} 点才能解锁这一层`);
+  m[id]=1;if(n.sk&&!(PROG.tsk||{})[c])(PROG.tsk=PROG.tsk||{})[c]=n.sk;saveProg();}
+function ttReset(c){PROG.tt[c]={};if(PROG.tsk)delete PROG.tsk[c];saveProg();}
+const ttSkill=c=>{const s=(PROG.tsk||{})[c],T=ttOf(c);if(!s||!T)return null;for(const tr of T)for(const n of tr.nodes)if(n.sk===s&&ttMine(c)[n.id])return n;return null;};
+const talR=()=>0;   // 旧的通用天赋已并入各职业天赋树（用户决定），金币 / 商店 / 开局卡 / 免广告复活的加成随之取消
+function talentApply(){{const T=ttOf(G.cls),m=ttMine(G.cls);if(T)for(const tr of T)for(const n of tr.nodes)if(m[n.id]&&n.f)n.f();G.tsk=ttSkill(G.cls);}
   const m=(PROG.mast||{})[G.cls]||0;if(m>=1)st.atkMul*=1.05;if(m>=6)pl.maxHp=Math.round(pl.maxHp*1.1);}
 
 // ---------- 职业解锁与精通 ----------

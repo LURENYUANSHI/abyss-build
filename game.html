@@ -182,7 +182,14 @@
   .nd.cur{animation:pulse 1s infinite}.nd.sel{outline:2px solid #fff;outline-offset:2px}
   .nd.pt{width:30px;height:30px;margin:-17px 0 0 -17px;background-size:cover;background-position:center}.nd.pt.chief{width:40px;height:40px;margin:-22px 0 0 -22px}
   .nd.pt i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:8px;background:#1a1430;border:1px solid #c8c0ff;border-radius:6px;padding:0 3px;line-height:11px}.nd.pt.lock{filter:grayscale(.7) brightness(.8)}
-  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v91) 0 0/2500% 100% no-repeat;flex:none}
+  .ic{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:3px;background:url(art/ui_icons.png?v=v92) 0 0/2500% 100% no-repeat;flex:none}
+  .btn .ic{width:auto;height:auto;margin:0;vertical-align:baseline;background-size:cover}   /* 战斗技能按钮也叫 .ic，别被界面小图标的尺寸覆盖 */
+  .tt{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.tt-col{background:#120f24ee;border:1px solid #3d3560;border-top:3px solid var(--c);border-radius:8px;padding:4px 3px}
+  .tt-h{text-align:center;font-weight:700;color:var(--c);font-size:12px;margin-bottom:2px}.tt-h small{color:#d8d0ea;font-weight:400}
+  .tt-row{display:flex;gap:3px;margin:3px 0}.tt-n{flex:1;min-width:0;height:36px;border-radius:6px;border:1px solid #4a4266;background:#1d1a33;color:#bdb6d6;font-size:10px;line-height:1.15;padding:2px;font-family:inherit;cursor:pointer}
+  .tt-n.on{background:linear-gradient(180deg,var(--c),#2a2244);color:#fff;border-color:#ffffff88;text-shadow:0 1px 2px #000}.tt-n.lk{opacity:.35}.tt-n.sk{border:1px dashed var(--c)}.tt-n.sk.on{border-style:solid}.tt-n.sel{outline:2px solid #ffe08a;outline-offset:-1px}
+  .tt-tip{text-align:center;color:#bbb6ce;font-size:11px;margin:4px 0}.tt-d{margin:8px 0}
+  #skill2{right:88px;bottom:82px;width:40px;height:40px;border:2px solid #ffb86a;color:#ffd8a8;font-size:10px;font-weight:700;display:none;background:conic-gradient(rgba(0,0,0,.7) calc(var(--cd,0)*1%),rgba(70,40,20,.85) 0)}#skill2 em{font-style:normal}
   .ic.lg{width:30px;height:30px;vertical-align:middle;margin-right:8px}.icw{white-space:nowrap}
   #nav div .ic{width:22px;height:22px;margin:0 0 1px}#nav div{line-height:1.1;font-size:11px!important;letter-spacing:1px!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center}
   #nav div:not(.on) .ic{filter:saturate(.55) brightness(.85)}
@@ -306,6 +313,7 @@
   <div id="hexV"></div>
   <div id="hint"></div>
   <div class="btn" id="skill"><b class="ic" id="skIc"></b><em id="skTx">技能</em></div>
+  <div class="btn" id="skill2"><em id="sk2Tx">天赋</em></div>
   <div class="btn" id="ult"><span><b class="ic" id="ulIc"></b><em id="ulTx">大招</em></span></div>
   <div id="toast"></div>
   <div id="banner"></div>
@@ -345,12 +353,12 @@
   <div class="ov" id="ad"><div class="panel"><p>激励视频（原型模拟）</p><div id="adN">2</div><p>完整观看后发放奖励</p></div></div>
 </div>
 
-<script src="content/raids_data.js?v=v91"></script>
-<script src="content/boss_tune.js?v=v91"></script>
-<script src="src/loop.js?v=v91"></script>
+<script src="content/raids_data.js?v=v92"></script>
+<script src="content/boss_tune.js?v=v92"></script>
+<script src="src/loop.js?v=v92"></script>
 <script>
 const $=id=>document.getElementById(id);
-const W=195,H=347,VERSION='v91';
+const W=195,H=347,VERSION='v92';
 let rand=Math.random;const TAU=Math.PI*2;   // rand 可替换：每日挑战用种子随机
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const angTo=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
@@ -1592,6 +1600,15 @@ function nova(r,d){rings.push({x:pl.x,y:pl.y,r0:4,r1:r,t:.4,T:.4,col:'#c99bff'})
 // ---------- 职业技能 ----------
 function slam(){const A=atkBase()*st.skillMul,r=55*st.skR;rings.push({x:pl.x,y:pl.y,r0:6,r1:r,t:.35,T:.35,col:'#ffb070'});G.shake=.25;
   for(const e of en){const dx=e.x-pl.x,dy=e.y-pl.y,q=Math.hypot(dx,dy)||1;if(q<r+e.r){dmg(e,A*3);if(!e.boss){e.frozenT=Math.max(e.frozenT,1);e.x+=dx/q*15;e.y+=dy/q*15;}}}}
+// 天赋技能（第二个技能按钮）：冷却随技能冷却加成一起缩短
+function castSkill2(){const S=G.tsk;if(!S||G.state!=='play'||G.phase!=='fight'||G.sealT>0)return;const A=atkBase()*st.skillMul,k=st.skillCd/CLS[G.cls].skCd,cd=c=>{G.sk2T=G.sk2Max=c*k;};
+  if(S.sk==='missiles'){if(!nearest(pl.x,pl.y,160))return;cd(7);for(let i=0;i<5;i++)G.sched.push({t:i*.14,fn:()=>{const t=nearest(pl.x,pl.y,170);if(!t)return;fxs('lightning',t.x,t.y-6,18,.2,0,0,1.1);rings.push({x:t.x,y:t.y,r0:2,r1:12,t:.2,T:.2,col:'#d2a8ff'});dmg(t,A*1.1,{col:'#d2a8ff'});}});}
+  else if(S.sk==='flamestrike'){let best=null,bn=0;for(const e of en){if(e.dead||e.prop||Math.hypot(e.x-pl.x,e.y-pl.y)>150)continue;const n=en.filter(q=>!q.dead&&Math.hypot(q.x-e.x,q.y-e.y)<36).length;if(n>bn){bn=n;best=e;}}
+    if(!best)return;cd(9);const x=best.x,y=best.y;rings.push({x,y,r0:36,r1:36,t:.5,T:.5,col:'#ff8a3a'});
+    G.sched.push({t:.5,fn:()=>{fxs('explosion',x,y,80,.4);for(const e of en)if(!e.dead&&Math.hypot(e.x-x,e.y-y)<36+(e.r||0)){dmg(e,A*3.5,{col:'#ff9a4a'});e.burnT=3;e.burnD=atkBase()*Math.max(st.burn,.3)*st.burnMul;}}});}
+  else if(S.sk==='frostnova'){if(!nearest(pl.x,pl.y,60))return;cd(8);fxs('frostCircle',pl.x,pl.y,110,.45);rings.push({x:pl.x,y:pl.y,r0:4,r1:55,t:.35,T:.35,col:'#9fe8ff'});
+    for(const e of en)if(!e.dead&&Math.hypot(e.x-pl.x,e.y-pl.y)<55+(e.r||0)){dmg(e,A*1.8,{col:'#9fe8ff'});if(!e.boss)e.frozenT=Math.max(e.frozenT||0,2);else e.slowT=2;}}
+  pl.castAt=G.t;pl.castDur=.5;}
 function castSkill(){
   if(G.state!=='play'||G.phase!=='fight'||G.skillT>0||G.sealT>0)return;
   const A=atkBase()*st.skillMul,t=nearest(pl.x,pl.y,130);
@@ -1873,7 +1890,7 @@ function update(dt){
   if(st.windHeal&&G.phase==='fight'&&(G.windT=(G.windT||8)-dt)<=0){G.windT=8;const a=Math.round(pl.maxHp*.08);pl.hp=Math.min(pl.maxHp,pl.hp+a);num(pl.x,pl.y-12,'+'+a,'#7dff8a',true);burst(pl.x,pl.y,10,'#9fffd0',40,.5);}
   if(st.orbital&&G.phase==='fight'&&(G.orbT-=dt)<=0){G.orbT=6;const t=nearest(pl.x,pl.y,400);if(t){const R=G.rm;G.beams.push({x:t.x-7,y:R.y-30,w:14,h:R.h+40,t:.35,T:.35,col:'#ff6a6a'});
     for(const e of en)if(!e.dead&&Math.abs(e.x-t.x)<7+e.r)dmg(e,atkBase()*3,{col:'#ff8a8a'});}}
-  G.skillT-=dt;G.ultT-=dt;if(G.boss&&G.boss.essence&&!G.boss.dead)G.ultT-=dt;G.energy=clamp((1-G.ultT/st.ultCd)*100,0,100);
+  G.skillT-=dt;G.sk2T=(G.sk2T||0)-dt;G.ultT-=dt;if(G.boss&&G.boss.essence&&!G.boss.dead)G.ultT-=dt;G.energy=clamp((1-G.ultT/st.ultCd)*100,0,100);
   if(G.skT>0){G.skT-=dt;if((G.skTick-=dt)<=0){G.skTick=.15;const r=40*st.skR;for(const e of en)if(!e.dead&&Math.hypot(e.x-pl.x,e.y-pl.y)<r+e.r)dmg(e,atkBase()*st.skillMul*.8,{col:'#e9fdff'});}}
   if(G.after>0&&(G.after-=dt)<=0)slam();
   for(const a of G.arrowRains){a.t-=dt;if((a.pulse-=dt)<=0){a.pulse=.2;for(const e of en)if(!e.dead&&Math.hypot(e.x-a.x,e.y-a.y)<a.r+e.r)dmg(e,atkBase()*st.skillMul*.9,{col:'#c8f0a0'});}}
@@ -1882,6 +1899,7 @@ function update(dt){
   if(st.frostNova&&G.phase==='fight'&&(G.frostT-=dt)<=0){G.frostT=5;rings.push({x:pl.x,y:pl.y,r0:4,r1:35,t:.35,T:.35,col:'#9fe8ff'});
     for(const e of en)if(!e.dead&&Math.hypot(e.x-pl.x,e.y-pl.y)<35+e.r){if(!e.boss)e.frozenT=Math.max(e.frozenT,1);dmg(e,atkBase()*.5,{col:'#9fe8ff'});}}
   if(G.phase==='fight'&&G.skillT<=0&&nearest(pl.x,pl.y,110))castSkill();
+  if(G.tsk&&G.phase==='fight'&&G.sk2T<=0&&nearest(pl.x,pl.y,120))castSkill2();
   // 首领战下限 ~22 秒：第 8 秒按实际输出估算，剩余撑不到就按比例抬高血量（最多 3 倍）；构筑再强也不会被秒
   {const b=G.boss;if(b&&!b.dead&&G.cfg&&G.cfg.type==='big'){if(b!==G.bTrk){G.bTrk=b;G.bDmg=0;G.bT=0;G.bChk=0;}G.bT+=dt;
     if(!G.bChk&&G.bT>=8){G.bChk=1;const dps=G.bDmg/G.bT,left=b.hp/Math.max(1,dps),need=22-G.bT;if(left<need){const k=Math.min(3,need/Math.max(1,left));b.max*=k;b.hp*=k;}}}}
@@ -2170,6 +2188,7 @@ function hud(){
   const c=G.cfg;hT('killT',`地牢 ${G.ri+1}/${G.rooms.length} · `+(c.type==='normal'?`剩余 ${c.quota-G.spawned+en.length}`:c.type==='mini'?'精英':(isChief(G.L)?'尾王':'首领')));
   const bf=[`金币 ${G.gold||0}`];if(st.soul)bf.push(`超凡邪恶 ${Math.min(300,G.souls)}`);if(st.warmup&&G.warm)bf.push(`热身 ${G.warm}`);if(G.rushT>0&&st.rush)bf.push('兴奋起来');if(st.basics)bf.push('回归基本功');if(G.sealT>0)bf.push(`封印 ${Math.ceil(G.sealT)}s`);if(G.adrT>0)bf.push(`燃烧刺激 ${Math.ceil(G.adrT)}s`);if(G.critBuffT>0)bf.push(`孢子之力 ${Math.ceil(G.critBuffT)}s`);
   if(G.songT>0)bf.push(`战歌 ${Math.ceil(G.songT)}s`);if(pl.frozenT>0)bf.push('冻结');if(G.pSlowT>0)bf.push('减速');hT('buffT',bf.join(' · '));
+  hS('skill2','display',G.tsk?'grid':'none');if(G.tsk){hP('skill2','--cd',String(Math.max(0,G.sk2T/(G.sk2Max||1)*100)));hT('sk2Tx',G.tsk.n.slice(0,2));}
   hP('skill','--cd',String(Math.max(0,G.skillT/st.skillCd*100)));hC('skill','seal',G.sealT>0);
   hC('bossBar','on',!!G.boss&&G.state!=='pick');
   if(G.boss){hS('bossI','width',pc(Math.max(0,G.boss.hp/G.boss.max*100)));
@@ -2441,8 +2460,11 @@ function renderHub(v){HUB.v=v;heroArt(selCls);liveLoad(selCls);const A=PROG.acc,
     V.innerHTML=`<div style="margin-bottom:8px">背包 ${PROG.inv.length}/60　<span style="color:#c8c0ff">尘 ${PROG.dust||0}　徽记 ${PROG.marks||0}</span><button class="b ghost sm" id="bestEq" style="float:right">一键穿推荐</button><br><span style="color:#9a94c0;font-size:11px">↑ 表示比身上的更好；尘用来强化 / 重铸，分解装备获得</span></div><div class="bag">${items.map(it=>`<div class="it${eqIds.includes(it.id)?' eq':''}" data-id="${it.id}" style="border-color:${RAR[it.rar][1]}">${!eqIds.includes(it.id)&&isUpgrade(it)?'<i style="position:absolute;right:1px;top:-2px;color:#7dff8a;font-style:normal;font-weight:900">↑</i>':''}${it.up?`<i style="position:absolute;left:1px;bottom:-2px;color:#ffd77a;font-style:normal;font-size:9px">+${it.up}</i>`:''}</div>`).join('')||`<div class="bag-empty" style="grid-column:1/-1">${icon('chest')}背包还是空的<br><small>打首领、精英会掉装备</small></div>`}</div><div id="itip"></div>`;
     V.querySelectorAll('.it').forEach(el=>el.append(itemIcon(PROG.inv.find(x=>x.id===+el.dataset.id))));if(HUB.sel)showItem(HUB.sel);}
   else if(v==='tal'){const lock=HEX.filter(h=>h.tier===3&&fitsFor(h,selCls)&&!hexOpen(h));
-    V.innerHTML=`<div class="hname" style="font-size:15px">天赋　<span style="color:#ffd77a">可用 ${talPts()} 点</span></div><p style="text-align:center;color:#9a94c0;font-size:11px">账号每升 1 级获得 1 点，可以随时加减</p>
-      ${TALENTS.map(T=>`<div class="itip" style="margin:4px 0;display:flex;align-items:center;gap:6px">${icon(T.ic,"lg")}<div style="flex:1"><b>${T.n}</b> ${talR(T.id)}/${T.max}<br><small style="color:#9a94c0">${T.d}</small></div><button class="b ghost sm" data-tal="${T.id}" data-d="-">－</button><button class="b sm" data-tal="${T.id}" data-d="+">＋</button></div>`).join('')}
+    const T=ttOf(selCls),m=ttMine(selCls),sel=HUB.ttSel&&T&&T.flatMap((tr,ti)=>tr.nodes.map(n=>[ti,n])).find(x=>x[1].id===HUB.ttSel);
+    V.innerHTML=`<div class="hname" style="font-size:15px">${CLS[selCls].n}天赋　<span style="color:#ffd77a">剩余 ${ttPts(selCls)} 点</span></div><p class="tt-tip">账号每 2 级 1 点，最多 ${TT_MAX} 点：一系点满，再点另一系一半。某系投入的点数够了才解锁下一层。重置免费</p>
+      ${T?`<div class="tt">${T.map((tr,ti)=>`<div class="tt-col" style="--c:${tr.c}"><div class="tt-h">${tr.n} <small>${ttSpent(selCls,ti)}</small></div>${[0,1,2,3,4].map(t=>`<div class="tt-row">${tr.nodes.filter(n=>n.t===t).map(n=>`<button class="tt-n${m[n.id]?' on':''}${ttOpen(selCls,ti,n)?'':' lk'}${n.sk?' sk':''}${HUB.ttSel===n.id?' sel':''}" data-tt="${n.id}">${n.n}</button>`).join('')}</div>`).join('')}</div>`).join('')}</div>
+      ${sel?`<div class="itip tt-d"><b style="color:${T[sel[0]].c}">${sel[1].n}</b>　<small>${T[sel[0]].n}系 · 第 ${sel[1].t+1} 层${sel[1].t?`（该系需 ${sel[1].t*2} 点）`:''}</small><br>${sel[1].d}<br>${m[sel[1].id]?(sel[1].sk?((PROG.tsk||{})[selCls]===sel[1].sk?'<span style="color:#7dff8a">已带上场</span>':`<button class="b sm" data-tsk="${sel[1].sk}">带上场</button>`):'<span style="color:#7dff8a">已学会</span>'):`<button class="b sm" data-ttl="${sel[0]}:${sel[1].id}">学习（1 点）</button>`}</div>`:'<p class="tt-tip">点一个天赋查看效果；虚线框是天赋技能（战斗中第二个技能按钮），三系里选一个带上场</p>'}
+      <button class="b ghost sm" id="ttReset">重置天赋</button>`:'<p class="tt-tip">这个职业的天赋树还在制作中，目前只有法师</p>'}
       <div class="hname" style="font-size:15px;margin-top:10px">卡池解锁　<span style="color:#ffd77a">徽记 ${PROG.marks||0}</span></div><p style="text-align:center;color:#9a94c0;font-size:11px">棱彩海克斯要先用徽记解锁才会出现（${CLS[selCls].n}）</p>
       ${lock.map(h=>`<div class="itip" style="margin:4px 0;display:flex;align-items:center;gap:6px">${icon("hex","lg")}<div style="flex:1"><b>${h.n}</b> <small style="color:#9a94c0">${tn(h.tag)}</small><br><small>${h.d}</small></div><button class="b sm" data-unl="${h.id}">2 徽记</button></div>`).join('')||'<p style="text-align:center;color:#7dff8a">本职业的棱彩海克斯已全部解锁</p>'}`;}
   else if(v==='codex'){V.innerHTML=`<div class="hname" style="font-size:15px">首领图鉴</div><p style="text-align:center;color:#9a94c0;font-size:11px">出发前先看机制：局内不会再提示</p>${codexHTML()}<div class="hname" style="font-size:15px;margin-top:10px">成就</div>${achHTML()}`;}
@@ -2470,7 +2492,10 @@ $('hubView').addEventListener('click',e=>{const V=$('hubView');
   if(e.target.id==='exwStar'){const w=exwOf(selCls);if(w)exwStar(w);renderHub('hero');return;}
   if(e.target.id==='exwOn'){const w=exwOf(selCls);if(w){PROG.eq.wpn=w.id;saveProg();}renderHub('hero');return;}
   if(e.target.id==='bestEq'){const b=bestPerSlot();for(const k in b)PROG.eq[k]=b[k].id;saveProg();achCheck();renderHub('bag');return;}
-  {const t=e.target.closest('[data-tal]');if(t){const T=TALENTS.find(x=>x.id===t.dataset.tal),r=talR(T.id);if(t.dataset.d==='+'){if(talPts()<1||r>=T.max)return;PROG.talent[T.id]=r+1;}else if(r>0)PROG.talent[T.id]=r-1;saveProg();achCheck();renderHub('tal');return;}}
+  {const t=e.target.closest('[data-tt]');if(t){HUB.ttSel=t.dataset.tt;renderHub('tal');return;}}
+  {const t=e.target.closest('[data-ttl]');if(t){const[ti,id]=t.dataset.ttl.split(':');ttLearn(selCls,+ti,id);achCheck();renderHub('tal');return;}}
+  {const t=e.target.closest('[data-tsk]');if(t){(PROG.tsk=PROG.tsk||{})[selCls]=t.dataset.tsk;saveProg();renderHub('tal');return;}}
+  if(e.target.closest('#ttReset')){if(confirm('重置本职业的天赋？点数全部返还')){ttReset(selCls);HUB.ttSel=null;renderHub('tal');}return;}
   {const t=e.target.closest('[data-unl]');if(t){unlockHex(t.dataset.unl);renderHub('tal');return;}}
   if(e.target.id==='toHome'){show('hub','hero');return;}
   if(e.target.id==='sndB2'){toggleMute();renderHub('set');return;}
@@ -2581,9 +2606,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()
 if(Q.has('lv')||Q.has('boss')){show('start');}
 requestAnimationFrame(frame);
 </script>
-<script src="content/skill_fx.js?v=v91"></script>
-<script src="src/raid_engine.js?v=v91"></script>
-<script src="content/rigs.js?v=v91"></script>
-<script src="src/rig.js?v=v91"></script>
+<script src="content/skill_fx.js?v=v92"></script>
+<script src="src/raid_engine.js?v=v92"></script>
+<script src="content/rigs.js?v=v92"></script>
+<script src="src/rig.js?v=v92"></script>
 </body>
 </html>
